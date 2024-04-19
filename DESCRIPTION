@@ -1,12 +1,12 @@
 Package: waterNETN
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+Title: Package for importing, querying, summarizing and visualizing NETN water data
+Version: 1.0
+Authors@R: c(
+    person('Kate', 'Miller', email = 'kathryn_miller@nps.gov', role = c('aut', 'cre')),
+    person('Jess', 'Pollack', role = 'aut'),
+    person('Kathleen', 'Brown', role = 'aut'))
+Description: This package contains functions that import the water data package from the NETN water backend and or exported CSVs of the water data package to perform basic queries, data summaries and visualizations.
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
