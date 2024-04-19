@@ -30,19 +30,40 @@ importData <- function(path = NA, new_env = TRUE){
   if(!dir.exists(path)){stop("Specified path does not exist.")}
   path <- if(!grepl("/$", path)){paste0(path, "/")}
 
+  # create new environment if new_env = T or set env as Global
   if(new_env == TRUE){VIEWS_WQ <<- new.env()}
   env <- if(new_env == TRUE){VIEWS_WQ} else {.GlobalEnv}
 
+  # Create vector of file names in path that end in .csv (ie the data package views)
   dp_list <- list.files(path, pattern = ".csv")
 
+  # Setup progress bar
+  pb <- txtProgressBar(min = 0, max = length(dp_list), style = 3)
+
+  # Import the file names by applying read.csv to the dp_list of file names
+  # This will return one list that includes all the datasets as individual elements
   dp_files <- lapply(seq_along(dp_list),
                 function(x){
                   fname = dp_list[[x]]
-                  print(fname)
+                  setTxtProgressBar(pb, x)
                   read.csv(paste0(path, fname))
          })
 
-  dp_files <- setNames(dp_files, dp_list)
+  # Drop everything after the 2nd "_" in the file name
+  dp_list2 <- sub("([A-Za-z]+_[A-Za-z]+).*", "\\1", dp_list)
+
+  # Set the names of dp_files as the shorter dp_list2 names
+  dp_files <- setNames(dp_files, dp_list2)
+
+  # Takes every element of the dp_files list and saves it to the VIEWS_WQ or global
+  # environment as separate, named objects.
   list2env(dp_files, envir = env)
 
+  # Close progress bar
+  close(pb)
+
+  # Print message in console
+  print(ifelse(new_env == TRUE,
+               paste0("Import complete. Views are located in VIEWS_WQ environment."),
+               paste0("Import complete. Views are located in global environment.")), quote = FALSE)
 }
