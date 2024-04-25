@@ -5,7 +5,7 @@ Authors@R: c(
     person('Kate', 'Miller', email = 'kathryn_miller@nps.gov', role = c('aut', 'cre')),
     person('Jess', 'Pollack', role = 'aut'),
     person('Kathleen', 'Brown', role = 'aut'))
-Description: This package contains functions that import the water data package from the NETN water backend and or exported CSVs of the water data package to perform basic queries, data summaries and visualizations.
+Description: This package contains functions that import the water data package from the NETN water backend and or exported CSVs of the water data package, along with gridded climate and weather station data to perform basic queries, data summaries and visualizations.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -15,5 +15,20 @@ BugReports: https://github.com/KateMMiller/waterNETN/issues
 Collate: 
     'exportData.R'
     'getSites.R'
-    'getClimateData.R'
+    'getClimDaymet.R'
+    'getClimWStat.R'
     'importData.R'
+Imports: 
+    dplyr,
+    purrr,
+    tidyr
+Suggests: 
+    daymetr,
+    DBI,
+    httr,
+    jsonlite,
+    odbc,
+    zip
+Depends: 
+    R (>= 4.0)
+LazyData: true
