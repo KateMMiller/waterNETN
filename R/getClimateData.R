@@ -33,7 +33,7 @@
 #' \item{"stream"}{Include streams only.}
 #' }
 #'
-#' @param years Vector of years to download Daymet data for. Earliest available year is 1980. Latest is currently 2023.
+#' @param years Vector of years to download Daymet data for. Earliest available year is 1980. Latest is currently 12/31/2023.
 #'
 #' @param export Logical. If TRUE, will export a CSV of the compiled Daymet data with a date stamp. Must supply
 #' a filepath to write output to. If FALSE (Default), will only return results to R environment.
