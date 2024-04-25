@@ -6,16 +6,16 @@
 #'
 #' @param type Select how to import the data package.
 #' \describe{
-#' \item("DSN"){Default. DSN database. If odbc is not specified, will default to NETNWQ_DP.
+#' \item{"DSN"}{Default. DSN database. If odbc is not specified, will default to NETNWQ_DP.
 #' Using this argument requires that you have a User DSN named NETNWQ_DP that points to the
 #' database containing the data package queries. Note that the database that generates
 #' the data package views must also be linked to the latest NETN WQ backend.}
-#' \item("dbfile"){A specified database containing the data package queries for each view. If selected,
+#' \item{"dbfile"}{A specified database containing the data package queries for each view. If selected,
 #' must provide the database filepath in the filepath argument.}
-#' \item("csv"){Imports the csv version of the data package views. If selected, must provide the
+#' \item{"csv"}{Imports the csv version of the data package views. If selected, must provide the
 #' filepath for the csvs in the filepath argument. This option that does not require MS Access and
 #' ODBC driver on your computer.}
-#' \item("zip"){Imports the csv versions of the data package views, as a zipped file. If selected,
+#' \item{"zip"}{Imports the csv versions of the data package views, as a zipped file. If selected,
 #' must provide the filepath and name of the zip file. This option that does not require MS Access and
 #' ODBC driver on your computer.}
 #' }

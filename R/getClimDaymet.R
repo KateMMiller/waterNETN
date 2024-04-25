@@ -1,11 +1,11 @@
 #' @include getSites.R
 #'
-#' @title getClimateData: Download daily Daymet gridded climate data
+#' @title getClimDaymet: Download daily Daymet gridded climate data
 #'
-#' @description This function downloads daily climate data for each selected NETN water monitoring site
-#' based on its lat/long coordinates, and binds each site's data into a single dataframe. Final dataframe
-#' can also be written to disk (export = T). If downloading for all sites and multiple years, function
-#' may be slow.
+#' @description This function downloads daily gridded climate data from Daymet for each selected NETN
+#' water monitoring site based on its lat/long coordinates, and binds each site's data into a single
+#' dataframe. Final dataframe can also be written to disk (export = T). If downloading for all sites
+#' and multiple years, function may be slow.
 #'
 #' @importFrom dplyr select
 #' @importFrom tidyr pivot_wider
@@ -51,28 +51,37 @@
 #' library(waterNETN)
 #' importData()
 #'
-#' #++++++ ADD EXAMPLES +++++++
+#' # download for MORR 2023 only and export to csv
+#' morr <- getClimDaymet(park = "MORR", years = 2023, filepath = "C:/data", export = T)
+#'
+#' # download for ACAD lakes from 1980:2023
+#' acad_lakes <- getClimDaymet(park = "ACAD", site_type = "lake", years = 1980:2023)
 #'
 #'}
 #'
 #' @export
 
-getClimateData <- function(park = "all", site = "all",
-                           site_type = c("all", "lake", "stream"),
-                           years = c(2006:2023),
-                           filepath = NA, export = FALSE,
-                           silent = TRUE){
+getClimDaymet <- function(park = "all", site = "all",
+                          site_type = c("all", "lake", "stream"),
+                          years = c(2006:2023),
+                          filepath = NA, export = FALSE,
+                          silent = TRUE){
 
   # Check that suggested package required for this function are installed
-  if(!requireNamespace("daymetr", quietly = TRUE) & zip == TRUE){
-    stop("Package 'daymetr' needed to download climate data. Please install it.", call. = FALSE)
+  if(!requireNamespace("daymetr", quietly = TRUE)){
+    stop("Package 'daymetr' needed to download Daymet data. Please install it.", call. = FALSE)
   }
 
   stopifnot(class(silent) == 'logical')
-  stopifnot(class(years) == "numeric", class >= 1980)
+  stopifnot(class(years) %in% c("numeric", "integer"), years >= 1980)
 
-  #++++ ADD CHECK FOR FILEPATH IF EXPORT = T ++++
-  # And check that file path exists
+  if(export == TRUE){
+    if(is.na(filepath)){stop(paste0("Must specify a filepath to the database when export = TRUE"))
+    } else if(!file.exists(filepath)){
+        stop("Specified file path does not exist.")}
+
+    if(!grepl("/$", filepath)){filepath <- paste0(filepath, "/")} # add / to end of filepath if doesn't exist
+  }
 
   # Create list of lat/longs to generate
   sites <- force(getSites(park = park, site = site, site_type = site_type)) |>
@@ -94,7 +103,20 @@ getClimateData <- function(park = "all", site = "all",
   cdata_wide <- cdata_long |> pivot_wider(names_from = measurement, values_from = value) |> data.frame()
   colnames(cdata_wide) <- gsub("\\.\\.", "_", names(cdata_wide))
   colnames(cdata_wide) <- gsub("\\.", "", names(cdata_wide))
+  newnames <- c(names(cdata_wide[1:7]), paste0("dm_", names(cdata_wide[8:14])))
+  colnames(cdata_wide) <- newnames
 
-  return(cdata_wide)
+  cdata_wide$Date <- as.Date(cdata_wide$yday, origin = paste0(cdata_wide$year, "-01-01"))
+
+  cdata_final <- cdata_wide |> select(SiteCode = site, dm_tile = tile,
+                                      SiteLatitude = latitude, SiteLongitude = longitude,
+                                      altitude, Date, year, yday, dm_dayl_s, dm_prcp_mmday,
+                                      dm_srad_Wm2, dm_swe_kgm2, dm_tmax_degc, dm_tmin_degc, dm_vp_Pa)
+
+  if(export == TRUE){write.csv(cdata_final,
+                               paste0(filepath, "Daymet_climate_data_", min(years), "-", max(years), ".csv"),
+                               row.names = F)}
+
+  return(cdata_final)
 
 }
