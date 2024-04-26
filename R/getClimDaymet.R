@@ -5,7 +5,11 @@
 #' @description This function downloads daily gridded climate data from Daymet for each selected NETN
 #' water monitoring site based on its lat/long coordinates, and binds each site's data into a single
 #' dataframe. Final dataframe can also be written to disk (export = T). If downloading for all sites
-#' and multiple years, function may be slow.
+#' and multiple years, function may be slow. The returned data frame includes
+#' Day length (dayl in s/day), Precipitation (prcp in mm/day), Shortwave radiation (srad in W/m2),
+#' Snow water equivalent (swe in kg/m2), Maximum air temperature (tmax in C), Minimum air temperature (tmin in C),
+#' and Water vapor pressure (vp in Pascals). More details on metrics can be found online:
+#' https://daymet.ornl.gov/overview.html > Parameters, Parameter abbreviations, Units and Descriptions.
 #'
 #' @importFrom dplyr select
 #' @importFrom tidyr pivot_wider
@@ -43,11 +47,7 @@
 #' @param silent Logical. If TRUE (Default), won't show Daymet comments in console. If FALSE, will print Daymet comments
 #' as sign of progress (and working) in console.
 #'
-#' @return Data frame of Daymet daily climate data for each specified site. The returned data frame includes
-#' Day length (dayl in s/day), Precipitation (prcp in mm/day), Shortwave radiation (srad in W/m2),
-#' Snow water equivalent (swe in kg/m2), Maximum air temperature (tmax in C), Minimum air temperature (tmin in C),
-#' and Water vapor pressure (vp in Pascals). More details on metrics can be found online:
-#' https://daymet.ornl.gov/overview.html > Parameters, Parameter abbreviations, Units and Descriptions.
+#' @return Data frame of Daymet daily climate data for each specified site.
 #'
 #' @examples
 #' \dontrun{
