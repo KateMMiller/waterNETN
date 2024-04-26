@@ -58,6 +58,9 @@
 #' \item{"REP"}{Field replicate}
 #' }
 #'
+#' @param sample_depth Filter on sample depth. If "all" (Default), returns all sample depths. If "surface",
+#' only returns the record with the smallest sample depth (i.e., the surface). NOT ENABLED YET.
+#'
 #' @param include_censored Logical. If TRUE, the value column includes non-censored and censored values
 #' using the MDL/MRL/UQL values in the parameter flags. If the Flag column is not NA, that indicates
 #' the value is a censored value. If FALSE (Default), only non-censored values are returned in the value column.
@@ -92,6 +95,7 @@ getChemistry <- function(park = "all", site = "all",
                      months = 5:10,
                      QC_type = c("ENV", "all", "BLANK", "LABREP", "REP", "DUP"),
                      sample_type = c("all", "G", "C"),
+                     sample_depth = c("all", "surface"),
                      parameter = "all", include_censored = FALSE,
                      output = c("short", "verbose")){
 
@@ -103,8 +107,8 @@ getChemistry <- function(park = "all", site = "all",
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   output <- match.arg(output)
   stopifnot(class(include_censored) == "logical")
-  QC_type <- match.arg(QC_type)
-  sample_type <- match.arg(sample_type)
+  QC_type <- match.arg(QC_type, several.ok = TRUE)
+  sample_type <- match.arg(sample_type, several.ok = TRUE)
 
   # Check if the views exist and stop if they don't
   env <- if(exists("VIEWS_WQ")){VIEWS_WQ} else {.GlobalEnv}
@@ -181,15 +185,15 @@ getChemistry <- function(park = "all", site = "all",
 
   # filters for params, sampletype, qctype
   chem_comb2 <-
-  if(parameter == "all"){chem_comb
+  if(any(parameter == "all")){chem_comb
   } else {filter(chem_comb, param %in% parameter)}
 
   chem_comb3 <-
-    if(sample_type == "all"){chem_comb2
+    if(any(sample_type == "all")){chem_comb2
     } else {filter(chem_comb2, SampleType %in% sample_type)}
 
   chem_comb4 <-
-    if(QC_type == "all"){chem_comb3
+    if(any(QC_type == "all")){chem_comb3
     } else {filter(chem_comb3, QCtype %in% QC_type)}
 
   chem_comb5 <-

@@ -12,6 +12,7 @@ getChemistry(
   months = 5:10,
   QC_type = c("ENV", "all", "BLANK", "LABREP", "REP", "DUP"),
   sample_type = c("all", "G", "C"),
+  sample_depth = c("all", "surface"),
   parameter = "all",
   include_censored = FALSE,
   output = c("short", "verbose")
@@ -55,6 +56,9 @@ getChemistry(
 \item{"all"}{Include all sample types}
 \item{"C"}{Include Core samples only}
 \item{"G"}{Include Grab samples only}}}
+
+\item{sample_depth}{Filter on sample depth. If "all" (Default), returns all sample depths. If "surface",
+only returns the record with the smallest sample depth (i.e., the surface). NOT ENABLED YET.}
 
 \item{parameter}{Specify the chemical parameter(s) to return. Note if additional parameters are added to the Chemistry view, there will be additional
 to the views, they will be added as accepted values in this function. Current accepted values are:.
