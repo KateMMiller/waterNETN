@@ -63,7 +63,17 @@ to daily value. ACAD NADP Precip data only go back to 2008.
 library(waterNETN)
 importData()
 
-#++++++ ADD EXAMPLES +++++++
+# get weather data for ROVA sites from 2020-2023
+rova <- getClimWStat(park = "ROVA", years = 2020:2023)
+
+# get weather data for the Pogue (if can't remember the sitecode)
+mabi <- getClimWStat(park = "MABI", site_type = "lake")
+
+# get weather data for 2023 for all lakes in ACAD (this will be slow)
+acad_lakes <- getClimWStat(park = "ACAD", years = 2023, site_type = 'lake')
+
+# get weather data for Aunt Betty Inlet for 2022 and 2023
+abin <- getClimWStat(site = "ACABIN", years = 2022:2023)
 
 }
 

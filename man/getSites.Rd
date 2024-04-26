@@ -38,3 +38,17 @@ columns that the Site_Lake and Site_Stream views have in common. For full site d
 functions (i.e., getSitesLakes()). This function is a useful building block within other package functions. Must
 have water quality views imported in R session.
 }
+\examples{
+\dontrun{
+importData()
+
+# get site info for all sites in MABI
+mabi <- getSites(park = "MABI")
+
+# get site info for all streams in ACAD
+ACAD_streams <- getSites(park = 'ACAD', site_type = 'stream')
+
+# get site info East Primrose Brook in MORR
+east_prim <- getSites(site = "MORRSA")
+}
+}

@@ -28,9 +28,9 @@
 #' \item{"stream"}{Include streams only.}
 #' }
 #'
-#' @years Numeric. Years to query. Accepted values start at 2006.
+#' @param years Numeric. Years to query. Accepted values start at 2006.
 #'
-#' @months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
+#' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 #' events are between months 5 and 10, and these are set as the defaults.
 #'
 #' @param output Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)
@@ -43,10 +43,11 @@
 #' "TotDissN", "TotDissN_mgL", "TotDissP", "TotDissP_ugL", "TP", "TP_ugL")
 #'
 #' @param sample_type Filter on sample type.
-#' \@describe{
+#' \describe{
 #' \item{"all"}{Include all sample types}
 #' \item{"C"}{Include Core samples only}
-#' \item{"G"}{Include Grab samples only}}
+#' \item{"G"}{Include Grab samples only}
+#' }
 #'
 #' @param QC_type Specify QC type to return.
 #' \describe{
@@ -87,6 +88,7 @@
 #'
 #' # get site info for 2 streams in MORR with full output
 #' morr_sites <- getChemistry(site = c("MORRSA", "MORRSB"), output = 'verbose')
+#' }
 #' @export
 
 getChemistry <- function(park = "all", site = "all",
@@ -136,7 +138,7 @@ getChemistry <- function(park = "all", site = "all",
                  "SubUnitName", "SiteCode", "SiteName", "EventDate",
                  "year", "month", "doy", "EventCode", "QCtype", "LabCode",
                  "SampleTime", "SampleDepth_m", "SampleType", "Comments", "IsEventCUI")
-
+sort(unique(getSites()$SiteCode))
   # Filter by site, years, and months to make data set small
   sites <- force(getSites(park = park, site = site, site_type = site_type))$SiteCode
   evs <- force(getEvents(park = park, site = site, site_type = site_type,

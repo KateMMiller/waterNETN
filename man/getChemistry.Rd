@@ -41,6 +41,11 @@ getChemistry(
 \item{"stream"}{Include streams only.}
 }}
 
+\item{years}{Numeric. Years to query. Accepted values start at 2006.}
+
+\item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
+events are between months 5 and 10, and these are set as the defaults.}
+
 \item{QC_type}{Specify QC type to return.
 \describe{
 \item{"all"}{Include all QC types.}
@@ -52,10 +57,11 @@ getChemistry(
 }}
 
 \item{sample_type}{Filter on sample type.
-\@describe{
+\describe{
 \item{"all"}{Include all sample types}
 \item{"C"}{Include Core samples only}
-\item{"G"}{Include Grab samples only}}}
+\item{"G"}{Include Grab samples only}
+}}
 
 \item{sample_depth}{Filter on sample depth. If "all" (Default), returns all sample depths. If "surface",
 only returns the record with the smallest sample depth (i.e., the surface). NOT ENABLED YET.}
@@ -78,4 +84,24 @@ Data frame of chemistry data in long form.
 }
 \description{
 Queries NETN water chemistry data by site, event, and parameter.
+}
+\examples{
+\dontrun{
+importData()
+
+# get events for all sites in MABI from 2021-2023
+mabi <- getChemistry(park = "MABI", years = 2021:2023)
+
+# get events for SARA sites sampled in 2019 and 2023
+sara <- getChemistry(park = "SARA", years = c(2019, 2023))
+
+# get events for MIMA and SAIR
+ma_parks <- getChemistry(park = c("SAIR", "MIMA"))
+
+# get info for all ACAD lakes sampled in April
+ACAD_lake4<- getChemistry(park = 'ACAD', site_type = 'lake', months = 4)
+
+# get site info for 2 streams in MORR with full output
+morr_sites <- getChemistry(site = c("MORRSA", "MORRSB"), output = 'verbose')
+}
 }

@@ -36,6 +36,11 @@ getEvents(
 \item{"stream"}{Include streams only.}
 }}
 
+\item{years}{Numeric. Years to query. Accepted values start at 2006.}
+
+\item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
+events are between months 5 and 10, and these are set as the defaults.}
+
 \item{output}{Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)}
 }
 \value{
@@ -44,4 +49,24 @@ Data frame of event info
 \description{
 Queries NETN water data by site and event. Returned data frame can include lakes or streams, but only includes
 columns that the Site_Lake and Site_Stream views have in common.
+}
+\examples{
+\dontrun{
+importData()
+
+# get events for all sites in MABI from 2021-2023
+mabi <- getEvents(park = "MABI", years = 2021:2023)
+
+# get events for SARA sites sampled in 2019 and 2023
+sara <- getEvents(park = "SARA", years = c(2019, 2023))
+
+# get events for MIMA and SAIR
+ma_parks <- getEvents(park = c("SAIR", "MIMA"))
+
+# get info for all ACAD lakes sampled in April
+ACAD_lake4<- getEvents(park = 'ACAD', site_type = 'lake', months = 4)
+
+# get site info for 2 streams in MORR with full output
+morr_sites <- getEvents(site = c("MORRSA", "MORRSB"), output = 'verbose')
+}
 }

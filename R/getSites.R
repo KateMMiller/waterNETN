@@ -43,6 +43,7 @@
 #'
 #' # get site info East Primrose Brook in MORR
 #' east_prim <- getSites(site = "MORRSA")
+#' }
 #' @export
 
 getSites <- function(park = "all", site = "all", site_type = c("all", "lake", "stream")){

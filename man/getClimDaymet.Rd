@@ -48,7 +48,11 @@ a filepath to write output to. If FALSE (Default), will only return results to R
 as sign of progress (and working) in console.}
 }
 \value{
-Data frame of Daymet daily climate data for each specified site.
+Data frame of Daymet daily climate data for each specified site. The returned data frame includes
+Day length (dayl in s/day), Precipitation (prcp in mm/day), Shortwave radiation (srad in W/m2),
+Snow water equivalent (swe in kg/m2), Maximum air temperature (tmax in C), Minimum air temperature (tmin in C),
+and Water vapor pressure (vp in Pascals). More details on metrics can be found online:
+https://daymet.ornl.gov/overview.html > Parameters, Parameter abbreviations, Units and Descriptions.
 }
 \description{
 This function downloads daily gridded climate data from Daymet for each selected NETN

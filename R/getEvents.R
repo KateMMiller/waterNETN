@@ -27,9 +27,9 @@
 #' \item{"stream"}{Include streams only.}
 #' }
 #'
-#' @years Numeric. Years to query. Accepted values start at 2006.
+#' @param years Numeric. Years to query. Accepted values start at 2006.
 #'
-#' @months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
+#' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 #' events are between months 5 and 10, and these are set as the defaults.
 #'
 #' @param output Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)
@@ -55,6 +55,7 @@
 #'
 #' # get site info for 2 streams in MORR with full output
 #' morr_sites <- getEvents(site = c("MORRSA", "MORRSB"), output = 'verbose')
+#' }
 #' @export
 
 getEvents <- function(park = "all", site = "all",
