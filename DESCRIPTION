@@ -17,6 +17,7 @@ Collate:
     'getSites.R'
     'getClimDaymet.R'
     'getClimWStat.R'
+    'getEvents.R'
     'importData.R'
 Imports: 
     dplyr,

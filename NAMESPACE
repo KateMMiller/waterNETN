@@ -3,6 +3,7 @@
 export(exportData)
 export(getClimDaymet)
 export(getClimWStat)
+export(getEvents)
 export(getSites)
 export(importData)
 importFrom(dplyr,arrange)
