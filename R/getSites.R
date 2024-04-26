@@ -101,6 +101,11 @@ getSites <- function(park = "all", site = "all", site_type = c("all", "lake", "s
 
   if(nrow(wdata2) == 0){stop("Returned data frame with no records. Check your park, site, and site_type arguments.")}
 
+  # Clean up data, so columns are treated correctly
+  wdata2$IsPointCUI <- as.logical(wdata2$IsPointCUI)
+  wdata2$SiteLatitude <- as.numeric(wdata2$SiteLatitude)
+  wdata2$SiteLongitude <- as.numeric(wdata2$SiteLongitude)
+
   return(wdata2)
 
   }
