@@ -33,6 +33,7 @@ print_head <- function(df){
     kableExtra::kable_classic(full_width = F, font_size = 12, 
                               bootstrap_options = c("condensed"))
 }
+library(tidyverse)
 ```
 
 ## Using the waterNETN R package {.tabset .tabset-pills}
@@ -55,7 +56,7 @@ install_github("KateMMiller/waterNETN")
 library(waterNETN)
 ```
 <h4><b>Step 5.</b> Import data</h4>
-Note that R is not able to connect to files on Sharepoint or MS Teams (b/c Teams also stores all files on Sharepoint). That means you need to store data package files on your local machine or on a server (e.g. NETN Z drive).
+Note that R is not able to connect to files on Sharepoint or MS Teams (b/c Teams also stores all files on Sharepoint). That means you need to store data package files on your local machine or on a server (e.g. NETN Z drive). The default option for importing data will add the data package views (i.e., flatfiles) to an environment called VIEWS_WQ to your Environment work space (i.e. Environtment tab in top right panel). If you would rather import each individual view into your R session, specify with the new_env argument (e.g., `importData(new_env = F)`).
 ```{r echo = F, results = 'hide', include = F}
 importData()
 ```
@@ -95,6 +96,19 @@ importData() # easiest
 exportData(filepath = "../data", zip = TRUE) 
 ```
 
+<h4><b>Play with the data</b></h4>
+The functions in the `waterNETN` package are designed to work with the views, and are the best way to interact with the data to query by park, site, site type, year, parameter, etc. However, if you want to view the raw data, and you imported the data into the VIEWS_WQ environment, you can access them with the code below:
+```{r echo = T, include = F, results = 'hide'}
+# See list of the views
+names(VIEWS_WQ)
+
+# View one of the views
+View(VIEWS_WQ$Chemistry_Data)
+
+# Assign a view to a data frame named chem in R. Interact with chem the way you would work with any normal data frame in R. 
+chem <- VIEWS_WQ$Chemistry_Data
+
+```
 
 ### Getting help
 <h4><b>Getting (and improving) help</b></h4>
@@ -182,11 +196,7 @@ print_head(rova_ws)
 ```{r echo = F, include = F}
 file.remove("./data/Weather_station_data_2006-2023.csv")
 ```
-
-
-```
-
-The following code downloads weather station data for all lakes in ACAD in 2023
+The following code downloads weather station data for all lakes in ACAD in 2023, but doesn't export to disk.
 ```{r echo = T}
 acad_ws <- getClimWStat(park = "ACAD", site_type = "lake", years = 2023)
 print_head(acad_ws)
@@ -195,7 +205,71 @@ print_head(acad_ws)
 <br>
 
 ### Data Package Functions {.tabset}
-#### getSites
-#### getEvents
-#### getChemistry
+#### getSites()
+Query site-level data. This function combines columns in common between the Sites_Stream and Sites_Lake views. This is a good building block for other functions, but may be less helpful on its own. Though, one helpful use of this function is to get the site codes for a given park or site.
+
+Get site info for ACAD lakes
+```{r echo = T}
+ACAD_lakes <- getSites(park = "ACAD", site_type = "lake")
+```
+
+Get site info for the Pogue
+```{r echo = T}
+pogue <- getSites(site = "MABIPA")
+```
+
+List site codes and their full site name for SARA
+```{r echo = T}
+sara_sites <- getSites(park = "SARA") |> select(SiteCode, SiteName)
+print_head(sara_sites)
+```
+
+#### getEvents()
+Query water data by park, site, site_type, year and month. 
+
+Get event info for Witch Hole Pond in ACAD in 2023
+```{r echo = T}
+ACAD_lakes <- getEvents(site = "ACWHOL", years = 2023)
+print_head(ACAD_lakes)
+```
+
+Get event info for all years in the Pogue
+```{r echo = T}
+pogue <- getEvents(site = "MABIPA", years = 2006:2023)
+print_head(pogue)
+```
+
+Get date of sampling each site in lower NETN in May, 2023
+```{r echo = T}
+lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
+lnetn_evs <- getEvents(park = lnetn, years = 2023, months = 5) |> 
+  select(SiteCode, SiteName, EventDate)
+print_head(lnetn_evs) #just printing first 6 rows
+```
+
+#### getChemistry()
+This function allows you to query the Chemistry_Data view by park, site, site type, year, month,  parameter, sample type, and sample depth type (i.e., surface vs. below surface +++ Not yet enabled +++). The returned data frame is long (i.e. stacked) to facilitate data summary and plotting (coming soon).
+
+Get N parameters for all sites and non-QAQC events in MIMA. <br>
+Note that `QC_type = "ENV"` is the default for this function, which returns only non-QAQC events. Note also the use of named objects for the arguments. This allows you to set them at the top of a script, rather than having to type them out repeatedly. You can then change them in 1 place (i.e., update the year to 2024) and rerun the code. 
+```{r}
+n_params <- c("NH3", "NH3_mgL", "NO2", "NO2_mgL", "NO2+NO3", 
+              "NO2+NO3_mgL", "NO3", "NO3_ueqL", "TN", "TN_mgL")
+period <- 2006:2023
+mima_n <- getChemistry(park = "MIMA", years = period, parameter = n_params)
+print_head(mima_n) # top 6 rows
+```
+
+Get ChlA for all events, including QC samples, in 2023 for Jordan Pond in ACAD
+```{r}
+jord <- getChemistry(site = "ACJORD", QC_type = "all", param = "ChlA", years = 2023)
+print_head(jord)
+```
+
+Get ANC for LNETN parks for all years during month of May. Note that by not specifying years, all years by default will be included in the output.
+```{r}
+lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
+anc <- getChemistry(park = lnetn, param = "ANC", months = 5)
+print_head(anc)
+```
 
