@@ -121,6 +121,6 @@ getClimDaymet <- function(park = "all", site = "all",
                                paste0(filepath, "Daymet_climate_data_", min(years), "-", max(years), ".csv"),
                                row.names = F)}
 
-  return(cdata_final)
+  return(data.frame(cdata_final))
 
 }

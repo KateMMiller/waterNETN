@@ -234,9 +234,10 @@ getClimWStat <- function(park = "all", site = "all",
     left_join(ws_comb, precip_ACAD, by = c("UnitCode", "Date"))
   } else {ws_comb}
 
-  ws_comb2$ws_pcpmm <- ifelse(ws_comb2$UnitCode %in% "ACAD", ws_comb2$precip_mm, ws_comb2$pcpn * 25.4)
-  ws_comb2$ws_tmaxc <- (ws_comb2$maxt - 32) * (5/9)
-  ws_comb2$ws_tminc <- (ws_comb2$mint - 32) * (5/9)
+  ws_comb2$ws_pcpmm <- ifelse(ws_comb2$UnitCode %in% "ACAD",
+                              round(ws_comb2$precip_mm, 3), round(ws_comb2$pcpn * 25.4, 3))
+  ws_comb2$ws_tmaxc <- round((ws_comb2$maxt - 32) * (5/9), 3)
+  ws_comb2$ws_tminc <- round((ws_comb2$mint - 32) * (5/9), 3)
   ws_comb2$year <- substr(ws_comb2$Date, 1, 4)
   ws_comb3 <- ws_comb2 |> filter(year %in% years) |>
     select(UnitCode, Date, year, ws_tmaxc, ws_tminc, ws_pcpmm)
@@ -246,9 +247,11 @@ getClimWStat <- function(park = "all", site = "all",
            ws_lat, ws_long, ws_dist_km, ws_tmaxc, ws_tminc, ws_pcpmm) |>
     arrange(UnitCode, SiteCode, Date)
 
+  ws_final$ws_dist_km <- round(ws_final$ws_dist_km, 3)
+
   if(export == TRUE){write.csv(ws_final,
                                paste0(filepath, "Weather_station_data_", min(years), "-", max(years), ".csv"),
                                row.names = F)}
-  return(ws_final)
+  return(data.frame(ws_final))
 
 }

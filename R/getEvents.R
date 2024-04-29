@@ -118,7 +118,7 @@ getEvents <- function(park = "all", site = "all",
 
   if(nrow(evs_final) == 0){stop("Returned data frame with no records. Check your park, site, and site_type arguments.")}
 
-  return(evs_final)
+  return(data.frame(evs_final))
 
   }
 

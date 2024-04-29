@@ -107,7 +107,7 @@ getSites <- function(park = "all", site = "all", site_type = c("all", "lake", "s
   wdata2$SiteLatitude <- as.numeric(wdata2$SiteLatitude)
   wdata2$SiteLongitude <- as.numeric(wdata2$SiteLongitude)
 
-  return(wdata2)
+  return(data.frame(wdata2))
 
   }
 
