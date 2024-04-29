@@ -150,16 +150,16 @@ Daymet data are 1km gridded daily climate data, similar to PRISM data, but with 
 
 Daymet data are typically available for a calendar year a a few months into the next year.
 
-In waterNETN, you can download Daymet data by park, site, site type, and spanning years 1980 to 2023. See examples below. The larger the number of sites and years, the longer it can take. I added the option to save the data as a csv to disk via `export = T` and specifying a `filepath`. I'll make it possible to read csvs into R to work with climate summary and plotting functions.  
+In waterNETN, you can download Daymet data by park, site, site type, and spanning years 1980 to 2023. See examples below. The larger the number of sites and years, the longer it can take. I added the option to save the data as a csv to disk via `export = T` and specifying a `filepath`, so you don't have to download these data over and over. I'll make it possible to read csvs into R to work with climate summary and plotting functions.  
 
 The following code downloads Daymet data for East Primrose Brook in MORR for the entire monitoring period, and exports to a data folder in the working directory.
-```{r, echo = T, eval = F}
+```{r, echo = T}
 prim <- getClimDaymet(site = "MORRSA", years = 2006:2023, export = T, filepath = "./data")
 print_head(prim) # table of first 6 rows- this is a custom function I wrote to save on coding
 ```
-```{r, echo = F, eval = T}
-prim <- getClimDaymet(site = "MORRSA", years = 2006:2023, export = T, filepath = "../data")
-print_head(prim) # printing condensed head of the data
+
+```{r echo = F, include = F}
+file.remove("./data/Daymet_climate_data_2006-2023.csv")
 ```
 
 The following code downloads Daymet data for all sites in MABI for 2023. Results are assigned to R session environment and not exported to data folder in the working directory.
@@ -171,17 +171,19 @@ print_head(mabi_dm)
 </details>
 <br>
 <details open><summary class = 'drop'>Weather Station</summary>
-For each NETN monitoring site, I used the `rnoaa` package to find all weather stations within 20km radius of each site's lat/long coordinates. I then checked the period of record for each of these sites. I selected the closest weather station with the longest period of record that included 2023 and 2024. This assessment was done at the park level, so the data for each site within a park is the same. The API used to download weather station data is <a href="data.rcc-acis.org">data.rcc-acis.org</a>. Unfortunately only temperature data are available for ACAD's McFarland Hill weather station (AKA MARS). ACAD's hourly preciptation data were downloaded separately from the NADP website <a href="http://nadp2.slh.wisc.edu/siteOps/ppt/">http://nadp2.slh.wisc.edu/siteOps/ppt/</a>. These data only go back to 2008 and were aggregated to daily total precipitation. This function is slower for ACAD as a result. Though note that data are downloaded at the park level, then joined with site-specific data. In other words, data are downloaded for a park x combination of years once, then joined to site-level data. Weather stations used and their distance from each site are included in the output.
+For each NETN monitoring site, I used the `rnoaa` package to find all weather stations within 20km radius of each site's lat/long coordinates. I then checked the period of record for each of these sites. I selected the closest weather station with the longest period of record that included 2023 and 2024. This assessment was done at the park level, so the data for each site within a park is the same. The API used to download weather station data is <a href="data.rcc-acis.org">data.rcc-acis.org</a>. Unfortunately only temperature data are available for ACAD's McFarland Hill weather station (AKA MARS). ACAD's hourly precipitation data were downloaded separately from the NADP website <a href="http://nadp2.slh.wisc.edu/siteOps/ppt/">http://nadp2.slh.wisc.edu/siteOps/ppt/</a>. These data only go back to 2008 and were aggregated to daily total precipitation. This function is slower for ACAD as a result. Though note that data are downloaded at the park level, then joined with site-specific data. In other words, data are downloaded for a park x combination of years once, then joined to site-level data. Weather stations used and their distance from each site are included in the output.
 
 The following code downloads weather station data for all sites in ROVA during the monitoring period and writes to a csv.
-```{r echo = T, eval = F}
+```{r echo = T}
 rova_ws <- getClimWStat(park = "ROVA", years = 2006:2023, export = T, filepath = "./data")
 print_head(rova_ws)
 ```
 
-```{r echo = F, eval = T}
-rova_ws <- getClimWStat(park = "ROVA", years = 2006:2023, export = T, filepath = "../data")
-print_head(rova_ws)
+```{r echo = F, include = F}
+file.remove("./data/Weather_station_data_2006-2023.csv")
+```
+
+
 ```
 
 The following code downloads weather station data for all lakes in ACAD in 2023
