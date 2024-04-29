@@ -119,7 +119,7 @@ getChemistry <- function(park = "all", site = "all",
            error = function(e){stop("Water views not found. Please import data.")}
   )
 
-  options(scipen = 10)
+  options(scipen = 10) # prevent scientific notation
   # Add year, month and day of year column to dataset
   chem$year <- as.numeric(substr(chem$EventDate, 1, 4))
   chem$month <- as.numeric(substr(chem$EventDate, 6, 7))
@@ -135,10 +135,10 @@ getChemistry <- function(park = "all", site = "all",
   # I don't want to hard code the pivot, in case a new parameter is ever added, so
   # selecting the columns based on what I don't want to include in the pivot.
   keep_cols <- c("GroupCode", "GroupName", "UnitCode", "UnitName", "SubUnitCode",
-                 "SubUnitName", "SiteCode", "SiteName", "EventDate",
+                 "SubUnitName", "SiteCode", "SiteName", "SiteType", "EventDate", "EventCode",
                  "year", "month", "doy", "EventCode", "QCtype", "LabCode",
                  "SampleTime", "SampleDepth_m", "SampleType", "Comments", "IsEventCUI")
-sort(unique(getSites()$SiteCode))
+  #sort(unique(getSites()$SiteCode))
   # Filter by site, years, and months to make data set small
   sites <- force(getSites(park = park, site = site, site_type = site_type))$SiteCode
   evs <- force(getEvents(park = park, site = site, site_type = site_type,
@@ -153,7 +153,9 @@ sort(unique(getSites()$SiteCode))
     filter(value != "NA") |>
     mutate(Flag = ifelse(grepl("Flag", param), "Flag", NA_character_),
            Lab = ifelse(grepl("pH_Lab_Method", param), "pH_Lab_Method", NA_character_))
+  #table(chem_long$param)
 
+  # Break params, flags and lab designations into separate dfs to combine back as colums
   chem_long_param <- chem_long |>
     filter(!Flag %in% "Flag") |> filter(!Lab %in% "pH_Lab_Method") |>
     select(-Flag, -Lab)
