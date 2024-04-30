@@ -50,8 +50,9 @@ library(tidyverse)
 
 ## Using the waterNETN R package {.tabset .tabset-pills}
 
-### Getting started
+### Getting started {.tabset}
 
+#### Installation
 <h4><b>Step 1.</b> Install R, RStudio, and RTools in Software Center</h4>
 <h4><b>Step 2.</b> Install devtools package in R:</h4>
 ```{r, eval = F, class.source = "indent"}
@@ -123,7 +124,7 @@ chem <- VIEWS_WQ$Chemistry_Data
 
 ```
 
-### Getting help
+#### Getting help
 <h4><b>Getting (and improving) help</b></h4>
 The functions in `waterNETN` have help documentation like any R package. To view the help, you can go to the Packages tab and click on waterNETN (see below). That will show you all the functions in the package. Clicking on individual functions will take you to the help documentation for that function. 
 ```{r echo = F, out.height = 150, fig.align = 'center'}
@@ -149,7 +150,29 @@ Finally, if you ever want to peak under the hood at the function, you can view i
 <li>Keep F2 key pressed and click on the function name in R. This trick works for many but not all functions in R.</li>
 <li>View code in the <a href="https://github.com/KateMMiller/waterNETN/tree/main">GitHub katemmiller/waterNETN repo</a>. The functions are in the R folder. 
 
-### Climate Data
+#### Setting up DSN
+<h4><b>Setting up a DSN</b></h4>
+<ol>
+<li>Go to Windows Start Menu and search ODBC. Click on ODBC Data Sources (64-bit) </li>
+
+```{r echo = F, out.height = 350, fig.align = 'center'}
+knitr::include_graphics("C:/NETN/R_Dev/Water/waterNETN/testing_scripts/ODBC_step_1.jpg")
+```
+<li>Click on <i>Add</i>, then select <i>Microsoft Access Driver (\*.mdb, \*.accdb)</i> then click <i>Finish</i> in next menu.</li>
+
+```{r echo = F, out.height = 400, fig.align = 'center'}
+knitr::include_graphics("C:/NETN/R_Dev/Water/waterNETN/testing_scripts/ODBC_step_2.jpg")
+```
+
+<li>Enter <b>NETNWQ_DP</b> into the Data Source Name (red arrow), click on Select (red circle). In new window, click on C:/ (orange arrow) and find the path to your database. If it's on the Z drive, then click on the Drives window and select correct Drive. Click on the data package database (yellow arrow). When complete, click OK. Finally, add the name of the database file to the Description (blue arrow), so it's easier to check whether you're using the latest version.  </li>
+```{r echo = F, out.height = 400, fig.align = 'center'}
+knitr::include_graphics("C:/NETN/R_Dev/Water/waterNETN/testing_scripts/ODBC_step_3.jpg")
+```
+
+<li>If updating an existing DSN, follow similar process, except click on the DSN in the first window and select <i>Configure</i> instead of Add.</li>
+</ol>
+
+### Climate Functions
 <details open><summary class = 'drop'>Daymet</summary>
 Daymet data are 1km gridded daily climate data, similar to PRISM data, but with more daily data associated with each location and more efficient downloading process (extract data from lat/long points, rather than download nationwide raster files and extract manually). Daymet data go back to 1980. See <a href="https://daymet.ornl.gov/">https://daymet.ornl.gov/</a> for more information. Another benefit of Daymet over PRISM is the data can be used to calculate drought indices, like Standardized Precipitation-Evapotranspiration Index (SPEI). Note: I'll eventually add SPEI metrics to the output of this function. 
 
@@ -195,7 +218,7 @@ print_head(acad_ws)
 </details>
 <br>
 
-### Water Data Functions {.tabset}
+### Get Data Functions {.tabset}
 #### getSites()
 Query site-level data. This function combines columns in common between the Sites_Stream and Sites_Lake views. This is a good building block for other functions, but may be less helpful on its own. Though, one helpful use of this function is to get the site codes for a given park or site.
 
@@ -264,7 +287,7 @@ anc <- getChemistry(park = lnetn, param = "ANC", months = 5)
 print_head(anc)
 ```
 
-<p class = 'fxn'>Get surface-only measurements, defined as sampled within 2m of the surface for ACAD lakes from 2021:2023. If more than one measurement exists, the value represents the median of all samples within 2m of the surface.</p>
+<p class = 'fxn'>Get surface-only measurements, defined as as the medium of all samples within 2m of the surface for ACAD lakes from 2021:2023. If more than one measurement exists, the value represents the median of all samples within 2m of the surface.</p>
 ```{r}
 surf <- getChemistry(park = "ACAD", site_type = "lake", years = 2021:2023, sample_depth = 'surface')
 print_head(surf)
@@ -278,7 +301,7 @@ print_head(cens)
 ```
 
 #### getDischarge()
-This function allows you to query the Discharge_Data view by park, site, site type, year, month, measurement method (e.g., flowtracker or pygmy), and measurement rating (e.g., E, G, F, P). Note that you can also return all columns or a reduced set of columns with the output argument. Default is output = 'short'.
+This function allows you to query the Discharge_Data view by park, site, site type, year, month, measurement method (e.g., flowtracker or pygmy), and measurement rating (e.g., E, G, F, P). Note that you can also return all columns or a reduced set of columns with the output argument. Default is output = 'short'. This function is set up to work with site_type = 'stream', so you don't have to specify that.
 
 <p class = 'fxn'>Get discharge data for all LNETN sites and years measured with flowtracker </p>
 ```{r}
@@ -294,7 +317,7 @@ str(acad) # structure of returned data
 ```
 
 #### getLightPen()
-This function allows you to query the Light_Penetration_Data view by park, site, site type, year, and month. Again output = 'short' is the default. If specify output = 'verbose', you'll get all possible columns.
+This function allows you to query the Light_Penetration_Data view by park, site, site type, year, and month. Again output = 'short' is the default. If specify output = 'verbose', you'll get all possible columns. This is only set up to work with site_type = 'lake', so you don't have to specify that.
 
 <p class = 'fxn'>Get light penetration for Weir Pond from 2013 - 2023 all months.</p> 
 ```{r}
@@ -305,13 +328,56 @@ print_head(wefa) # top 6 rows
 
 <p class = 'fxn'>Get light penetration for ACAD lakes in 2023 in July and August.</p> 
 ```{r}
-acad <- getLightPen(park = "ACAD", site_type = 'lake', years = 2023, months = 7:8)
+acad <- getLightPen(park = "ACAD", years = 2023, months = 7:8)
 print_head(acad) # top 6 rows
 ```
 
-
-
-```{r child = "setting_up_DSN.Rmd"}
+#### getSecchi()
+This function allows you to query Secchi data by park, site, site type, years, months and whether you want to return all observations, the first or the second. Default returns all observations with data. Note that this function is designed to only work with lakes, and doesn't require site_type = "lake" to be specified.
+<p class = 'fxn'>Get Secchi depth the Pogue from 2021-2023, first observer only</p>
+```{r}
+mabi <- getSecchi(site = "MABIPA", years = 2021:2023, observer_type = "first")
+print_head(mabi)
 ```
+
+<p class = 'fxn'>Get Secchi for all ACAD lakes sampled in July for all observers
+```{r}
+ACAD_lake <- getSecchi(park = 'ACAD', months = 7)
+print_head(ACAD_lake)
+```
+
+#### getSondeInSitu()
+This function allows you to query Sonde in situ data by park, site, site type, years, months, parameter, QC type, surface vs. all, etc. Default returns all non-QAQC observations with data. The Sonde_InSitu_Data view is large and can take a few seconds to run for most parks, sites, years, parameters, etc.
+
+<p class = 'fxn'>Get Sonde data for all sites and parameters in MABI from 2021-2023 for non-QAQC samples</p>
+```{r}
+mabi <- getSondeInSitu(park = "MABI", years = 2021:2023)
+print_head(mabi)
+```
+
+<p class = 'fxn'>get data for all DO parameters in MIMA from 2006-2023 for non-QAQC samples</p>
+```{r}
+params <- c("DOsat_pct", "DOsatLoc_pct", "DO_mgL")
+period <- 2006:2023
+mima_do <- getSondeInSitu(park = "MIMA", years = period, parameter = params)
+print_head(mima_do)
+```
+
+<p class = 'fxn'>Get Temp data for surface measurements, defined as the medium of all samples within 2m of the surface, only in Jordan Pond in ACAD for non-QAQC samples</p>
+```{r}
+ACAD_lake <- getSondeInSitu(site = 'ACJORD', parameter = "Temp_C", sample_depth = "surface")
+```
+
+<p class = 'fxn'>Get pH for lower NETN parks from May to Oct for QAQC and non-QAQC samples</p>
+```{r}
+lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
+lnetn_ph <- getSondeInSitu(park = lnetn, param = "pH", months = 5:10, QC_type = 'all')
+```
+
+### Summary Functions {.tabset}
+WIP
+
+### Plotting Functions {.tabset}
+WIP
 
 
