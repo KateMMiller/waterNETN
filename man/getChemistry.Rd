@@ -64,7 +64,8 @@ events are between months 5 and 10, and these are set as the defaults.}
 }}
 
 \item{sample_depth}{Filter on sample depth. If "all" (Default), returns all sample depths. If "surface",
-only returns the record with the smallest sample depth (i.e., the surface). NOT ENABLED YET.}
+only returns the median value of samples collected <= 2m from the surface. SampleDepth_m is also the median
+sample depth of samples collected within 2m of the surface.}
 
 \item{parameter}{Specify the chemical parameter(s) to return. Note if additional parameters are added to the Chemistry view, there will be additional
 to the views, they will be added as accepted values in this function. Current accepted values are:.

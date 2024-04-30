@@ -60,7 +60,8 @@
 #' }
 #'
 #' @param sample_depth Filter on sample depth. If "all" (Default), returns all sample depths. If "surface",
-#' only returns the record with the smallest sample depth (i.e., the surface). NOT ENABLED YET.
+#' only returns the median value of samples collected <= 2m from the surface. SampleDepth_m is also the median
+#' sample depth of samples collected within 2m of the surface.
 #'
 #' @param include_censored Logical. If TRUE, the value column includes non-censored and censored values
 #' using the MDL/MRL/UQL values in the parameter flags. If the Flag column is not NA, that indicates
@@ -111,6 +112,7 @@ getChemistry <- function(park = "all", site = "all",
   stopifnot(class(include_censored) == "logical")
   QC_type <- match.arg(QC_type, several.ok = TRUE)
   sample_type <- match.arg(sample_type, several.ok = TRUE)
+  sample_depth <- match.arg(sample_depth)
 
   # Check if the views exist and stop if they don't
   env <- if(exists("VIEWS_WQ")){VIEWS_WQ} else {.GlobalEnv}
@@ -200,17 +202,31 @@ getChemistry <- function(park = "all", site = "all",
     if(any(QC_type == "all")){chem_comb3
     } else {filter(chem_comb3, QCtype %in% QC_type)}
 
-  chem_comb5 <-
-  if(output == "short"){chem_comb4[,c("SiteCode", "UnitCode", "SubUnitCode", "EventDate",
+  # Filter on surface vs. epilimnion. For sample_depth = surface, take median for all depths <=2m.
+  # For depth = "all", include all measurements without aggregating.
+  chem_comb5 <- if(sample_depth == 'surface'){
+    chem_comb4 |> filter(SampleDepth_m <= 2) |>
+      group_by(SiteCode, SiteType, EventDate, EventCode, GroupCode, GroupName,
+               UnitCode, UnitName, SubUnitCode, SubUnitName, SiteName, QCtype,
+               LabCode, SampleType, year, month, doy, flag, lab_method, Comments,
+               param) |>
+      summarize(SampleDepth_m = median(SampleDepth_m, na.rm = T),
+                value = median(value, na.rm = T))
+  } else {chem_comb4}
+
+  chem_comb6 <-
+  if(output == "short"){chem_comb5[,c("SiteCode", "UnitCode", "SubUnitCode", "EventDate",
                                      "year", "month", "doy", "QCtype", "SampleType",
                                      "SampleDepth_m", "param", "value", "flag",
                                      "lab_method", "Comments")]
-    } else {chem_comb4}
+  } else {chem_comb5}
 
-  if(nrow(chem_comb5) == 0){
+
+
+  if(nrow(chem_comb6) == 0){
     stop("Returned data frame with no records. Check your park, site, and site_type arguments.")}
 
-  return(data.frame(chem_comb5))
+  return(data.frame(chem_comb6))
 
   }
 
