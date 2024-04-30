@@ -126,15 +126,13 @@ getChemistry <- function(park = "all", site = "all",
   )
 
   options(scipen = 10) # prevent scientific notation
-  # Add year, month and day of year column to dataset
+  # Add year, month and day of year column to dataset and fix data types
   chem$year <- as.numeric(substr(chem$EventDate, 1, 4))
   chem$month <- as.numeric(substr(chem$EventDate, 6, 7))
   chem$doy <- as.numeric(strftime(chem$EventDate, format = "%j"))
   chem$IsEventCUI <- as.logical(chem$IsEventCUI)
 
-  # All the columns with NA as blanks are reading in as chr instead of numeric with NA_real_
-  # Will fix parameters after reshaping to long.
-  chem$SampleDepth_m <- suppressWarnings(as.numeric(chem$SampleDepth_m))
+  chem$SampleDepth_m <-  as.numeric(gsub("NA", NA_real_, chem$SampleDepth_m))
 
   # Make parameters long, so more efficient and easier to filter.
   # Need to end up with a column for each: parameter, value, flag, Method,
