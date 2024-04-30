@@ -1,6 +1,6 @@
 #' @title getDischarge: query NETN water discharge data
 #'
-#' @description Queries NETN water discharge data by site, year, month
+#' @description Queries NETN water discharge data by site, year, month. Only works with site_type = 'stream'.
 #'
 #' @importFrom dplyr filter left_join
 #'
@@ -18,13 +18,6 @@
 #' \item{"WEFA"}{Weir Farm NHP only}}
 #'
 #' @param site Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".
-#'
-#' @param site_type Combine all site types, lakes or streams. Not needed if specifying particular sites.
-#' \describe{
-#' \item{"all"}{Default. Includes all site types, unless site or site_name select specific site types.}
-#' \item{"lake"}{Include only lakes.}
-#' \item{"stream"}{Include streams only.}
-#' }
 #'
 #' @param years Numeric. Years to query. Accepted values start at 2006.
 #'
@@ -55,7 +48,7 @@
 #' mabi <- getDischarge(park = "ROVA", years = 2021:2023)
 #'
 #' # get discharge for ACAD streams in July 2023
-#' sara <- getDischarge(park = "ACAD", site_type = 'streams', years = 2023, months = 7)
+#' sara <- getDischarge(park = "ACAD", years = 2023, months = 7)
 #'
 #' # get discharge measured with flowtracker
 #' flow <- getDischarge(method = c("ACAD Flowtracker", "LNETN Flowtracker"))
@@ -66,7 +59,7 @@
 #' @export
 
 getDischarge <- function(park = "all", site = "all",
-                     site_type = c("all", "lake", "stream"),
+                     #site_type = c("all", "lake", "stream"),
                      years = 2006:format(Sys.Date(), "%Y"),
                      months = 5:10, method = 'all',
                      rating = c('all', "E", "G", "F", "P"),
@@ -93,7 +86,7 @@ getDischarge <- function(park = "all", site = "all",
            error = function(e){stop("Water views not found. Please import data.")}
   )
 
-  # Add year, month and day of year column to dataset
+  # Add year, month and day of year column to dataset and fix data types
   dis$year <- as.numeric(substr(dis$EventDate, 1, 4))
   dis$month <- as.numeric(substr(dis$EventDate, 6, 7))
   dis$doy <- as.numeric(strftime(dis$EventDate, format = "%j"))
@@ -103,8 +96,8 @@ getDischarge <- function(park = "all", site = "all",
   dis$Discharge_cfs <- as.numeric(gsub("NA", NA_real_, dis$Discharge_cfs))
 
   # Fidis# Filter by site, years, and months to make data set small
-  sites <- force(getSites(park = park, site = site, site_type = site_type))$SiteCode
-  evs <- force(getEvents(park = park, site = site, site_type = site_type,
+  sites <- force(getSites(park = park, site = site, site_type = 'stream'))$SiteCode
+  evs <- force(getEvents(park = park, site = site, site_type = 'stream',
                          years = years, months = months, output = 'verbose')) |>
     select(SiteCode, SiteType, EventDate, EventCode)
 

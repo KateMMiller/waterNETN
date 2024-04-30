@@ -72,7 +72,7 @@ getLightPen <- function(park = "all", site = "all",
   lpen$PenetrationRatio <- as.numeric(gsub("NA", NA_real_, lpen$PenetrationRatio))
 
   # Filter by site, years, and months to make data set small
-  sites <- force(getSites(park = park, site = site, site_type = site_type))$SiteCode
+  sites <- force(getSites(park = park, site = site, site_type = 'lake'))$SiteCode
   evs <- force(getEvents(park = park, site = site, site_type = 'lake',
                          years = years, months = months, output = 'verbose')) |>
     select(SiteCode, SiteType, EventDate, EventCode)

@@ -7,7 +7,6 @@
 getDischarge(
   park = "all",
   site = "all",
-  site_type = c("all", "lake", "stream"),
   years = 2006:format(Sys.Date(), "\%Y"),
   months = 5:10,
   method = "all",
@@ -30,13 +29,6 @@ getDischarge(
 \item{"WEFA"}{Weir Farm NHP only}}}
 
 \item{site}{Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
-
-\item{site_type}{Combine all site types, lakes or streams. Not needed if specifying particular sites.
-\describe{
-\item{"all"}{Default. Includes all site types, unless site or site_name select specific site types.}
-\item{"lake"}{Include only lakes.}
-\item{"stream"}{Include streams only.}
-}}
 
 \item{years}{Numeric. Years to query. Accepted values start at 2006.}
 
@@ -61,5 +53,5 @@ events are between months 5 and 10, and these are set as the defaults.}
 Data frame of Discharge data.
 }
 \description{
-Queries NETN water discharge data by site, year, month
+Queries NETN water discharge data by site, year, month. Only works with site_type = 'stream'.
 }

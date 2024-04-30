@@ -91,7 +91,7 @@ getSecchi <- function(park = "all", site = "all",
   sec_long$Bot_SD <- gsub("NA", NA_character_, sec_long$Bot_SD)
 
   # Filter by site, years, and months to make data set small
-  sites <- force(getSites(park = park, site = site, site_type = site_type))$SiteCode
+  sites <- force(getSites(park = park, site = site, site_type = 'lake'))$SiteCode
   evs <- force(getEvents(park = park, site = site, site_type = 'lake',
                          years = years, months = months, output = 'verbose')) |>
     select(SiteCode, SiteType, EventDate, EventCode)
