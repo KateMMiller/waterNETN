@@ -75,7 +75,7 @@
 #' \dontrun{
 #' importData()
 #'
-#' # get events for all sites in MABI from 2021-2023
+#' # get chemistry data for all sites and all parameters in MABI from 2021-2023
 #' mabi <- getChemistry(park = "MABI", years = 2021:2023)
 #'
 #' # get all N params in MIMA from 2006-2023
@@ -140,7 +140,7 @@ getChemistry <- function(park = "all", site = "all",
   # selecting the columns based on what I don't want to include in the pivot.
   keep_cols <- c("GroupCode", "GroupName", "UnitCode", "UnitName", "SubUnitCode",
                  "SubUnitName", "SiteCode", "SiteName", "SiteType", "EventDate", "EventCode",
-                 "year", "month", "doy", "EventCode", "QCtype", "LabCode",
+                 "year", "month", "doy", "QCtype", "LabCode",
                  "SampleTime", "SampleDepth_m", "SampleType", "Comments", "IsEventCUI")
   #sort(unique(getSites()$SiteCode))
   # Filter by site, years, and months to make data set small

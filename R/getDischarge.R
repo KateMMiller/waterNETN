@@ -68,7 +68,7 @@ getDischarge <- function(park = "all", site = "all",
   #-- Error handling --
   park <- match.arg(park, several.ok = TRUE,
                     c("all", "ACAD", "MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
-  site_type <- match.arg(site_type)
+  #site_type <- match.arg(site_type)
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   method <- match.arg(method, several.ok = TRUE,

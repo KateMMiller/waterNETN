@@ -90,7 +90,7 @@ Queries NETN water chemistry data by site, event, and parameter.
 \dontrun{
 importData()
 
-# get events for all sites in MABI from 2021-2023
+# get chemistry data for all sites and all parameters in MABI from 2021-2023
 mabi <- getChemistry(park = "MABI", years = 2021:2023)
 
 # get all N params in MIMA from 2006-2023
