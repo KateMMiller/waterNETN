@@ -2,7 +2,7 @@
 #'
 #' @description Queries NETN water discharge data by site, year, month
 #'
-#' @importFrom dplyr filter
+#' @importFrom dplyr filter left_join
 #'
 #' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
 #' \describe{
@@ -43,35 +43,29 @@
 #' \item{"P"}{Poor}
 #' }
 #'
-#'
 #' @param output Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)
 #'
-#' @param output Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)
-#'
-#' @return Data frame of Discharge data in long form.
+#' @return Data frame of Discharge data.
 #'
 #' @examples
 #' \dontrun{
 #' importData()
 #'
-#' # get events for all sites in MABI from 2021-2023
-#' mabi <- getDischarge(park = "MABI", years = 2021:2023)
+#' # get discharge for all sites in ROVA from 2021-2023
+#' mabi <- getDischarge(park = "ROVA", years = 2021:2023)
 #'
-#' # get events for SARA sites sampled in 2019 and 2023
-#' sara <- getDischarge(park = "SARA", years = c(2019, 2023))
+#' # get discharge for ACAD streams in July 2023
+#' sara <- getDischarge(park = "ACAD", site_type = 'streams', years = 2023, months = 7)
 #'
-#' # get events for MIMA and SAIR
-#' ma_parks <- getDischarge(park = c("SAIR", "MIMA"))
+#' # get discharge measured with flowtracker
+#' flow <- getDischarge(method = c("ACAD Flowtracker", "LNETN Flowtracker"))
 #'
-#' # get info for all ACAD lakes sampled in April
-#' ACAD_lake4<- getDischarge(park = 'ACAD', site_type = 'lake', months = 4)
+#' # get excellent rated measurements only
+#' exc <- getDischarge(rating = "E")
 #'
-#' # get site info for 2 streams in MORR with full output
-#' morr_sites <- getDischarge(site = c("MORRSA", "MORRSB"), output = 'verbose')
-#' }
 #' @export
 
-getDischarge<- function(park = "all", site = "all",
+getDischarge <- function(park = "all", site = "all",
                      site_type = c("all", "lake", "stream"),
                      years = 2006:format(Sys.Date(), "%Y"),
                      months = 5:10, method = 'all',

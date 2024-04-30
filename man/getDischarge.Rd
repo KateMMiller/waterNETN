@@ -58,28 +58,8 @@ events are between months 5 and 10, and these are set as the defaults.}
 \item{output}{Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)}
 }
 \value{
-Data frame of Discharge data in long form.
+Data frame of Discharge data.
 }
 \description{
 Queries NETN water discharge data by site, year, month
-}
-\examples{
-\dontrun{
-importData()
-
-# get events for all sites in MABI from 2021-2023
-mabi <- getDischarge(park = "MABI", years = 2021:2023)
-
-# get events for SARA sites sampled in 2019 and 2023
-sara <- getDischarge(park = "SARA", years = c(2019, 2023))
-
-# get events for MIMA and SAIR
-ma_parks <- getDischarge(park = c("SAIR", "MIMA"))
-
-# get info for all ACAD lakes sampled in April
-ACAD_lake4<- getDischarge(park = 'ACAD', site_type = 'lake', months = 4)
-
-# get site info for 2 streams in MORR with full output
-morr_sites <- getDischarge(site = c("MORRSA", "MORRSB"), output = 'verbose')
-}
 }

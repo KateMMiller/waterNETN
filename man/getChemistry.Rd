@@ -93,16 +93,20 @@ importData()
 # get events for all sites in MABI from 2021-2023
 mabi <- getChemistry(park = "MABI", years = 2021:2023)
 
-# get events for SARA sites sampled in 2019 and 2023
-sara <- getChemistry(park = "SARA", years = c(2019, 2023))
+# get all N params in MIMA from 2006-2023
+n_params <- c("NH3", "NH3_mgL", "NO2", "NO2_mgL", "NO2+NO3",
+              "NO2+NO3_mgL", "NO3", "NO3_ueqL", "TN", "TN_mgL")
+period <- 2006:2023
+mima_n <- getChemistry(park = "MIMA", years = period, parameter = n_params)
 
-# get events for MIMA and SAIR
-ma_parks <- getChemistry(park = c("SAIR", "MIMA"))
+# get lab pH for all sites in MIMA and SAIR
+ma_parks <- getChemistry(park = c("SAIR", "MIMA"), param = "pH_Lab")
 
-# get info for all ACAD lakes sampled in April
+# get chemistry for all ACAD lakes sampled in April
 ACAD_lake4<- getChemistry(park = 'ACAD', site_type = 'lake', months = 4)
 
-# get site info for 2 streams in MORR with full output
-morr_sites <- getChemistry(site = c("MORRSA", "MORRSB"), output = 'verbose')
+# get ANC for lower NETN parks from May to Oct
+lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
+anc <- getChemistry(park = lnetn, param = "ANC", months = 5:10)
 }
 }
