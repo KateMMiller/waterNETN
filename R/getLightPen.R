@@ -1,6 +1,6 @@
 #' @title getLightPen: query NETN light penetration data
 #'
-#' @description Queries NETN light penetration data by site, year, month
+#' @description Queries NETN light penetration data by site, year, month. Designed to only work with site_type = 'lake'.
 #'
 #' @importFrom dplyr filter left_join
 #'
@@ -17,14 +17,7 @@
 #' \item{"SARA"}{Saratoga NHP only}
 #' \item{"WEFA"}{Weir Farm NHP only}}
 #'
-#' @param site Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".
-#'
-#' @param site_type Combine all site types, lakes or streams. Not needed if specifying particular sites.
-#' \describe{
-#' \item{"all"}{Default. Includes all site types, unless site or site_name select specific site types.}
-#' \item{"lake"}{Include only lakes.}
-#' \item{"stream"}{Include streams only.}
-#' }
+#' @param site Filter on 6-letter SiteCode (e.g., "ACANTB", "WEFAPA", etc.). Easiest way to pick a site. Defaults to "all".
 #'
 #' @param years Numeric. Years to query. Accepted values start at 2006.
 #'
@@ -39,32 +32,24 @@
 #' \dontrun{
 #' importData()
 #'
-#' # get events for all sites in MABI from 2021-2023
-#' mabi <- getDischarge(park = "MABI", years = 2021:2023)
+#' # get light penetration for the Pogue in MABI from 2021-2023
+#' mabi <- getLightPen(site_code = "MABIPA", years = 2021:2023)
 #'
-#' # get events for SARA sites sampled in 2019 and 2023
-#' sara <- getDischarge(park = "SARA", years = c(2019, 2023))
+#' # get light penetration for all ACAD lakes sampled in August
+#' ACAD_lake <- getLightPen(park = 'ACAD', months = 8)
 #'
-#' # get events for MIMA and SAIR
-#' ma_parks <- getDischarge(park = c("SAIR", "MIMA"))
-#'
-#' # get info for all ACAD lakes sampled in April
-#' ACAD_lake4<- getDischarge(park = 'ACAD', site_type = 'lake', months = 4)
-#'
-#' # get site info for 2 streams in MORR with full output
-#' morr_sites <- getDischarge(site = c("MORRSA", "MORRSB"), output = 'verbose')
 #' }
 #' @export
 
 getLightPen <- function(park = "all", site = "all",
-                     site_type = c("all", "lake", "stream"),
+                     #site_type = c("all", "lake", "stream"),
                      years = 2006:format(Sys.Date(), "%Y"),
                      months = 5:10, output = c("short", "verbose")){
 
   #-- Error handling --
   park <- match.arg(park, several.ok = TRUE,
                     c("all", "ACAD", "MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
-  site_type <- match.arg(site_type)
+  #site_type <- match.arg(site_type)
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   output <- match.arg(output)
@@ -76,7 +61,7 @@ getLightPen <- function(park = "all", site = "all",
            error = function(e){stop("Water views not found. Please import data.")}
   )
 
-  # Add year, month and day of year column to dataset
+  # Add year, month and day of year column to dataset and fix data types
   lpen$year <- as.numeric(substr(lpen$EventDate, 1, 4))
   lpen$month <- as.numeric(substr(lpen$EventDate, 6, 7))
   lpen$doy <- as.numeric(strftime(lpen$EventDate, format = "%j"))
@@ -86,9 +71,9 @@ getLightPen <- function(park = "all", site = "all",
   lpen$LightUW <- as.numeric(gsub("NA", NA_real_, lpen$LightUW))
   lpen$PenetrationRatio <- as.numeric(gsub("NA", NA_real_, lpen$PenetrationRatio))
 
-  # Fidis# Filter by site, years, and months to make data set small
+  # Filter by site, years, and months to make data set small
   sites <- force(getSites(park = park, site = site, site_type = site_type))$SiteCode
-  evs <- force(getEvents(park = park, site = site, site_type = site_type,
+  evs <- force(getEvents(park = park, site = site, site_type = 'lake',
                          years = years, months = months, output = 'verbose')) |>
     select(SiteCode, SiteType, EventDate, EventCode)
 

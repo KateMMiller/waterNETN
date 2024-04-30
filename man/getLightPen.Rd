@@ -7,7 +7,6 @@
 getLightPen(
   park = "all",
   site = "all",
-  site_type = c("all", "lake", "stream"),
   years = 2006:format(Sys.Date(), "\%Y"),
   months = 5:10,
   output = c("short", "verbose")
@@ -27,14 +26,7 @@ getLightPen(
 \item{"SARA"}{Saratoga NHP only}
 \item{"WEFA"}{Weir Farm NHP only}}}
 
-\item{site}{Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
-
-\item{site_type}{Combine all site types, lakes or streams. Not needed if specifying particular sites.
-\describe{
-\item{"all"}{Default. Includes all site types, unless site or site_name select specific site types.}
-\item{"lake"}{Include only lakes.}
-\item{"stream"}{Include streams only.}
-}}
+\item{site}{Filter on 6-letter SiteCode (e.g., "ACANTB", "WEFAPA", etc.). Easiest way to pick a site. Defaults to "all".}
 
 \item{years}{Numeric. Years to query. Accepted values start at 2006.}
 
@@ -47,25 +39,17 @@ events are between months 5 and 10, and these are set as the defaults.}
 Data frame of Light Penetration data.
 }
 \description{
-Queries NETN light penetration data by site, year, month
+Queries NETN light penetration data by site, year, month. Designed to only work with site_type = 'lake'.
 }
 \examples{
 \dontrun{
 importData()
 
-# get events for all sites in MABI from 2021-2023
-mabi <- getDischarge(park = "MABI", years = 2021:2023)
+# get light penetration for the Pogue in MABI from 2021-2023
+mabi <- getLightPen(site_code = "MABIPA", years = 2021:2023)
 
-# get events for SARA sites sampled in 2019 and 2023
-sara <- getDischarge(park = "SARA", years = c(2019, 2023))
+# get light penetration for all ACAD lakes sampled in August
+ACAD_lake <- getLightPen(park = 'ACAD', months = 8)
 
-# get events for MIMA and SAIR
-ma_parks <- getDischarge(park = c("SAIR", "MIMA"))
-
-# get info for all ACAD lakes sampled in April
-ACAD_lake4<- getDischarge(park = 'ACAD', site_type = 'lake', months = 4)
-
-# get site info for 2 streams in MORR with full output
-morr_sites <- getDischarge(site = c("MORRSA", "MORRSB"), output = 'verbose')
 }
 }
