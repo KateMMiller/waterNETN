@@ -18,6 +18,7 @@ Collate:
     'getSites.R'
     'getClimDaymet.R'
     'getClimWStat.R'
+    'getDischarge.R'
     'getEvents.R'
     'importData.R'
 Imports: 
