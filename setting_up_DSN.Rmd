@@ -1,0 +1,25 @@
+---
+output: html_document
+---
+
+### Setting up DSN
+<h4><b>Setting up a DSN</b></h4>
+<ol>
+<li>Go to Windows Start Menu and search ODBC. Click on ODBC Data Sources (64-bit) </li>
+
+```{r echo = F, out.height = 350, fig.align = 'center'}
+knitr::include_graphics("C:/NETN/R_Dev/Water/waterNETN/testing_scripts/ODBC_step_1.jpg")
+```
+<li>Click on <i>Add</i>, then select <i>Microsoft Access Driver (\*.mdb, \*.accdb)</i> then click <i>Finish</i> in next menu.</li>
+
+```{r echo = F, out.height = 400, fig.align = 'center'}
+knitr::include_graphics("C:/NETN/R_Dev/Water/waterNETN/testing_scripts/ODBC_step_2.jpg")
+```
+
+<li>Enter <b>NETNWQ_DP</b> into the Data Source Name (red arrow), click on Select (red circle). In new window, click on C:/ (orange arrow) and find the path to your database. If it's on the Z drive, then click on the Drives window and select correct Drive. Click on the data package database (yellow arrow). When complete, click OK. Finally, add the name of the database file to the Description (blue arrow), so it's easier to check whether you're using the latest version.  </li>
+```{r echo = F, out.height = 400, fig.align = 'center'}
+knitr::include_graphics("C:/NETN/R_Dev/Water/waterNETN/testing_scripts/ODBC_step_3.jpg")
+```
+
+<li>If updating an existing DSN, follow similar process, except click on the DSN in the first window and select <i>Configure</i> instead of Add.</li>
+</ol>

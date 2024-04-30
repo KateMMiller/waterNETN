@@ -20,6 +20,7 @@ Collate:
     'getClimWStat.R'
     'getDischarge.R'
     'getEvents.R'
+    'getLightPen.R'
     'importData.R'
 Imports: 
     dplyr,
