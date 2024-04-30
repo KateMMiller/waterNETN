@@ -21,6 +21,7 @@ Collate:
     'getDischarge.R'
     'getEvents.R'
     'getLightPen.R'
+    'getSecchi.R'
     'importData.R'
 Imports: 
     dplyr,
