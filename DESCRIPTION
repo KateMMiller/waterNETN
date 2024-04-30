@@ -22,6 +22,7 @@ Collate:
     'getEvents.R'
     'getLightPen.R'
     'getSecchi.R'
+    'getSondeInSitu.R'
     'importData.R'
 Imports: 
     dplyr,
