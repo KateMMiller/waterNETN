@@ -98,6 +98,10 @@ getClimWStat <- function(park = "all", site = "all",
     if(!grepl("/$", filepath)){filepath <- paste0(filepath, "/")} # add / to end of filepath if doesn't exist
   }
 
+  # Test connection to API
+  if(httr::http_error("http://data.rcc-acis.org") == FALSE){
+    stop("Unable to connect to data.rcc-acis.org to download weather station data.")}
+
   # Combine sites with nearest weather station
   sites <- force(getSites(park = park, site = site, site_type = site_type)) |>
     select(SiteCode, SiteLatitude, SiteLongitude, UnitCode)
@@ -109,10 +113,11 @@ getClimWStat <- function(park = "all", site = "all",
   startdate <- paste0(min(years), "-01-01")
   enddate <- paste0(max(years), "-12-31")
 
+
   # function to downoad precip and temp weather station data from rcc-acis
   get_wdat <- function(field, stn, reduce = c("sum", "mean"), park){#, site){
 
-    urlbase <- "http://data.rcc-acis.org/StnData?params=%s"
+  urlbase <- "http://data.rcc-acis.org/StnData?params=%s"
     elem_template <- function(field) {
       list(name = field,
            interval = "dly",
