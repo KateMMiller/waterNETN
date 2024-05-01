@@ -4,7 +4,12 @@
 \alias{getSites}
 \title{getSites: query NETN water data by site}
 \usage{
-getSites(park = "all", site = "all", site_type = c("all", "lake", "stream"))
+getSites(
+  park = "all",
+  site = "all",
+  site_type = c("all", "lake", "stream"),
+  output = c("short", "verbose")
+)
 }
 \arguments{
 \item{park}{Combine data from all parks or one or more parks at a time. Valid inputs:
@@ -28,6 +33,8 @@ getSites(park = "all", site = "all", site_type = c("all", "lake", "stream"))
 \item{"lake"}{Include only lakes.}
 \item{"stream"}{Include streams only.}
 }}
+
+\item{output}{Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)}
 }
 \value{
 Data frame of site info

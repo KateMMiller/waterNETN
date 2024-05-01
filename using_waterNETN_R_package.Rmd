@@ -46,6 +46,7 @@ print_head <- function(df){
                               bootstrap_options = c("condensed"))
 }
 library(tidyverse)
+park = 'all';site = 'all'; site_type = 'all'; years = 2006:2023; months = 1:12; output = 'short'
 ```
 
 ## Using the waterNETN R package {.tabset .tabset-pills}
@@ -172,8 +173,8 @@ knitr::include_graphics("C:/NETN/R_Dev/Water/waterNETN/testing_scripts/ODBC_step
 <li>If updating an existing DSN, follow similar process, except click on the DSN in the first window and select <i>Configure</i> instead of Add.</li>
 </ol>
 
-### Climate Functions
-<details open><summary class = 'drop'>Daymet</summary>
+### Climate Functions {.tabset}
+#### Daymet
 Daymet data are 1km gridded daily climate data, similar to PRISM data, but with more daily data associated with each location and more efficient downloading process (extract data from lat/long points, rather than download nationwide raster files and extract manually). Daymet data go back to 1980. See <a href="https://daymet.ornl.gov/">https://daymet.ornl.gov/</a> for more information. Another benefit of Daymet over PRISM is the data can be used to calculate drought indices, like Standardized Precipitation-Evapotranspiration Index (SPEI). Note: I'll eventually add SPEI metrics to the output of this function. 
 
 Daymet data are typically available for a calendar year a a few months into the next year.
@@ -196,9 +197,8 @@ file.remove("./data/Daymet_climate_data_2006-2023.csv")
 mabi_dm <- getClimDaymet(park = "MABI", years = 2023)
 print_head(mabi_dm)
 ```
-</details>
-<br>
-<details open><summary class = 'drop'>Weather Station</summary>
+
+#### Weather Station
 For each NETN monitoring site, I used the `rnoaa` package to find all weather stations within 20km radius of each site's lat/long coordinates. I then checked the period of record for each of these sites. I selected the closest weather station with the longest period of record that included 2023 and 2024. This assessment was done at the park level, so the data for each site within a park is the same. The API used to download weather station data is <a href="data.rcc-acis.org">data.rcc-acis.org</a>. Unfortunately only temperature data are available for ACAD's McFarland Hill weather station (AKA MARS). ACAD's hourly precipitation data were downloaded separately from the NADP website <a href="http://nadp2.slh.wisc.edu/siteOps/ppt/">http://nadp2.slh.wisc.edu/siteOps/ppt/</a>. These data only go back to 2008 and were aggregated to daily total precipitation. This function is slower for ACAD as a result. Though note that data are downloaded at the park level, then joined with site-specific data. In other words, data are downloaded for a park x combination of years once, then joined to site-level data. Weather stations used and their distance from each site are included in the output.
 
 <p class = 'fxn'>The following code downloads weather station data for all sites in ROVA during the monitoring period and writes to a csv.</p>
@@ -215,8 +215,6 @@ file.remove("./data/Weather_station_data_2006-2023.csv")
 acad_ws <- getClimWStat(park = "ACAD", site_type = "lake", years = 2023)
 print_head(acad_ws)
 ```
-</details>
-<br>
 
 ### Get Data Functions {.tabset}
 #### getSites()
@@ -236,6 +234,34 @@ pogue <- getSites(site = "MABIPA")
 ```{r}
 sara_sites <- getSites(park = "SARA") |> select(SiteCode, SiteName)
 print_head(sara_sites)
+```
+
+#### getSitesLake()
+Query site-level data for lakes only. This returns lake-only columns in the Sites_Lake views
+<p class = 'fxn'>Get site info for ACAD lakes</p>
+```{r}
+ACAD_str <- getSitesLake(park = "ACAD")
+print_head(ACAD_str)
+```
+
+<p class = 'fxn'>Get all site info for the Pogue Pond</p>
+```{r}
+pogue <- getSitesLake(site = "MABIPA", output = 'verbose')
+print_head(pogue)
+```
+
+#### getSitesStream()
+Query site-level data for streams only. This returns stream-only columns in the Sites_Stream views
+<p class = 'fxn'>Get site info for ACAD streams</p>
+```{r}
+ACAD_str <- getSitesStream(park = "ACAD")
+print_head(ACAD_str)
+```
+
+<p class = 'fxn'>Get all site info for the Pogue Stream</p>
+```{r}
+poguestr <- getSitesStream(site = "MABISA", output = 'verbose')
+print_head(poguestr)
 ```
 
 #### getEvents()
@@ -373,6 +399,35 @@ ACAD_lake <- getSondeInSitu(site = 'ACJORD', parameter = "Temp_C", sample_depth 
 lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
 lnetn_ph <- getSondeInSitu(park = lnetn, param = "pH", months = 5:10, QC_type = 'all')
 ```
+
+#### getStreamObs()
+This function allows you to query stream observation data by park, site, year and month
+<p class = 'fxn'>Get stream observations for Pogue Stream all years</p>
+```{r}
+mabi <- getStreamObs(park = "MABI")
+print_head(mabi)
+```
+<p class = 'fxn'>Get observations for all streams in ACAD May 2023 </p>
+```{r}
+ACAD_streams <- getStreamObs(park = 'ACAD', years = 2023, months = 5)
+print_head(ACAD_streams)
+```
+
+#### getWaterLevel()
+This function joins stage and water level data, and allows you to query by park, site, site_type, year, and month. Note that WL data start in 2013 in the view. 
+
+<p class = 'fxn'>Get water level data for Bubble Pond. </p>
+```{r}
+bubl <- getWaterLevel(site = "ACBUBL", years = 2013:2023)
+print_head(bubl)
+```
+
+<p class = 'fxn'>Get water level data for Weir Pond in August. </p>
+```{r}
+weir <- getWaterLevel(site = "WEFAPA", months = 8)
+print_head(weir)
+```
+
 
 ### Summary Functions {.tabset}
 WIP

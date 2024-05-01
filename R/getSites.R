@@ -29,6 +29,8 @@
 #' \item{"stream"}{Include streams only.}
 #' }
 #'
+#' @param output Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)
+#'
 #' @return Data frame of site info
 #'
 #'@examples
@@ -46,12 +48,14 @@
 #' }
 #' @export
 
-getSites <- function(park = "all", site = "all", site_type = c("all", "lake", "stream")){
+getSites <- function(park = "all", site = "all", site_type = c("all", "lake", "stream"),
+                     output = c("short", "verbose")){
 
   #-- Error handling --
   park <- match.arg(park, several.ok = TRUE,
                     c("all", "ACAD", "MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
   site_type <- match.arg(site_type)
+  output <- match.arg(output)
 
   # Check if the views exist and stop if they don't
   env <- if(exists("VIEWS_WQ")){VIEWS_WQ} else {.GlobalEnv}
@@ -103,9 +107,18 @@ getSites <- function(park = "all", site = "all", site_type = c("all", "lake", "s
   if(nrow(wdata2) == 0){stop("Returned data frame with no records. Check your park, site, and site_type arguments.")}
 
   # Clean up data, so columns are treated correctly
+  # character fixes
+  chr_cols <- c("SubUnitCode", "SubUnitName", "Datum", "XYAccuracy",
+                "LegislativeClass")
+  wdata2[,chr_cols][wdata2[,chr_cols] == "NA"] <- NA_character_
+
+  # numeric fixes
+  num_cols <- c("SiteLatitude", "SiteLongitude", "ContribWshedArea_km2")
+  wdata2[,num_cols][wdata2[,num_cols] == "NA"] <- NA_real_
+  wdata2[,num_cols] <- apply(wdata2[,num_cols], 2, function(x) as.numeric(x))
+
+  # logic fixes
   wdata2$IsPointCUI <- as.logical(wdata2$IsPointCUI)
-  wdata2$SiteLatitude <- as.numeric(wdata2$SiteLatitude)
-  wdata2$SiteLongitude <- as.numeric(wdata2$SiteLongitude)
 
   return(data.frame(wdata2))
 

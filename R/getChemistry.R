@@ -126,13 +126,23 @@ getChemistry <- function(park = "all", site = "all",
   )
 
   options(scipen = 10) # prevent scientific notation
-  # Add year, month and day of year column to dataset and fix data types
+
+  # Fix data types (will wait on the params until long)
+  # character fixes
+  chr_cols <- c("SubUnitCode", "SubUnitName", "SampleType", "LabCode", "QCtype", "pH_Lab_Method",
+                "Comments")
+  chem[,chr_cols][chem[,chr_cols] == "NA"] <- NA_character_
+
+  # numeric fixes
+  chem$SampleDepth_m <-  as.numeric(gsub("NA", NA_real_, chem$SampleDepth_m))
+
+  # logic fixes
+  chem$IsEventCUI <- as.logical(chem$IsEventCUI)
+
+  # Add year, month and day of year column to dataset
   chem$year <- as.numeric(substr(chem$EventDate, 1, 4))
   chem$month <- as.numeric(substr(chem$EventDate, 6, 7))
   chem$doy <- as.numeric(strftime(chem$EventDate, format = "%j"))
-  chem$IsEventCUI <- as.logical(chem$IsEventCUI)
-
-  chem$SampleDepth_m <-  as.numeric(gsub("NA", NA_real_, chem$SampleDepth_m))
 
   # Make parameters long, so more efficient and easier to filter.
   # Need to end up with a column for each: parameter, value, flag, Method,
@@ -177,7 +187,12 @@ getChemistry <- function(park = "all", site = "all",
 
   chem_list <- list(chem_long_param, chem_long_flag, chem_long_lab)
   chem_comb <- purrr::reduce(chem_list, full_join, by = cols2)
-  chem_comb$value <- suppressWarnings(as.numeric(chem_comb$value))
+
+  # find special characters forcing chr instead of num
+  # values = sort(unique(chem_comb$value))
+  # values[which(!grepl('^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$',values))]
+
+  chem_comb$value <- as.numeric(gsub(",", "", chem_comb$value))
 
   if(include_censored == TRUE){
   chem_comb$value <- suppressWarnings(
@@ -217,13 +232,11 @@ getChemistry <- function(park = "all", site = "all",
   } else {chem_comb4}
 
   chem_comb6 <-
-  if(output == "short"){chem_comb5[,c("SiteCode", "UnitCode", "SubUnitCode", "EventDate",
+  if(output == "short"){chem_comb5[,c("SiteCode", "UnitCode", "SubUnitCode", "EventDate","EventCode",
                                      "year", "month", "doy", "QCtype", "SampleType",
                                      "SampleDepth_m", "param", "value", "flag",
                                      "lab_method", "Comments")]
   } else {chem_comb5}
-
-
 
   if(nrow(chem_comb6) == 0){
     stop("Returned data frame with no records. Check your park, site, and site_type arguments.")}

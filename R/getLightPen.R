@@ -61,15 +61,23 @@ getLightPen <- function(park = "all", site = "all",
            error = function(e){stop("Water views not found. Please import data.")}
   )
 
-  # Add year, month and day of year column to dataset and fix data types
+  # Fix data issues
+  # char fixes
+  chr_cols <- c("SubUnitCode", "SubUnitName")
+  lpen[,chr_cols][lpen[,chr_cols] == "NA"] <- NA_character_
+
+  # numeric fixes
+  num_cols <- c("MeasurementDepth_m", "LightDeck", "PenetrationRatio")
+  lpen[,num_cols][lpen[,num_cols] == "NA"] <- NA_real_
+  lpen[,num_cols] <- apply(lpen[,num_cols], 2, function(x) as.numeric(x))
+
+  # logic fixes
+  lpen$IsEventCUI <- as.logical(lpen$IsEventCUI)
+
+  # Add year, month and day of year column to dataset
   lpen$year <- as.numeric(substr(lpen$EventDate, 1, 4))
   lpen$month <- as.numeric(substr(lpen$EventDate, 6, 7))
   lpen$doy <- as.numeric(strftime(lpen$EventDate, format = "%j"))
-  lpen$IsEventCUI <- as.logical(lpen$IsEventCUI)
-  lpen$MeasurementDepth_m <- as.numeric(gsub("NA", NA_real_, lpen$MeasurementDepth_m))
-  lpen$LightDeck <- as.numeric(gsub("NA", NA_real_, lpen$LightDeck))
-  lpen$LightUW <- as.numeric(gsub("NA", NA_real_, lpen$LightUW))
-  lpen$PenetrationRatio <- as.numeric(gsub("NA", NA_real_, lpen$PenetrationRatio))
 
   # Filter by site, years, and months to make data set small
   sites <- force(getSites(park = park, site = site, site_type = 'lake'))$SiteCode
@@ -81,7 +89,7 @@ getLightPen <- function(park = "all", site = "all",
   lpen3 <- left_join(evs, lpen2, by = c("SiteCode", "EventDate", "EventCode"))
 
   lpen4 <-
-  if(output == "short"){lpen3[,c("SiteCode", "UnitCode", "SubUnitCode", "EventDate",
+  if(output == "short"){lpen3[,c("SiteCode", "UnitCode", "SubUnitCode", "EventDate", "EventCode",
                                 "year", "month", "doy", "MeasurementTime", "MeasurementDepth_m",
                                 "LightDeck", "LightUW", "PenetrationRatio")]
     } else {lpen3}

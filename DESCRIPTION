@@ -22,7 +22,11 @@ Collate:
     'getEvents.R'
     'getLightPen.R'
     'getSecchi.R'
+    'getSitesLake.R'
+    'getSitesStream.R'
     'getSondeInSitu.R'
+    'getStreamObs.R'
+    'getWaterLevel.R'
     'importData.R'
 Imports: 
     dplyr,

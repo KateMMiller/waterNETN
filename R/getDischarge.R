@@ -55,7 +55,7 @@
 #'
 #' # get excellent rated measurements only
 #' exc <- getDischarge(rating = "E")
-#'
+#'}
 #' @export
 
 getDischarge <- function(park = "all", site = "all",
@@ -86,16 +86,26 @@ getDischarge <- function(park = "all", site = "all",
            error = function(e){stop("Water views not found. Please import data.")}
   )
 
-  # Add year, month and day of year column to dataset and fix data types
+  # fix data types
+  # char fixes
+  chr_cols <- c("SubUnitCode", "SubUnitName", "ReachType", "FlowStatus", "DischargeMethod",
+                "VelocityFlag", "DischargeFlag", "MeasurementRating", "Comments")
+  dis[,chr_cols][dis[,chr_cols] == "NA"] <- NA_character_
+
+  # numeric fixes
+  num_cols <- c("TotalArea_sqft", "AvgVel_fs", "Discharge_cfs")
+  dis[,num_cols][dis[,num_cols] == "NA"] <- NA_real_
+  dis[,num_cols] <- apply(dis[,num_cols], 2, function(x) as.numeric(x))
+
+  # logic fixes
+  dis$IsEventCUI <- as.logical(dis$IsEventCUI)
+
+  # Add year, month and day of year column to dataset
   dis$year <- as.numeric(substr(dis$EventDate, 1, 4))
   dis$month <- as.numeric(substr(dis$EventDate, 6, 7))
   dis$doy <- as.numeric(strftime(dis$EventDate, format = "%j"))
-  dis$IsEventCUI <- as.logical(dis$IsEventCUI)
-  dis$TotalArea_sqft <- as.numeric(gsub("NA", NA_real_, dis$TotalArea_sqft))
-  dis$AvgVel_fs <- as.numeric(gsub("NA", NA_real_, dis$AvgVel_fs))
-  dis$Discharge_cfs <- as.numeric(gsub("NA", NA_real_, dis$Discharge_cfs))
 
-  # Fidis# Filter by site, years, and months to make data set small
+  # Filter by site, years, and months to make data set small
   sites <- force(getSites(park = park, site = site, site_type = 'stream'))$SiteCode
   evs <- force(getEvents(park = park, site = site, site_type = 'stream',
                          years = years, months = months, output = 'verbose')) |>
@@ -110,7 +120,7 @@ getDischarge <- function(park = "all", site = "all",
   } else {filter(dis3, DischargeMethod %in% method)}
 
   dis5 <-
-  if(output == "short"){dis4[,c("SiteCode", "UnitCode", "SubUnitCode", "EventDate",
+  if(output == "short"){dis4[,c("SiteCode", "UnitCode", "SubUnitCode", "EventDate","EventCode",
                                 "year", "month", "doy", "ReachType", "FlowStatus",
                                 "DischargeMethod", "TotalArea_sqft", "AvgVel_fs",
                                 "VelocityFlag", "Discharge_cfs", "DischargeFlag",

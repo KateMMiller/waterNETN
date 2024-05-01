@@ -44,8 +44,8 @@
 #' \item{"all"}{Include all QC types.}
 #' \item{"0"}{Environmental. Default. Indicates a real non-QC sample.}
 #' \item{"900"}{QC Replicate}
-#' \item{"899"}{Pre-deployment 100% sat check}
-#' \item{"999"}{Post-deployment 100% sat check}
+#' \item{"899"}{Pre-deployment 100 percent sat check}
+#' \item{"999"}{Post-deployment 100 percent sat check}
 #' }
 #'
 #' @param sample_depth Filter on sample depth. If "all" (Default), returns all sample depths. If "surface",
@@ -110,18 +110,24 @@ getSondeInSitu <- function(park = "all", site = "all",
   options(scipen = 10) # prevent scientific notation
   # Add year, month and day of year column to dataset and fix data types
   # will fix the parameter types later after they're pivoted long
+
+  # char fixes
+  chr_cols <- c("SubUnitCode", "SubUnitName", "XYAccuracy", "QCType_Code", "QCType_Value",
+                "SondeType", "WQInSitu_Flag", "WQFlag_Comments")
+  sonde[,chr_cols][sonde[,chr_cols] == "NA"] <- NA_character_
+
+  # numeric fixes
+  num_cols <- c("SondeLatitude", "SondeLongitude", "Rep", "Depth_m")
+  sonde[,num_cols][sonde[,num_cols] == "NA"] <- NA_real_
+  sonde[,num_cols] <- apply(sonde[,num_cols], 2, function(x) as.numeric(x))
+
+  # logic fixes
+  sonde$IsEventCUI <- as.logical(sonde$IsEventCUI)
+
+  # Add year, month and day of year column to dataset
   sonde$year <- as.numeric(substr(sonde$EventDate, 1, 4))
   sonde$month <- as.numeric(substr(sonde$EventDate, 6, 7))
   sonde$doy <- as.numeric(strftime(sonde$EventDate, format = "%j"))
-  sonde$IsEventCUI <- as.logical(sonde$IsEventCUI)
-  sonde$Depth_m <- as.numeric(gsub("NA", NA_real_, sonde$Depth_m))
-  sonde$SondeLatitude <- as.numeric(gsub("NA", NA_real_, sonde$SondeLatitude))
-  sonde$SondeLongitude <- as.numeric(gsub("NA", NA_real_, sonde$SondeLongitude))
-  sonde$XYAccuracy <- gsub("NA", NA_character_, sonde$XYAccuracy)
-  sonde$Rep <- as.numeric(gsub("NA", NA_real_, sonde$Rep))
-  sonde$Datum <- gsub("NA", NA_character_, sonde$Datum)
-  sonde$WQInSitu_Flag <- gsub("NA", NA_character_, sonde$WQInSitu_Flag)
-  sonde$WQFlag_Comments <- gsub("NA", NA_character_, sonde$WQFlag_Comments)
 
   # Make parameters long, so more efficient and easier to filter.
   # Need to end up with a column for each: parameter, value, flag, Method,

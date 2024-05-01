@@ -49,6 +49,15 @@ to the views, they will be added as accepted values in this function. Current ac
 c("Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
 "Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg")}
 
+\item{QC_type}{Specify QC type to return. Must be quoted.
+\describe{
+\item{"all"}{Include all QC types.}
+\item{"0"}{Environmental. Default. Indicates a real non-QC sample.}
+\item{"900"}{QC Replicate}
+\item{"899"}{Pre-deployment 100 percent sat check}
+\item{"999"}{Post-deployment 100 percent sat check}
+}}
+
 \item{sample_depth}{Filter on sample depth. If "all" (Default), returns all sample depths. If "surface",
 only returns the median value of samples collected <= 2m from the surface. SampleDepth_m is also the median
 sample depth of samples collected within 2m of the surface.}

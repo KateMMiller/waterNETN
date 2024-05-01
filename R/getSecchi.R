@@ -106,7 +106,7 @@ getSecchi <- function(park = "all", site = "all",
   sec5 <- sec4 |> filter(!is.na(SDepth_m))
 
   sec6 <-
-  if(output == "short"){sec5[,c("SiteCode", "UnitCode", "SubUnitCode", "EventDate",
+  if(output == "short"){sec5[,c("SiteCode", "UnitCode", "SubUnitCode", "EventDate", "EventCode",
                                 "year", "month", "doy", "SDepth_m", "SecchiObs", "Bot_SD", "Observer")]
     } else {sec4}
 

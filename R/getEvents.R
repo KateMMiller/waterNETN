@@ -78,6 +78,21 @@ getEvents <- function(park = "all", site = "all",
            error = function(e){stop("Water views not found. Please import data.")}
   )
 
+  # Fix data issues
+  # char fixes
+  chr_cols <- c("SubUnitCode", "SubUnitName", "SiteType", "Datum", "EventAmbientLight",
+                "EventSiteObservations", "EventObserver1", "EventObserver2", "EventObserver3")
+  events[,chr_cols][events[,chr_cols] == "NA"] <- NA_character_
+
+  # numeric fixes
+  num_cols <- c("SiteLatitude", "SiteLongitude", "EventCloudCover", "EventAirTemp_C",
+                "EventWindVel_mph", "EventWindDir_cd")
+  events[,num_cols][events[,num_cols] == "NA"] <- NA_real_
+  events[,num_cols] <- apply(events[,num_cols], 2, function(x) as.numeric(x))
+
+  # logic fixes
+  events$IsEventCUI <- as.logical(events$IsEventCUI)
+
   # Add year, month and day of year column to dataset
   events$year <- as.numeric(substr(events$EventDate, 1, 4))
   events$month <- as.numeric(substr(events$EventDate, 6, 7))
@@ -103,16 +118,11 @@ getEvents <- function(park = "all", site = "all",
   evs2 <- filter(evs1, year %in% years)
   evs3 <- filter(evs2, month %in% months)
 
-  # data cleanup
-  evs3$IsEventCUI <- as.logical(evs3$IsEventCUI)
-  evs3$SiteLatitude <- as.numeric(evs3$SiteLatitude)
-  evs3$SiteLongitude <- as.numeric(evs3$SiteLongitude)
-
   # finalize output
   evs_final <- if(output == "short"){
     evs3[,c("UnitCode", "SiteCode", "SiteName", "SiteType",
             "SiteLatitude", "SiteLongitude",
-            "EventDate", "year", "month", "doy")]
+            "EventDate", "EventCode", "year", "month", "doy")]
     } else {evs3}
 
 

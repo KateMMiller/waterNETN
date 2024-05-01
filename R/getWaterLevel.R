@@ -2,7 +2,7 @@
 #'
 #' @description Queries NETN water level data by site, year, and month.
 #'
-#' @importFrom dplyr  filter left_join
+#' @importFrom dplyr  filter inner_join left_join
 #'
 #' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
 #' \describe{
@@ -33,20 +33,17 @@
 #'
 #' @param output Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)
 #'
-#' @param observer_type Return data from all observers, or only return first observer.
-#' Accepted values are c("all", "first", "second"), with "all" being the default.
-#'
-#' @return Data frame of Secchi data in long form (ie observers stacked).
+#' @return Data frame of water level data
 #'
 #' @examples
 #' \dontrun{
 #' importData()
 #'
-#' # get Secchi depth the Pogue from 2021-2023, first observer only
-#' mabi <- getSecchi(sitecode = "MABIPA", years = 2021:2023, observer_type = "first")
+#' # Get water level data for Bubble Pond.
+#' bubl <- getWaterLevel(site = "ACBUBL", years = 2013:2023)
 #'
-#' # get secchi for all ACAD lakes sampled in July for all observers
-#' ACAD_lake <- getSecchi(park = 'ACAD', months = 7)
+#' Get water level data for Weir Pond in August.
+#' weir <- getWaterLevel(site = "WEFAPA", months = 8)
 #'
 #'}
 #' @export
@@ -62,7 +59,6 @@ getWaterLevel <- function(park = "all", site = "all",
   site_type <- match.arg(site_type)
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
-  observer_type <- match.arg(observer_type)
   output <- match.arg(output)
 
   # Check if the views exist and stop if they don't
@@ -79,66 +75,72 @@ getWaterLevel <- function(park = "all", site = "all",
   # Add year, month and day of year column to dataset and fix data types
   # will fix the parameter types later after they're pivoted long
 
-  stage$DatumName <- gsub("NA", NA_character_, stage$DatumName)
-  stage$DatumType <- gsub("NA", NA_character_, stage$DatumType)
-  stage$DatumLatitude <- as.numeric(gsub("NA", NA_real_, stage$DatumLatitude))
-  stage$DatumLongitude <- as.numeric(gsub("NA", NA_real_, stage$DatumLongitude))
-
   # find special characters forcing chr instead of num
   # values = sort(unique(stage$DatumElevation_ft))
   # values[which(!grepl('^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$',values))]
-  #++++ ENDED HERE ++++
+
+  # stage character fixes
+  chr_cols <- c("SubUnitCode", "SubUnitName", "DatumName", "DatumType", "GeodeticDatum",
+                "XYAccuracy", "ElevationType", "ElevationSource", "AccNotes", "LastSurveyDate",
+                "Comments")
+  stage[,chr_cols][stage[,chr_cols] == "NA"] <- NA_character_
+
+  # stage numeric fixes
+  num_cols <- c("DatumLatitude", "DatumLongitude", "DatumElevation_ft", "EstVError_ft")
+  stage[,num_cols][stage[,num_cols] == "NA"] <- NA_real_
+
   stage$DatumElevation_ft <- gsub(",", "", stage$DatumElevation_ft)
-  stage$DatumElevation_ft <- as.numeric(gsub("NA", NA_real_, stage$DatumElevation_ft))
+  stage[,num_cols] <- apply(stage[,num_cols], 2, function(x) as.numeric(x))
 
+  # stage logic fixes
+  log_cols <- c("Active", "IsPointCUI")
+  stage[,log_cols] <- apply(stage[,log_cols], 2, function(x) as.logical(x))
 
-  stage$XYAccuracy <- gsub("NA", NA_character_, stage$XYAccuracy)
-  stage$Datum <- gsub("NA", NA_character_, stage$Datum)
-  stage$IsPointCUI <- as.logical(stage$IsPointCUI)
+  # wl char fixes
+  chr_colw <- c("SubUnitCode", "SubUnitName", "DatumName", "TU-TD", "StageMethod",
+                "StageNotes")
+  wl[,chr_colw][wl[,chr_colw] == "NA"] <- NA_character_
 
-  str(stage)
+  # wl numeric fixes
+  num_colw <- c("GageReadingFeet", "DatumElevationFeet", "WaterLevelFeet")
+  wl$DatumElevationFeet <- gsub(",", "", wl$DatumElevationFeet)
+  wl$WaterLevelFeet <- gsub(",", "", wl$WaterLevelFeet)
+  wl[,num_colw][wl[,num_colw] == "NA"] <- NA_real_
+  wl[,num_colw] <- apply(wl[,num_colw], 2, function(x) as.numeric(x))
 
-  intersect(names(stage), names(wl))
+  # wl logic fixes
+  wl$IsEventCUI <- as.logical(wl$IsEventCUI)
 
+  # merge stage and water level data
   wlcomb <- full_join(stage, wl,
                       by = c("GroupCode", "GroupName", "UnitCode", "UnitName",
                              "SubUnitCode", "SubUnitName", "SiteCode", "SiteName",
                              "DatumName"))
+  wlcomb$df_dif <- round(wlcomb$DatumElevation_ft - wlcomb$DatumElevationFeet, 3)
 
-  str(wlcomb)
   # Add year, month and day of year column to dataset and fix data types
-  sec_long$year <- as.numeric(substr(sec_long$EventDate, 1, 4))
-  sec_long$month <- as.numeric(substr(sec_long$EventDate, 6, 7))
-  sec_long$doy <- as.numeric(strftime(sec_long$EventDate, format = "%j"))
-  sec_long$IsEventCUI <- as.logical(sec_long$IsEventCUI)
-  sec_long$SDepth_m <- as.numeric(gsub("NA", NA_real_, sec_long$SDepth_m))
-  sec_long$SecchiObs <- gsub("NA", NA_character_, sec_long$SecchiObs)
-  sec_long$Bot_SD <- gsub("NA", NA_character_, sec_long$Bot_SD)
+  wlcomb$year <- as.numeric(substr(wlcomb$EventDate, 1, 4))
+  wlcomb$month <- as.numeric(substr(wlcomb$EventDate, 6, 7))
+  wlcomb$doy <- as.numeric(strftime(wlcomb$EventDate, format = "%j"))
 
   # Filter by site, years, and months to make data set small
-  sites <- force(getSites(park = park, site = site, site_type = 'lake'))$SiteCode
-  evs <- force(getEvents(park = park, site = site, site_type = 'lake',
-                         years = years, months = months, output = 'verbose')) |>
-    select(SiteCode, SiteType, EventDate, EventCode)
+  sites <- force(getSites(park = park, site = site, site_type = site_type))$SiteCode
 
-  sec2 <- sec_long |> filter(SiteCode %in% sites)
-  sec3 <- left_join(evs, sec2, by = c("SiteCode", "EventDate", "EventCode"))
+  wl2 <- wlcomb |> filter(SiteCode %in% sites)
+  wl3 <- wl2 |> filter(year %in% years) |> filter(month %in% months)
 
-  sec4 <- if(observer_type == "all"){sec3
-  } else if(observer_type == "first"){filter(sec3, Observer %in% 1)
-  } else if(observer_type == "second"){filter(sec3, Observer %in% 2)}
+  wl4 <-
+  if(output == "short"){wl3[,c("SiteCode", "UnitCode", "SubUnitCode", "EventDate", "EventCode",
+                                "year", "month", "doy", "DatumName", "DatumType", "DatumFunction",
+                                "Active", "TU-TD", "StageMethod", "DatumLatitude", "DatumLongitude",
+                                "DatumElevation_ft", "DatumElevationFeet",
+                                "GageReadingFeet", "WaterLevelFeet")]
+    } else {wl3}
 
-  sec5 <- sec4 |> filter(!is.na(SDepth_m))
-
-  sec6 <-
-  if(output == "short"){sec5[,c("SiteCode", "UnitCode", "SubUnitCode", "EventDate",
-                                "year", "month", "doy", "SDepth_m", "SecchiObs", "Bot_SD", "Observer")]
-    } else {sec4}
-
-  if(nrow(sec6) == 0){
+  if(nrow(wl4) == 0){
     stop("Returned data frame with no records. Check your park, site, and site_type arguments.")}
 
-  return(data.frame(sec6))
+  return(data.frame(wl4))
 
   }
 
