@@ -216,7 +216,7 @@ acad_ws <- getClimWStat(park = "ACAD", site_type = "lake", years = 2023)
 print_head(acad_ws)
 ```
 
-### Get Data Functions {.tabset}
+### get Data Functions {.tabset}
 #### getSites()
 Query site-level data. This function combines columns in common between the Sites_Stream and Sites_Lake views. This is a good building block for other functions, but may be less helpful on its own. Though, one helpful use of this function is to get the site codes for a given park or site.
 
