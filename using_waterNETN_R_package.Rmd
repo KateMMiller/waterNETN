@@ -218,6 +218,7 @@ print_head(acad_ws)
 
 ### get Data Functions {.tabset}
 #### getSites() {.tabset}
+##### getSites()
 Query site-level data. This function combines columns in common between the Sites_Stream and Sites_Lake views. This is a good building block for other functions, but may be less helpful on its own. Though, one helpful use of this function is to get the site codes for a given park or site.
 
 <p class = 'fxn'>Get site info for ACAD lakes</p>
@@ -288,7 +289,7 @@ print_head(lnetn_evs) #just printing first 6 rows
 ```
 
 #### getChemistry()
-This function allows you to query the Chemistry_Data view by park, site, site type, year, month,  parameter, sample type, and sample depth type (i.e., surface vs. below surface). The returned data frame is long (i.e. stacked) to facilitate data summary and plotting (coming soon).
+This function allows you to query the Chemistry_Data view by park, site, site type, year, month, parameter, sample type, and sample depth type (i.e., surface vs. below surface). The returned data frame is long (i.e. stacked) to facilitate data summary and plotting. Surface only measurements, defined as as the medium of all samples within 2m of the surface, are the default.
 
 <p class = 'fxn'>Get N parameters for all sites and non-QAQC events in MIMA.</p> 
 Note that `QC_type = "ENV"` is the default for this function, which returns only non-QAQC events. Note also the use of named objects for the arguments. This allows you to set them at the top of a script, rather than having to type them out repeatedly. You can then change them in 1 place (i.e., update the year to 2024) and rerun the code. 
@@ -313,9 +314,9 @@ anc <- getChemistry(park = lnetn, param = "ANC", months = 5)
 print_head(anc)
 ```
 
-<p class = 'fxn'>Get surface-only measurements, defined as as the medium of all samples within 2m of the surface for ACAD lakes from 2021:2023. If more than one measurement exists, the value represents the median of all samples within 2m of the surface.</p>
+<p class = 'fxn'>Get  for ACAD lakes from 2021:2023 from all sample depths.</p>
 ```{r}
-surf <- getChemistry(park = "ACAD", site_type = "lake", years = 2021:2023, sample_depth = 'surface')
+surf <- getChemistry(park = "ACAD", site_type = "lake", years = 2021:2023, sample_depth = 'all')
 print_head(surf)
 ```
 
@@ -373,7 +374,7 @@ print_head(ACAD_lake)
 ```
 
 #### getSondeInSitu()
-This function allows you to query Sonde in situ data by park, site, site type, years, months, parameter, QC type, surface vs. all, etc. Default returns all non-QAQC observations with data. The Sonde_InSitu_Data view is large and can take a few seconds to run for most parks, sites, years, parameters, etc.
+This function allows you to query Sonde in situ data by park, site, site type, years, months, parameter, QC type, surface vs. all, etc. Default returns all non-QAQC observations with data. The Sonde_InSitu_Data view is large and can take a few seconds to run for most parks, sites, years, parameters, etc. Surface only measurements, defined as as the medium of all samples within 2m of the surface, are the default.
 
 <p class = 'fxn'>Get Sonde data for all sites and parameters in MABI from 2021-2023 for non-QAQC samples</p>
 ```{r}
@@ -389,9 +390,9 @@ mima_do <- getSondeInSitu(park = "MIMA", years = period, parameter = params)
 print_head(mima_do)
 ```
 
-<p class = 'fxn'>Get Temp data for surface measurements, defined as the medium of all samples within 2m of the surface, only in Jordan Pond in ACAD for non-QAQC samples</p>
+<p class = 'fxn'>Get Temp data for all sample depths in Jordan Pond in ACAD for non-QAQC samples</p>
 ```{r}
-ACAD_lake <- getSondeInSitu(site = 'ACJORD', parameter = "Temp_C", sample_depth = "surface")
+ACAD_lake <- getSondeInSitu(site = 'ACJORD', parameter = "Temp_C", sample_depth = "all")
 ```
 
 <p class = 'fxn'>Get pH for lower NETN parks from May to Oct for QAQC and non-QAQC samples</p>
@@ -430,7 +431,7 @@ print_head(weir)
 
 
 ### Summary Functions {.tabset}
-WIP
+
 
 ### Plotting Functions {.tabset}
 WIP

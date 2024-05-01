@@ -48,7 +48,7 @@
 #' \item{"999"}{Post-deployment 100 percent sat check}
 #' }
 #'
-#' @param sample_depth Filter on sample depth. If "all" (Default), returns all sample depths. If "surface",
+#' @param sample_depth Filter on sample depth. If "all", returns all sample depths. If "surface" (Default),
 #' only returns the median value of samples collected <= 2m from the surface. SampleDepth_m is also the median
 #' sample depth of samples collected within 2m of the surface.
 #'
@@ -83,7 +83,7 @@ getSondeInSitu <- function(park = "all", site = "all",
                      months = 5:10,
                      parameter = "all",
                      QC_type = c("0", "all", "900", "899", "999"),
-                     sample_depth = c("all", "surface"),
+                     sample_depth = c("surface", "all"),
                      output = c("short", "verbose")){
 
   #-- Error handling --

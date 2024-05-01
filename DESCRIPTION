@@ -28,6 +28,8 @@ Collate:
     'getStreamObs.R'
     'getWaterLevel.R'
     'importData.R'
+    'plotTrend.R'
+    'theme_WQ.R'
 Imports: 
     dplyr,
     purrr,

@@ -12,7 +12,7 @@ getChemistry(
   months = 5:10,
   QC_type = c("ENV", "all", "BLANK", "LABREP", "REP", "DUP"),
   sample_type = c("all", "G", "C"),
-  sample_depth = c("all", "surface"),
+  sample_depth = c("surface", "all"),
   parameter = "all",
   include_censored = FALSE,
   output = c("short", "verbose")
@@ -63,7 +63,7 @@ events are between months 5 and 10, and these are set as the defaults.}
 \item{"G"}{Include Grab samples only}
 }}
 
-\item{sample_depth}{Filter on sample depth. If "all" (Default), returns all sample depths. If "surface",
+\item{sample_depth}{Filter on sample depth. If "all", returns all sample depths. If "surface" (Default),
 only returns the median value of samples collected <= 2m from the surface. SampleDepth_m is also the median
 sample depth of samples collected within 2m of the surface.}
 
