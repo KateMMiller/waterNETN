@@ -99,7 +99,7 @@ getClimWStat <- function(park = "all", site = "all",
   }
 
   # Test connection to API
-  if(httr::http_error("http://data.rcc-acis.org") == FALSE){
+  if(httr::http_error("http://data.rcc-acis.org")){
     stop("Unable to connect to data.rcc-acis.org to download weather station data.")}
 
   # Combine sites with nearest weather station
@@ -112,7 +112,6 @@ getClimWStat <- function(park = "all", site = "all",
 
   startdate <- paste0(min(years), "-01-01")
   enddate <- paste0(max(years), "-12-31")
-
 
   # function to downoad precip and temp weather station data from rcc-acis
   get_wdat <- function(field, stn, reduce = c("sum", "mean"), park){#, site){
