@@ -201,14 +201,14 @@ print_head(mabi_dm)
 #### Weather Station
 For each NETN monitoring site, I used the `rnoaa` package to find all weather stations within 20km radius of each site's lat/long coordinates. I then checked the period of record for each of these sites. I selected the closest weather station with the longest period of record that included 2023 and 2024. This assessment was done at the park level, so the data for each site within a park is the same. The API used to download weather station data is <a href="data.rcc-acis.org">data.rcc-acis.org</a>. Unfortunately only temperature data are available for ACAD's McFarland Hill weather station (AKA MARS). ACAD's hourly precipitation data were downloaded separately from the NADP website <a href="http://nadp2.slh.wisc.edu/siteOps/ppt/">http://nadp2.slh.wisc.edu/siteOps/ppt/</a>. These data only go back to 2008 and were aggregated to daily total precipitation. This function is slower for ACAD as a result. Though note that data are downloaded at the park level, then joined with site-specific data. In other words, data are downloaded for a park x combination of years once, then joined to site-level data. Weather stations used and their distance from each site are included in the output.
 
-<p class = 'fxn'>The following code downloads weather station data for all sites in ROVA during the monitoring period and writes to a csv.</p>
+<p class = 'fxn'>The following code downloads weather station data for all sites in ROVA the past 10 years and writes to a csv.</p>
 ```{r}
-rova_ws <- getClimWStat(park = "ROVA", years = 2006:2023, export = T, filepath = "./data")
+rova_ws <- getClimWStat(park = "ROVA", years = 2013:2023, export = T, filepath = "./data")
 print_head(rova_ws)
 ```
 
 ```{r echo = F, include = F}
-file.remove("./data/Weather_station_data_2006-2023.csv")
+file.remove("./data/Weather_station_data_2013-2023.csv")
 ```
 <p class = 'fxn'>The following code downloads weather station data for all lakes in ACAD in 2023, but doesn't export to disk.</p>
 ```{r}
@@ -217,7 +217,7 @@ print_head(acad_ws)
 ```
 
 ### get Data Functions {.tabset}
-#### getSites()
+#### getSites() {.tabset}
 Query site-level data. This function combines columns in common between the Sites_Stream and Sites_Lake views. This is a good building block for other functions, but may be less helpful on its own. Though, one helpful use of this function is to get the site codes for a given park or site.
 
 <p class = 'fxn'>Get site info for ACAD lakes</p>
@@ -236,7 +236,7 @@ sara_sites <- getSites(park = "SARA") |> select(SiteCode, SiteName)
 print_head(sara_sites)
 ```
 
-#### getSitesLake()
+##### getSitesLake()
 Query site-level data for lakes only. This returns lake-only columns in the Sites_Lake views
 <p class = 'fxn'>Get site info for ACAD lakes</p>
 ```{r}
@@ -250,7 +250,7 @@ pogue <- getSitesLake(site = "MABIPA", output = 'verbose')
 print_head(pogue)
 ```
 
-#### getSitesStream()
+##### getSitesStream()
 Query site-level data for streams only. This returns stream-only columns in the Sites_Stream views
 <p class = 'fxn'>Get site info for ACAD streams</p>
 ```{r}
