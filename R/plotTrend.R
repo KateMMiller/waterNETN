@@ -71,8 +71,8 @@ plotTrend <- function(park = "all", site = "all",
                       years = 2006:format(Sys.Date(), "%Y"),
                       months = 5:10,
                       parameter = NA, include_censored = FALSE,
-                      sample_depth = c("all", "surface"),
-                      smooth = c(TRUE, FALSE), ...){
+                      sample_depth = c("surface", "all"),
+                      smooth = TRUE, ...){
 
   # park = 'all'; site = 'all'; site_type = 'all'; years = 2013:2023;
   # parameter = c("ANC", "pH_Lab", "pH", "Temp_C"); ... = NULL
@@ -111,6 +111,14 @@ plotTrend <- function(park = "all", site = "all",
           getSondeInSitu(park = park, site = site, site_type = site_type,
                          years = years, parameter = par_sonde, ...) |>
             select(SiteCode, UnitCode, EventDate, year, month, doy, param, value))
+  } else if(data_type == "chem"){
+    getChemistry(park = park, site = site, site_type = site_type,
+                 years = years, parameter = par_chem, ...) |>
+      select(SiteCode, UnitCode, EventDate, year, month, doy, param, value)
+  } else if(data_type == "sonde"){
+    getSondeInSitu(park = park, site = site, site_type = site_type,
+                   years = years, parameter = par_sonde, ...) |>
+      select(SiteCode, UnitCode, EventDate, year, month, doy, param, value)
   }
 
   wdat$param_label <- ifelse(grepl("_", wdat$param),
@@ -118,11 +126,13 @@ plotTrend <- function(park = "all", site = "all",
                              paste0(wdat$param)
   )
 
+  if(nrow(wdat) == 0){stop("Combination of sites and parameters returned a data frame with no records.")}
+
   smplot <-
     ggplot(wdat, aes(x = EventDate, y = value, group = SiteCode,
                      color = SiteCode, fill = SiteCode)) +
-      {if(smooth == TRUE) geom_smooth(method = 'loess', formula = 'y ~ x', se = F) } +
-      {if(smooth == FALSE) geom_line()} +
+      {if(all(smooth == TRUE)) geom_smooth(method = 'loess', formula = 'y ~ x', se = F) } +
+      {if(all(smooth == FALSE)) geom_line()} +
       {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free')} +
       theme_WQ() +
       scale_color_viridis_d() +

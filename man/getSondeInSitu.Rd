@@ -11,8 +11,8 @@ getSondeInSitu(
   years = 2006:format(Sys.Date(), "\%Y"),
   months = 5:10,
   parameter = "all",
-  QC_type = c("0", "all", "900", "899", "999"),
-  sample_depth = c("surface", "all"),
+  QC_type = "0",
+  sample_depth = "surface",
   output = c("short", "verbose")
 )
 }

@@ -429,11 +429,26 @@ weir <- getWaterLevel(site = "WEFAPA", months = 8)
 print_head(weir)
 ```
 
+### Plotting Functions {.tabset}
+#### plotTrend()
+This function produces a smoothed trend plot filtered on park, site, year, month, and parameter.
+It works with both lab chemistry data and Sonde in situ data. If multiple sites are specified, they will be plotted on the same figure. If multiple parameters are specified, they will be plotted on separate figures.
+
+<p class = 'fxn'>Plot smoothed surface pH for Eagle Lake for all years. </p>
+```{r}
+plotTrend(site = "ACEAGL", parameter = "pH")
+
+```
+
+
+<p class = 'fxn'>Plot non-smoothed surface pH for Eagle Lake for 2023. </p>
+```{r}
+plotTrend(site = "ACEAGL", parameter = "pH", years = 2023, smooth = FALSE, sample_depth = 'surface')
+#++++ ENDED HERE++++ Something is resulting in multiple samples per event
+```
 
 ### Summary Functions {.tabset}
-
-
-### Plotting Functions {.tabset}
 WIP
+
 
 

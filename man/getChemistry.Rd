@@ -10,9 +10,9 @@ getChemistry(
   site_type = c("all", "lake", "stream"),
   years = 2006:format(Sys.Date(), "\%Y"),
   months = 5:10,
-  QC_type = c("ENV", "all", "BLANK", "LABREP", "REP", "DUP"),
+  QC_type = "ENV",
   sample_type = c("all", "G", "C"),
-  sample_depth = c("surface", "all"),
+  sample_depth = "surface",
   parameter = "all",
   include_censored = FALSE,
   output = c("short", "verbose")

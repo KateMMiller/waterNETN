@@ -12,8 +12,8 @@ plotTrend(
   months = 5:10,
   parameter = NA,
   include_censored = FALSE,
-  sample_depth = c("all", "surface"),
-  smooth = c(TRUE, FALSE),
+  sample_depth = c("surface", "all"),
+  smooth = TRUE,
   ...
 )
 }

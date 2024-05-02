@@ -3,7 +3,7 @@
 #' @description Queries NETN water chemistry data with the Sonde in the field by site, event, and parameter.
 #' If pulling all sites, parameters, years, etc., function may take a second or two to run.
 #'
-#' @importFrom dplyr filter full_join group_by left_join mutate select summarize
+#' @importFrom dplyr filter first full_join group_by left_join mutate select summarize
 #' @importFrom purrr reduce
 #' @importFrom tidyr pivot_longer pivot_wider
 #'
@@ -82,8 +82,8 @@ getSondeInSitu <- function(park = "all", site = "all",
                      years = 2006:format(Sys.Date(), "%Y"),
                      months = 5:10,
                      parameter = "all",
-                     QC_type = c("0", "all", "900", "899", "999"),
-                     sample_depth = c("surface", "all"),
+                     QC_type = "0",
+                     sample_depth = "surface",
                      output = c("short", "verbose")){
 
   #-- Error handling --
@@ -93,12 +93,16 @@ getSondeInSitu <- function(park = "all", site = "all",
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   output <- match.arg(output)
-  QC_type <- match.arg(QC_type, several.ok = TRUE)
-  sample_depth <- match.arg(sample_depth)
+  QC_type <- match.arg(QC_type, several.ok = TRUE,
+                       c("0", "all", "900", "899", "999"))
+  sample_depth <- match.arg(sample_depth, c("surface", "all"))
   parameter <- match.arg(parameter,
                          c("all", "Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct",
                            "DO_mgL", "pH", "pHmV", "Turbidity_FNU", "ChlA_RFU",
                            "ChlA_ugL", "BP_mmHg"), several.ok = TRUE)
+
+  qccode <- ifelse(unique(QC_type) == "all", c("0", "all", "900", "899", "999"),
+                   unique(QC_type))
 
   # Check if the views exist and stop if they don't
   env <- if(exists("VIEWS_WQ")){VIEWS_WQ} else {.GlobalEnv}
@@ -147,6 +151,7 @@ getSondeInSitu <- function(park = "all", site = "all",
 
   sonde2 <- sonde |> filter(SiteCode %in% sites)
   sonde3 <- left_join(evs, sonde2, by = c("SiteCode", "EventDate", "EventCode"))
+  #head(sonde3)
 
   sonde_long <- sonde3 |> pivot_longer(cols = !all_of(keep_cols),
                                     names_to = 'param', values_to = 'value') |>
@@ -160,39 +165,39 @@ getSondeInSitu <- function(park = "all", site = "all",
   sonde_long$value <- as.numeric(gsub("NA", NA_real_, sonde_long$value))
 
   # filters for params, sampletype, qctype
-  sonde2 <-
-  if(any(parameter == "all")){sonde_long
+  sonde4 <-
+  if(unique(parameter) == "all"){sonde_long
   } else {filter(sonde_long, param %in% parameter)}
 
-  sonde3 <-
-    if(any(QC_type == "all")){sonde2
-    } else {filter(sonde2, QCtype %in% QC_type)}
+  sonde5 <- filter(sonde4, QCType_Code %in% qccode)
 
   # Filter on surface vs. epilimnion. For sample_depth = surface, take median for all depths <=2m.
   # For depth = "all", include all measurements without aggregating.
-  sonde4 <- if(sample_depth == 'surface'){
-    sonde3 |> filter(Depth_m <= 2) |>
+  sonde6 <- if(sample_depth == 'surface'){
+    sonde5 |> filter(Depth_m <= 2) |>
       group_by( SiteCode, SiteType, EventDate, EventCode, GroupCode, GroupName,
-                UnitCode, UnitName, SubUnitCode, SubUnitName, SiteName, MeasurementTime,
-                SondeLatitude, SondeLongitude, Datum, XYAccuracy, QCType_Code,
+                UnitCode, UnitName, SubUnitCode, SubUnitName, SiteName, #MeasurementTime,
+                Datum, XYAccuracy, QCType_Code,
                 QCType_Value, Rep,SondeType, WQInSitu_Flag, WQFlag_Comments, IsEventCUI,
                 year, month, doy, param) |>
       summarize(Depth_m = median(Depth_m, na.rm = T),
                 value = median(value, na.rm = T),
+                SondeLatitude = first(SondeLatitude),
+                SondeLongitude = first(SondeLongitude),
                 .groups = 'drop')
-  } else {sonde3}
+  } else {sonde5}
 
-  sonde5 <-
-  if(output == "short"){sonde4[,c("SiteCode", "UnitCode", "SubUnitCode", "EventDate",
+  sonde7 <-
+  if(output == "short"){sonde6[,c("SiteCode", "UnitCode", "SubUnitCode", "EventDate",
                                   "year", "month", "doy", "QCType_Code", "QCType_Value",
                                   "Rep", "SondeType", "Depth_m", "param", "value",
                                   "WQInSitu_Flag", "WQFlag_Comments")]
-  } else {sonde4}
+  } else {sonde6}
 
-  if(nrow(sonde5) == 0){
+  if(nrow(sonde7) == 0){
     stop("Returned data frame with no records. Check your park, site, and site_type arguments.")}
 
-  return(data.frame(sonde5))
+  return(data.frame(sonde7))
 
   }
 
