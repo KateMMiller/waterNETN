@@ -434,6 +434,13 @@ print_head(weir)
 This function produces a smoothed trend plot filtered on park, site, year, month, and parameter.
 It works with both lab chemistry data and Sonde in situ data. If multiple sites are specified, they will be plotted on the same figure. If multiple parameters are specified, they will be plotted on separate figures.
 
+<details open><summary class='drop'>Eagle Lake pH</summary>
+<p class = 'fxn'>Plot non-smoothed surface pH for Eagle Lake for all years. </p>
+```{r}
+plotTrend(site = "ACEAGL", parameter = "pH", smooth = FALSE)
+
+```
+
 <p class = 'fxn'>Plot smoothed surface pH for Eagle Lake for all years using default span of 0.3 and by default not including the legend. </p>
 ```{r}
 plotTrend(site = "ACEAGL", parameter = "pH")
@@ -444,13 +451,9 @@ plotTrend(site = "ACEAGL", parameter = "pH")
 plotTrend(site = "ACEAGL", parameter = "pH", span = 0.75)
 
 ```
+</details>
 
-<p class = 'fxn'>Plot non-smoothed surface pH for Eagle Lake for all years. </p>
-```{r}
-plotTrend(site = "ACEAGL", parameter = "pH", smooth = FALSE)
-
-```
-
+<details open><summary class='drop'>Multiple sites/params</summary>
 <p class = 'fxn'>Plot smoothed surface pH for active SARA streams over all years with 0.6 span. </p>
 ```{r}
 plotTrend(park = "SARA", site = c("SARASA", "SARASC", "SARASD"), site_type = "stream", 
@@ -472,7 +475,7 @@ plotTrend(park = "MIMA", site_type = "stream",
           parameter = params, legend_position = "right", span = 0.6)
 
 ```
-
+</details>
 
 ### Summary Functions {.tabset}
 WIP
