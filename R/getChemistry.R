@@ -233,7 +233,7 @@ getChemistry <- function(park = "all", site = "all",
   } else {chem_comb4}
 
   chem_comb6 <-
-  if(output == "short"){chem_comb5[,c("SiteCode", "UnitCode", "SubUnitCode", "EventDate","EventCode",
+  if(output == "short"){chem_comb5[,c("SiteCode", "SiteName", "UnitCode", "SubUnitCode", "EventDate","EventCode",
                                      "year", "month", "doy", "QCtype", "SampleType",
                                      "SampleDepth_m", "param", "value", "flag",
                                      "lab_method", "Comments")]

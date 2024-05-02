@@ -14,6 +14,8 @@ plotTrend(
   include_censored = FALSE,
   sample_depth = c("surface", "all"),
   smooth = TRUE,
+  span = 0.3,
+  legend_position = "none",
   ...
 )
 }
@@ -62,6 +64,12 @@ only returns the median value of samples collected <= 2m from the surface. Sampl
 sample depth of samples collected within 2m of the surface.}
 
 \item{smooth}{Logical. If TRUE (Default), will plot a loess smoothed line. If FALSE, will plot actual line.}
+
+\item{span}{Numeric. Determines how smoothed the line will be for smooth = TRUE. Default is 0.3. Higher spans (up to 1)
+cause more smoothing. Span can range from 0 to 1.}
+
+\item{legend_position}{Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
+options are "top", "bottom", "left", "right".}
 
 \item{...}{Additional arguments relevant to \code{getChemistry()} or \code{getSondeInSitu()}}
 }

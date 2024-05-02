@@ -301,10 +301,10 @@ mima_n <- getChemistry(park = "MIMA", years = period, parameter = n_params)
 print_head(mima_n) # top 6 rows
 ```
 
-<p class = 'fxn'>Get ChlA for all events, including QC samples, in 2023 for Jordan Pond in ACAD</p>
+<p class = 'fxn'>Get results for all surface samples, including QC samples, in Browns Brook in 2023 in ACAD</p>
 ```{r}
-jord <- getChemistry(site = "ACJORD", QC_type = "all", param = "ChlA", years = 2023)
-print_head(jord)
+brbk <- getChemistry(site = "ACBRWN", QC_type = "all", param = "all", years = 2023)
+print_head(brbk)
 ```
 
 <p class = 'fxn'>Get ANC for LNETN parks for all years during month of May. Note that by not specifying years, all years by default will be included in the output.</p>
@@ -434,18 +434,54 @@ print_head(weir)
 This function produces a smoothed trend plot filtered on park, site, year, month, and parameter.
 It works with both lab chemistry data and Sonde in situ data. If multiple sites are specified, they will be plotted on the same figure. If multiple parameters are specified, they will be plotted on separate figures.
 
-<p class = 'fxn'>Plot smoothed surface pH for Eagle Lake for all years. </p>
+<p class = 'fxn'>Plot smoothed surface pH for Eagle Lake for all years, removing the legend and using default span of 0.3. </p>
 ```{r}
-plotTrend(site = "ACEAGL", parameter = "pH")
+plotTrend(site = "ACEAGL", parameter = "pH", legend_position = 'none')
 
 ```
+<p class = 'fxn'>Plot smoothed surface pH for Eagle Lake for all years, removing the legend and using span of 0.75. </p>
+```{r}
+plotTrend(site = "ACEAGL", parameter = "pH", legend_position = 'none', span = 0.75)
 
+```
 
 <p class = 'fxn'>Plot non-smoothed surface pH for Eagle Lake for 2023. </p>
 ```{r}
-plotTrend(site = "ACEAGL", parameter = "pH", years = 2023, smooth = FALSE, sample_depth = 'surface')
-#++++ ENDED HERE++++ Something is resulting in multiple samples per event
+plotTrend(site = "ACEAGL", parameter = "pH", years = 2023, smooth = FALSE)
+
 ```
+
+<p class = 'fxn'>Plot smoothed surface pH for all SARA streams over all years with 0.6 span. </p>
+```{r}
+plotTrend(park = "SARA", site_type = "stream", 
+          parameter = "pH", legend_position = "right", span = 0.6)
+
+```
+
+
+<p class = 'fxn'>Plot smoothed surface pH for all SARA streams over all years with 0.6 span. </p>
+```{r}
+plotTrend(park = "SARA", site_type = "stream", 
+          parameter = "pH", legend_position = "right", span = 0.6)
+
+```
+
+
+<p class = 'fxn'>Plot smoothed surface SO4 for all MIMA streams over all years with 0.6 span. </p>
+```{r}
+plotTrend(park = "MIMA", site_type = "stream", 
+          parameter = "SO4_ueqL", legend_position = "right", span = 0.6)
+
+```
+
+<p class = 'fxn'>Plot non-smoothed surface of multiple Sonde parameters for all MIMA streams over all years with 0.6 span. </p>
+```{r}
+params <- c("Temp_C", "SpCond_uScm", "DOsat_pct", "pH")
+plotTrend(park = "MIMA", site_type = "stream", 
+          parameter = params, legend_position = "right", span = 0.6)
+
+```
+
 
 ### Summary Functions {.tabset}
 WIP

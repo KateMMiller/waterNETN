@@ -52,6 +52,12 @@
 #'
 #' @param smooth Logical. If TRUE (Default), will plot a loess smoothed line. If FALSE, will plot actual line.
 #'
+#' @param span Numeric. Determines how smoothed the line will be for smooth = TRUE. Default is 0.3. Higher spans (up to 1)
+#' cause more smoothing. Span can range from 0 to 1.
+#'
+#' @param legend_position Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
+#' options are "top", "bottom", "left", "right".
+#'
 #' @param ... Additional arguments relevant to \code{getChemistry()} or \code{getSondeInSitu()}
 #'
 #' @examples
@@ -72,7 +78,7 @@ plotTrend <- function(park = "all", site = "all",
                       months = 5:10,
                       parameter = NA, include_censored = FALSE,
                       sample_depth = c("surface", "all"),
-                      smooth = TRUE, ...){
+                      smooth = TRUE, span = 0.3, legend_position = 'none', ...){
 
   # park = 'all'; site = 'all'; site_type = 'all'; years = 2013:2023;
   # parameter = c("ANC", "pH_Lab", "pH", "Temp_C"); ... = NULL
@@ -86,6 +92,8 @@ plotTrend <- function(park = "all", site = "all",
   stopifnot(class(include_censored) == "logical")
   sample_depth <- match.arg(sample_depth)
   stopifnot(class(smooth) == "logical")
+  stopifnot(class(span) %in% "numeric")
+  legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
 
   chem <- c("ANC", "ANC_ueqL", "AppColor", "AppColor_PCU", "ChlA", "ChlA_ugL", "Cl", "Cl_ueqL",
             "DOC", "DOC_mgL", "NH3", "NH3_mgL", "NO2", "NO2_mgL", "NO2+NO3", "NO2+NO3_mgL",
@@ -107,18 +115,18 @@ plotTrend <- function(park = "all", site = "all",
   if(data_type == 'both'){
     rbind(getChemistry(park = park, site = site, site_type = site_type,
                        years = years, parameter = par_chem, ...) |>
-            select(SiteCode, UnitCode, EventDate, year, month, doy, param, value),
+            select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, param, value),
           getSondeInSitu(park = park, site = site, site_type = site_type,
                          years = years, parameter = par_sonde, ...) |>
-            select(SiteCode, UnitCode, EventDate, year, month, doy, param, value))
+            select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, param, value))
   } else if(data_type == "chem"){
     getChemistry(park = park, site = site, site_type = site_type,
                  years = years, parameter = par_chem, ...) |>
-      select(SiteCode, UnitCode, EventDate, year, month, doy, param, value)
+      select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, param, value)
   } else if(data_type == "sonde"){
     getSondeInSitu(park = park, site = site, site_type = site_type,
                    years = years, parameter = par_sonde, ...) |>
-      select(SiteCode, UnitCode, EventDate, year, month, doy, param, value)
+      select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, param, value)
   }
 
   wdat$param_label <- ifelse(grepl("_", wdat$param),
@@ -128,15 +136,17 @@ plotTrend <- function(park = "all", site = "all",
 
   if(nrow(wdat) == 0){stop("Combination of sites and parameters returned a data frame with no records.")}
 
-  smplot <-
-    ggplot(wdat, aes(x = EventDate, y = value, group = SiteCode,
-                     color = SiteCode, fill = SiteCode)) +
-      {if(all(smooth == TRUE)) geom_smooth(method = 'loess', formula = 'y ~ x', se = F) } +
+  ylab <- ifelse(length(unique(wdat$param_label)) == 1, unique(wdat$param_label), "value")
+
+    smplot <-
+    ggplot(wdat, aes(x = EventDate, y = value, group = SiteName,
+                     color = SiteName, fill = SiteName)) +
+      {if(all(smooth == TRUE)) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +
       {if(all(smooth == FALSE)) geom_line()} +
       {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free')} +
-      theme_WQ() +
+      theme_WQ() + theme(legend.position = legend_position, legend.title = element_blank()) +
       scale_color_viridis_d() +
-      labs(x = "Year", y = "value")
+      labs(x = "Year", y = ylab)
 
  return(smplot)
 }

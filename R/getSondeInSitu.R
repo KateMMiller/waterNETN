@@ -166,7 +166,7 @@ getSondeInSitu <- function(park = "all", site = "all",
 
   # filters for params, sampletype, qctype
   sonde4 <-
-  if(unique(parameter) == "all"){sonde_long
+  if(any(unique(parameter) == "all")){sonde_long
   } else {filter(sonde_long, param %in% parameter)}
 
   sonde5 <- filter(sonde4, QCType_Code %in% qccode)
@@ -188,7 +188,7 @@ getSondeInSitu <- function(park = "all", site = "all",
   } else {sonde5}
 
   sonde7 <-
-  if(output == "short"){sonde6[,c("SiteCode", "UnitCode", "SubUnitCode", "EventDate",
+  if(output == "short"){sonde6[,c("SiteCode", "SiteName", "UnitCode", "SubUnitCode", "EventDate",
                                   "year", "month", "doy", "QCType_Code", "QCType_Value",
                                   "Rep", "SondeType", "Depth_m", "param", "value",
                                   "WQInSitu_Flag", "WQFlag_Comments")]
