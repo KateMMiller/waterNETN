@@ -282,14 +282,13 @@ print_head(pogue)
 
 <p class = 'fxn'>Get date of sampling each site in lower NETN in May, 2023</p>
 ```{r}
-lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
-lnetn_evs <- getEvents(park = lnetn, years = 2023, months = 5) |> 
+lnetn_evs <- getEvents(park = "LNETN", years = 2023, months = 5) |> 
   select(SiteCode, SiteName, EventDate)
 print_head(lnetn_evs) #just printing first 6 rows
 ```
 
 #### getChemistry()
-This function allows you to query the Chemistry_Data view by park, site, site type, year, month, parameter, sample type, and sample depth type (i.e., surface vs. below surface). The returned data frame is long (i.e. stacked) to facilitate data summary and plotting. Surface only measurements, defined as as the medium of all samples within 2m of the surface, are the default.
+This function allows you to query the Chemistry_Data view by park, site, site type, year, month, parameter, and sample type. The returned data frame is long (i.e. stacked) to facilitate data summary and plotting. Note that sample depth is not a filter in getChemistry() as it is with the Sonde In Situ data. 
 
 <p class = 'fxn'>Get N parameters for all sites and non-QAQC events in MIMA.</p> 
 Note that `QC_type = "ENV"` is the default for this function, which returns only non-QAQC events. Note also the use of named objects for the arguments. This allows you to set them at the top of a script, rather than having to type them out repeatedly. You can then change them in 1 place (i.e., update the year to 2024) and rerun the code. 
@@ -309,21 +308,19 @@ print_head(brbk)
 
 <p class = 'fxn'>Get ANC for LNETN parks for all years during month of May. Note that by not specifying years, all years by default will be included in the output.</p>
 ```{r}
-lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
-anc <- getChemistry(park = lnetn, param = "ANC", months = 5)
+anc <- getChemistry(park = "LNETN", param = "ANC", months = 5)
 print_head(anc)
 ```
 
 <p class = 'fxn'>Get  for ACAD lakes from 2021:2023 from all sample depths.</p>
 ```{r}
-surf <- getChemistry(park = "ACAD", site_type = "lake", years = 2021:2023, sample_depth = 'all')
+surf <- getChemistry(park = "ACAD", site_type = "lake", years = 2021:2023)
 print_head(surf)
 ```
 
 <p class = 'fxn'>Get censored and non-censored NH3 data for LNETN all years. Note the Flag column indicates the measurement is censored by reporting the detection limit used.</p>
 ```{r}
-lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
-cens <- getChemistry(park = lnetn, param = "NH3", include_censored = TRUE)
+cens <- getChemistry(park = "LNETN", param = "NH3", include_censored = TRUE)
 print_head(cens) 
 ```
 
@@ -332,8 +329,7 @@ This function allows you to query the Discharge_Data view by park, site, site ty
 
 <p class = 'fxn'>Get discharge data for all LNETN sites and years measured with flowtracker </p>
 ```{r}
-lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
-ft <- getDischarge(park = lnetn, method = "LNETN Pygmy")
+ft <- getDischarge(park = "LNETN", method = "LNETN Pygmy")
 print_head(ft)
 ```
 
@@ -397,8 +393,7 @@ ACAD_lake <- getSondeInSitu(site = 'ACJORD', parameter = "Temp_C", sample_depth 
 
 <p class = 'fxn'>Get pH for lower NETN parks from May to Oct for QAQC and non-QAQC samples</p>
 ```{r}
-lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
-lnetn_ph <- getSondeInSitu(park = lnetn, param = "pH", months = 5:10, QC_type = 'all')
+lnetn_ph <- getSondeInSitu(park = "LNETN", param = "pH", months = 5:10, QC_type = 'all')
 ```
 
 #### getStreamObs()
