@@ -12,7 +12,6 @@ getChemistry(
   months = 5:10,
   QC_type = "ENV",
   sample_type = c("all", "G", "C"),
-  sample_depth = "surface",
   parameter = "all",
   include_censored = FALSE,
   output = c("short", "verbose")
@@ -22,6 +21,7 @@ getChemistry(
 \item{park}{Combine data from all parks or one or more parks at a time. Valid inputs:
 \describe{
 \item{"all"}{Includes all parks in the network}
+\item{"LNETN"}{Includes all parks but ACAD}
 \item{"ACAD"}{Acadia NP only}
 \item{"MABI"}{Marsh-Billings-Rockefeller NHP only}
 \item{"MIMA"}{Minute Man NHP only}
@@ -62,10 +62,6 @@ events are between months 5 and 10, and these are set as the defaults.}
 \item{"C"}{Include Core samples only}
 \item{"G"}{Include Grab samples only}
 }}
-
-\item{sample_depth}{Filter on sample depth. If "all", returns all sample depths. If "surface" (Default),
-only returns the median value of samples collected <= 2m from the surface. SampleDepth_m is also the median
-sample depth of samples collected within 2m of the surface.}
 
 \item{parameter}{Specify the chemical parameter(s) to return. Note if additional parameters are added to the Chemistry view, there will be additional
 to the views, they will be added as accepted values in this function. Current accepted values are:.

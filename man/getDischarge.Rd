@@ -18,6 +18,7 @@ getDischarge(
 \item{park}{Combine data from all parks or one or more parks at a time. Valid inputs:
 \describe{
 \item{"all"}{Includes all parks in the network}
+\item{"LNETN"}{Includes all parks but ACAD}
 \item{"ACAD"}{Acadia NP only}
 \item{"MABI"}{Marsh-Billings-Rockefeller NHP only}
 \item{"MIMA"}{Minute Man NHP only}

@@ -9,6 +9,7 @@
 #' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
 #' \describe{
 #' \item{"all"}{Includes all parks in the network}
+#' \item{"LNETN"}{Includes all parks but ACAD}
 #' \item{"ACAD"}{Acadia NP only}
 #' \item{"MABI"}{Marsh-Billings-Rockefeller NHP only}
 #' \item{"MIMA"}{Minute Man NHP only}
@@ -59,10 +60,6 @@
 #' \item{"REP"}{Field replicate}
 #' }
 #'
-#' @param sample_depth Filter on sample depth. If "all", returns all sample depths. If "surface" (Default),
-#' only returns the median value of samples collected <= 2m from the surface. SampleDepth_m is also the median
-#' sample depth of samples collected within 2m of the surface.
-#'
 #' @param include_censored Logical. If TRUE, the value column includes non-censored and censored values
 #' using the MDL/MRL/UQL values in the parameter flags. If the Flag column is not NA, that indicates
 #' the value is a censored value. If FALSE (Default), only non-censored values are returned in the value column.
@@ -97,18 +94,20 @@
 #' @export
 
 getChemistry <- function(park = "all", site = "all",
-                     site_type = c("all", "lake", "stream"),
-                     years = 2006:format(Sys.Date(), "%Y"),
-                     months = 5:10,
-                     QC_type = "ENV",
-                     sample_type = c("all", "G", "C"),
-                     sample_depth = "surface",
-                     parameter = "all", include_censored = FALSE,
-                     output = c("short", "verbose")){
+                         site_type = c("all", "lake", "stream"),
+                         years = 2006:format(Sys.Date(), "%Y"),
+                         months = 5:10,
+                         QC_type = "ENV",
+                         sample_type = c("all", "G", "C"),
+                         parameter = "all", include_censored = FALSE,
+                         output = c("short", "verbose")){
 
   #-- Error handling --
   park <- match.arg(park, several.ok = TRUE,
-                    c("all", "ACAD", "MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
+                    c("all", "LNETN", "ACAD", "MABI", "MIMA", "MORR",
+                      "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
+  park <- ifelse(park == "LNETN",
+                 c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA"), park)
   site_type <- match.arg(site_type)
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
@@ -117,7 +116,6 @@ getChemistry <- function(park = "all", site = "all",
   QC_type <- match.arg(QC_type, several.ok = TRUE,
                        c("ENV", "all", "BLANK", "LABREP", "REP", "DUP"))
   sample_type <- match.arg(sample_type, several.ok = TRUE)
-  sample_depth <- match.arg(sample_depth, c("surface", "all"))
 
   # Check if the views exist and stop if they don't
   env <- if(exists("VIEWS_WQ")){VIEWS_WQ} else {.GlobalEnv}
@@ -220,29 +218,17 @@ getChemistry <- function(park = "all", site = "all",
     if(any(QC_type == "all")){chem_comb3
     } else {filter(chem_comb3, QCtype %in% QC_type)}
 
-  # Filter on surface vs. epilimnion. For sample_depth = surface, take median for all depths <=2m.
-  # For depth = "all", include all measurements without aggregating.
-  chem_comb5 <- if(sample_depth == 'surface'){
-    chem_comb4 |> filter(SampleDepth_m <= 2) |>
-      group_by(SiteCode, SiteType, EventDate, EventCode, GroupCode, GroupName,
-               UnitCode, UnitName, SubUnitCode, SubUnitName, SiteName, QCtype,
-               LabCode, SampleType, year, month, doy, flag, lab_method, Comments,
-               param) |>
-      summarize(SampleDepth_m = median(SampleDepth_m, na.rm = T),
-                value = median(value, na.rm = T))
-  } else {chem_comb4}
-
-  chem_comb6 <-
-  if(output == "short"){chem_comb5[,c("SiteCode", "SiteName", "UnitCode", "SubUnitCode", "EventDate","EventCode",
+  chem_comb5 <-
+  if(output == "short"){chem_comb4[,c("SiteCode", "SiteName", "UnitCode", "SubUnitCode", "EventDate","EventCode",
                                      "year", "month", "doy", "QCtype", "SampleType",
                                      "SampleDepth_m", "param", "value", "flag",
                                      "lab_method", "Comments")]
-  } else {chem_comb5}
+  } else {chem_comb4}
 
-  if(nrow(chem_comb6) == 0){
+  if(nrow(chem_comb5) == 0){
     stop("Returned data frame with no records. Check your park, site, and site_type arguments.")}
 
-  return(data.frame(chem_comb6))
+  return(data.frame(chem_comb5))
 
   }
 

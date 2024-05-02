@@ -7,6 +7,7 @@
 #' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
 #' \describe{
 #' \item{"all"}{Includes all parks in the network}
+#' \item{"LNETN"}{Includes all parks but ACAD}
 #' \item{"ACAD"}{Acadia NP only}
 #' \item{"MABI"}{Marsh-Billings-Rockefeller NHP only}
 #' \item{"MIMA"}{Minute Man NHP only}
@@ -46,7 +47,10 @@ getStreamObs <- function(park = "all", site = "all", years = 2006:format(Sys.Dat
 
   #-- Error handling --
   park <- match.arg(park, several.ok = TRUE,
-                    c("all", "ACAD", "MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
+                    c("all", "LNETN", "ACAD", "MABI", "MIMA", "MORR",
+                      "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
+  park <- ifelse(park == "LNETN",
+                 c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA"), park)
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   output <- match.arg(output)

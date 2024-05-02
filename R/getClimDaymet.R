@@ -18,6 +18,7 @@
 #' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
 #' \describe{
 #' \item{"all"}{Includes all parks in the network}
+#' \item{"LNETN"}{Includes all parks but ACAD}
 #' \item{"ACAD"}{Acadia NP only}
 #' \item{"MABI"}{Marsh-Billings-Rockefeller NHP only}
 #' \item{"MIMA"}{Minute Man NHP only}
@@ -71,13 +72,20 @@ getClimDaymet <- function(park = "all", site = "all",
                           filepath = NA, export = FALSE,
                           silent = TRUE){
 
+  park <- match.arg(park, several.ok = TRUE,
+                    c("all", "LNETN", "ACAD", "MABI", "MIMA", "MORR",
+                      "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
+  park <- ifelse(park == "LNETN",
+                 c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA"), park)
+  site_type <- match.arg(site_type)
+  stopifnot(class(silent) == 'logical')
+  stopifnot(class(years) %in% c("numeric", "integer"), years >= 1980)
+
   # Check that suggested package required for this function are installed
   if(!requireNamespace("daymetr", quietly = TRUE)){
     stop("Package 'daymetr' needed to download Daymet data. Please install it.", call. = FALSE)
   }
 
-  stopifnot(class(silent) == 'logical')
-  stopifnot(class(years) %in% c("numeric", "integer"), years >= 1980)
 
   if(export == TRUE){
     if(is.na(filepath)){stop(paste0("Must specify a filepath to the database when export = TRUE"))
