@@ -32,6 +32,8 @@
 #' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 #' events are between months 5 and 10, and these are set as the defaults.
 #'
+#' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
+#'
 #' @param output Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)
 #'
 #' @return Data frame of water level data
@@ -51,7 +53,7 @@
 
 getWaterLevel <- function(park = "all", site = "all",
                      site_type = c("all", "lake", "stream"),
-                     years = 2006:format(Sys.Date(), "%Y"),
+                     years = 2006:format(Sys.Date(), "%Y"), active = TRUE,
                      months = 5:10, output = c("short", "verbose")){
 
   #-- Error handling --
@@ -64,6 +66,7 @@ getWaterLevel <- function(park = "all", site = "all",
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   output <- match.arg(output)
+  stopifnot(class(active) == "logical")
 
   # Check if the views exist and stop if they don't
   env <- if(exists("VIEWS_WQ")){VIEWS_WQ} else {.GlobalEnv}
@@ -128,13 +131,13 @@ getWaterLevel <- function(park = "all", site = "all",
   wlcomb$doy <- as.numeric(strftime(wlcomb$EventDate, format = "%j"))
 
   # Filter by site, years, and months to make data set small
-  sites <- force(getSites(park = park, site = site, site_type = site_type))$SiteCode
+  sites <- force(getSites(park = park, site = site, site_type = site_type, active = active))$SiteCode
 
   wl2 <- wlcomb |> filter(SiteCode %in% sites)
   wl3 <- wl2 |> filter(year %in% years) |> filter(month %in% months)
 
   wl4 <-
-  if(output == "short"){wl3[,c("SiteCode", "UnitCode", "SubUnitCode", "EventDate", "EventCode",
+  if(output == "short"){wl3[,c("SiteCode", "SiteName", "UnitCode", "SubUnitCode", "EventDate", "EventCode",
                                 "year", "month", "doy", "DatumName", "DatumType", "DatumFunction",
                                 "Active", "TU-TD", "StageMethod", "DatumLatitude", "DatumLongitude",
                                 "DatumElevation_ft", "DatumElevationFeet",

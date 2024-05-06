@@ -2,7 +2,7 @@
 #'
 #' @description Queries NETN light penetration data by site, year, month. Designed to only work with site_type = 'lake'.
 #'
-#' @importFrom dplyr filter left_join
+#' @importFrom dplyr filter inner_join left_join
 #'
 #' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
 #' \describe{
@@ -25,6 +25,8 @@
 #' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 #' events are between months 5 and 10, and these are set as the defaults.
 #'
+#' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
+#'
 #' @param output Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)
 #'
 #' @return Data frame of Light Penetration data.
@@ -43,8 +45,7 @@
 #' @export
 
 getLightPen <- function(park = "all", site = "all",
-                     #site_type = c("all", "lake", "stream"),
-                     years = 2006:format(Sys.Date(), "%Y"),
+                     years = 2006:format(Sys.Date(), "%Y"), active = TRUE,
                      months = 5:10, output = c("short", "verbose")){
 
   #-- Error handling --
@@ -53,10 +54,10 @@ getLightPen <- function(park = "all", site = "all",
                       "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
   park <- ifelse(park == "LNETN",
                  c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA"), park)
-  #site_type <- match.arg(site_type)
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   output <- match.arg(output)
+  stopifnot(class(active) == "logical")
 
   # Check if the views exist and stop if they don't
   env <- if(exists("VIEWS_WQ")){VIEWS_WQ} else {.GlobalEnv}
@@ -84,16 +85,16 @@ getLightPen <- function(park = "all", site = "all",
   lpen$doy <- as.numeric(strftime(lpen$EventDate, format = "%j"))
 
   # Filter by site, years, and months to make data set small
-  sites <- force(getSites(park = park, site = site, site_type = 'lake'))$SiteCode
-  evs <- force(getEvents(park = park, site = site, site_type = 'lake',
+  sites <- force(getSites(park = park, site = site, site_type = 'lake', active = active))$SiteCode
+  evs <- force(getEvents(park = park, site = site, site_type = 'lake', active = active,
                          years = years, months = months, output = 'verbose')) |>
     select(SiteCode, SiteType, EventDate, EventCode)
 
   lpen2 <- lpen |> filter(SiteCode %in% sites)
-  lpen3 <- left_join(evs, lpen2, by = c("SiteCode", "EventDate", "EventCode"))
+  lpen3 <- inner_join(evs, lpen2, by = c("SiteCode", "EventDate", "EventCode"))
 
   lpen4 <-
-  if(output == "short"){lpen3[,c("SiteCode", "UnitCode", "SubUnitCode", "EventDate", "EventCode",
+  if(output == "short"){lpen3[,c("SiteCode", "SiteName", "UnitCode", "SubUnitCode", "EventDate", "EventCode",
                                 "year", "month", "doy", "MeasurementTime", "MeasurementDepth_m",
                                 "LightDeck", "LightUW", "PenetrationRatio")]
     } else {lpen3}

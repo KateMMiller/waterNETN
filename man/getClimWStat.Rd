@@ -9,6 +9,7 @@ getClimWStat(
   site = "all",
   site_type = c("all", "lake", "stream"),
   years = c(2006:2023),
+  active = TRUE,
   filepath = NA,
   export = FALSE
 )
@@ -39,6 +40,8 @@ getClimWStat(
 
 \item{years}{Vector of years to download weather station data for, will start with 01/01/year and end with 12/31/year.
 Note that not all weather stations have complete a complete period of record from 2006 to current.}
+
+\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
 
 \item{filepath}{Quoted path to save files to. If not specified, will save to working directory.}
 

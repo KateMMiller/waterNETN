@@ -26,10 +26,12 @@
 #' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 #' events are between months 5 and 10, and these are set as the defaults.
 #'
+#' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
+#'
 #' @param output Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)
 #'
 #' @param observer_type Return data from all observers, or only return first observer.
-#' Accepted values are c("all", "first", "second"), with "all" being the default.
+#' Accepted values are c("all", "first", "second"), with "first" being the default.
 #'
 #' @return Data frame of Secchi data in long form (ie observers stacked).
 #'
@@ -49,7 +51,8 @@
 getSecchi <- function(park = "all", site = "all",
                      #site_type = c("all", "lake", "stream"),
                      years = 2006:format(Sys.Date(), "%Y"),
-                     months = 5:10, observer_type = c("all", "first", "second"),
+                     months = 5:10, active = TRUE,
+                     observer_type = "first",
                      output = c("short", "verbose")){
 
   #-- Error handling --
@@ -61,7 +64,8 @@ getSecchi <- function(park = "all", site = "all",
   #site_type <- match.arg(site_type)
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
-  observer_type <- match.arg(observer_type)
+  stopifnot(class(active) == "logical")
+  observer_type <- match.arg(observer_type, c("all", "first", "second"))
   output <- match.arg(output)
 
   # Check if the views exist and stop if they don't
@@ -95,8 +99,8 @@ getSecchi <- function(park = "all", site = "all",
   sec_long$Bot_SD <- gsub("NA", NA_character_, sec_long$Bot_SD)
 
   # Filter by site, years, and months to make data set small
-  sites <- force(getSites(park = park, site = site, site_type = 'lake'))$SiteCode
-  evs <- force(getEvents(park = park, site = site, site_type = 'lake',
+  sites <- force(getSites(park = park, site = site, site_type = 'lake', active = active))$SiteCode
+  evs <- force(getEvents(park = park, site = site, site_type = 'lake', active = active,
                          years = years, months = months, output = 'verbose')) |>
     select(SiteCode, SiteType, EventDate, EventCode)
 
@@ -110,7 +114,7 @@ getSecchi <- function(park = "all", site = "all",
   sec5 <- sec4 |> filter(!is.na(SDepth_m))
 
   sec6 <-
-  if(output == "short"){sec5[,c("SiteCode", "UnitCode", "SubUnitCode", "EventDate", "EventCode",
+  if(output == "short"){sec5[,c("SiteCode", "SiteName", "UnitCode", "SubUnitCode", "EventDate", "EventCode",
                                 "year", "month", "doy", "SDepth_m", "SecchiObs", "Bot_SD", "Observer")]
     } else {sec4}
 

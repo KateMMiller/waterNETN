@@ -40,6 +40,8 @@
 #' @param years Vector of years to download weather station data for, will start with 01/01/year and end with 12/31/year.
 #' Note that not all weather stations have complete a complete period of record from 2006 to current.
 #'
+#' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
+#'
 #' @param export Logical. If TRUE, will export a CSV of the compiled weather data with a date stamp. Must supply
 #' a filepath to write output to. If FALSE (Default), will only return results to R environment.
 #'
@@ -71,7 +73,7 @@
 
 getClimWStat <- function(park = "all", site = "all",
                          site_type = c("all", "lake", "stream"),
-                         years = c(2006:2023),
+                         years = c(2006:2023), active = TRUE,
                          filepath = NA,
                          export = FALSE){
 
@@ -97,6 +99,8 @@ getClimWStat <- function(park = "all", site = "all",
   site_type <- match.arg(site_type)
   stopifnot(class(years) %in% c("numeric", "integer"))
 
+  stopifnot(class(active) == "logical")
+
   if(export == TRUE){
     if(is.na(filepath)){stop(paste0("Must specify a filepath to the database when export = TRUE"))
     } else if(!file.exists(filepath)){
@@ -110,7 +114,7 @@ getClimWStat <- function(park = "all", site = "all",
     stop("Unable to connect to data.rcc-acis.org to download weather station data.")}
 
   # Combine sites with nearest weather station
-  sites <- force(getSites(park = park, site = site, site_type = site_type)) |>
+  sites <- force(getSites(park = park, site = site, site_type = site_type, active = active)) |>
     select(SiteCode, SiteLatitude, SiteLongitude, UnitCode)
 
   data("closest_WS")

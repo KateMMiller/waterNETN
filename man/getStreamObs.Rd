@@ -9,6 +9,7 @@ getStreamObs(
   site = "all",
   years = 2006:format(Sys.Date(), "\%Y"),
   months = 5:10,
+  active = TRUE,
   output = c("short", "verbose")
 )
 }
@@ -33,6 +34,8 @@ getStreamObs(
 
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 events are between months 5 and 10, and these are set as the defaults.}
+
+\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
 
 \item{output}{Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)}
 }

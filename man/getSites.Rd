@@ -8,6 +8,7 @@ getSites(
   park = "all",
   site = "all",
   site_type = c("all", "lake", "stream"),
+  active = TRUE,
   output = c("short", "verbose")
 )
 }
@@ -34,6 +35,8 @@ getSites(
 \item{"lake"}{Include only lakes.}
 \item{"stream"}{Include streams only.}
 }}
+
+\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
 
 \item{output}{Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)}
 }

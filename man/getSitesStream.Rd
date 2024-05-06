@@ -4,7 +4,12 @@
 \alias{getSitesStream}
 \title{getSitesStream: query NETN streams by site}
 \usage{
-getSitesStream(park = "all", site = "all", output = c("short", "verbose"))
+getSitesStream(
+  park = "all",
+  site = "all",
+  active = TRUE,
+  output = c("short", "verbose")
+)
 }
 \arguments{
 \item{park}{Combine data from all parks or one or more parks at a time. Valid inputs:
@@ -22,6 +27,8 @@ getSitesStream(park = "all", site = "all", output = c("short", "verbose"))
 \item{"WEFA"}{Weir Farm NHP only}}}
 
 \item{site}{Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
+
+\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
 
 \item{output}{Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)}
 }

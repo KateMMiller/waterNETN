@@ -10,6 +10,7 @@ getChemistry(
   site_type = c("all", "lake", "stream"),
   years = 2006:format(Sys.Date(), "\%Y"),
   months = 5:10,
+  active = TRUE,
   QC_type = "ENV",
   sample_type = c("all", "G", "C"),
   parameter = "all",
@@ -46,6 +47,8 @@ getChemistry(
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 events are between months 5 and 10, and these are set as the defaults.}
 
+\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
+
 \item{QC_type}{Specify QC type to return.
 \describe{
 \item{"all"}{Include all QC types.}
@@ -65,10 +68,8 @@ events are between months 5 and 10, and these are set as the defaults.}
 
 \item{parameter}{Specify the chemical parameter(s) to return. Note if additional parameters are added to the Chemistry view, there will be additional
 to the views, they will be added as accepted values in this function. Current accepted values are:.
-c("ANC", "ANC_ueqL", "AppColor", "AppColor_PCU", "ChlA", "ChlA_ugL", "Cl", "Cl_ueqL",
-"DOC", "DOC_mgL", "NH3", "NH3_mgL", "NO2", "NO2_mgL", "NO2+NO3", "NO2+NO3_mgL",
-"NO3", "NO3_ueqL", "pH_Lab", "PO4", "PO4_ugL", "SO4", "SO4_ueqL", "TN", "TN_mgL",
-"TotDissN", "TotDissN_mgL", "TotDissP", "TotDissP_ugL", "TP", "TP_ugL")}
+c("ANC_ueqL", "AppColor_PCU", "ChlA_ugL", "Cl_ueqL", "DOC_mgL", "NH3_mgL", "NO2_mgL", "NO2+NO3_mgL",
+""NO3_ueqL", "pH_Lab", "PO4_ugL", "SO4_ueqL", "TN_mgL", "TotDissN_mgL", "TotDissP_ugL", "TP_ugL")}
 
 \item{include_censored}{Logical. If TRUE, the value column includes non-censored and censored values
 using the MDL/MRL/UQL values in the parameter flags. If the Flag column is not NA, that indicates
@@ -90,8 +91,7 @@ importData()
 mabi <- getChemistry(park = "MABI", years = 2021:2023)
 
 # get all N params in MIMA from 2006-2023
-n_params <- c("NH3", "NH3_mgL", "NO2", "NO2_mgL", "NO2+NO3",
-              "NO2+NO3_mgL", "NO3", "NO3_ueqL", "TN", "TN_mgL")
+n_params <- c("NH3_mgL", "NO2_mgL", "NO2+NO3_mgL", "NO3_ueqL", "TN_mgL")
 period <- 2006:2023
 mima_n <- getChemistry(park = "MIMA", years = period, parameter = n_params)
 

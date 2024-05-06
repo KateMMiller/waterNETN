@@ -10,6 +10,7 @@ getSondeInSitu(
   site_type = c("all", "lake", "stream"),
   years = 2006:format(Sys.Date(), "\%Y"),
   months = 5:10,
+  active = TRUE,
   parameter = "all",
   QC_type = "0",
   sample_depth = "surface",
@@ -44,6 +45,8 @@ getSondeInSitu(
 
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 events are between months 5 and 10, and these are set as the defaults.}
+
+\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
 
 \item{parameter}{Specify the chemical parameter(s) to return. Note if additional parameters are added to the Chemistry view, there will be additional
 to the views, they will be added as accepted values in this function. Current accepted values are:.

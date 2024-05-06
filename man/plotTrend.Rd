@@ -10,9 +10,13 @@ plotTrend(
   site_type = c("all", "lake", "stream"),
   years = 2006:format(Sys.Date(), "\%Y"),
   months = 5:10,
+  active = TRUE,
   parameter = NA,
   include_censored = FALSE,
   sample_depth = c("surface", "all"),
+  layers = c("points", "lines"),
+  color_theme = "viridis",
+  threshold = TRUE,
   smooth = TRUE,
   span = 0.3,
   legend_position = "none",
@@ -48,13 +52,16 @@ plotTrend(
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 events are between months 5 and 10, and these are set as the defaults.}
 
+\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
+
 \item{parameter}{Specify the parameter(s) to return. Current accepted values are:.
-chemistry: c("ANC", "ANC_ueqL", "AppColor", "AppColor_PCU", "ChlA", "ChlA_ugL", "Cl", "Cl_ueqL",
-"DOC", "DOC_mgL", "NH3", "NH3_mgL", "NO2", "NO2_mgL", "NO2+NO3", "NO2+NO3_mgL",
-"NO3", "NO3_ueqL", "pH_Lab", "PO4", "PO4_ugL", "SO4", "SO4_ueqL", "TN", "TN_mgL",
-"TotDissN", "TotDissN_mgL", "TotDissP", "TotDissP_ugL", "TP", "TP_ugL")
+chemistry: c("ANC_ueqL", "AppColor", "AppColor_PCU", "ChlA_ugL", "Cl_ueqL",
+"DOC_mgL", "NH3_mgL", "NO2_mgL", "NO2+NO3_mgL", "NO3_ueqL", "pH_Lab", "PO4_ugL", "SO4_ueqL",
+"TN_mgL", "TotDissN_mgL", "TotDissP_ugL", "TP_ugL")
 sonde: c("Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
-"Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg")}
+"Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg").
+other: c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevelFeet").
+Note that "all" is not an accepted value, because there are too many to plot.}
 
 \item{include_censored}{Logical. If TRUE, the value column includes non-censored and censored values
 using the MDL/MRL/UQL values in the parameter flags. If the Flag column is not NA, that indicates
@@ -62,9 +69,19 @@ the value is a censored value. If FALSE (Default), only non-censored values are 
 
 \item{sample_depth}{Filter on sample depth. If "all" (Default), returns all sample depths. If "surface",
 only returns the median value of samples collected <= 2m from the surface. SampleDepth_m is also the median
-sample depth of samples collected within 2m of the surface.}
+sample depth of samples collected within 2m of the surface. Note that for the Penetration Ratio parameter,
+all sample depths are plotted. Plotting all depths may return a funky plot for other parameters.}
 
-\item{smooth}{Logical. If TRUE (Default), will plot a loess smoothed line. If FALSE, will plot actual line.}
+\item{layers}{Options are "points" and "lines". By default, both will plot.}
+
+\item{color_theme}{Theme to plot points and lines. Options currently are 'viridis' (Default- ranges of blue, green and yellow),
+or from RColorBrewer: 'set1', 'dark2', or 'accent' (see https://ggplot2-book.org/scales-colour).}
+
+\item{threshold}{Logical. If TRUE (Default), will plot a dashed (upper) or dotted (lower) line if a water quality threshold exists for that
+parameter and site. If FALSE, no threshold line will be plotted.}
+
+\item{smooth}{Logical. If TRUE (Default), will plot a loess smoothed line. If FALSE, will plot actual line. Only
+plots if layers argument includes 'lines'.}
 
 \item{span}{Numeric. Determines how smoothed the line will be for smooth = TRUE. Default is 0.3. Higher spans (up to 1)
 cause more smoothing. Span can range from 0 to 1.}
@@ -81,12 +98,14 @@ in the data frame.
 \description{
 This function produces a smoothed trend plot filtered on park, site, year, month, and parameter.
 Works with both lab chemistry data and Sonde in situ data. If multiple sites are specified, they will be plotted
-on the same figure. If multiple parameters are specified, they will be plotted on separate figures.
+on the same figure. If multiple parameters are specified, they will be plotted on separate figures. Note that
+if you specify a stream and parameter combination that doesn't exist (e.g., a stream site and a parameter only
+collected in lakes), the function will return an error message instead of an empty plot.
 }
 \examples{
 \dontrun{
 
-++++ ADD EXAMPLES +++++
+
 
 }
 

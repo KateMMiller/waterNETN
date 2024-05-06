@@ -25,8 +25,10 @@
 #' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 #' events are between months 5 and 10, and these are set as the defaults.
 #'
-#' @param method Query data by discharge method. Accepted values are c("ACAD Flowtracker", "ACAD Pygmy",
-#' "Flume", "LNETN Flowtracker", "LNETN Pygmy", "No Measurement", "Rating curve estimate", "Timed float",
+#' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
+#'
+#' @param method Query data by discharge method. Accepted values are c("Flowtracker", "Pygmy",
+#' "Flume", "No Measurement", "Rating curve estimate", "Timed float",
 #' "USGS Gage", "Visual estimate", "Volumetric")
 #'
 #' @param rating Filter on measurement rating.
@@ -62,7 +64,7 @@
 getDischarge <- function(park = "all", site = "all",
                      #site_type = c("all", "lake", "stream"),
                      years = 2006:format(Sys.Date(), "%Y"),
-                     months = 5:10, method = 'all',
+                     months = 5:10, active = TRUE, method = 'all',
                      rating = c('all', "E", "G", "F", "P"),
                      output = c("short", "verbose")){
 
@@ -75,13 +77,13 @@ getDischarge <- function(park = "all", site = "all",
   #site_type <- match.arg(site_type)
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
+  stopifnot(class(active) == "logical")
   method <- match.arg(method, several.ok = TRUE,
-                      c("all", "ACAD Flowtracker", "ACAD Pygmy", "Flume", "LNETN Flowtracker",
-                        "LNETN Pygmy", "No Measurement", "Rating curve estimate", "Timed float",
+                      c("all", "Flowtracker", "Pygmy", "Flume", "Flowtracker",
+                        "Pygmy", "No Measurement", "Rating curve estimate", "Timed float",
                         "USGS Gage", "Visual estimate", "Volumetric"))
   rating <- match.arg(rating, several.ok = T)
   output <- match.arg(output)
-
 
   # Check if the views exist and stop if they don't
   env <- if(exists("VIEWS_WQ")){VIEWS_WQ} else {.GlobalEnv}
@@ -110,13 +112,16 @@ getDischarge <- function(park = "all", site = "all",
   dis$doy <- as.numeric(strftime(dis$EventDate, format = "%j"))
 
   # Filter by site, years, and months to make data set small
-  sites <- force(getSites(park = park, site = site, site_type = 'stream'))$SiteCode
-  evs <- force(getEvents(park = park, site = site, site_type = 'stream',
+  sites <- force(getSites(park = park, site = site, site_type = 'stream', active = active))$SiteCode
+  evs <- force(getEvents(park = park, site = site, site_type = 'stream', active = active,
                          years = years, months = months, output = 'verbose')) |>
     select(SiteCode, SiteType, EventDate, EventCode)
 
   dis2 <- dis |> filter(SiteCode %in% sites)
   dis3 <- left_join(evs, dis2, by = c("SiteCode", "EventDate", "EventCode"))
+
+  dis3$DischargeMethod[dis3$DischargeMethod %in% c("ACAD Pygmy", "LNETN Pygmy")] <- "Pygmy"
+  dis3$DischargeMethod[dis3$DischargeMethod %in% c("ACAD Flowtracker", "LNETN Flowtracker")] <- "Flowtracker"
 
   # filter by method
   dis4 <-
@@ -124,7 +129,8 @@ getDischarge <- function(park = "all", site = "all",
   } else {filter(dis3, DischargeMethod %in% method)}
 
   dis5 <-
-  if(output == "short"){dis4[,c("SiteCode", "UnitCode", "SubUnitCode", "EventDate","EventCode",
+  if(output == "short"){dis4[,c("SiteCode", "SiteName", "UnitCode", "SubUnitCode",
+                                "EventDate","EventCode",
                                 "year", "month", "doy", "ReachType", "FlowStatus",
                                 "DischargeMethod", "TotalArea_sqft", "AvgVel_fs",
                                 "VelocityFlag", "Discharge_cfs", "DischargeFlag",

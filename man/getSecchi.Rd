@@ -9,7 +9,8 @@ getSecchi(
   site = "all",
   years = 2006:format(Sys.Date(), "\%Y"),
   months = 5:10,
-  observer_type = c("all", "first", "second"),
+  active = TRUE,
+  observer_type = "first",
   output = c("short", "verbose")
 )
 }
@@ -35,8 +36,10 @@ getSecchi(
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 events are between months 5 and 10, and these are set as the defaults.}
 
+\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
+
 \item{observer_type}{Return data from all observers, or only return first observer.
-Accepted values are c("all", "first", "second"), with "all" being the default.}
+Accepted values are c("all", "first", "second"), with "first" being the default.}
 
 \item{output}{Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)}
 }

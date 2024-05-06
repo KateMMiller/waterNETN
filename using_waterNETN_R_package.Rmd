@@ -47,6 +47,8 @@ print_head <- function(df){
 }
 library(tidyverse)
 park = 'all';site = 'all'; site_type = 'all'; years = 2006:2023; months = 1:12; output = 'short'
+parameter = c("ANC", "NH3", "pH", "Temp_C", "SDepth_m", "Discharge_csf", "PenetrationRatio");
+... = NULL; smooth = F; layers = c("points", "lines"); threshold = T; legend_position = 'bottom'; span = 0.6
 ```
 
 ## Using the waterNETN R package {.tabset .tabset-pills}
@@ -183,7 +185,7 @@ In waterNETN, you can download Daymet data by park, site, site type, and spannin
 
 <p class = 'fxn'>The following code downloads Daymet data for East Primrose Brook in MORR for the entire monitoring period, and exports to a data folder in the working directory.</p>
 ```{r}
-prim <- getClimDaymet(site = "MORRSA", years = 2006:2023, export = T, filepath = "./data")
+prim <- getClimDaymet(site = "MORRSB", years = 2006:2023, export = T, filepath = "./data")
 print_head(prim) # table of first 6 rows- this is a custom function I wrote to save on coding
 ```
 
@@ -329,7 +331,7 @@ This function allows you to query the Discharge_Data view by park, site, site ty
 
 <p class = 'fxn'>Get discharge data for all LNETN sites and years measured with flowtracker </p>
 ```{r}
-ft <- getDischarge(park = "LNETN", method = "LNETN Pygmy")
+ft <- getDischarge(park = "LNETN", method = "Pygmy")
 print_head(ft)
 ```
 
@@ -427,49 +429,92 @@ print_head(weir)
 ### Plotting Functions {.tabset}
 #### plotTrend()
 This function produces a smoothed trend plot filtered on park, site, year, month, and parameter.
-It works with both lab chemistry data and Sonde in situ data. If multiple sites are specified, they will be plotted on the same figure. If multiple parameters are specified, they will be plotted on separate figures.
+It works with chemistry, Sonde in situ, Secchi depth, Light Penetration, and Discharge data. If multiple sites are specified, they will be plotted on the same figure. If multiple parameters are specified, they will be plotted on separate figures. 
 
-<details open><summary class='drop'>Eagle Lake pH</summary>
+There are several arguments to customize plots. 
+<ul>
+<li> Choose whether to include only active sites (default) or all sites that have been monitored via `active`. </li>
+<li> Choose whether to add points, lines, or both (default) via `layers` argument. </li>
+<li> If lines are chosen as a layer, choose whether to plot a loess smoothed line (default) or a line that connects the sample points via `smooth`. </li>
+<li> Choose whether to plot any water quality thresholds that exist via `threshold`. Upper limits are dashed. Lower limits are dotted. </li>
+<li> Choose whether to plot surface (default) or all depth measurements via `sample_depth`. </li>
+<li> Choose whether to include censored values or not via `include_censored`. </li>
+<li> Choose color palette via `color_theme`. Default is 'viridis', but other options are 'set1', 'dark2', and 'accent'. If there are other color palletes you'd like me to add, let me know. The only thing I'm trying to avoid is creating the palette manually, since number of sites could vary by plot. </li>
+<li> Choose position of legend via `legend_position`. If you don't want to show the legend, `legend_position = 'none'`.
+</ul>
+
+<details open><summary class='drop'>Single site; single parameter</summary>
 <p class = 'fxn'>Plot non-smoothed surface pH for Eagle Lake for all years. </p>
-```{r}
+```{r message = FALSE, warning = FALSE}
 plotTrend(site = "ACEAGL", parameter = "pH", smooth = FALSE)
 
 ```
 
 <p class = 'fxn'>Plot smoothed surface pH for Eagle Lake for all years using default span of 0.3 and by default not including the legend. </p>
-```{r}
-plotTrend(site = "ACEAGL", parameter = "pH")
+```{r message = FALSE, warning = FALSE}
+plotTrend(site = "ACEAGL", parameter = "pH", color_theme = 'dark2')
 
 ```
 <p class = 'fxn'>Plot smoothed surface pH for Eagle Lake for all years, removing the legend and using span of 0.75. </p>
-```{r}
+```{r message = FALSE, warning = FALSE}
 plotTrend(site = "ACEAGL", parameter = "pH", span = 0.75)
 
 ```
+
+<p class = 'fxn'>Plot smoothed Secchi Depth in Jordan Pond for all years, including the legend, different color palette, and using span of 0.75. </p>
+```{r message = FALSE, warning = FALSE}
+plotTrend(site = "ACJORD", parameter = "SDepth_m", span = 0.75, color_theme = 'set1')
+
+```
+
+<p class = 'fxn'>Plot unsmoothed SO4 in Witch Hole Pond for all years, including censored values. </p>
+```{r message = FALSE, warning = FALSE}
+plotTrend(site = "ACWHOL", parameter = "SO4_ueqL", smooth = F, include_censored = TRUE, legend_position = 'bottom')
+
+```
+
 </details>
 
-<details open><summary class='drop'>Multiple sites/params</summary>
+<details open><summary class='drop'>Multiple sites or params</summary>
 <p class = 'fxn'>Plot smoothed surface pH for active SARA streams over all years with 0.6 span. </p>
-```{r}
+```{r message = FALSE, warning = FALSE}
 plotTrend(park = "SARA", site = c("SARASA", "SARASC", "SARASD"), site_type = "stream", 
           parameter = "pH", legend_position = "right", span = 0.6)
 
 ```
 
 <p class = 'fxn'>Plot smoothed surface SO4 for all MIMA streams over all years with 0.6 span. </p>
-```{r}
+```{r message = FALSE, warning = FALSE}
 plotTrend(park = "MIMA", site_type = "stream", 
           parameter = "SO4_ueqL", legend_position = "right", span = 0.6)
 
 ```
 
 <p class = 'fxn'>Plot non-smoothed surface of multiple Sonde parameters for all MIMA streams over all years with 0.6 span. </p>
-```{r}
+```{r message = FALSE, warning = FALSE}
 params <- c("Temp_C", "SpCond_uScm", "DOsat_pct", "pH")
 plotTrend(park = "MIMA", site_type = "stream", 
           parameter = params, legend_position = "right", span = 0.6)
 
 ```
+
+<p class = 'fxn'>Plot smoothed surface Secchi Depth, Penetration Ratio, pH, and DOC in Jordan Pond for all years, including the legend, different color palette, and using span of 0.75. </p>
+```{r message = FALSE, warning = FALSE}
+plotTrend(site = "ACJORD", parameter = c("SDepth_m", "PenetrationRatio", "pH", "DOC_mgL"), span = 0.75, color_theme = 'set1')
+
+```
+
+<p class = 'fxn'>Plot smoothed surface water depth in the Pogue for all years, including a different color palette, and using span of 0.75. </p>
+```{r message = FALSE, warning = FALSE}
+plotTrend(site = "MABIPA", parameter = "WaterLevelFeet", span = 0.75, color_theme = 'set1')
+
+```
+
+<p class = 'fxn'>Plot smoothed TN, TP and SO4 in all MORR sites for all years, including the legend, different color palette, and using span of 0.6. Thresholds, where they exist,  plot by default.</p>
+```{r message = FALSE, warning = FALSE}
+plotTrend(park = "MORR", parameter = c("TN_mgL", "TP_ugL", "SO4_ueqL"), span = 0.6, legend_position = 'bottom', color_theme = 'accent')
+```
+
 </details>
 
 ### Summary Functions {.tabset}

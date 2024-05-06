@@ -33,8 +33,9 @@
 #' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 #' events are between months 5 and 10, and these are set as the defaults.
 #'
-#' @param output Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)
+#' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
 #'
+#' @param output Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)
 #'
 #' @return Data frame of event info
 #'
@@ -60,9 +61,9 @@
 #' @export
 
 getEvents <- function(park = "all", site = "all",
-                     site_type = c("all", "lake", "stream"),
-                     years = 2006:format(Sys.Date(), "%Y"),
-                     months = 5:10, output = c("short", "verbose")){
+                      site_type = c("all", "lake", "stream"),
+                      years = 2006:format(Sys.Date(), "%Y"), active = TRUE,
+                      months = 5:10, output = c("short", "verbose")){
 
   #-- Error handling --
   park <- match.arg(park, several.ok = TRUE,
@@ -73,6 +74,7 @@ getEvents <- function(park = "all", site = "all",
   site_type <- match.arg(site_type)
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
+  stopifnot(class(active) == "logical")
   output <- match.arg(output)
 
   # Check if the views exist and stop if they don't
@@ -115,7 +117,7 @@ getEvents <- function(park = "all", site = "all",
 
   #-- Filter site info --
   # make vector of sites to filter on from getSites
-  sites <- getSites(park = park, site = site, site_type = site_type)[,"SiteCode"]
+  sites <- getSites(park = park, site = site, site_type = site_type, active = active)[,"SiteCode"]
   evs1 <- filter(events, SiteCode %in% sites)
 
   # filter by years and months

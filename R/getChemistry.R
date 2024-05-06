@@ -2,7 +2,7 @@
 #'
 #' @description Queries NETN water chemistry data by site, event, and parameter.
 #'
-#' @importFrom dplyr filter full_join group_by left_join mutate select summarize
+#' @importFrom dplyr all_of filter full_join group_by left_join mutate select summarize
 #' @importFrom purrr reduce
 #' @importFrom tidyr pivot_longer pivot_wider
 #'
@@ -34,14 +34,14 @@
 #' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 #' events are between months 5 and 10, and these are set as the defaults.
 #'
+#' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
+#'
 #' @param output Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)
 #'
 #' @param parameter Specify the chemical parameter(s) to return. Note if additional parameters are added to the Chemistry view, there will be additional
 #' to the views, they will be added as accepted values in this function. Current accepted values are:.
-#' c("ANC", "ANC_ueqL", "AppColor", "AppColor_PCU", "ChlA", "ChlA_ugL", "Cl", "Cl_ueqL",
-#' "DOC", "DOC_mgL", "NH3", "NH3_mgL", "NO2", "NO2_mgL", "NO2+NO3", "NO2+NO3_mgL",
-#' "NO3", "NO3_ueqL", "pH_Lab", "PO4", "PO4_ugL", "SO4", "SO4_ueqL", "TN", "TN_mgL",
-#' "TotDissN", "TotDissN_mgL", "TotDissP", "TotDissP_ugL", "TP", "TP_ugL")
+#' c("ANC_ueqL", "AppColor_PCU", "ChlA_ugL", "Cl_ueqL", "DOC_mgL", "NH3_mgL", "NO2_mgL", "NO2+NO3_mgL",
+#' ""NO3_ueqL", "pH_Lab", "PO4_ugL", "SO4_ueqL", "TN_mgL", "TotDissN_mgL", "TotDissP_ugL", "TP_ugL")
 #'
 #' @param sample_type Filter on sample type.
 #' \describe{
@@ -76,8 +76,7 @@
 #' mabi <- getChemistry(park = "MABI", years = 2021:2023)
 #'
 #' # get all N params in MIMA from 2006-2023
-#' n_params <- c("NH3", "NH3_mgL", "NO2", "NO2_mgL", "NO2+NO3",
-#'               "NO2+NO3_mgL", "NO3", "NO3_ueqL", "TN", "TN_mgL")
+#' n_params <- c("NH3_mgL", "NO2_mgL", "NO2+NO3_mgL", "NO3_ueqL", "TN_mgL")
 #' period <- 2006:2023
 #' mima_n <- getChemistry(park = "MIMA", years = period, parameter = n_params)
 #'
@@ -96,7 +95,7 @@
 getChemistry <- function(park = "all", site = "all",
                          site_type = c("all", "lake", "stream"),
                          years = 2006:format(Sys.Date(), "%Y"),
-                         months = 5:10,
+                         months = 5:10, active = TRUE,
                          QC_type = "ENV",
                          sample_type = c("all", "G", "C"),
                          parameter = "all", include_censored = FALSE,
@@ -111,6 +110,7 @@ getChemistry <- function(park = "all", site = "all",
   site_type <- match.arg(site_type)
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
+  stopifnot(class(active) == "logical")
   output <- match.arg(output)
   stopifnot(class(include_censored) == "logical")
   QC_type <- match.arg(QC_type, several.ok = TRUE,
@@ -151,10 +151,15 @@ getChemistry <- function(park = "all", site = "all",
                  "SubUnitName", "SiteCode", "SiteName", "SiteType", "EventDate", "EventCode",
                  "year", "month", "doy", "QCtype", "LabCode",
                  "SampleTime", "SampleDepth_m", "SampleType", "Comments", "IsEventCUI")
+  param_cols <- setdiff(names(chem), keep_cols)
+
+  # Pivoting numeric and character fields in one step, so converting all non-keep to character.
+  chem[,param_cols] <- apply(chem[,param_cols], 2, as.character)
+
   #sort(unique(getSites()$SiteCode))
   # Filter by site, years, and months to make data set small
-  sites <- force(getSites(park = park, site = site, site_type = site_type))$SiteCode
-  evs <- force(getEvents(park = park, site = site, site_type = site_type,
+  sites <- force(getSites(park = park, site = site, site_type = site_type, active = active))$SiteCode
+  evs <- force(getEvents(park = park, site = site, site_type = site_type, active = active,
                          years = years, months = months, output = 'verbose')) |>
     select(SiteCode, SiteType, EventDate, EventCode)
 
@@ -162,7 +167,8 @@ getChemistry <- function(park = "all", site = "all",
   chem3 <- left_join(evs, chem2, by = c("SiteCode", "EventDate", "EventCode"))
 
   chem_long <- chem3 |> pivot_longer(cols = !all_of(keep_cols),
-                                    names_to = 'param', values_to = 'value') |>
+                                     names_to = 'param',
+                                     values_to = 'value') |>
     filter(value != "NA") |>
     mutate(Flag = ifelse(grepl("Flag", param), "Flag", NA_character_),
            Lab = ifelse(grepl("pH_Lab_Method", param), "pH_Lab_Method", NA_character_))
@@ -192,14 +198,33 @@ getChemistry <- function(park = "all", site = "all",
   # values[which(!grepl('^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$',values))]
 
   chem_comb$value <- as.numeric(gsub(",", "", chem_comb$value))
+  chem_comb$censored <- ifelse(is.na(chem_comb$value), TRUE, FALSE)
 
   if(include_censored == TRUE){
-  chem_comb$value <- suppressWarnings(
-    ifelse(is.na(chem_comb$value),
-           as.numeric(gsub("<MRL |<MDL |, color interference|>UQL |E, <MRL |E, >UQL |ND, Cl interference|IS",
-                           "", chem_comb$flag)),
-           chem_comb$value))
+    chem_comb$value <- suppressWarnings(
+      ifelse(is.na(chem_comb$value),
+             as.numeric(gsub("<MRL |<MDL |, color interference|>UQL |E, <MRL |E, >UQL |ND, Cl interference|IS",
+                             "", chem_comb$flag)),
+             chem_comb$value))
   }
+
+  # Using the flag columns to assign parameter units for censored data, so they plot with uncensored.
+  chem_comb$param[chem_comb$param == "ANC" & chem_comb$censored == TRUE] <- "ANC_ueqL"
+  chem_comb$param[chem_comb$param == "AppColor" & chem_comb$censored == TRUE] <- "AppColor_PCU"
+  chem_comb$param[chem_comb$param == "ChlA" & chem_comb$censored == TRUE] <- "ChlA_ugL"
+  chem_comb$param[chem_comb$param == "Cl" & chem_comb$censored == TRUE] <- "Cl_ueqL"
+  chem_comb$param[chem_comb$param == "DOC" & chem_comb$censored == TRUE] <- "DOC_mgL"
+  chem_comb$param[chem_comb$param == "NH3" & chem_comb$censored == TRUE] <- "NH3_mgL"
+  chem_comb$param[chem_comb$param == "NO2" & chem_comb$censored == TRUE] <- "NO2_mgL"
+  chem_comb$param[chem_comb$param == "NO2+NO3" & chem_comb$censored == TRUE] <- "NO2+NO3_mgL"
+  chem_comb$param[chem_comb$param == "NO3" & chem_comb$censored == TRUE] <- "NO3_ueqL"
+  chem_comb$param[chem_comb$param == "PO4" & chem_comb$censored == TRUE] <- "PO4_ugL"
+  chem_comb$param[chem_comb$param == "SO4" & chem_comb$censored == TRUE] <- "SO4_ueqL"
+  chem_comb$param[chem_comb$param == "TN" & chem_comb$censored == TRUE] <- "TN_mgL"
+  chem_comb$param[chem_comb$param == "TotDissN" & chem_comb$censored == TRUE] <- "TotDissN_mgL"
+  chem_comb$param[chem_comb$param == "TotDissP" & chem_comb$censored == TRUE] <- "TotDissP_ugL"
+  chem_comb$param[chem_comb$param == "TP" & chem_comb$censored == TRUE] <- "TP_ugL"
+  table(chem_comb$param, chem_comb$censored)
 
   # check that parameter matches param_list
   param_list <- sort(unique(chem_comb$param))
@@ -221,7 +246,7 @@ getChemistry <- function(park = "all", site = "all",
   chem_comb5 <-
   if(output == "short"){chem_comb4[,c("SiteCode", "SiteName", "UnitCode", "SubUnitCode", "EventDate","EventCode",
                                      "year", "month", "doy", "QCtype", "SampleType",
-                                     "SampleDepth_m", "param", "value", "flag",
+                                     "SampleDepth_m", "param", "value", "flag", "censored",
                                      "lab_method", "Comments")]
   } else {chem_comb4}
 

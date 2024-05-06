@@ -9,6 +9,7 @@ getClimDaymet(
   site = "all",
   site_type = c("all", "lake", "stream"),
   years = c(2006:2023),
+  active = TRUE,
   filepath = NA,
   export = FALSE,
   silent = TRUE
@@ -39,6 +40,8 @@ getClimDaymet(
 }}
 
 \item{years}{Vector of years to download Daymet data for. Earliest available year is 1980. Latest is currently 12/31/2023.}
+
+\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
 
 \item{filepath}{Quoted path to save files to. If not specified, will save to working directory.}
 

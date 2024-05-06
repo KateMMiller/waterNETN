@@ -35,6 +35,8 @@
 #' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 #' events are between months 5 and 10, and these are set as the defaults.
 #'
+#' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
+#'
 #' @param parameter Specify the chemical parameter(s) to return. Note if additional parameters are added to the Chemistry view, there will be additional
 #' to the views, they will be added as accepted values in this function. Current accepted values are:.
 #' c("Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
@@ -81,7 +83,7 @@
 getSondeInSitu <- function(park = "all", site = "all",
                      site_type = c("all", "lake", "stream"),
                      years = 2006:format(Sys.Date(), "%Y"),
-                     months = 5:10,
+                     months = 5:10, active = TRUE,
                      parameter = "all",
                      QC_type = "0",
                      sample_depth = "surface",
@@ -96,10 +98,12 @@ getSondeInSitu <- function(park = "all", site = "all",
   site_type <- match.arg(site_type)
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
+  stopifnot(class(active) == "logical")
   output <- match.arg(output)
   QC_type <- match.arg(QC_type, several.ok = TRUE,
                        c("0", "all", "900", "899", "999"))
   sample_depth <- match.arg(sample_depth, c("surface", "all"))
+
   parameter <- match.arg(parameter,
                          c("all", "Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct",
                            "DO_mgL", "pH", "pHmV", "Turbidity_FNU", "ChlA_RFU",
@@ -146,11 +150,16 @@ getSondeInSitu <- function(park = "all", site = "all",
                  "year", "month", "doy", "MeasurementTime", "SondeLatitude", "SondeLongitude",
                  "Datum", "XYAccuracy", "QCType_Code", "QCType_Value", "Rep",
                  "SondeType", "WQInSitu_Flag", "WQFlag_Comments", "IsEventCUI", "Depth_m")
+
+  param_cols <- setdiff(names(sonde), keep_cols)
+  # Pivoting numeric and character fields in one step, so converting all non-keep to character.
+  sonde[,param_cols] <- apply(sonde[,param_cols], 2, as.character)
+
   #sort(unique(getSites()$SiteCode))
   # Filter by site, years, and months to make data set small
-  sites <- force(getSites(park = park, site = site, site_type = site_type))$SiteCode
+  sites <- force(getSites(park = park, site = site, site_type = site_type, active = active))$SiteCode
   evs <- force(getEvents(park = park, site = site, site_type = site_type,
-                         years = years, months = months, output = 'verbose')) |>
+                         years = years, months = months, active = active, output = 'verbose')) |>
     select(SiteCode, SiteType, EventDate, EventCode)
 
   sonde2 <- sonde |> filter(SiteCode %in% sites)

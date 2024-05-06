@@ -8,6 +8,7 @@ getLightPen(
   park = "all",
   site = "all",
   years = 2006:format(Sys.Date(), "\%Y"),
+  active = TRUE,
   months = 5:10,
   output = c("short", "verbose")
 )
@@ -30,6 +31,8 @@ getLightPen(
 \item{site}{Filter on 6-letter SiteCode (e.g., "ACANTB", "WEFAPA", etc.). Easiest way to pick a site. Defaults to "all".}
 
 \item{years}{Numeric. Years to query. Accepted values start at 2006.}
+
+\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
 
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 events are between months 5 and 10, and these are set as the defaults.}

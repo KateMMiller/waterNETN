@@ -19,6 +19,8 @@
 #'
 #' @param site Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".
 #'
+#' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
+#'
 #' @param output Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)
 #'
 #' @return Data frame of site info for streams
@@ -37,7 +39,7 @@
 #' }
 #' @export
 
-getSitesStream <- function(park = "all", site = "all", output = c("short", "verbose")){
+getSitesStream <- function(park = "all", site = "all", active = TRUE, output = c("short", "verbose")){
 
   #-- Error handling --
   park <- match.arg(park, several.ok = TRUE,
@@ -46,6 +48,8 @@ getSitesStream <- function(park = "all", site = "all", output = c("short", "verb
   park <- ifelse(park == "LNETN",
                  c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA"), park)
   output <- match.arg(output)
+  stopifnot(class(active) == "logical")
+
   # Check if the views exist and stop if they don't
   env <- if(exists("VIEWS_WQ")){VIEWS_WQ} else {.GlobalEnv}
 
@@ -87,14 +91,23 @@ getSitesStream <- function(park = "all", site = "all", output = c("short", "verb
   } else {filter(wdata1, UnitCode %in% park)
   }
 
-  wdata3 <- if(output == "short"){
-    wdata2[,c("SiteCode", "UnitCode", "SubUnitCode", "USGS_StaNumb", "ContribWshedArea_km2",
+  # filter on active. Currently hard coded until data package includes it
+  inactive = c("ACBUBO", "ACEGLO", "ACJRDO", "ACMOWB", "MORRSA", "MORRSC", "ROVASC", "SARASB", #streams
+               "ACDKPD", "ACLPIH", "ACTARN", "ROVAPA") # lakes
+  wdata3 <-
+    if(active == TRUE){
+      filter(wdata2, !SiteCode %in% inactive)
+    } else {wdata2}
+
+
+  wdata4 <- if(output == "short"){
+    wdata3[,c("SiteCode", "UnitCode", "SubUnitCode", "USGS_StaNumb", "ContribWshedArea_km2",
               "SiteDescription", "Notes", "LegislativeClass", "FisheryType")]
-  } else {wdata2}
+  } else {wdata3}
 
-  if(nrow(wdata3) == 0){stop("Returned data frame with no records. Check your park, site, and site_type arguments.")}
+  if(nrow(wdata4) == 0){stop("Returned data frame with no records. Check your park, site, and site_type arguments.")}
 
-  return(data.frame(wdata3))
+  return(data.frame(wdata4))
 
 }
 

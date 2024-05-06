@@ -40,6 +40,8 @@
 #'
 #' @param years Vector of years to download Daymet data for. Earliest available year is 1980. Latest is currently 12/31/2023.
 #'
+#' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
+#'
 #' @param export Logical. If TRUE, will export a CSV of the compiled Daymet data with a date stamp. Must supply
 #' a filepath to write output to. If FALSE (Default), will only return results to R environment.
 #'
@@ -68,7 +70,7 @@
 
 getClimDaymet <- function(park = "all", site = "all",
                           site_type = c("all", "lake", "stream"),
-                          years = c(2006:2023),
+                          years = c(2006:2023), active = TRUE,
                           filepath = NA, export = FALSE,
                           silent = TRUE){
 
@@ -80,6 +82,7 @@ getClimDaymet <- function(park = "all", site = "all",
   site_type <- match.arg(site_type)
   stopifnot(class(silent) == 'logical')
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 1980)
+  stopifnot(class(active) == "logical")
 
   # Check that suggested package required for this function are installed
   if(!requireNamespace("daymetr", quietly = TRUE)){
@@ -96,7 +99,7 @@ getClimDaymet <- function(park = "all", site = "all",
   }
 
   # Create list of lat/longs to generate
-  sites <- force(getSites(park = park, site = site, site_type = site_type)) |>
+  sites <- force(getSites(park = park, site = site, site_type = site_type, active = active)) |>
     select(site = SiteCode, latitude = SiteLatitude, longitude = SiteLongitude)
 
   # save to tmp folder for daymet to pull from and save indiv. site files to

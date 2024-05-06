@@ -30,6 +30,8 @@
 #' \item{"stream"}{Include streams only.}
 #' }
 #'
+#' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
+#'
 #' @param output Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)
 #'
 #' @return Data frame of site info
@@ -50,6 +52,7 @@
 #' @export
 
 getSites <- function(park = "all", site = "all", site_type = c("all", "lake", "stream"),
+                     active = TRUE,
                      output = c("short", "verbose")){
 
   #-- Error handling --
@@ -60,6 +63,7 @@ getSites <- function(park = "all", site = "all", site_type = c("all", "lake", "s
                  c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA"), park)
   site_type <- match.arg(site_type)
   output <- match.arg(output)
+  stopifnot(class(active) == "logical")
 
   # Check if the views exist and stop if they don't
   env <- if(exists("VIEWS_WQ")){VIEWS_WQ} else {.GlobalEnv}
@@ -108,23 +112,31 @@ getSites <- function(park = "all", site = "all", site_type = c("all", "lake", "s
     } else {filter(wdata1, UnitCode %in% park)
     }
 
-  if(nrow(wdata2) == 0){stop("Returned data frame with no records. Check your park, site, and site_type arguments.")}
+  # filter on active. Currently hard coded until data package includes it
+  inactive = c("ACBUBO", "ACEGLO", "ACJRDO", "ACMOWB", "MORRSA", "MORRSC", "ROVASC", "SARASB", #streams
+               "ACDKPD", "ACLPIH", "ACTARN", "ROVAPA") # lakes
+  wdata3 <-
+  if(active == TRUE){
+    filter(wdata2, !SiteCode %in% inactive)
+  } else {wdata2}
+
+  if(nrow(wdata3) == 0){stop("Returned data frame with no records. Check your park, site, and site_type arguments.")}
 
   # Clean up data, so columns are treated correctly
   # character fixes
   chr_cols <- c("SubUnitCode", "SubUnitName", "Datum", "XYAccuracy",
                 "LegislativeClass")
-  wdata2[,chr_cols][wdata2[,chr_cols] == "NA"] <- NA_character_
+  wdata3[,chr_cols][wdata3[,chr_cols] == "NA"] <- NA_character_
 
   # numeric fixes
   num_cols <- c("SiteLatitude", "SiteLongitude", "ContribWshedArea_km2")
-  wdata2[,num_cols][wdata2[,num_cols] == "NA"] <- NA_real_
-  wdata2[,num_cols] <- apply(wdata2[,num_cols], 2, function(x) as.numeric(x))
+  wdata3[,num_cols][wdata3[,num_cols] == "NA"] <- NA_real_
+  wdata3[,num_cols] <- apply(wdata3[,num_cols], 2, function(x) as.numeric(x))
 
   # logic fixes
-  wdata2$IsPointCUI <- as.logical(wdata2$IsPointCUI)
+  wdata3$IsPointCUI <- as.logical(wdata3$IsPointCUI)
 
-  return(data.frame(wdata2))
+  return(data.frame(wdata3))
 
   }
 

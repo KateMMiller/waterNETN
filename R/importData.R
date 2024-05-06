@@ -162,11 +162,13 @@ importData <- function(type = c("DSN", "dbfile", "csv", "zip"),
 
   # Import the file names by applying read.csv to the dp_list of file names
   # This will return one list that includes all the datasets as individual elements
+  # The na.string = NA converts "NA" in data to blanks. The check.names = F won't
+  # replace invalid characters (eg "+") with "."
   dp_files <- lapply(seq_along(dp_list),
                 function(x){
                   fname = dp_list[[x]]
                   setTxtProgressBar(pb, x)
-                  read.csv(paste0(filepath, fname))
+                  read.csv(paste0(filepath, fname), na.string = "NA", check.names = FALSE)
          })
 
   # Set the names of dp_files as the shorter dp_list2 names
@@ -217,7 +219,7 @@ importData <- function(type = c("DSN", "dbfile", "csv", "zip"),
     view_import <-
       lapply(seq_along(wqviews), function(x){
              setTxtProgressBar(pb,x)
-             read.csv(wqviews[x])})
+             read.csv(wqviews[x], na.string = "NA", check.names = FALSE)})
 
     view_import <- setNames(view_import, z_list_names)
     list2env(view_import, envir = env)
