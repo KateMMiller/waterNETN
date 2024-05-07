@@ -45,7 +45,7 @@
 #' "TN_mgL", "TotDissN_mgL", "TotDissP_ugL", "TP_ugL")
 #' sonde: c("Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
 #' "Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg").
-#' other: c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevelFeet").
+#' other: c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevelFeet", "WaterLevel_m").
 #' Note that "all" is not an accepted value, because there are too many to plot.
 #'
 #' @param include_censored Logical. If TRUE, the value column includes non-censored and censored values
@@ -130,7 +130,7 @@ plotTrend <- function(park = "all", site = "all",
   sonde <- c("Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
              "Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg")
 
-  other <- c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevelFeet")
+  other <- c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevelFeet", "WaterLevel_m")
 
   all_params <- c(chem, sonde, other)
 
@@ -143,6 +143,7 @@ plotTrend <- function(park = "all", site = "all",
   par_dis <- parameter[parameter %in% "Discharge_cfs"]
   par_pen <- parameter[parameter %in% "PenetrationRatio"]
   par_wl <- parameter[parameter %in% "WaterLevelFeet"]
+  par_wlm <- parameter[parameter %in% "WaterLevel_m"]
 
   wdat <-
     rbind(
@@ -184,6 +185,13 @@ plotTrend <- function(park = "all", site = "all",
         mutate(param = "WaterLevelFeet", value = WaterLevelFeet) |>
         select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, param, value) |>
         mutate(censored = FALSE)
+    } else {NULL},
+    if(length(par_wlm) > 0){
+      getWaterLevel(park = park, site = site,
+                    years = years, months = months) |>
+        mutate(param = "WaterLevel_m", value = WaterLevel_m) |>
+        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, param, value) |>
+        mutate(censored = FALSE)
     } else {NULL}
     )
 
@@ -207,6 +215,8 @@ plotTrend <- function(park = "all", site = "all",
   wdat_cens <- wdat2 |> filter(censored == TRUE)
 
   trendplot <-
+    if(include_censored == TRUE){
+
     ggplot(wdat2, aes(x = EventDate, y = value, group = SiteName,
                      color = SiteName, fill = SiteName, shape = censored)) +
       {if(smooth == TRUE) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +
@@ -214,10 +224,6 @@ plotTrend <- function(park = "all", site = "all",
       {if(any(layers %in% "points")) geom_point(aes(shape = censored, size = censored), alpha = 0.6)} +
       {if(any(layers %in% "points")) scale_shape_manual(values = c(19, 18), labels = c("Real", "Censored"))} +
       {if(any(layers %in% "points")) scale_size_manual(values = c(3,3.5), labels = c("Real", "Censored"))} +
-    # {if(include_censored == TRUE & any(layers %in% "points")){
-      #   geom_point(data = wdat2 |> filter(censored == TRUE),
-      #              aes(x = EventDate, y = value), shape = 25, size = 2, show.legend = FALSE,
-      #              alpha = 0.4)}} +
       {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free')} +
       {if(threshold == TRUE){geom_hline(aes(yintercept = UpperThreshold), linetype = "dashed")}} +
       {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold), linetype = 'dotted')}} +
@@ -231,6 +237,27 @@ plotTrend <- function(park = "all", site = "all",
       {if(color_theme == "dark2") scale_fill_brewer(palette = "Dark2")} +
       {if(color_theme == "accent") scale_fill_brewer(palette = "Accent")} +
       labs(x = "Year", y = ylab)
+    } else {
+      ggplot(wdat2, aes(x = EventDate, y = value, group = SiteName,
+                        color = SiteName, fill = SiteName)) +
+        {if(smooth == TRUE) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +
+        {if(smooth == FALSE & any(layers %in% "lines")) geom_line()} +
+        {if(any(layers %in% "points")) geom_point(alpha = 0.6)} +
+        {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free')} +
+        {if(threshold == TRUE){geom_hline(aes(yintercept = UpperThreshold), linetype = "dashed")}} +
+        {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold), linetype = 'dotted')}} +
+        theme_WQ() + theme(legend.position = legend_position, legend.title = element_blank()) +
+        {if(color_theme == "viridis") scale_color_viridis_d()} +
+        {if(color_theme == "set1") scale_color_brewer(palette = "Set1")} +
+        {if(color_theme == "dark2") scale_color_brewer(palette = "Dark2")} +
+        {if(color_theme == "accent") scale_color_brewer(palette = "Accent")} +
+        {if(color_theme == "viridis") scale_fill_viridis_d()} +
+        {if(color_theme == "set1") scale_fill_brewer(palette = "Set1")} +
+        {if(color_theme == "dark2") scale_fill_brewer(palette = "Dark2")} +
+        {if(color_theme == "accent") scale_fill_brewer(palette = "Accent")} +
+        labs(x = "Year", y = ylab)
+
+      }
 
  return(suppressWarnings(trendplot))
 }

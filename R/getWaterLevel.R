@@ -135,17 +135,20 @@ getWaterLevel <- function(park = "all", site = "all",
 
   wl2 <- wlcomb |> filter(SiteCode %in% sites)
   wl3 <- wl2 |> filter(year %in% years) |> filter(month %in% months)
+  wl3$WaterLevel_m <- wl3$WaterLevelFeet * 0.3048
 
   wl4 <-
   if(output == "short"){wl3[,c("SiteCode", "SiteName", "UnitCode", "SubUnitCode", "EventDate", "EventCode",
                                 "year", "month", "doy", "DatumName", "DatumType", "DatumFunction",
                                 "Active", "TU-TD", "StageMethod", "DatumLatitude", "DatumLongitude",
                                 "DatumElevation_ft", "DatumElevationFeet",
-                                "GageReadingFeet", "WaterLevelFeet")]
+                                "GageReadingFeet", "WaterLevelFeet", "WaterLevel_m")]
     } else {wl3}
 
   if(nrow(wl4) == 0){
     stop("Returned data frame with no records. Check your park, site, and site_type arguments.")}
+
+
 
   return(data.frame(wl4))
 
