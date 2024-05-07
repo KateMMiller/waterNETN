@@ -200,9 +200,13 @@ getSondeInSitu <- function(park = "all", site = "all",
                 .groups = 'drop')
   } else {sonde5}
 
+  # add date/time stamp for rLakeAnalyzer and LakeMonitoR
+  sonde6$datetime <- as.POSIXct(paste(sonde6$EventDate, sonde6$MeasurementTime),
+                       format = "%Y-%m-%d %H:%M:%S")
+
   sonde7 <-
   if(output == "short"){sonde6[,c("SiteCode", "SiteName", "UnitCode", "SubUnitCode", "EventDate",
-                                  "year", "month", "doy", "QCType_Code", "QCType_Value",
+                                  "year", "month", "doy", "datetime", "QCType_Code", "QCType_Value",
                                   "Rep", "SondeType", "Depth_m", "param", "value",
                                   "WQInSitu_Flag", "WQFlag_Comments")]
   } else {sonde6}

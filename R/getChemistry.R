@@ -243,9 +243,13 @@ getChemistry <- function(park = "all", site = "all",
     if(any(QC_type == "all")){chem_comb3
     } else {filter(chem_comb3, QCtype %in% QC_type)}
 
+  # add date/time stamp for rLakeAnalyzer and LakeMonitoR
+  chem_comb4$datetime <- as.POSIXct(paste(chem_comb4$EventDate, chem_comb4$MeasurementTime),
+                                    format = "%Y-%m-%d %H:%M:%S")
+
   chem_comb5 <-
   if(output == "short"){chem_comb4[,c("SiteCode", "SiteName", "UnitCode", "SubUnitCode", "EventDate","EventCode",
-                                     "year", "month", "doy", "QCtype", "SampleType",
+                                     "year", "month", "doy", "datetime", "QCtype", "SampleType",
                                      "SampleDepth_m", "param", "value", "flag", "censored",
                                      "lab_method", "Comments")]
   } else {chem_comb4}
