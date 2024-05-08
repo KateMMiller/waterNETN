@@ -1,3 +1,6 @@
+#' @include getSites.R
+#' @include getEvents.R
+#'
 #' @title getSondeInSitu: query NETN water chemistry Sonde data
 #'
 #' @description Queries NETN water chemistry data with the Sonde in the field by site, event, and parameter.

@@ -1,3 +1,6 @@
+#' @include getSites.R
+#' @include getEvents.R
+#'
 #' @title getSecchi: query NETN Secchi data
 #'
 #' @description Queries NETN Secchi data by site, year, month, and observer type. Data are stacked by

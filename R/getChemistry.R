@@ -1,3 +1,6 @@
+#' @include getSites.R
+#' @include getEvents.R
+#'
 #' @title getChemistry: query NETN water chemistry data
 #'
 #' @description Queries NETN water chemistry data by site, event, and parameter.

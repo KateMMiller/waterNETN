@@ -1,3 +1,5 @@
+#' @include getSites.R
+#'
 #' @title getWaterLevel: query NETN water level data
 #'
 #' @description Queries NETN water level data by site, year, and month.

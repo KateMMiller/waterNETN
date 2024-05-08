@@ -1,3 +1,6 @@
+#' @include getSites.R
+#' @include getEvents.R
+#'
 #' @title getLightPen: query NETN light penetration data
 #'
 #' @description Queries NETN light penetration data by site, year, month. Designed to only work with site_type = 'lake'.

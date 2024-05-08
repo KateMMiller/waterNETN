@@ -1,3 +1,6 @@
+#' @include getSites.R
+#' @include getEvents.R
+#'
 #' @title getDischarge: query NETN water discharge data
 #'
 #' @description Queries NETN water discharge data by site, year, month. Only works with site_type = 'stream'.

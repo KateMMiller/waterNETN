@@ -96,7 +96,7 @@ Returns a panel of hydrographs during the growing season for each year
 in the data frame.
 }
 \description{
-This function produces a smoothed trend plot filtered on park, site, year, month, and parameter.
+This function produces a line or smoothed trend plot filtered on park, site, year, month, and parameter.
 Works with both lab chemistry data and Sonde in situ data. If multiple sites are specified, they will be plotted
 on the same figure. If multiple parameters are specified, they will be plotted on separate figures. Note that
 if you specify a stream and parameter combination that doesn't exist (e.g., a stream site and a parameter only

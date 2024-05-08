@@ -1,3 +1,5 @@
+#' @include getSites.R
+#'
 #' @title getStreamObs: query NETN stream observations
 #'
 #' @description Queries NETN stream observations by park, site, year and month.

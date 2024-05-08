@@ -1,3 +1,5 @@
+#' @include getSites.R
+#'
 #' @title getEvents: query NETN water data by site and event
 #'
 #' @description Queries NETN water data by site and event. Returned data frame can include lakes or streams, but only includes

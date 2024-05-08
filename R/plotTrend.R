@@ -1,9 +1,17 @@
+#' @include getChemistry.R
+#' @include getDischarge.R
+#' @include getLightPen.R
+#' @include getSecchi.R
+#' @include getSondeInSitu.R
+#' @include getWaterLevel.R
+#' @include theme_WQ.R
+#'
 #' @title plotTrend: Plots smoothed trend
 #'
 #' @importFrom dplyr mutate select
 #' @import ggplot2
 #'
-#' @description This function produces a smoothed trend plot filtered on park, site, year, month, and parameter.
+#' @description This function produces a line or smoothed trend plot filtered on park, site, year, month, and parameter.
 #' Works with both lab chemistry data and Sonde in situ data. If multiple sites are specified, they will be plotted
 #' on the same figure. If multiple parameters are specified, they will be plotted on separate figures. Note that
 #' if you specify a stream and parameter combination that doesn't exist (e.g., a stream site and a parameter only
