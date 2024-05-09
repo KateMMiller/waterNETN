@@ -14,7 +14,7 @@ plotLakeProfile(
   depth_type = "elev",
   color_theme = "spectral",
   color_rev = FALSE,
-  title = TRUE,
+  plot_title = TRUE,
   legend_position = "right",
   ...
 )
@@ -55,7 +55,7 @@ depth, with each sample starting at 0 regardless of level of the lake surface (d
 
 \item{color_rev}{Reverse the order of the color pallete. For example change ryb from red - yellow - blue to blue - yellow -red.}
 
-\item{title}{Logical. If TRUE (default) prints site name at top of figure. If FALSE, does not print site name. Only enabled when
+\item{plot_title}{Logical. If TRUE (default) prints site name at top of figure. If FALSE, does not print site name. Only enabled when
 one site is selected.}
 
 \item{legend_position}{Specify location of legend (default is 'right'). To turn legend off, use legend_position = "none". Other

@@ -185,7 +185,8 @@ In waterNETN, you can download Daymet data by park, site, site type, and spannin
 
 <p class = 'fxn'>The following code downloads Daymet data for East Primrose Brook in MORR for the entire monitoring period, and exports to a data folder in the working directory.</p>
 ```{r}
-prim <- getClimDaymet(site = "MORRSB", years = 2006:2023, export = T, filepath = "./data")
+prim <- getClimDaymet(site = "MORRSB", years = 2006:2023, export = T, 
+                      filepath = "./data")
 print_head(prim) # table of first 6 rows- this is a custom function I wrote to save on coding
 ```
 
@@ -205,7 +206,8 @@ For each NETN monitoring site, I used the `rnoaa` package to find all weather st
 
 <p class = 'fxn'>The following code downloads weather station data for all sites in ROVA the past 10 years and writes to a csv.</p>
 ```{r}
-rova_ws <- getClimWStat(park = "ROVA", years = 2013:2023, export = T, filepath = "./data")
+rova_ws <- getClimWStat(park = "ROVA", years = 2013:2023, export = T, 
+                        filepath = "./data")
 print_head(rova_ws)
 ```
 
@@ -304,7 +306,8 @@ print_head(mima_n) # top 6 rows
 
 <p class = 'fxn'>Get results for all surface samples, including QC samples, in Browns Brook in 2023 in ACAD</p>
 ```{r}
-brbk <- getChemistry(site = "ACBRWN", QC_type = "all", param = "all", years = 2023)
+brbk <- getChemistry(site = "ACBRWN", QC_type = "all", param = "all", 
+                     years = 2023)
 print_head(brbk)
 ```
 
@@ -390,12 +393,14 @@ print_head(mima_do)
 
 <p class = 'fxn'>Get Temp data for all sample depths in Jordan Pond in ACAD for non-QAQC samples</p>
 ```{r}
-ACAD_lake <- getSondeInSitu(site = 'ACJORD', parameter = "Temp_C", sample_depth = "all")
+ACAD_lake <- getSondeInSitu(site = 'ACJORD', parameter = "Temp_C", 
+                            sample_depth = "all")
 ```
 
 <p class = 'fxn'>Get pH for lower NETN parks from May to Oct for QAQC and non-QAQC samples</p>
 ```{r}
-lnetn_ph <- getSondeInSitu(park = "LNETN", param = "pH", months = 5:10, QC_type = 'all')
+lnetn_ph <- getSondeInSitu(park = "LNETN", param = "pH", months = 5:10, 
+                           QC_type = 'all')
 ```
 
 #### getStreamObs()
@@ -463,23 +468,34 @@ plotTrend(site = "ACEAGL", parameter = "pH", span = 0.75)
 
 <p class = 'fxn'>Plot smoothed Secchi Depth in Jordan Pond for all years, including the legend, different color palette, and using span of 0.75. </p>
 ```{r message = FALSE, warning = FALSE}
-plotTrend(site = "ACJORD", parameter = "SDepth_m", span = 0.75, color_theme = 'set1')
+plotTrend(site = "ACJORD", parameter = "SDepth_m", 
+          span = 0.75, color_theme = 'set1')
 
 ```
 
 <p class = 'fxn'>Plot unsmoothed SO4 in Witch Hole Pond for all years, including censored values. </p>
 ```{r message = FALSE, warning = FALSE}
-plotTrend(site = "ACWHOL", parameter = "SO4_ueqL", smooth = F, include_censored = TRUE, legend_position = 'bottom')
+plotTrend(site = "ACWHOL", parameter = "SO4_ueqL", 
+          smooth = F, include_censored = TRUE, legend_position = 'bottom')
 
 ```
+
+<p class = 'fxn'>Plot unsmoothed line only for pH in Witch Hole Pond for all years. </p>
+```{r message = FALSE, warning = FALSE}
+plotTrend(site = "ACWHOL", parameter = "pH", layers = "lines", 
+          smooth = F, legend_position = 'none')
+
+```
+
 
 </details>
 
 <details open><summary class='drop'>Multiple sites or params</summary>
 <p class = 'fxn'>Plot smoothed surface pH for active SARA streams over all years with 0.6 span. </p>
 ```{r message = FALSE, warning = FALSE}
-plotTrend(park = "SARA", site = c("SARASA", "SARASC", "SARASD"), site_type = "stream", 
-          parameter = "pH", legend_position = "right", span = 0.6)
+plotTrend(park = "SARA", site = c("SARASA", "SARASC", "SARASD"), 
+          site_type = "stream", parameter = "pH", 
+          legend_position = "right", span = 0.6)
 
 ```
 
@@ -500,19 +516,22 @@ plotTrend(park = "MIMA", site_type = "stream",
 
 <p class = 'fxn'>Plot smoothed surface Secchi Depth, Penetration Ratio, pH, and DOC in Jordan Pond for all years, including the legend, different color palette, and using span of 0.75. </p>
 ```{r message = FALSE, warning = FALSE}
-plotTrend(site = "ACJORD", parameter = c("SDepth_m", "PenetrationRatio", "pH", "DOC_mgL"), span = 0.75, color_theme = 'set1')
+plotTrend(site = "ACJORD", parameter = c("SDepth_m", "PenetrationRatio", "pH", "DOC_mgL"), 
+          span = 0.75, color_theme = 'set1')
 
 ```
 
 <p class = 'fxn'>Plot smoothed surface water depth in the Pogue for all years, including a different color palette, and using span of 0.75. </p>
 ```{r message = FALSE, warning = FALSE}
-plotTrend(site = "MABIPA", parameter = "WaterLevelFeet", span = 0.75, color_theme = 'set1')
+plotTrend(site = "MABIPA", parameter = "WaterLevelFeet", span = 0.75, 
+          color_theme = 'set1')
 
 ```
 
 <p class = 'fxn'>Plot smoothed TN, TP and SO4 in all MORR sites for all years, including the legend, different color palette, and using span of 0.6. Thresholds, where they exist,  plot by default.</p>
 ```{r message = FALSE, warning = FALSE}
-plotTrend(park = "MORR", parameter = c("TN_mgL", "TP_ugL", "SO4_ueqL"), span = 0.6, legend_position = 'bottom', color_theme = 'accent')
+plotTrend(park = "MORR", parameter = c("TN_mgL", "TP_ugL", "SO4_ueqL"), 
+          span = 0.6, legend_position = 'bottom', color_theme = 'accent')
 ```
 
 </details>
@@ -533,23 +552,26 @@ There are several arguments to customize plots.
 </ul>
 
 <details open><summary class='drop'>Simple plots</summary>
-<p class = 'fxn'>Plot temperature for Eagle Lake for years 2013 - 2023 corrected by elevation. </p>
+<p class = 'fxn'>Plot temperature for Upper Hadlock for years 2013 - 2023 corrected by elevation. </p>
 ```{r message = FALSE, warning = FALSE}
-plotLakeProfile(site = "ACEAGL", parameter = "Temp_C", depth_type = 'elev', years = 2013:2023)
+plotLakeProfile(site = "ACUHAD", parameter = "Temp_C", depth_type = 'elev', 
+                years = 2013:2023)
 
 ```
 
-<p class = 'fxn'>Plot temperature for Eagle Lake for years 2013 - 2023 with raw sample depth. </p>
+<p class = 'fxn'>Plot temperature for Eagle Lake for years 2013 - 2023 with raw sample depth, and no plot title. </p>
 ```{r message = FALSE, warning = FALSE}
-plotLakeProfile(site = "ACEAGL", parameter = "Temp_C", depth_type = 'raw', years = 2013:2023)
+plotLakeProfile(site = "ACEAGL", parameter = "Temp_C", depth_type = 'raw', 
+                years = 2013:2023, plot_title = FALSE)
 
 ```
 
 <p class = 'fxn'>Plot temperature for all ACAD lakes sampled in 2023 and raw sample depth. </p>
 ```{r message = FALSE, warning = FALSE}
-lakes23 <- c("ACBUBL", "ACEAGL", "ACECHO", "ACJORD", "ACLONG", "ACROUN", "ACSEAL", "ACUBRK", "ACUHAD", 
-           "ACWHOL", "ACWOOD")
-plotLakeProfile(park = "ACAD", site = lakes23, parameter = "Temp_C", depth_type = 'raw', years = 2023)
+lakes23 <- c("ACBUBL", "ACEAGL", "ACECHO", "ACJORD", "ACLONG", "ACROUN", 
+             "ACSEAL", "ACUBRK", "ACUHAD", "ACWHOL", "ACWOOD")
+plotLakeProfile(park = "ACAD", site = lakes23, parameter = "Temp_C", 
+                depth_type = 'raw', years = 2023)
 
 ```
 
@@ -561,29 +583,66 @@ plotLakeProfile(park = "ACAD", site = lakes23,
 
 ```
 
-
-p class = 'fxn'>Plot pH for Seal Cove Pond from 2013 to 2023 and sample elevation, using spectral palette and adding site name as title. </p>
+<p class = 'fxn'>Plot specific conductance for Seal Cove Pond from 2013 to 2023 and sample elevation. Uses spectral palette by default and adds site name as title by default. </p>
 ```{r message = FALSE, warning = FALSE}
 plotLakeProfile(site = "ACSEAL", parameter = "SpCond_uScm", 
-                depth_type = 'elev', years = 2013:2023, 
-                color_theme = 'spectral', title = TRUE)
+                depth_type = 'elev', years = 2013:2023)
 
 ```
 
-p class = 'fxn'>Plot pH for Jordan Pond from 2013 to 2023 and sample elevation, using reversed spectral palette. </p>
+<p class = 'fxn'>Plot pH for Jordan Pond from 2013 to 2023 and sample elevation, using reversed spectral palette. </p>
 ```{r message = FALSE, warning = FALSE}
-plotLakeProfile(site = "ACJORD", 
-                parameter = "pH", depth_type = 'elev', years = 2013:2023, 
-                color_theme = 'spectral', color_rev = TRUE)
+plotLakeProfile(site = "ACJORD", parameter = "pH", 
+                depth_type = 'elev', years = 2013:2023, 
+                color_rev = TRUE)
 
 ```
-
 
 </details>
 <br>
 
 <details open><summary class='drop'>Combining plots</summary>
-<p class = 'fxn'>Combine plots for temp, DO, pH, and conductance using the `cowplot` package.</p>
+<p class = 'fxn'>Combine plots for temp, DO, pH, and conductance in Bubble Pond for 2023 using the `cowplot` package.</p>
+To minimize typing, I define the parameters I wanted at the beginning. This allows you to adjust the parameters once (i.e., change site), and run through the rest of the code without having to edit it. I also only included the plot title on the first figure, and turned it off for the rest.
+
+The `cowplot` package must be installed to use this code. Install the package via `install.packages('cowplot')`. There are other packages to combine plots, including `grid` and `gridExtra`, and the function `ggarrage()` in `ggpubr`. I tend to start with cowplot, because it's easy to use and has a great <a href="https://wilkelab.org/cowplot/">help page</a>. If I really need to customize a plot (like custom spacing for each plot), then I use `grid/gridExtra`, which allows for more customization, but is a bit harder to work with.  
+```{r message = FALSE, warning = FALSE}
+library(cowplot)
+sitecode = "ACBUBL"
+sitename = getSites(site = sitecode)$SiteName
+year = 2023
+mon = 5:10
+depth = 'elev'
+ptitle = F
+
+tplot <- plotLakeProfile(site = sitecode, parameter = "Temp_C", depth_type = depth,
+                         years = year, months = mon, plot_title = ptitle)
+
+doplot <- plotLakeProfile(site = sitecode, parameter = "DOsat_pct", depth_type = depth,
+                          years = year, months = mon, color_rev = T, plot_title = ptitle)
+
+pHplot <- plotLakeProfile(site = sitecode, parameter = "pH", depth_type = depth,
+                          years = year, months = mon, color_theme = "ryb", color_rev = T,
+                          plot_title = ptitle)
+
+cnplot <- plotLakeProfile(site = sitecode, parameter = "SpCond_uScm", depth_type = depth,
+                         years = year, months = mon, color_theme = 'rb',
+                         plot_title = ptitle)
+
+# Default settings
+plot_grid(tplot, doplot, pHplot, cnplot)
+```
+
+<p class = 'fxn'>Same plot as above, but customize plot widths, so DO and SpCond have more space for legend, and add title above the grid.</p>
+In this case, we're creating the plot grid with relative widths for each plot. Then we're combining the title and the plot grid in another grid, setting the title height to be much smaller than the plot grid. 
+
+Note that sitename and year are defined in code chunk above.
+```{r warning = F, message = F}
+title <- ggdraw() + draw_label(paste0(sitename, " (", year, ")"), size = 11, fontface = 'bold',
+                               x = 0.05, hjust = 0, vjust = 0) 
+pgrid <- plot_grid(tplot, doplot, pHplot, cnplot, rel_widths = c(0.95, 1, 0.95, 1))
+plot_grid(title, pgrid, ncol = 1, rel_heights = c(0.1, 1))
+```
 
 </details>
 

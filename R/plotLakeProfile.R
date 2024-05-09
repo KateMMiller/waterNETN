@@ -50,7 +50,7 @@
 #'
 #' @param color_rev Reverse the order of the color pallete. For example change ryb from red - yellow - blue to blue - yellow -red.
 #'
-#' @param title Logical. If TRUE (default) prints site name at top of figure. If FALSE, does not print site name. Only enabled when
+#' @param plot_title Logical. If TRUE (default) prints site name at top of figure. If FALSE, does not print site name. Only enabled when
 #' one site is selected.
 #'
 #' @param legend_position Specify location of legend (default is 'right'). To turn legend off, use legend_position = "none". Other
@@ -76,7 +76,7 @@ plotLakeProfile <- function(park = "all", site = "all",
                       parameter = NA,
                       depth_type = 'elev',
                       color_theme = "spectral", color_rev = FALSE,
-                      title = TRUE,
+                      plot_title = TRUE,
                       legend_position = 'right', ...){
 
   # park = 'all'; site = 'all'; site_type = 'all'; years = 2013:2023;
@@ -94,7 +94,7 @@ plotLakeProfile <- function(park = "all", site = "all",
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(5:10))
   stopifnot(class(active) == "logical")
   stopifnot(class(color_rev) == "logical")
-  stopifnot(class(title) == "logical")
+  stopifnot(class(plot_title) == "logical")
   depth_type <- match.arg(depth_type, c("elev", "raw"))
   color_theme <- match.arg(color_theme, c("spectral", "ryb", "rb", "viridis"))
   legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
@@ -136,7 +136,7 @@ plotLakeProfile <- function(park = "all", site = "all",
   facet_year <- ifelse(length(unique(wcomb2$year)) > 1, TRUE, FALSE)
 
   color_dir <- ifelse(color_rev == FALSE, -1, 1)
-  plot_title <- ifelse(length(unique(wcomb2$SiteCode)) == 1 & title == TRUE, unique(wcomb2$SiteName), NULL)
+  ptitle <- if(length(unique(wcomb2$SiteCode)) == 1 & plot_title == TRUE){unique(wcomb2$SiteName)} else {NULL}
 
   #-- Create plot --
   profplot <-
@@ -159,7 +159,7 @@ plotLakeProfile <- function(park = "all", site = "all",
       {if(color_theme == 'viridis') scale_fill_viridis_c(direction = color_dir)} +
       {if(color_theme == 'viridis') scale_color_viridis_c(direction = color_dir)} +
       # labels
-      labs(x = "month", y = ylab, color = param_label, fill = param_label, title = plot_title)
+      labs(x = NULL, y = ylab, color = param_label, fill = param_label, title = ptitle)
 
     } else if(depth_type == "raw"){
       ggplot(wcomb2, aes(x = mon, y = -depth_1m_bin, color = value, fill = value)) +
@@ -167,8 +167,8 @@ plotLakeProfile <- function(park = "all", site = "all",
         theme(legend.position = legend_position, axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
         theme_WQ() +
         # facets if more than 1 year or site
-        {if(facet_site == TRUE & facet_year == TRUE) facet_wrap(~SiteCode + year)} +
-        {if(facet_site == TRUE & facet_year == FALSE) facet_wrap(~Site)} +
+        {if(facet_site == TRUE & facet_year == TRUE) facet_wrap(~SiteName + year)} +
+        {if(facet_site == TRUE & facet_year == FALSE) facet_wrap(~SiteName)} +
         {if(facet_site == FALSE & facet_year == TRUE) facet_wrap(~year)} +
         # color palettes
         {if(color_theme == 'spectral') scale_fill_distiller(palette = "Spectral", direction = color_dir)} +
@@ -180,10 +180,11 @@ plotLakeProfile <- function(park = "all", site = "all",
         {if(color_theme == 'viridis') scale_fill_viridis_c(direction = color_dir)} +
         {if(color_theme == 'viridis') scale_color_viridis_c(direction = color_dir)} +
         # labels
-        labs(x = "month", y = ylab, color = param_label, fill = param_label, title = plot_title)
+        labs(x = NULL, y = ylab, color = param_label, fill = param_label, title = ptitle)
       }
 
- return(suppressWarnings(profplot))
+ return(#suppressWarnings(
+   profplot)#)
 }
 
 
