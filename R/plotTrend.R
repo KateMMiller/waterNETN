@@ -130,6 +130,8 @@ plotTrend <- function(park = "all", site = "all",
   color_theme <- match.arg(color_theme, c("viridis", "set1", "dark2", "accent"))
   legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
 
+  #-- Compile data for plotting --
+
   chem <- c("ANC", "ANC_ueqL", "AppColor", "AppColor_PCU", "ChlA_ugL", "Cl_ueqL",
             "DOC_mgL", "NH3_mgL", "NO2_mgL", "NO2+NO3", "NO2+NO3_mgL",
             "NO3_ueqL", "pH_Lab", "PO4_ugL", "SO4_ueqL", "TN_mgL",
@@ -156,47 +158,47 @@ plotTrend <- function(park = "all", site = "all",
   wdat <-
     rbind(
     if(length(par_chem) > 0){
-      getChemistry(park = park, site = site, site_type = site_type, include_censored = include_censored,
-                   years = years, months = months, parameter = par_chem, ...) |>
+      force(getChemistry(park = park, site = site, site_type = site_type, include_censored = include_censored,
+                   years = years, months = months, parameter = par_chem, ...)) |>
         select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, param, value, censored)
         } else {NULL},
     if(length(par_sonde) > 0){
-      getSondeInSitu(park = park, site = site, site_type = site_type,
-                     years = years, months = months, parameter = par_sonde, ...) |>
+      force(getSondeInSitu(park = park, site = site, site_type = site_type,
+                     years = years, months = months, parameter = par_sonde, ...)) |>
         select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, param, value) |>
         mutate(censored = FALSE)
         } else {NULL},
     if(length(par_sec) > 0){
-      getSecchi(park = park, site = site,
-                years = years, months = months, observer_type = 'first') |>
+      force(getSecchi(park = park, site = site,
+                years = years, months = months, observer_type = 'first')) |>
         mutate(param = "SDepth_m", value = SDepth_m) |>
         select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, param, value) |>
         mutate(censored = FALSE)
         } else {NULL},
     if(length(par_dis) > 0){
-      getDischarge(park = park, site = site,
-                   years = years, months = months) |>
+      force(getDischarge(park = park, site = site,
+                   years = years, months = months)) |>
         mutate(param = "Discharge_cfs", value = Discharge_cfs) |>
         select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, param, value) |>
         mutate(censored = FALSE)
         } else {NULL},
     if(length(par_pen) > 0){
-      getLightPen(park = park, site = site,
-                  years = years, months = months) |>
+      force(getLightPen(park = park, site = site,
+                  years = years, months = months)) |>
         mutate(param = "PenetrationRatio", value = PenetrationRatio) |>
         select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, param, value) |>
         mutate(censored = FALSE)
         } else {NULL},
     if(length(par_wl) > 0){
-      getWaterLevel(park = park, site = site,
-                    years = years, months = months) |>
+      force(getWaterLevel(park = park, site = site,
+                    years = years, months = months)) |>
         mutate(param = "WaterLevelFeet", value = WaterLevelFeet) |>
         select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, param, value) |>
         mutate(censored = FALSE)
     } else {NULL},
     if(length(par_wlm) > 0){
-      getWaterLevel(park = park, site = site,
-                    years = years, months = months) |>
+      force(getWaterLevel(park = park, site = site,
+                    years = years, months = months)) |>
         mutate(param = "WaterLevel_m", value = WaterLevel_m) |>
         select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, param, value) |>
         mutate(censored = FALSE)
@@ -219,23 +221,29 @@ plotTrend <- function(park = "all", site = "all",
 
   if(nrow(wdat2) == 0){stop("Combination of sites and parameters returned a data frame with no records.")}
 
+  #-- Set up plotting features --
   ylab <- ifelse(length(unique(wdat$param_label)) == 1, unique(wdat$param_label), "value")
   wdat_cens <- wdat2 |> filter(censored == TRUE)
 
+  #-- Create plot --
   trendplot <-
     if(include_censored == TRUE){
 
     ggplot(wdat2, aes(x = EventDate, y = value, group = SiteName,
                      color = SiteName, fill = SiteName, shape = censored)) +
+      # layers
       {if(smooth == TRUE) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +
       {if(smooth == FALSE & any(layers %in% "lines")) geom_line()} +
       {if(any(layers %in% "points")) geom_point(aes(shape = censored, size = censored), alpha = 0.6)} +
       {if(any(layers %in% "points")) scale_shape_manual(values = c(19, 18), labels = c("Real", "Censored"))} +
       {if(any(layers %in% "points")) scale_size_manual(values = c(3,3.5), labels = c("Real", "Censored"))} +
-      {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free')} +
       {if(threshold == TRUE){geom_hline(aes(yintercept = UpperThreshold), linetype = "dashed")}} +
       {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold), linetype = 'dotted')}} +
+      # facets
+      {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free')} +
+      # themes
       theme_WQ() + theme(legend.position = legend_position, legend.title = element_blank()) +
+      # palettes
       {if(color_theme == "viridis") scale_color_viridis_d()} +
       {if(color_theme == "set1") scale_color_brewer(palette = "Set1")} +
       {if(color_theme == "dark2") scale_color_brewer(palette = "Dark2")} +
@@ -244,17 +252,22 @@ plotTrend <- function(park = "all", site = "all",
       {if(color_theme == "set1") scale_fill_brewer(palette = "Set1")} +
       {if(color_theme == "dark2") scale_fill_brewer(palette = "Dark2")} +
       {if(color_theme == "accent") scale_fill_brewer(palette = "Accent")} +
+      # labels
       labs(x = "Year", y = ylab)
     } else {
       ggplot(wdat2, aes(x = EventDate, y = value, group = SiteName,
                         color = SiteName, fill = SiteName)) +
+        #layers
         {if(smooth == TRUE) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +
         {if(smooth == FALSE & any(layers %in% "lines")) geom_line()} +
         {if(any(layers %in% "points")) geom_point(alpha = 0.6)} +
-        {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free')} +
         {if(threshold == TRUE){geom_hline(aes(yintercept = UpperThreshold), linetype = "dashed")}} +
         {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold), linetype = 'dotted')}} +
+        # facets
+        {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free')} +
+        # themes
         theme_WQ() + theme(legend.position = legend_position, legend.title = element_blank()) +
+        # color palettes
         {if(color_theme == "viridis") scale_color_viridis_d()} +
         {if(color_theme == "set1") scale_color_brewer(palette = "Set1")} +
         {if(color_theme == "dark2") scale_color_brewer(palette = "Dark2")} +
@@ -263,6 +276,7 @@ plotTrend <- function(park = "all", site = "all",
         {if(color_theme == "set1") scale_fill_brewer(palette = "Set1")} +
         {if(color_theme == "dark2") scale_fill_brewer(palette = "Dark2")} +
         {if(color_theme == "accent") scale_fill_brewer(palette = "Accent")} +
+        # labels
         labs(x = "Year", y = ylab)
 
       }
