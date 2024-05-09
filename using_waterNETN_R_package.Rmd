@@ -517,6 +517,76 @@ plotTrend(park = "MORR", parameter = c("TN_mgL", "TP_ugL", "SO4_ueqL"), span = 0
 
 </details>
 
+#### plotLakeProfile()
+This function produces a heatmap in 1-m bins filtered on park (mostly for ACAD), site, year, month, Sonde in situ parameter and either sample relative to the surface or relative to surface elevation. Can only specify one parameter at a time. If multiple sites or years are selected, plots will be faceted on those factors. Keep options limited for best plotting. 
+
+The option to plot relative to surface elevation (eg depth_type = 'elev') corrects sample depth for elevation using water level data and datum elevation for that sampling event. The elevation-corrected option allows you to see how the water column is shifting over time, but currently only works for years >= 2013 in ACAD, as water levels prior to that are not in the current data package. 
+
+Note that occasionally profiles skip a 1-m bin, which show up as white sections in the plots. Incomplete sampling in 2020 and 2021 also shows up as white sections. If you specify a lake x year x parameter combination that doesn't exist (e.g., a year a lake isn't sampled), the function will return an error message instead of an empty plot.
+
+There are several arguments to customize plots. 
+<ul>
+<li> Choose whether to include only active sites (default) or all sites that have been monitored via `active`. </li>
+<li> Choose color theme. Current enabled themes are 'spectral', 'ryb' (red - yellow - blue), 'rb' (red - blue), and 'viridis' (yellow - green - blue). If you prefer other palettes, I can add those too. The only thing I'm trying to avoid is creating the palette manually, since number 1-m bins varies by site and across years. More info on built in ggplot scales can be found here: <a href="https://ggplot2-book.org/scales-colour">https://ggplot2-book.org/scales-colour</a>. </li>
+<li> Choose position of legend via `legend_position`. If you don't want to show the legend, `legend_position = 'none'`.
+<li> Include site name as plot title (title = TRUE). Only enabled when 1 site is selected. Otherwise site names will be in the facets.
+</ul>
+
+<details open><summary class='drop'>Simple plots</summary>
+<p class = 'fxn'>Plot temperature for Eagle Lake for years 2013 - 2023 corrected by elevation. </p>
+```{r message = FALSE, warning = FALSE}
+plotLakeProfile(site = "ACEAGL", parameter = "Temp_C", depth_type = 'elev', years = 2013:2023)
+
+```
+
+<p class = 'fxn'>Plot temperature for Eagle Lake for years 2013 - 2023 with raw sample depth. </p>
+```{r message = FALSE, warning = FALSE}
+plotLakeProfile(site = "ACEAGL", parameter = "Temp_C", depth_type = 'raw', years = 2013:2023)
+
+```
+
+<p class = 'fxn'>Plot temperature for all ACAD lakes sampled in 2023 and raw sample depth. </p>
+```{r message = FALSE, warning = FALSE}
+lakes23 <- c("ACBUBL", "ACEAGL", "ACECHO", "ACJORD", "ACLONG", "ACROUN", "ACSEAL", "ACUBRK", "ACUHAD", 
+           "ACWHOL", "ACWOOD")
+plotLakeProfile(park = "ACAD", site = lakes23, parameter = "Temp_C", depth_type = 'raw', years = 2023)
+
+```
+
+<p class = 'fxn'>Plot DO all ACAD lakes sampled in 2023 and raw sample depth, using reversed ryb palette. </p>
+```{r message = FALSE, warning = FALSE}
+plotLakeProfile(park = "ACAD", site = lakes23, 
+                parameter = "DOsat_pct", depth_type = 'raw', years = 2023, 
+                color_theme = 'ryb', color_rev = TRUE)
+
+```
+
+
+p class = 'fxn'>Plot pH for Seal Cove Pond from 2013 to 2023 and sample elevation, using spectral palette and adding site name as title. </p>
+```{r message = FALSE, warning = FALSE}
+plotLakeProfile(site = "ACSEAL", parameter = "SpCond_uScm", 
+                depth_type = 'elev', years = 2013:2023, 
+                color_theme = 'spectral', title = TRUE)
+
+```
+
+p class = 'fxn'>Plot pH for Jordan Pond from 2013 to 2023 and sample elevation, using reversed spectral palette. </p>
+```{r message = FALSE, warning = FALSE}
+plotLakeProfile(site = "ACJORD", 
+                parameter = "pH", depth_type = 'elev', years = 2013:2023, 
+                color_theme = 'spectral', color_rev = TRUE)
+
+```
+
+
+</details>
+<br>
+
+<details open><summary class='drop'>Combining plots</summary>
+<p class = 'fxn'>Combine plots for temp, DO, pH, and conductance using the `cowplot` package.</p>
+
+</details>
+
 ### Summary Functions {.tabset}
 WIP
 
