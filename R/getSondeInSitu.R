@@ -6,7 +6,7 @@
 #' @description Queries NETN water chemistry data with the Sonde in the field by site, event, and parameter.
 #' If pulling all sites, parameters, years, etc., function may take a second or two to run.
 #'
-#' @importFrom dplyr filter first full_join group_by left_join mutate select summarize
+#' @importFrom dplyr filter first full_join group_by left_join mutate select summarize ungroup
 #' @importFrom purrr reduce
 #' @importFrom tidyr pivot_longer pivot_wider
 #'
@@ -192,7 +192,7 @@ getSondeInSitu <- function(park = "all", site = "all",
   sonde6 <- if(sample_depth == 'surface'){
     sonde5 |> filter(Depth_m <= 2) |>
       group_by( SiteCode, SiteType, EventDate, EventCode, GroupCode, GroupName,
-                UnitCode, UnitName, SubUnitCode, SubUnitName, SiteName, #MeasurementTime,
+                UnitCode, UnitName, SubUnitCode, SubUnitName, SiteName,
                 Datum, XYAccuracy, QCType_Code,
                 QCType_Value, Rep,SondeType, WQInSitu_Flag, WQFlag_Comments, IsEventCUI,
                 year, month, doy, param) |>
@@ -200,13 +200,16 @@ getSondeInSitu <- function(park = "all", site = "all",
                 value = median(value, na.rm = T),
                 SondeLatitude = first(SondeLatitude),
                 SondeLongitude = first(SondeLongitude),
-                .groups = 'drop')
+                MeasurementTime= first(MeasurementTime),
+                .groups = 'drop') |> ungroup()
   } else {sonde5}
 
   # add date/time stamp for rLakeAnalyzer and LakeMonitoR
-  sonde6$datetime <- as.POSIXct(paste(sonde6$EventDate, sonde6$MeasurementTime),
-                       format = "%Y-%m-%d %H:%M:%S")
+  # sonde6$datetime <- as.POSIXct(paste(sonde6$EventDate, sonde6$MeasurementTime),
+  #                      format = "%Y-%m-%d %H:%M:%S")
 
+  sonde6$datetime <- as.POSIXct(paste(sonde6$EventDate, "12:00:00"),
+                                format = "%Y-%m-%d %H:%M:%S")
   sonde7 <-
   if(output == "short"){sonde6[,c("SiteCode", "SiteName", "UnitCode", "SubUnitCode", "EventDate",
                                   "year", "month", "doy", "datetime", "QCType_Code", "QCType_Value",

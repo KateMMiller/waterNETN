@@ -5,10 +5,12 @@
 #' @title plotLakeProfile: Plots smoothed trend
 #'
 #' @importFrom dplyr group_by left_join mutate select summarize
+#' @importFrom purrr pmap_dfr possibly
 #' @import ggplot2
 #'
 #' @description This function produces a heatmap filtered on park (mostly for ACAD), site, year, month, Sonde in situ
-#' parameter and either sample relative to the surface or relative to surface elevation. Can only specify one parameter
+#' parameter and either sample relative to the surface or relative to surface elevation. The y-axis is 1m bins. If multiple
+#' samples occur within a 1-m depth, the value plotted is the median. Can only specify one parameter
 #' at a time. If multiple sites or years are selected, plots will be faceted on those factors. Keep options limited
 #' for best plotting. The option to plot relative to surface elevation uses the water level data and datum elevation
 #' to convert sample depth to 1-m binned elevations. This allows you to see how the water column is shifting over time.
@@ -53,6 +55,12 @@
 #' @param plot_title Logical. If TRUE (default) prints site name at top of figure. If FALSE, does not print site name. Only enabled when
 #' one site is selected.
 #'
+#' @param plot_thermocline Logical. If TRUE (default) plots the depth of the thermocline, calculated by rLakeAnalyzer as the depth/elevation
+#' within the water column where the temperature gradient is the steepest and indicates where the upper waters are typically not mixing with
+#' deeper waters. Only plots where at least 5 depth measurements for temperature have been collected (may want to increase this threshold).
+#' Note that in the rare cases that multiple sampling events occur within a month, only the first is plotted. If no thermocline is detected,
+#' as defined by `rLakeAnalyzer::thermo.depth()`, no points are plotted.
+#'
 #' @param legend_position Specify location of legend (default is 'right'). To turn legend off, use legend_position = "none". Other
 #' options are "top", "bottom", "left", "right".
 #'
@@ -77,6 +85,7 @@ plotLakeProfile <- function(park = "all", site = "all",
                       depth_type = 'elev',
                       color_theme = "spectral", color_rev = FALSE,
                       plot_title = TRUE,
+                      plot_thermocline = TRUE,
                       legend_position = 'right', ...){
 
   # park = 'all'; site = 'all'; site_type = 'all'; years = 2013:2023;
@@ -138,13 +147,82 @@ plotLakeProfile <- function(park = "all", site = "all",
   color_dir <- ifelse(color_rev == FALSE, -1, 1)
   ptitle <- if(length(unique(wcomb2$SiteCode)) == 1 & plot_title == TRUE){unique(wcomb2$SiteName)} else {NULL}
 
+  #-- Calculate thermocline --
+  if(plot_thermocline == TRUE){
+    if(!requireNamespace("rLakeAnalyzer", quietly = TRUE) & depth_type %in% c('DSN', 'dbfile')){
+      stop("Package 'rLakeAnalyzer' needed for if plot_thermocline = TRUE. Please install it.", call. = FALSE)
+    }
+  # thermocline calcuated for temperature only
+  temp <- force(getSondeInSitu(park = park, site = site, site_type = "lake",
+                               years = years, months = months, parameter = "Temp_C", sample_depth = 'all', ...)) |>
+    select(SiteCode, SiteName, UnitCode, EventDate, datetime, year, month, doy, Depth_m, param, value)
+
+  temp$depth_1m_bin <- ifelse(temp$Depth_m < 1, 0, round(temp$Depth_m, 0))
+
+  # Check number of depths measured. If < 5 will be dropped from thermocline calculation
+  num_depths <- temp |> group_by(SiteCode, year, month) |>
+    summarize(num_meas = sum(!is.na(Depth_m)), .groups = 'drop') |>  # this turns into logical, where every depth with a value = 1 and is summed
+    filter(num_meas >= 5)
+
+  # Drop temp data from samples with < 5 samples with left join
+  temp1 <- left_join(num_depths, temp, by = c("SiteCode", "year", "month"))
+
+  # Check for multiple sampling events within a month, and take the first.
+  num_evs <- temp |> select(SiteCode, year, month, doy) |> unique() |>
+    group_by(SiteCode, year, month) |> slice(1)
+
+  # Take only first temp sample within a month
+  temp1b <- left_join(num_evs, temp1, by = c("SiteCode", "year", "month", "doy"))
+
+  temp2 <- temp1b |>
+    group_by(SiteCode, SiteName, EventDate, datetime, year, month, doy,
+             depth_1m_bin, param) |>
+    summarize(value = median(value), .groups = 'drop')
+
+  site_list <- sort(unique(temp2$SiteCode))
+  year_list <- sort(unique(temp2$year))
+  mon_list <- sort(unique(temp2$month))
+
+  all_params <- unique(data.frame(site = temp2$SiteCode, yr = temp2$year, mon = temp2$month))
+  param_list <- list(all_params[[1]], all_params[[2]], all_params[[3]])
+
+  # calc. thermocline on all site, year, month combinations in dataset
+  tcline1 <-
+    pmap_dfr(param_list, function(site, yr, mon){
+      df <- temp2 |> filter(SiteCode == site) |> filter(year == yr) |> filter(month == mon)
+      tc <- rLakeAnalyzer::thermo.depth(wtr = df$value, depths = df$depth_1m_bin)
+      tcdf <- data.frame(SiteCode = site, year = yr, month = mon, value = tc)
+      return(tcdf)
+    })
+  # add water level to temp data for depth_type = 'elev'
+  tcomb <- left_join(temp2, lev,
+                     by = c("SiteCode", "SiteName", "EventDate",
+                            "year", "month", "doy"))
+  # add thermocline to temp/wl data
+  tcline <-
+    if(depth_type == "elev"){
+       left_join(tcomb |> select(SiteCode, SiteName, year, month, WaterLevel_m) |> unique(),
+                  tcline1, by = c("SiteCode", "year", "month")) |>
+          mutate(value = WaterLevel_m - value,
+                 mon = factor(month, levels = unique(month),
+                               labels = unique(month.abb[month])))
+    } else if(depth_type == "raw"){
+      left_join(tcomb |> select(SiteCode, SiteName, year, month) |> unique(),
+                tcline1, by = c("SiteCode", "year", "month")) |>
+        mutate(mon = factor(month, levels = unique(month),
+                            labels = unique(month.abb[month])))
+    }
+  }
   #-- Create plot --
   profplot <-
     if(depth_type == "elev"){
-     ggplot(wcomb2, aes(x = mon, y = sample_elev, color = value, fill = value)) +
-      geom_tile(aes(width = 1, height = 1)) +
+     ggplot(wcomb2, aes(x = mon, y = sample_elev)) +
+      geom_tile(aes(width = 1, height = 1, color = value, fill = value)) +
       theme(legend.position = legend_position, axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
       theme_WQ() +
+      # plot thermocline as point
+      {if(plot_thermocline == TRUE){
+        geom_point(data = tcline, aes(x = mon, y = value), color = 'black', show.legend = F)}} +
       # facets if more than 1 year or site
       {if(facet_site == TRUE & facet_year == TRUE) facet_wrap(~SiteName + year)} +
       {if(facet_site == TRUE & facet_year == FALSE) facet_wrap(~SiteName)} +
@@ -162,10 +240,11 @@ plotLakeProfile <- function(park = "all", site = "all",
       labs(x = NULL, y = ylab, color = param_label, fill = param_label, title = ptitle)
 
     } else if(depth_type == "raw"){
-      ggplot(wcomb2, aes(x = mon, y = -depth_1m_bin, color = value, fill = value)) +
-        geom_tile(aes(width = 1, height = 1)) +
+      ggplot(wcomb2, aes(x = mon, y = -depth_1m_bin)) +
+        geom_tile(aes(width = 1, height = 1, color = value, fill = value)) +
         theme(legend.position = legend_position, axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
         theme_WQ() +
+        {if(plot_thermocline == TRUE){geom_point(data = tcline, aes(x = mon, y = -value), color = 'black')}} +
         # facets if more than 1 year or site
         {if(facet_site == TRUE & facet_year == TRUE) facet_wrap(~SiteName + year)} +
         {if(facet_site == TRUE & facet_year == FALSE) facet_wrap(~SiteName)} +

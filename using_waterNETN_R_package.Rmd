@@ -545,6 +545,7 @@ Note that occasionally profiles skip a 1-m bin, which show up as white sections 
 
 There are several arguments to customize plots. 
 <ul>
+<li>Choose whether to plot the theromocline as points on each profile via `plot_thermocline = TRUE` (default). The thermocline is calculated by rLakeAnalyzer, and is the depth/elevation at which the largest change in temperature occurs in the sampled water column. If no thermocline is detected, as defined by `rLakeAnalyzer::thermo.depth()`, nothing is plotted.</li>
 <li> Choose whether to include only active sites (default) or all sites that have been monitored via `active`. </li>
 <li> Choose color theme. Current enabled themes are 'spectral', 'ryb' (red - yellow - blue), 'rb' (red - blue), and 'viridis' (yellow - green - blue). If you prefer other palettes, I can add those too. The only thing I'm trying to avoid is creating the palette manually, since number 1-m bins varies by site and across years. More info on built in ggplot scales can be found here: <a href="https://ggplot2-book.org/scales-colour">https://ggplot2-book.org/scales-colour</a>. </li>
 <li> Choose position of legend via `legend_position`. If you don't want to show the legend, `legend_position = 'none'`.
@@ -552,17 +553,17 @@ There are several arguments to customize plots.
 </ul>
 
 <details open><summary class='drop'>Simple plots</summary>
-<p class = 'fxn'>Plot temperature for Upper Hadlock for years 2013 - 2023 corrected by elevation. </p>
+<p class = 'fxn'>Plot temperature for Upper Hadlock for years 2013 - 2023 corrected by elevation with thermocline plotted as black circles. </p>
 ```{r message = FALSE, warning = FALSE}
 plotLakeProfile(site = "ACUHAD", parameter = "Temp_C", depth_type = 'elev', 
                 years = 2013:2023)
 
 ```
 
-<p class = 'fxn'>Plot temperature for Eagle Lake for years 2013 - 2023 with raw sample depth, and no plot title. </p>
+<p class = 'fxn'>Plot temperature for Eagle Lake for years 2013 - 2023 with raw sample depth, and no plot title or thermocline. </p>
 ```{r message = FALSE, warning = FALSE}
 plotLakeProfile(site = "ACEAGL", parameter = "Temp_C", depth_type = 'raw', 
-                years = 2013:2023, plot_title = FALSE)
+                years = 2013:2023, plot_title = FALSE, plot_thermocline = F)
 
 ```
 
@@ -575,7 +576,7 @@ plotLakeProfile(park = "ACAD", site = lakes23, parameter = "Temp_C",
 
 ```
 
-<p class = 'fxn'>Plot DO all ACAD lakes sampled in 2023 and raw sample depth, using reversed ryb palette. </p>
+<p class = 'fxn'>Plot DO all ACAD lakes sampled in 2023 and raw sample depth, using reversed ryb palette. Temperature thermocline is also included as black circles.</p>
 ```{r message = FALSE, warning = FALSE}
 plotLakeProfile(park = "ACAD", site = lakes23, 
                 parameter = "DOsat_pct", depth_type = 'raw', years = 2023, 
@@ -583,7 +584,7 @@ plotLakeProfile(park = "ACAD", site = lakes23,
 
 ```
 
-<p class = 'fxn'>Plot specific conductance for Seal Cove Pond from 2013 to 2023 and sample elevation. Uses spectral palette by default and adds site name as title by default. </p>
+<p class = 'fxn'>Plot specific conductance for Seal Cove Pond from 2013 to 2023 and sample elevation. Uses spectral palette by default and adds site name as title by default. Thermocline is also plotted as default. </p>
 ```{r message = FALSE, warning = FALSE}
 plotLakeProfile(site = "ACSEAL", parameter = "SpCond_uScm", 
                 depth_type = 'elev', years = 2013:2023)
@@ -597,6 +598,16 @@ plotLakeProfile(site = "ACJORD", parameter = "pH",
                 color_rev = TRUE)
 
 ```
+
+<p class = 'fxn'>Plot pH for all ACAD lakes sampled in 2022 and 2023 and raw sample depth, using reversed ryb palette. </p>
+```{r message = FALSE, warning = FALSE}
+plotLakeProfile(park = "ACAD", site = c("ACBUBL", "ACEAGL", "ACECHO", "ACJORD", "ACLONG", "ACSEAL", 
+                                        "ACUHAD", "ACWHOL"), 
+                parameter = "pH", depth_type = 'raw', years = 2022:2023, 
+                color_theme = 'ryb', color_rev = TRUE)
+
+```
+
 
 </details>
 <br>
@@ -640,7 +651,7 @@ Note that sitename and year are defined in code chunk above.
 ```{r warning = F, message = F}
 title <- ggdraw() + draw_label(paste0(sitename, " (", year, ")"), size = 11, fontface = 'bold',
                                x = 0.05, hjust = 0, vjust = 0) 
-pgrid <- plot_grid(tplot, doplot, pHplot, cnplot, rel_widths = c(0.95, 1, 0.95, 1))
+pgrid <- plot_grid(tplot, doplot, pHplot, cnplot, rel_widths = c(0.9, 0.95, 0.85, 1)) # doesn't seem to be working 
 plot_grid(title, pgrid, ncol = 1, rel_heights = c(0.1, 1))
 ```
 

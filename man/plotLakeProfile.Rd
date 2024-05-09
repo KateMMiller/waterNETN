@@ -15,6 +15,7 @@ plotLakeProfile(
   color_theme = "spectral",
   color_rev = FALSE,
   plot_title = TRUE,
+  plot_thermocline = TRUE,
   legend_position = "right",
   ...
 )
@@ -58,6 +59,12 @@ depth, with each sample starting at 0 regardless of level of the lake surface (d
 \item{plot_title}{Logical. If TRUE (default) prints site name at top of figure. If FALSE, does not print site name. Only enabled when
 one site is selected.}
 
+\item{plot_thermocline}{Logical. If TRUE (default) plots the depth of the thermocline, calculated by rLakeAnalyzer as the depth/elevation
+within the water column where the temperature gradient is the steepest and indicates where the upper waters are typically not mixing with
+deeper waters. Only plots where at least 5 depth measurements for temperature have been collected (may want to increase this threshold).
+Note that in the rare cases that multiple sampling events occur within a month, only the first is plotted. If no thermocline is detected,
+as defined by \code{rLakeAnalyzer::thermo.depth()}, no points are plotted.}
+
 \item{legend_position}{Specify location of legend (default is 'right'). To turn legend off, use legend_position = "none". Other
 options are "top", "bottom", "left", "right".}
 
@@ -69,7 +76,8 @@ in the data frame.
 }
 \description{
 This function produces a heatmap filtered on park (mostly for ACAD), site, year, month, Sonde in situ
-parameter and either sample relative to the surface or relative to surface elevation. Can only specify one parameter
+parameter and either sample relative to the surface or relative to surface elevation. The y-axis is 1m bins. If multiple
+samples occur within a 1-m depth, the value plotted is the median. Can only specify one parameter
 at a time. If multiple sites or years are selected, plots will be faceted on those factors. Keep options limited
 for best plotting. The option to plot relative to surface elevation uses the water level data and datum elevation
 to convert sample depth to 1-m binned elevations. This allows you to see how the water column is shifting over time.
