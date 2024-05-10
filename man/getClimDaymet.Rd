@@ -63,6 +63,8 @@ Day length (dayl in s/day), Precipitation (prcp in mm/day), Shortwave radiation 
 Snow water equivalent (swe in kg/m2), Maximum air temperature (tmax in C), Minimum air temperature (tmin in C),
 and Water vapor pressure (vp in Pascals). More details on metrics can be found online:
 https://daymet.ornl.gov/overview.html > Parameters, Parameter abbreviations, Units and Descriptions.
+Note that occasionally you're unable to connect to the server, and will receive an error message
+when that happens.
 }
 \examples{
 \dontrun{

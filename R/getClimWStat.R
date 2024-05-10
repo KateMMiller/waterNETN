@@ -79,6 +79,7 @@ getClimWStat <- function(park = "all", site = "all",
                          filepath = NA,
                          export = FALSE){
 
+  #--- error handling ---
   # Check that suggested package required for this function are installed
   if(!requireNamespace("jsonlite", quietly = TRUE)){
     stop("Package 'jsonlite' needed to download weather station data. Please install it.", call. = FALSE)
@@ -115,6 +116,7 @@ getClimWStat <- function(park = "all", site = "all",
   if(httr::http_error("http://data.rcc-acis.org")){
     stop("Unable to connect to data.rcc-acis.org to download weather station data.")}
 
+  #--- compile data ---
   # Combine sites with nearest weather station
   sites <- force(getSites(park = park, site = site, site_type = site_type, active = active)) |>
     select(SiteCode, SiteLatitude, SiteLongitude, UnitCode)

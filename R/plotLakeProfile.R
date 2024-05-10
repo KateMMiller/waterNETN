@@ -199,7 +199,7 @@ plotLakeProfile <- function(park = "all", site = "all",
                      by = c("SiteCode", "SiteName", "EventDate",
                             "year", "month", "doy"))
   # add thermocline to temp/wl data
-  tcline <-
+  tcline2 <-
     if(depth_type == "elev"){
        left_join(tcomb |> select(SiteCode, SiteName, year, month, WaterLevel_m) |> unique(),
                   tcline1, by = c("SiteCode", "year", "month")) |>
@@ -212,11 +212,14 @@ plotLakeProfile <- function(park = "all", site = "all",
         mutate(mon = factor(month, levels = unique(month),
                             labels = unique(month.abb[month])))
     }
+  tcline <- tcline2[!is.na(tcline2$value),]
   }
+
+
   #-- Create plot --
   profplot <-
     if(depth_type == "elev"){
-     ggplot(wcomb2, aes(x = mon, y = sample_elev)) +
+     ggplot(wcomb2 |> droplevels(), aes(x = mon, y = sample_elev)) +
       geom_tile(aes(width = 1, height = 1, color = value, fill = value)) +
       theme(legend.position = legend_position, axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
       theme_WQ() +
@@ -224,9 +227,9 @@ plotLakeProfile <- function(park = "all", site = "all",
       {if(plot_thermocline == TRUE){
         geom_point(data = tcline, aes(x = mon, y = value), color = 'black', show.legend = F)}} +
       # facets if more than 1 year or site
-      {if(facet_site == TRUE & facet_year == TRUE) facet_wrap(~SiteName + year)} +
-      {if(facet_site == TRUE & facet_year == FALSE) facet_wrap(~SiteName)} +
-      {if(facet_site == FALSE & facet_year == TRUE) facet_wrap(~year)} +
+      {if(facet_site == TRUE & facet_year == TRUE) facet_wrap(~SiteName + year, drop = T)} +
+      {if(facet_site == TRUE & facet_year == FALSE) facet_wrap(~SiteName, drop = T)} +
+      {if(facet_site == FALSE & facet_year == TRUE) facet_wrap(~year, drop = T)} +
       # color palettes
       {if(color_theme == 'spectral') scale_fill_distiller(palette = "Spectral", direction = color_dir)} +
       {if(color_theme == 'spectral') scale_color_distiller(palette = "Spectral", direction = color_dir)} +
@@ -240,15 +243,15 @@ plotLakeProfile <- function(park = "all", site = "all",
       labs(x = NULL, y = ylab, color = param_label, fill = param_label, title = ptitle)
 
     } else if(depth_type == "raw"){
-      ggplot(wcomb2, aes(x = mon, y = -depth_1m_bin)) +
+      ggplot(wcomb2 |> droplevels(), aes(x = mon, y = -depth_1m_bin)) +
         geom_tile(aes(width = 1, height = 1, color = value, fill = value)) +
         theme(legend.position = legend_position, axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
         theme_WQ() +
         {if(plot_thermocline == TRUE){geom_point(data = tcline, aes(x = mon, y = -value), color = 'black')}} +
         # facets if more than 1 year or site
-        {if(facet_site == TRUE & facet_year == TRUE) facet_wrap(~SiteName + year)} +
-        {if(facet_site == TRUE & facet_year == FALSE) facet_wrap(~SiteName)} +
-        {if(facet_site == FALSE & facet_year == TRUE) facet_wrap(~year)} +
+        {if(facet_site == TRUE & facet_year == TRUE) facet_wrap(~SiteName + year, drop = T)} +
+        {if(facet_site == TRUE & facet_year == FALSE) facet_wrap(~SiteName, drop = T)} +
+        {if(facet_site == FALSE & facet_year == TRUE) facet_wrap(~year, drop = T)} +
         # color palettes
         {if(color_theme == 'spectral') scale_fill_distiller(palette = "Spectral", direction = color_dir)} +
         {if(color_theme == 'spectral') scale_color_distiller(palette = "Spectral", direction = color_dir)} +

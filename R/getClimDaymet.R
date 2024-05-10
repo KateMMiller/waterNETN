@@ -10,6 +10,8 @@
 #' Snow water equivalent (swe in kg/m2), Maximum air temperature (tmax in C), Minimum air temperature (tmin in C),
 #' and Water vapor pressure (vp in Pascals). More details on metrics can be found online:
 #' https://daymet.ornl.gov/overview.html > Parameters, Parameter abbreviations, Units and Descriptions.
+#' Note that occasionally you're unable to connect to the server, and will receive an error message
+#' when that happens.
 #'
 #' @importFrom dplyr select
 #' @importFrom tidyr pivot_wider
@@ -73,7 +75,7 @@ getClimDaymet <- function(park = "all", site = "all",
                           years = c(2006:2023), active = TRUE,
                           filepath = NA, export = FALSE,
                           silent = TRUE){
-
+  #--- error handling ---
   park <- match.arg(park, several.ok = TRUE,
                     c("all", "LNETN", "ACAD", "MABI", "MIMA", "MORR",
                       "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
@@ -98,6 +100,7 @@ getClimDaymet <- function(park = "all", site = "all",
     if(!grepl("/$", filepath)){filepath <- paste0(filepath, "/")} # add / to end of filepath if doesn't exist
   }
 
+  #--- compile data ---
   # Create list of lat/longs to generate
   sites <- force(getSites(park = park, site = site, site_type = site_type, active = active)) |>
     select(site = SiteCode, latitude = SiteLatitude, longitude = SiteLongitude)
@@ -107,13 +110,16 @@ getClimDaymet <- function(park = "all", site = "all",
   write.csv(sites, paste0(tmp, "\\daymet_sites.csv"), row.names = F)
 
   cdata_long <-
-  daymetr::download_daymet_batch(
-    file_location = paste0(tmp, "\\daymet_sites.csv"),
-                           start = min(years),
-                           end = max(years),
-                           path = tmp,
-                           simplify = TRUE,
-                           silent = silent)
+    tryCatch({
+      daymetr::download_daymet_batch(
+      file_location = paste0(tmp, "\\daymet_sites.csv"),
+                             start = min(years),
+                             end = max(years),
+                             path = tmp,
+                             simplify = TRUE,
+                             silent = silent)},
+      error = function(e){stop('Unable to connect to Daymet server.')}
+    )
 
   cdata_wide <- cdata_long |> pivot_wider(names_from = measurement, values_from = value) |> data.frame()
   colnames(cdata_wide) <- gsub("\\.\\.", "_", names(cdata_wide))

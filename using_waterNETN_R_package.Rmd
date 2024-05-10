@@ -543,6 +543,8 @@ The option to plot relative to surface elevation (eg depth_type = 'elev') correc
 
 Note that occasionally profiles skip a 1-m bin, which show up as white sections in the plots. Incomplete sampling in 2020 and 2021 also shows up as white sections. If you specify a lake x year x parameter combination that doesn't exist (e.g., a year a lake isn't sampled), the function will return an error message instead of an empty plot.
 
+Next step with lake profiles is to model them by day of year, so we can plot a consistent interval between samples, rather than just use the month to plot, like here. This would allow samples taken twice within a month to both be counted, and for early vs. late in the month samples to be corrected for. That will take a bit to figure out...
+
 There are several arguments to customize plots. 
 <ul>
 <li>Choose whether to plot the theromocline as points on each profile via `plot_thermocline = TRUE` (default). The thermocline is calculated by rLakeAnalyzer, and is the depth/elevation at which the largest change in temperature occurs in the sampled water column. If no thermocline is detected, as defined by `rLakeAnalyzer::thermo.depth()`, nothing is plotted.</li>
@@ -560,17 +562,17 @@ plotLakeProfile(site = "ACUHAD", parameter = "Temp_C", depth_type = 'elev',
 
 ```
 
-<p class = 'fxn'>Plot temperature for Eagle Lake for years 2013 - 2023 with raw sample depth, and no plot title or thermocline. </p>
+<p class = 'fxn'>Plot temperature for Eagle Lake for years 2006 - 2023 with raw sample depth, and no plot title or thermocline. Note that I can go back to 2006 because I'm using raw sample depth instead of elevation.</p>
 ```{r message = FALSE, warning = FALSE}
 plotLakeProfile(site = "ACEAGL", parameter = "Temp_C", depth_type = 'raw', 
-                years = 2013:2023, plot_title = FALSE, plot_thermocline = F)
+                years = 2006:2023, plot_title = FALSE, plot_thermocline = F)
 
 ```
 
 <p class = 'fxn'>Plot temperature for all ACAD lakes sampled in 2023 and raw sample depth. </p>
 ```{r message = FALSE, warning = FALSE}
 lakes23 <- c("ACBUBL", "ACEAGL", "ACECHO", "ACJORD", "ACLONG", "ACROUN", 
-             "ACSEAL", "ACUBRK", "ACUHAD", "ACWHOL", "ACWOOD")
+             "ACSEAL", "ACUBRK", "ACUHAD", "ACWHOL")
 plotLakeProfile(park = "ACAD", site = lakes23, parameter = "Temp_C", 
                 depth_type = 'raw', years = 2023)
 
@@ -658,7 +660,35 @@ plot_grid(title, pgrid, ncol = 1, rel_heights = c(0.1, 1))
 </details>
 
 ### Summary Functions {.tabset}
-WIP
+#### sumClim30yr()
+This function calculates monthly 30 year norms from daily Daymet data by site. User can specify start of the 30-year norm, the earliest being 1980. Note that Daymet data are downloaded from an online web service and can be slow if many sites selected. Normals returned are 30-year monthly averages for total precipitation in mm (ppt_mm), average maximum temperature (tmax_C), average minimum temperature (tmin_C), and average temperature (tmean_C). Note that occasionally you're unable to connect to the server and will receive and error message when that happens.
 
+<p class = 'fxn'>Summarize 1980 - 2009 30-year normals for all MIMA sites.</p>
+```{r}
+mima80 <- sumClim30yr(park = "MIMA", start_year = 1980)
+print_head(mima80)
+```
 
+<p class = 'fxn'>Summarize 1990 - 2019 30-year normals for Weir Pond.</p>
+```{r}
+wefa90 <- sumClim30yr(site = "WEFAPA", start_year = 1990)
+print_head(wefa90)
+```
 
+#### sumClimMonthly()
+This function calculates monthly statistics from daily Daymet and/or weather station data by site. Statistics returned are monthly total precipitation in mm (ppt_mm), average maximum temperature (tmax_C), average minimum temperature (tmin_C), and average temperature (tmean_C). When Daymet data are requested, results also return a solar radiation (srad in mjm2), potential evapotranspiration using Hargreaves (PEThar), water balance (BAL), 1- month and 3-month Standardized Precipitation Evapotranspiration Index (SPEI), a drought index that takes into account precipitation, temperature, evapotranspiration, and solar radiation. The 3-month SPEI will be NA for the first 2 months in the year span, because it's a 3-month average. Daymet vs. weather station metrics are indicated by whether they start with dm_ or ws_. Note that occasionally you're unable to connect to the Daymet or rcc-acis server and will receive and error message when that happens. 
+
+Note that Daymet data availability are typically not available for the latest year until a few months after the calendar year is over. Weather station data may be available within a day or two of the current date.
+
+<p class = 'fxn'>Summarize monthly Daymet and weather station data for Mill Brook in MIMA for 2020 to 2023.</p>
+```{r}
+mima <- sumClimMonthly(site = "MIMASA", years = 2020:2023, data_type = 'all')
+print_head(mima)
+
+```
+
+<p class = 'fxn'>Summarize monthly weather station data for the Pogue for 2024. </p>
+```{r}
+pogwstn <- sumClimMonthly(site = "MABIPA", years = 2024, data_type = 'wstn')
+print_head(pogwstn)
+```

@@ -31,6 +31,9 @@ Collate:
     'theme_WQ.R'
     'plotLakeProfile.R'
     'plotTrend.R'
+    'plotTrendClimate.R'
+    'sumClim30yr.R'
+    'sumClimMonthly.R'
 Imports: 
     dplyr,
     purrr,
