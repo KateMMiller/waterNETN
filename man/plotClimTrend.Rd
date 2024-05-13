@@ -11,6 +11,7 @@ plotClimTrend(
   years = 2006:format(Sys.Date(), "\%Y"),
   months = 1:12,
   active = TRUE,
+  layers = c("points", "lines"),
   parameter = NA,
   facet_site = FALSE,
   color_theme = "viridis",
@@ -51,6 +52,8 @@ events are between months 5 and 10, and these are set as the defaults.}
 
 \item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
 
+\item{layers}{Options are "points" and "lines". By default, both will plot.}
+
 \item{parameter}{Specify the parameter(s) to plot. Acceptable values are
 \describe{
 \item{"all"}{Plot all climate variables}
@@ -84,8 +87,6 @@ cause more smoothing (straighter lines). Smaller spans are wavier. Span can rang
 options are "top", "bottom", "left", "right".}
 
 \item{...}{Additional arguments relevant to \code{getChemistry()} or \code{getSondeInSitu()}}
-
-\item{layers}{Options are "points" and "lines". By default, both will plot.}
 }
 \value{
 Returns a ggplot object of specified climate trends

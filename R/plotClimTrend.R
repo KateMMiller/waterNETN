@@ -94,6 +94,7 @@ plotClimTrend <- function(park = "all", site = "all",
                           site_type = c("all", "lake", "stream"),
                           years = 2006:format(Sys.Date(), "%Y"),
                           months = 1:12, active = TRUE,
+                          layers = c("points", "lines"),
                           parameter = NA, facet_site = FALSE,
                           color_theme = 'viridis', smooth = TRUE,
                           span = 0.3,
@@ -118,7 +119,6 @@ plotClimTrend <- function(park = "all", site = "all",
 
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   stopifnot(class(active) == "logical")
-  stopifnot(class(include_censored) == "logical")
   stopifnot(class(smooth) == "logical")
   stopifnot(class(span) %in% "numeric")
   layers <- match.arg(layers, c("points", "lines"), several.ok = TRUE)
@@ -129,13 +129,13 @@ plotClimTrend <- function(park = "all", site = "all",
   clim_dat <-
     if(any(parameter == "all") | (any(parameter %in% dm_param) & any(parameter %in% ws_param))){
       sumClimMonthly(park = park, site = site, site_type = site_type, active = active, years = years,
-                   data_type = 'all')
+                     months = months, data_type = 'all')
     } else if(all(parameter %in% dm_param)){
       sumClimMonthly(park = park, site = site, site_type = site_type, active = active, years = years,
-                     data_type = 'daymet')
+                     months = months, data_type = 'daymet')
     } else if(all(parameter %in% ws_param)){
       sumClimMonthly(park = park, site = site, site_type = site_type, active = active, years = years,
-                     data_type = 'wstn')
+                     months = months, data_type = 'wstn')
     }
 
   param <- if(any(parameter == "all")){c(dm_param, ws_param)} else {parameter}
