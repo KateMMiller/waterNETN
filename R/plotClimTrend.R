@@ -1,15 +1,16 @@
 #' @include getSites.R
 #' @include theme_WQ.R
+#' @include sumClimMonthly.R
 #'
-#' @title plotTrendClimate: Plots smoothed trend
+#' @title plotClimTrend: Plot climate trends
 #'
-#' @importFrom dplyr arrange mutate select
+#' @importFrom dplyr left_join
 #' @importFrom tidyr pivot_longer
 #' @import ggplot2
 #'
 #' @description This function produces a line or smoothed trend plot filtered on park, site, year, month, and
-#' climate parameter. If multiple sites are specified, they will be plotted on the same figure. If multiple
-#' parameters are specified, they will be plotted on separate figures.
+#' climate parameter. If multiple sites are specified, they can either be plotted on the same figure or separate
+#' figures. If multiple parameters are specified, they will be plotted on separate figures.
 #'
 #' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
 #' \describe{
@@ -58,19 +59,19 @@
 #' \item{"ws_tmean_C"}{Weather station monthly average temperature in C.}
 #' }
 #'
+#' @param facet_site Logical. If TRUE, plots sites on separate facets (ie figures). If FALSE (Default),
+#' plots all sites on the same figure. This is only enabled if multiple sites are chosen.
+#'
 #' @param layers Options are "points" and "lines". By default, both will plot.
 #'
 #' @param color_theme Theme to plot points and lines. Options currently are 'viridis' (Default- ranges of blue, green and yellow),
 #' or from RColorBrewer: 'set1', 'dark2', or 'accent' (see https://ggplot2-book.org/scales-colour).
 #'
-#' @param threshold Logical. If TRUE (Default), will plot a dashed (upper) or dotted (lower) line if a water quality threshold exists for that
-#' parameter and site. If FALSE, no threshold line will be plotted.
-#'
 #' @param smooth Logical. If TRUE (Default), will plot a loess smoothed line. If FALSE, will plot actual line. Only
 #' plots if layers argument includes 'lines'.
 #'
 #' @param span Numeric. Determines how smoothed the line will be for smooth = TRUE. Default is 0.3. Higher spans (up to 1)
-#' cause more smoothing. Span can range from 0 to 1.
+#' cause more smoothing (straighter lines). Smaller spans are wavier. Span can range from 0 to 1. Span of 1 is linear.
 #'
 #' @param legend_position Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
 #' options are "top", "bottom", "left", "right".
@@ -81,20 +82,22 @@
 #' \dontrun{
 #'
 #'
+#' plotClimTrend()
 #'
 #'}
 #'
-#' @return Returns a panel of hydrographs during the growing season for each year
-#' in the data frame.
+#' @return Returns a ggplot object of specified climate trends
 #'
 #' @export
 #'
-plotTrendClimate <- function(park = "all", site = "all",
-                      site_type = c("all", "lake", "stream"),
-                      years = 2006:format(Sys.Date(), "%Y"),
-                      months = 1:12, active = TRUE,
-                      parameter = NA,
-                      legend_position = 'none', ...){
+plotClimTrend <- function(park = "all", site = "all",
+                          site_type = c("all", "lake", "stream"),
+                          years = 2006:format(Sys.Date(), "%Y"),
+                          months = 1:12, active = TRUE,
+                          parameter = NA, facet_site = FALSE,
+                          color_theme = 'viridis', smooth = TRUE,
+                          span = 0.3,
+                          legend_position = 'none', ...){
 
   #-- Error handling --
   park <- match.arg(park, several.ok = TRUE,
@@ -141,17 +144,31 @@ plotTrendClimate <- function(park = "all", site = "all",
 
   clim_dat_long <- clim_dat2 |> pivot_longer({{param}}, names_to = "param", values_to = "value") |>
     arrange(SiteCode, month, param)
+
   clim_dat_long$date <- as.Date(paste0(clim_dat_long$year, "-", clim_dat_long$month, "-", 15), format = "%Y-%m-%d")
 
-  head(clim_dat_long)
-
   #-- Set up plotting features --
-  ylab <- ifelse(length(unique(clim_dat_long$param)) == 1, unique(clim_dat_long$param), "value")
+  ylab <- ifelse(length(unique(clim_dat_long$param)) == 1, unique(clim_dat_long$param), "Monthly Value")
 
   facet_site <- ifelse(length(unique(clim_dat_long$SiteCode)) > 1, TRUE, FALSE)
   facet_param <- ifelse(length(unique(clim_dat_long$param)) > 1, TRUE, FALSE)
 
-  # Create better labels for the different metrics here ++++
+  pars <- c("dm_ppt_mm", "dm_tmax_C", "dm_tmin_C", "dm_tmean_C", "dm_BAL", "dm_SPEI01", "dm_SPEI03",
+            "ws_ppt_mm", "ws_tmax_C", "ws_tmin_C", "ws_tmean_C")
+
+  plabs <- c("Gridded Total Precip. (mm)", "Gridded Max. Temp. (C)", "Gridded Min. Temp. (C)",
+             "Gridded Avg. Temp. (C)", "Water Balance", "SPEI - 1 month", "SPEI - 3 month",
+             "WS Total Precip. (mm)", "WS Max. Temp. (C)", "WS Min. Temp. (C)", "WS Avg. Temp (C)")
+
+  param_labels <- data.frame(
+                    param = c("dm_ppt_mm", "dm_tmax_C", "dm_tmin_C", "dm_tmean_C", "dm_BAL", "dm_SPEI01", "dm_SPEI03",
+                              "ws_ppt_mm", "ws_tmax_C", "ws_tmin_C", "ws_tmean_C"),
+                    param_label = c("Mon. Gridded Total Precip. (mm)", "Mon. Gridded Max. Temp. (C)", "Mon. Gridded Min. Temp. (C)",
+                                    "Mon. Gridded Avg. Temp. (C)", "Mon. Water Balance", "SPEI - 1 month", "SPEI - 3 month",
+                                    "Mon. WS Total Precip. (mm)", "Mon. WS Max. Temp. (C)", "Mon. WS Min. Temp. (C)",
+                                    "Mon. WS Avg. Temp (C)"))
+
+  clim_dat_long <- left_join(clim_dat_long, param_labels, by = 'param')
 
   #-- Create plot --
   climtrendplot <-
@@ -162,9 +179,9 @@ plotTrendClimate <- function(park = "all", site = "all",
       {if(smooth == FALSE & any(layers %in% "lines")) geom_line()} +
       {if(any(layers %in% "points")) geom_point(alpha = 0.6)} +
       # facets
-      {if(facet_site == TRUE & facet_param == TRUE) facet_wrap(~SiteName + param, drop = T)} +
+      {if(facet_site == TRUE & facet_param == TRUE) facet_wrap(~SiteName + param_label, drop = T)} +
       {if(facet_site == TRUE & facet_param == FALSE) facet_wrap(~SiteName, drop = T)} +
-      {if(facet_site == FALSE & facet_param == TRUE) facet_wrap(~param, drop = T)} +
+      {if(facet_site == FALSE & facet_param == TRUE) facet_wrap(~param_label, drop = T)} +
 
       # themes
       theme_WQ() + theme(legend.position = legend_position, legend.title = element_blank()) +
