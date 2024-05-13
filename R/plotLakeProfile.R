@@ -4,7 +4,7 @@
 #'
 #' @title plotLakeProfile: Plots smoothed trend
 #'
-#' @importFrom dplyr group_by left_join mutate select summarize
+#' @importFrom dplyr arrange group_by left_join mutate select summarize
 #' @importFrom purrr pmap_dfr possibly
 #' @import ggplot2
 #'
@@ -126,13 +126,14 @@ plotLakeProfile <- function(park = "all", site = "all",
   wcomb2 <- wcomb |> group_by(SiteCode, SiteName, EventDate, year, month, doy, WaterLevel_m,
                               depth_1m_bin, param) |>
                      summarize(value = median(value), .groups = 'drop') |>
-                     mutate(sample_elev = WaterLevel_m - depth_1m_bin)
+                     mutate(sample_elev = WaterLevel_m - depth_1m_bin) |>
+                     arrange(SiteCode, month, year, doy)
 
   if(nrow(wcomb2) == 0){stop("Combination of sites, years and parameters returned a data frame with no records.")}
 
   #-- Set up plotting features --
   # create column of abbreviated months
-  wcomb2$mon <- factor(wcomb2$month, levels = unique(wcomb2$month),
+  wcomb2$mon <- factor(wcomb2$month, levels = sort(unique(wcomb2$month)),
                        labels = unique(month.abb[wcomb2$month]))
 
   param_label <- unique(ifelse(grepl("_", wcomb2$param),
@@ -216,11 +217,12 @@ plotLakeProfile <- function(park = "all", site = "all",
   }
 
 
+
   #-- Create plot --
   profplot <-
     if(depth_type == "elev"){
      ggplot(wcomb2 |> droplevels(), aes(x = mon, y = sample_elev)) +
-      geom_tile(aes(width = 1, height = 1, color = value, fill = value)) +
+      geom_tile(aes(width = 1, height = 1, color = value, fill = value), na.rm = F) +
       theme(legend.position = legend_position, axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
       theme_WQ() +
       # plot thermocline as point

@@ -188,7 +188,7 @@ knitr::include_graphics("C:/NETN/R_Dev/Water/waterNETN/testing_scripts/ODBC_step
 <li>If updating an existing DSN, follow similar process, except click on the DSN in the first window and select <i>Configure</i> instead of Add.</li>
 </ol>
 
-### Climate Functions {.tabset}
+### get Data functions {.tabset}
 #### getClimDaymet()
 Daymet data are 1km gridded daily climate data, similar to PRISM data, but with more daily data associated with each location and more efficient downloading process (extract data from lat/long points, rather than download nationwide raster files and extract manually). Daymet data go back to 1980. See <a href="https://daymet.ornl.gov/">https://daymet.ornl.gov/</a> for more information. Another benefit of Daymet over PRISM is the data can be used to calculate drought indices, like Standardized Precipitation-Evapotranspiration Index (SPEI). Note: I'll eventually add SPEI metrics to the output of this function. 
 
@@ -247,7 +247,6 @@ acad_ws <- getClimWStat(park = "ACAD", site_type = "lake", years = 2023)
 print_head(acad_ws)
 ```
 
-### get Data Functions {.tabset}
 #### getSites() {.tabset}
 ##### getSites()
 Query site-level data. This function combines columns in common between the Sites_Stream and Sites_Lake views. This is a good building block for other functions, but may be less helpful on its own. Though, one helpful use of this function is to get the site codes for a given park or site.
@@ -589,12 +588,20 @@ plotLakeProfile(site = "ACUHAD", parameter = "Temp_C", depth_type = 'elev',
 
 ```
 
-<p class = 'fxn'>Plot temperature for Eagle Lake for years 2006 - 2023 with raw sample depth, and no plot title or thermocline. Note that I can go back to 2006 because I'm using raw sample depth instead of elevation.</p>
+<p class = 'fxn'>Plot temperature for Eagle Lake for years 2006 - 2023 with raw sample depth. Note that we can go back to 2006 because we're using raw sample depth instead of elevation.</p>
+```{r message = FALSE, warning = FALSE}
+plotLakeProfile(site = "ACEAGL", parameter = "Temp_C", depth_type = 'raw', 
+                years = 2006:2023)
+
+```
+
+<p class = 'fxn'>Same plot as above, but with no plot title or thermocline. 
 ```{r message = FALSE, warning = FALSE}
 plotLakeProfile(site = "ACEAGL", parameter = "Temp_C", depth_type = 'raw', 
                 years = 2006:2023, plot_title = FALSE, plot_thermocline = F)
 
 ```
+
 
 <p class = 'fxn'>Plot temperature for all ACAD lakes sampled in 2023 and raw sample depth. </p>
 ```{r message = FALSE, warning = FALSE}
@@ -636,7 +643,6 @@ plotLakeProfile(park = "ACAD", site = c("ACBUBL", "ACEAGL", "ACECHO", "ACJORD", 
                 color_theme = 'ryb', color_rev = TRUE)
 
 ```
-
 
 </details>
 <br>
@@ -716,9 +722,6 @@ plotClimTrend(site = "MABIPA", years = 2006:2023, parameter = "ws_ppt_mm", span 
 <p classs = 'fxn'>Plot monthly Daymet mean temperature for Pogue Stream in MABI and Kroma Kill in SARA, and  from 2006:2023, with smoothed line, span 0.7, and only sample months.</p>
 ```{r}
 plotClimTrend(site = c("MABIPA", "SARASA"), years = 2006:2023, parameter = "dm_tmean_C", span = 0.7, months = 5:10)
-
-head(getClimWStat(park = "SARA", years = 2006:2023))
-head(sumClimMonthly(park = "SARA", years = 2006:2023, data_type = "wstn"))
 ```
 
 

@@ -108,7 +108,8 @@ daym$srad_mjm2 <- (daym$dm_srad_Wm2 * daym$dm_dayl_s/1000000)
 
 daym$month <- as.numeric(format(daym$Date, "%m"))
 daym$mon <- format(daym$Date, "%b")
-daym_mon$year <- as.numeric(daym_mon$year)
+daym$year <- as.numeric(daym$year)
+
 daym_mon <- daym |> group_by(SiteCode, year, month, mon, SiteLatitude) |>
   summarize(dm_ppt_mm = sum(dm_prcp_mmday, na.rm = T),
             dm_tmax_C = mean(dm_tmax_degc, na.rm = T),
