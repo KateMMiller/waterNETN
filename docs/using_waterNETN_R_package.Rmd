@@ -127,6 +127,15 @@ chem <- VIEWS_WQ$Chemistry_Data
 
 ```
 
+If you want to use the `print_head()` function that shows output in the markdown, run the code below. This makes the results print cleaner in the markdown report. For your purposes, you can just run: `head(dataframe)`.
+```{r}
+print_head <- function(df){
+  knitr::kable(df[1:6,]) |> #, table.attr = "style='width:60%;'") |> 
+    kableExtra::kable_classic(full_width = F, font_size = 12, 
+                              bootstrap_options = c("condensed"))
+}
+
+```
 #### Getting help
 <h4><b>Getting (and improving) help</b></h4>
 The functions in `waterNETN` have help documentation like any R package. To view the help, you can go to the Packages tab and click on waterNETN (see below). That will show you all the functions in the package. Clicking on individual functions will take you to the help documentation for that function. 
@@ -184,14 +193,22 @@ Daymet data are typically available for a calendar year a a few months into the 
 In waterNETN, you can download Daymet data by park, site, site type, and spanning years 1980 to 2023. See examples below. The larger the number of sites and years, the longer it can take. I added the option to save the data as a csv to disk via `export = T` and specifying a `filepath`, so you don't have to download these data over and over. I'll make it possible to read csvs into R to work with climate summary and plotting functions.  
 
 <p class = 'fxn'>The following code downloads Daymet data for East Primrose Brook in MORR for the entire monitoring period, and exports to a data folder in the working directory.</p>
-```{r}
+```{r, eval = F}
 prim <- getClimDaymet(site = "MORRSB", years = 2006:2023, export = T, 
                       filepath = "./data")
 print_head(prim) # table of first 6 rows- this is a custom function I wrote to save on coding
 ```
 
+```{r, echo = F}
+prim <- getClimDaymet(site = "MORRSB", years = 2006:2023, export = T, 
+                      filepath = "../data")
+print_head(prim) # table of first 6 rows- this is a custom function I wrote to save on coding
+```
+
+
+
 ```{r echo = F, include = F}
-file.remove("./data/Daymet_climate_data_2006-2023.csv")
+file.remove("../data/Daymet_climate_data_2006-2023.csv")
 ```
 
 <p class = 'fxn'>The following code downloads Daymet data for all sites in MABI for 2023. Results are assigned to R session environment and not exported to data folder in the working directory.</p>
@@ -205,14 +222,20 @@ print_head(mabi_dm)
 For each NETN monitoring site, I used the `rnoaa` package to find all weather stations within 20km radius of each site's lat/long coordinates. I then checked the period of record for each of these sites. I selected the closest weather station with the longest period of record that included 2023 and 2024. This assessment was done at the park level, so the data for each site within a park is the same. The API used to download weather station data is <a href="data.rcc-acis.org">data.rcc-acis.org</a>. Unfortunately only temperature data are available for ACAD's McFarland Hill weather station (AKA MARS). ACAD's hourly precipitation data were downloaded separately from the NADP website <a href="http://nadp2.slh.wisc.edu/siteOps/ppt/">http://nadp2.slh.wisc.edu/siteOps/ppt/</a>. These data only go back to 2008 and were aggregated to daily total precipitation. This function is slower for ACAD as a result. Though note that data are downloaded at the park level, then joined with site-specific data. In other words, data are downloaded for a park x combination of years once, then joined to site-level data. Weather stations used and their distance from each site are included in the output.
 
 <p class = 'fxn'>The following code downloads weather station data for all sites in ROVA the past 10 years and writes to a csv.</p>
-```{r}
+```{r eval = F}
 rova_ws <- getClimWStat(park = "ROVA", years = 2013:2023, export = T, 
                         filepath = "./data")
 print_head(rova_ws)
 ```
 
+```{r echo = F}
+rova_ws <- getClimWStat(park = "ROVA", years = 2013:2023, export = T, 
+                        filepath = "../data")
+print_head(rova_ws)
+```
+
 ```{r echo = F, include = F}
-file.remove("./data/Weather_station_data_2013-2023.csv")
+file.remove("../data/Weather_station_data_2013-2023.csv")
 ```
 <p class = 'fxn'>The following code downloads weather station data for all lakes in ACAD in 2023, but doesn't export to disk.</p>
 ```{r}
@@ -658,6 +681,22 @@ plot_grid(title, pgrid, ncol = 1, rel_heights = c(0.1, 1))
 ```
 
 </details>
+
+#### plotClimTrend()
+
+#### plotPrecipDischarge()
+This function produces a plot with dual y-axes, one for precipitation an done for discharge. The x-axis is date. This function only works for one stream monitoring site at a time. Note that ggplot tends to have a lot of warnings that are hard to suppress, particularly for this plot, which has a daily value for precipitation and only monthly values for discharge. You're always going to get a message about that by using this function. Function currently only plots years where discharge is collected.
+
+<p class = 'fxn'>Plot Discharge for Mill Brook in MIMA for past 5 years using default colors. </p>
+```{r message=FALSE, warning=FALSE}
+plotPrecipDischarge(site = c("MIMASA"), years = 2019:2023)
+
+```
+<p class = 'fxn'>Plot Discharge for Aunt Betty Inlet and Kebo Stream for 2022 using different colors. Note that this can be slow because has to download precip. data from NADP. LNETN parks download from a faster web service. </p>
+```{r message=FALSE, warning=FALSE}
+plotPrecipDischarge(site = c("ACABIN", "ACKEBO"), years = 2022, colors = c("cornflowerblue", "orange"))
+
+```
 
 ### Summary Functions {.tabset}
 #### sumClim30yr()
