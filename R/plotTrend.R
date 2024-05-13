@@ -91,8 +91,7 @@
 #'
 #'}
 #'
-#' @return Returns a panel of hydrographs during the growing season for each year
-#' in the data frame.
+#' @return Returns a ggplot object of specified parameter trends.
 #'
 #' @export
 #'

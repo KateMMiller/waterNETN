@@ -92,8 +92,7 @@ options are "top", "bottom", "left", "right".}
 \item{...}{Additional arguments relevant to \code{getChemistry()} or \code{getSondeInSitu()}}
 }
 \value{
-Returns a panel of hydrographs during the growing season for each year
-in the data frame.
+Returns a ggplot object of specified parameter trends.
 }
 \description{
 This function produces a line or smoothed trend plot filtered on park, site, year, month, and parameter.
