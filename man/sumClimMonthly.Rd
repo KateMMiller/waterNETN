@@ -11,6 +11,7 @@ sumClimMonthly(
   active = TRUE,
   years = c(2006:2023),
   data_type = "all",
+  months = 1:12,
   ...
 )
 }
@@ -49,6 +50,9 @@ Note that not all weather stations have complete a complete period of record fro
 \item{data_type}{Specify Daymet ("daymet"), weather station ("wstn"), or both ('all'; default). Note that Daymet
 data aren't available immediately, whereas weather station data may be available within days of current day.
 When Daymet data are requested, results also return 1-month and 3-month SPEI, a drought index.}
+
+\item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
+events are between months 5 and 10, and these are set as the defaults.}
 }
 \value{
 Data frame of monthly statistics for selected parameters.

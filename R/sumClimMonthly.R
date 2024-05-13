@@ -4,7 +4,7 @@
 #'
 #' @title sumClimMonthly: Summarize monthly climate statistics
 #'
-#' @importFrom dplyr full_join group_by mutate select summarize
+#' @importFrom dplyr filter full_join group_by mutate select summarize
 #'
 #' @description This function calculates monthly statistics from daily Daymet and/or
 #' weather station data by site. Statistics returned are monthly total precipitation
@@ -49,6 +49,9 @@
 #' @param years Vector of years to download weather station data for, will start with 01/01/year and end with 12/31/year.
 #' Note that not all weather stations have complete a complete period of record from 2006 to current.
 #'
+#' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
+#' events are between months 5 and 10, and these are set as the defaults.
+#'
 #' @param data_type Specify Daymet ("daymet"), weather station ("wstn"), or both ('all'; default). Note that Daymet
 #' data aren't available immediately, whereas weather station data may be available within days of current day.
 #' When Daymet data are requested, results also return 1-month and 3-month SPEI, a drought index.
@@ -73,7 +76,7 @@
 
 sumClimMonthly <- function(park = 'all', site = 'all', site_type = 'all',
                            active = TRUE, years = c(2006:2023), data_type = 'all',
-                           ...){
+                           months = 1:12, ...){
 
 #--- Bug handling ---
 # Check that suggested package required for this function are installed
@@ -89,6 +92,7 @@ park <- ifelse(park == "LNETN",
 site_type <- match.arg(site_type)
 stopifnot(class(active) == 'logical')
 stopifnot(class(years) %in% c("numeric", "integer"))
+stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
 data_type <- match.arg(data_type, c("all", "daymet", "wstn"))
 
 #--- compile data ---
@@ -104,7 +108,7 @@ daym$srad_mjm2 <- (daym$dm_srad_Wm2 * daym$dm_dayl_s/1000000)
 
 daym$month <- as.numeric(format(daym$Date, "%m"))
 daym$mon <- format(daym$Date, "%b")
-
+daym_mon$year <- as.numeric(daym_mon$year)
 daym_mon <- daym |> group_by(SiteCode, year, month, mon, SiteLatitude) |>
   summarize(dm_ppt_mm = sum(dm_prcp_mmday, na.rm = T),
             dm_tmax_C = mean(dm_tmax_degc, na.rm = T),
@@ -153,7 +157,8 @@ clim_dat <-
   }
 
 clim_dat_final <- left_join(sites |> select(SiteCode, SiteName, UnitCode),
-                            clim_dat, by = "SiteCode")
+                            clim_dat, by = "SiteCode") |>
+  filter(month %in% months)
 
 return(data.frame(clim_dat_final))
 
