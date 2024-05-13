@@ -13,7 +13,7 @@
 #' through typical weather station sources. Instead, hourly precip data from NADP are downloaded and summarized
 #' to daily value. ACAD NADP Precip data only go back to 2008.
 #'
-#' @importFrom dplyr arrange filter group_by left_join select summarize
+#' @importFrom dplyr arrange filter group_by left_join right_join select summarize
 #' @importFrom purrr map_dfr reduce
 #'
 #' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
@@ -119,8 +119,9 @@ getClimWStat <- function(park = "all", site = "all",
   #--- compile data ---
   # Combine sites with nearest weather station
   sites <- force(getSites(park = park, site = site, site_type = site_type, active = active)) |>
-    select(SiteCode, SiteLatitude, SiteLongitude, UnitCode)
+    select(SiteCode, SiteName, SiteLatitude, SiteLongitude, UnitCode)
 
+  site_list <- unique(sites$SiteCode)
   data("closest_WS")
   sites_ws <- left_join(sites, closest_WS, by = c("SiteCode", "UnitCode"))
   parks_ws <- unique(sites_ws[,c("UnitCode", "id")])
@@ -257,15 +258,19 @@ getClimWStat <- function(park = "all", site = "all",
                               round(ws_comb2$precip_mm, 3), round(ws_comb2$pcpn * 25.4, 3))
   ws_comb2$ws_tmaxc <- round((ws_comb2$maxt - 32) * (5/9), 3)
   ws_comb2$ws_tminc <- round((ws_comb2$mint - 32) * (5/9), 3)
-  ws_comb2$year <- substr(ws_comb2$Date, 1, 4)
+  ws_comb2$year <- as.numeric(substr(ws_comb2$Date, 1, 4))
+  ws_comb2$month <- as.numeric(substr(ws_comb2$Date, 6, 7))
+  ws_comb2$doy <- as.numeric(strftime(ws_comb2$Date, format = "%j"))
   ws_comb3 <- ws_comb2 |> filter(year %in% years) |>
-    select(UnitCode, Date, year, ws_tmaxc, ws_tminc, ws_pcpmm)
+    select(UnitCode, Date, year, month, doy, ws_tmaxc, ws_tminc, ws_pcpmm)
 
-  ws_final <- left_join(ws_comb3, closest_WS, by = "UnitCode", relationship = "many-to-many") |>
-    select(SiteCode, UnitCode, Date, year, ws_id = id,
+  ws_comb4 <- left_join(ws_comb3, closest_WS |> filter(SiteCode %in% site_list),
+                        by = "UnitCode", relationship = "many-to-many") |>
+    select(SiteCode, UnitCode, Date, year, month, doy, ws_id = id,
            ws_lat, ws_long, ws_dist_km, ws_tmaxc, ws_tminc, ws_pcpmm) |>
     arrange(UnitCode, SiteCode, Date)
 
+  ws_final <- right_join(sites |> select(SiteCode, SiteName), ws_comb4, by = "SiteCode")
   ws_final$ws_dist_km <- round(ws_final$ws_dist_km, 3)
 
   if(export == TRUE){write.csv(ws_final,
