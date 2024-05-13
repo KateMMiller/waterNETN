@@ -62,6 +62,9 @@
 #' @param facet_site Logical. If TRUE, plots sites on separate facets (ie figures). If FALSE (Default),
 #' plots all sites on the same figure. This is only enabled if multiple sites are chosen.
 #'
+#' @param facet_param Logical. If TRUE (Default), plots parameters on separate facets. If TRUE, plots
+#' all parameters on the same figure. Only works with metrics using the same units, like temperture parameters.
+#'
 #' @param layers Options are "points" and "lines". By default, both will plot.
 #'
 #' @param color_theme Theme to plot points and lines. Options currently are 'viridis' (Default- ranges of blue, green and yellow),
@@ -81,8 +84,14 @@
 #' @examples
 #' \dontrun{
 #'
+#' # Plot weather station precip for the Pogue in MABI for 2006:2023 and all months, without smoothing
+#' plotClimTrend(site = "MABIPA", years = 2006:2023, parameter = "ws_ppt_mm", smooth = F)
 #'
-#' plotClimTrend()
+#' # Plot monthly weather station data for Pogue Stream in MABI from 2006:2023, with smoothed line and span 0.7.
+#' plotClimTrend(site = "MABIPA", years = 2006:2023, parameter = "ws_ppt_mm", span = 0.7)
+#'
+#' # Plot monthly Daymet mean temperature for Pogue Stream in MABI and Kroma Kill in SARA, and  from 2006:2023, with smoothed line, span 0.7, and only sample months.
+#' plotClimTrend(site = c("MABIPA", "SARASA"), years = 2006:2023, parameter = "dm_tmean_C", span = 0.7, months = 5:10)
 #'
 #'}
 #'
@@ -170,9 +179,27 @@ plotClimTrend <- function(park = "all", site = "all",
 
   clim_dat_long <- left_join(clim_dat_long, param_labels, by = 'param')
 
+  ylab <- ifelse(length(parameter) > 1, "Value", param_labels$param_label[param_labels$param == parameter])
+
+  clim_dat_long$date2 <- as.Date(clim_dat_long$date, format = c("%Y-%m-%d"))
+
+  year_len <- length(unique(clim_dat_long$year))
+  mon_len <- length(unique(clim_dat_long$month))
+
+  break_len <- if(year_len == 1){"1 month"
+  } else if(year_len  %in% c(2, 3, 4) & mon_len <= 6){"2 months"
+  } else if(year_len == 2 & mon_len > 6){"4 months"
+    #} else if(year_len > 4 & mon_len <= 6){"6 months"
+  } else if(year_len %in% c(4, 5, 6)){"1 year"
+  } else if(year_len > 6){"2 years"
+  } else {"6 months"}
+
+  date_format <- ifelse(break_len %in% c("1 year", "2 years"), "%Y", "%m/%d/%Y")
+  datebreaks <- seq(min(clim_dat_long$date2), max(clim_dat_long$date2) + 30, by = break_len)
+
   #-- Create plot --
   climtrendplot <-
-    ggplot(clim_dat_long, aes(x = date, y = value, group = SiteName,
+    ggplot(clim_dat_long, aes(x = date2, y = value, group = SiteName,
                      color = SiteName, fill = SiteName)) +
       # layers
       {if(smooth == TRUE) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +
@@ -182,9 +209,10 @@ plotClimTrend <- function(park = "all", site = "all",
       {if(facet_site == TRUE & facet_param == TRUE) facet_wrap(~SiteName + param_label, drop = T)} +
       {if(facet_site == TRUE & facet_param == FALSE) facet_wrap(~SiteName, drop = T)} +
       {if(facet_site == FALSE & facet_param == TRUE) facet_wrap(~param_label, drop = T)} +
-
       # themes
-      theme_WQ() + theme(legend.position = legend_position, legend.title = element_blank()) +
+      theme_WQ() + theme(legend.position = legend_position,
+                         legend.title = element_blank(),
+                         axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
       # palettes
       {if(color_theme == "viridis") scale_color_viridis_d()} +
       {if(color_theme == "set1") scale_color_brewer(palette = "Set1")} +
@@ -194,8 +222,10 @@ plotClimTrend <- function(park = "all", site = "all",
       {if(color_theme == "set1") scale_fill_brewer(palette = "Set1")} +
       {if(color_theme == "dark2") scale_fill_brewer(palette = "Dark2")} +
       {if(color_theme == "accent") scale_fill_brewer(palette = "Accent")} +
+      # axis format
+      scale_x_date(breaks = datebreaks, labels = scales::label_date(date_format)) +
       # labels
-      labs(x = "Year", y = ylab)
+      labs(x = NULL, y = ylab)
 
  return(suppressWarnings(climtrendplot))
 }

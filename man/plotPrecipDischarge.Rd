@@ -60,8 +60,13 @@ The x-axis is date. If multiple sites and/or years are specified, they will be p
 \examples{
 \dontrun{
 
+# Plot Discharge for Mill Brook in MIMA for past 5 years using default colors.
+plotPrecipDischarge(site = c("MIMASA"), years = 2019:2023)
 
-plotClimTrend()
+# Plot Discharge for Aunt Betty Inlet and Kebo Stream for 2022 using different colors.
+# Note that this can be slow because has to download precip. data from NADP.
+# LNETN parks download from a faster web service.
+plotPrecipDischarge(site = c("ACABIN", "ACKEBO"), years = 2022, colors = c("cornflowerblue", "orange"))
 
 }
 

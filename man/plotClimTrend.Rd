@@ -87,6 +87,9 @@ cause more smoothing (straighter lines). Smaller spans are wavier. Span can rang
 options are "top", "bottom", "left", "right".}
 
 \item{...}{Additional arguments relevant to \code{getChemistry()} or \code{getSondeInSitu()}}
+
+\item{facet_param}{Logical. If TRUE (Default), plots parameters on separate facets. If TRUE, plots
+all parameters on the same figure. Only works with metrics using the same units, like temperture parameters.}
 }
 \value{
 Returns a ggplot object of specified climate trends
@@ -99,8 +102,14 @@ figures. If multiple parameters are specified, they will be plotted on separate 
 \examples{
 \dontrun{
 
+# Plot weather station precip for the Pogue in MABI for 2006:2023 and all months, without smoothing
+plotClimTrend(site = "MABIPA", years = 2006:2023, parameter = "ws_ppt_mm", smooth = F)
 
-plotClimTrend()
+# Plot monthly weather station data for Pogue Stream in MABI from 2006:2023, with smoothed line and span 0.7.
+plotClimTrend(site = "MABIPA", years = 2006:2023, parameter = "ws_ppt_mm", span = 0.7)
+
+# Plot monthly Daymet mean temperature for Pogue Stream in MABI and Kroma Kill in SARA, and  from 2006:2023, with smoothed line, span 0.7, and only sample months.
+plotClimTrend(site = c("MABIPA", "SARASA"), years = 2006:2023, parameter = "dm_tmean_C", span = 0.7, months = 5:10)
 
 }
 

@@ -104,7 +104,27 @@ collected in lakes), the function will return an error message instead of an emp
 \examples{
 \dontrun{
 
+# Plot smoothed surface pH for Eagle Lake for past 3 years using default span of 0.3 and by default not including the legend.
+plotTrend(site = "ACEAGL", parameter = "pH", color_theme = 'dark2', years = 2021:2023)
 
+# Plot smoothed surface pH for Eagle Lake for all years, removing the legend and using span of 0.75.
+plotTrend(site = "ACEAGL", parameter = "pH", span = 0.75)
+
+# Plot smoothed Secchi Depth in Jordan Pond for all years, including the legend, different color palette, and using span of 0.75.
+plotTrend(site = "ACJORD", parameter = "SDepth_m", span = 0.75, color_theme = 'set1')
+
+# Plot smoothed surface pH for active SARA streams over all years with 0.6 span.
+plotTrend(park = "SARA", site = c("SARASA", "SARASC", "SARASD"), site_type = "stream", parameter = "pH",
+          legend_position = "right", span = 0.6)
+
+# Plot smoothed surface SO4 for all MIMA streams over all years with 0.6 span
+plotTrend(park = "MIMA", site_type = "stream",
+          parameter = "SO4_ueqL", legend_position = "right", span = 0.6)
+
+# Plot non-smoothed surface of multiple Sonde parameters for all MIMA streams over all years with 0.6 span.
+params <- c("Temp_C", "SpCond_uScm", "DOsat_pct", "pH")
+plotTrend(park = "MIMA", site_type = "stream",
+          parameter = params, legend_position = "right", span = 0.6)
 
 }
 

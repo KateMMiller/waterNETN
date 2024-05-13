@@ -481,9 +481,9 @@ plotTrend(site = "ACEAGL", parameter = "pH", smooth = FALSE)
 
 ```
 
-<p class = 'fxn'>Plot smoothed surface pH for Eagle Lake for all years using default span of 0.3 and by default not including the legend. </p>
+<p class = 'fxn'>Plot smoothed surface pH for Eagle Lake for past 3 years using default span of 0.3 and by default not including the legend. </p>
 ```{r message = FALSE, warning = FALSE}
-plotTrend(site = "ACEAGL", parameter = "pH", color_theme = 'dark2')
+plotTrend(site = "ACEAGL", parameter = "pH", color_theme = 'dark2', years = 2021:2023)
 
 ```
 <p class = 'fxn'>Plot smoothed surface pH for Eagle Lake for all years, removing the legend and using span of 0.75. </p>
@@ -709,17 +709,17 @@ plotPrecipDischarge(site = c("ACABIN", "ACKEBO"), years = 2022, colors = c("corn
 #### plotClimTrend()
 This function produces a line or smoothed trend plot filtered on park, site, year, month, and climate parameter. If multiple sites are specified, they can either be plotted on the same figure or separate figures. If multiple parameters are specified, they will be plotted on separate figures. Note that all months (1:12) are default. If you only want sample months, specify months = 5:10.
 
-<p classs = 'fxn'>Plot monthly weather station data for Pogue Stream in MABI from 2006:2023 (all months is default), without a smoothed line.</p>
+<p class = 'fxn'>Plot monthly weather station data for Pogue Stream in MABI from 2006:2023 (all months is default), without a smoothed line.</p>
 ```{r}
 plotClimTrend(site = "MABIPA", years = 2006:2023, parameter = "ws_ppt_mm", smooth = F)
 ```
-<p classs = 'fxn'>Plot monthly weather station data for Pogue Stream in MABI from 2006:2023, with smoothed line and span 0.7.</p>
+<p class = 'fxn'>Plot monthly weather station data for Pogue Stream in MABI from 2006:2023, with smoothed line and span 0.7.</p>
 ```{r}
 plotClimTrend(site = "MABIPA", years = 2006:2023, parameter = "ws_ppt_mm", span = 0.7)
 ```
 
 
-<p classs = 'fxn'>Plot monthly Daymet mean temperature for Pogue Stream in MABI and Kroma Kill in SARA, and  from 2006:2023, with smoothed line, span 0.7, and only sample months.</p>
+<p class = 'fxn'>Plot monthly Daymet mean temperature for Pogue Stream in MABI and Kroma Kill in SARA, and  from 2006:2023, with smoothed line, span 0.7, and only sample months.</p>
 ```{r}
 plotClimTrend(site = c("MABIPA", "SARASA"), years = 2006:2023, parameter = "dm_tmean_C", span = 0.7, months = 5:10)
 ```

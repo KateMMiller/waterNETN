@@ -87,7 +87,27 @@
 #' @examples
 #' \dontrun{
 #'
+#' # Plot smoothed surface pH for Eagle Lake for past 3 years using default span of 0.3 and by default not including the legend.
+#' plotTrend(site = "ACEAGL", parameter = "pH", color_theme = 'dark2', years = 2021:2023)
 #'
+#' # Plot smoothed surface pH for Eagle Lake for all years, removing the legend and using span of 0.75.
+#' plotTrend(site = "ACEAGL", parameter = "pH", span = 0.75)
+#'
+#' # Plot smoothed Secchi Depth in Jordan Pond for all years, including the legend, different color palette, and using span of 0.75.
+#' plotTrend(site = "ACJORD", parameter = "SDepth_m", span = 0.75, color_theme = 'set1')
+#'
+#' # Plot smoothed surface pH for active SARA streams over all years with 0.6 span.
+#' plotTrend(park = "SARA", site = c("SARASA", "SARASC", "SARASD"), site_type = "stream", parameter = "pH",
+#'           legend_position = "right", span = 0.6)
+#'
+#' # Plot smoothed surface SO4 for all MIMA streams over all years with 0.6 span
+#' plotTrend(park = "MIMA", site_type = "stream",
+#'           parameter = "SO4_ueqL", legend_position = "right", span = 0.6)
+#'
+#' # Plot non-smoothed surface of multiple Sonde parameters for all MIMA streams over all years with 0.6 span.
+#' params <- c("Temp_C", "SpCond_uScm", "DOsat_pct", "pH")
+#' plotTrend(park = "MIMA", site_type = "stream",
+#'           parameter = params, legend_position = "right", span = 0.6)
 #'
 #'}
 #'
@@ -221,14 +241,30 @@ plotTrend <- function(park = "all", site = "all",
   if(nrow(wdat2) == 0){stop("Combination of sites and parameters returned a data frame with no records.")}
 
   #-- Set up plotting features --
-  ylab <- ifelse(length(unique(wdat$param_label)) == 1, unique(wdat$param_label), "value")
+  ylab <- ifelse(length(unique(wdat2$param_label)) == 1, unique(wdat2$param_label), "value")
   wdat_cens <- wdat2 |> filter(censored == TRUE)
+
+  wdat2$date2 <- as.Date(wdat2$EventDate, format = c("%Y-%m-%d"))
+
+  year_len <- length(unique(wdat2$year))
+  mon_len <- length(unique(wdat2$month))
+
+  break_len <- if(year_len == 1){"1 month"
+  } else if(year_len  %in% c(2, 3, 4) & mon_len <= 6){"2 months"
+  } else if(year_len == 2 & mon_len > 6){"4 months"
+  #} else if(year_len > 4 & mon_len <= 6){"6 months"
+  } else if(year_len %in% c(4, 5, 6)){"1 year"
+  } else if(year_len > 6){"2 years"
+  } else {"6 months"}
+
+  date_format <- ifelse(break_len %in% c("1 year", "2 years"), "%Y", "%m/%d/%Y")
+  datebreaks <- seq(min(wdat2$date2), max(wdat2$date2) + 30, by = break_len)
 
   #-- Create plot --
   trendplot <-
     if(include_censored == TRUE){
 
-    ggplot(wdat2, aes(x = EventDate, y = value, group = SiteName,
+    ggplot(wdat2, aes(x = date2, y = value, group = SiteName,
                      color = SiteName, fill = SiteName, shape = censored)) +
       # layers
       {if(smooth == TRUE) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +
@@ -241,7 +277,9 @@ plotTrend <- function(park = "all", site = "all",
       # facets
       {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free')} +
       # themes
-      theme_WQ() + theme(legend.position = legend_position, legend.title = element_blank()) +
+      theme_WQ() + theme(legend.position = legend_position,
+                         legend.title = element_blank(),
+                         axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
       # palettes
       {if(color_theme == "viridis") scale_color_viridis_d()} +
       {if(color_theme == "set1") scale_color_brewer(palette = "Set1")} +
@@ -251,10 +289,12 @@ plotTrend <- function(park = "all", site = "all",
       {if(color_theme == "set1") scale_fill_brewer(palette = "Set1")} +
       {if(color_theme == "dark2") scale_fill_brewer(palette = "Dark2")} +
       {if(color_theme == "accent") scale_fill_brewer(palette = "Accent")} +
+      #axis format
+      scale_x_date(breaks = datebreaks, labels = scales::label_date(date_format)) +
       # labels
       labs(x = "Year", y = ylab)
     } else {
-      ggplot(wdat2, aes(x = EventDate, y = value, group = SiteName,
+      ggplot(wdat2, aes(x = date2, y = value, group = SiteName,
                         color = SiteName, fill = SiteName)) +
         #layers
         {if(smooth == TRUE) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +
@@ -265,7 +305,9 @@ plotTrend <- function(park = "all", site = "all",
         # facets
         {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free')} +
         # themes
-        theme_WQ() + theme(legend.position = legend_position, legend.title = element_blank()) +
+        theme_WQ() + theme(legend.position = legend_position,
+                           legend.title = element_blank(),
+                           axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
         # color palettes
         {if(color_theme == "viridis") scale_color_viridis_d()} +
         {if(color_theme == "set1") scale_color_brewer(palette = "Set1")} +
@@ -275,12 +317,16 @@ plotTrend <- function(park = "all", site = "all",
         {if(color_theme == "set1") scale_fill_brewer(palette = "Set1")} +
         {if(color_theme == "dark2") scale_fill_brewer(palette = "Dark2")} +
         {if(color_theme == "accent") scale_fill_brewer(palette = "Accent")} +
+        #axis format
+        scale_x_date(breaks = datebreaks, labels = scales::label_date(date_format)) +
         # labels
         labs(x = "Year", y = ylab)
 
       }
 
- return(suppressWarnings(trendplot))
+ return(#suppressWarnings(
+   trendplot)
+  #)
 }
 
 
