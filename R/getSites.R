@@ -82,14 +82,21 @@ getSites <- function(park = "all", site = "all", site_type = c("all", "lake", "s
 
   # Check that a valid site code was used
   sites <- rbind(streams[,c("SiteCode", "SiteName")], lakes[,c("SiteCode", "SiteName")])
-  site <- tryCatch(match.arg(site, several.ok = TRUE, c("all", unique(sites$SiteCode))),
-                   error = function(e){stop(
-                     paste0(
-                     "Specified site does not match an accepted site code.
-                     Acceptable codes are: ",
-                     "\n",
-                     paste0(sort(sites$SiteCode), collapse = "\n")))}
-                   )
+
+  if(!all(site %in% c("all", unique(sites$SiteCode)))){
+    stop(paste0("Specified site does not match an accepted site code. Acceptable codes are:",
+                "\n",
+                paste0(sort(sites$SiteCode), collapse = ", ")))
+  }
+
+  # site <- tryCatch(match.arg(site, several.ok = TRUE, c("all", unique(sites$SiteCode))),
+  #                  error = function(e){stop(
+  #                    paste0(
+  #                    "Specified site does not match an accepted site code.
+  #                    Acceptable codes are: ",
+  #                    "\n",
+  #                    paste0(sort(sites$SiteCode), collapse = "\n")))}
+  #                  )
 
   #-- Filter site info --
   site_cols <- intersect(names(streams), names(lakes))
