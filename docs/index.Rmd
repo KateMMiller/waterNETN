@@ -707,7 +707,8 @@ plotPrecipDischarge(site = c("ACABIN", "ACKEBO"), years = 2022, colors = c("corn
 ```
 
 #### plotClimTrend()
-This function produces a line or smoothed trend plot filtered on park, site, year, month, and climate parameter. If multiple sites are specified, they can either be plotted on the same figure or separate figures. If multiple parameters are specified, they will be plotted on separate figures. Note that all months (1:12) are default. If you only want sample months, specify months = 5:10.
+This function produces a line or smoothed trend plot filtered on park, site, year, month, and climate parameter. If multiple sites are specified, they can either be plotted on the same figure or separate figures. If multiple parameters are specified, they will be plotted on separate figures. For multiple sites to plot on the same figure, use facet_site = FALSE. For multiple parameters on the same figure, facet_param = FALSE. Note that all months (1:12) are default. If you only want sample months, specify months = 5:10.
+
 
 <p class = 'fxn'>Plot monthly weather station data for Pogue Stream in MABI from 2006:2023 (all months is default), without a smoothed line.</p>
 ```{r}
@@ -719,9 +720,12 @@ plotClimTrend(site = "MABIPA", years = 2006:2023, parameter = "ws_ppt_mm", span 
 ```
 
 
-<p class = 'fxn'>Plot monthly Daymet mean temperature for Pogue Stream in MABI and Kroma Kill in SARA, and  from 2006:2023, with smoothed line, span 0.7, and only sample months.</p>
+<p class = 'fxn'>Plot monthly Daymet min, max and mean temperature for Pogue Stream in MABI and Kroma Kill in SARA from 2006:2023, with smoothed line, span 0.7, only sample months, and sites on separate plots, but parameters on the same plots. </p>
 ```{r}
-plotClimTrend(site = c("MABIPA", "SARASA"), years = 2006:2023, parameter = "dm_tmean_C", span = 0.7, months = 5:10)
+plotClimTrend(site = c("MABIPA", "SARASA"), years = 2006:2023, 
+              parameter = c("dm_tmean_C", "dm_tmax_C", "dm_tmin_C"), 
+              span = 0.7, months = 5:10, facet_site = TRUE, facet_param = F,
+              legend_position = "bottom")
 ```
 
 

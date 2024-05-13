@@ -14,6 +14,7 @@ plotClimTrend(
   layers = c("points", "lines"),
   parameter = NA,
   facet_site = FALSE,
+  facet_param = TRUE,
   color_theme = "viridis",
   smooth = TRUE,
   span = 0.3,
@@ -74,6 +75,9 @@ events are between months 5 and 10, and these are set as the defaults.}
 \item{facet_site}{Logical. If TRUE, plots sites on separate facets (ie figures). If FALSE (Default),
 plots all sites on the same figure. This is only enabled if multiple sites are chosen.}
 
+\item{facet_param}{Logical. If TRUE (Default), plots parameters on separate facets. If FALSE, plots
+all parameters on the same figure. Note that results will be funky if selected parameters have different units (e.g., temp and precip).}
+
 \item{color_theme}{Theme to plot points and lines. Options currently are 'viridis' (Default- ranges of blue, green and yellow),
 or from RColorBrewer: 'set1', 'dark2', or 'accent' (see https://ggplot2-book.org/scales-colour).}
 
@@ -87,9 +91,6 @@ cause more smoothing (straighter lines). Smaller spans are wavier. Span can rang
 options are "top", "bottom", "left", "right".}
 
 \item{...}{Additional arguments relevant to \code{getChemistry()} or \code{getSondeInSitu()}}
-
-\item{facet_param}{Logical. If TRUE (Default), plots parameters on separate facets. If TRUE, plots
-all parameters on the same figure. Only works with metrics using the same units, like temperture parameters.}
 }
 \value{
 Returns a ggplot object of specified climate trends

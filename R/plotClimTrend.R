@@ -62,8 +62,8 @@
 #' @param facet_site Logical. If TRUE, plots sites on separate facets (ie figures). If FALSE (Default),
 #' plots all sites on the same figure. This is only enabled if multiple sites are chosen.
 #'
-#' @param facet_param Logical. If TRUE (Default), plots parameters on separate facets. If TRUE, plots
-#' all parameters on the same figure. Only works with metrics using the same units, like temperture parameters.
+#' @param facet_param Logical. If TRUE (Default), plots parameters on separate facets. If FALSE, plots
+#' all parameters on the same figure. Note that results will be funky if selected parameters have different units (e.g., temp and precip).
 #'
 #' @param layers Options are "points" and "lines". By default, both will plot.
 #'
@@ -104,7 +104,8 @@ plotClimTrend <- function(park = "all", site = "all",
                           years = 2006:format(Sys.Date(), "%Y"),
                           months = 1:12, active = TRUE,
                           layers = c("points", "lines"),
-                          parameter = NA, facet_site = FALSE,
+                          parameter = NA,
+                          facet_site = FALSE, facet_param = TRUE,
                           color_theme = 'viridis', smooth = TRUE,
                           span = 0.3,
                           legend_position = 'none', ...){
@@ -147,6 +148,8 @@ plotClimTrend <- function(park = "all", site = "all",
                      months = months, data_type = 'wstn')
     }
 
+  if(nrow(clim_dat) == 0){stop("Specified arguments returned a data frame with 0 records.")}
+
   param <- if(any(parameter == "all")){c(dm_param, ws_param)} else {parameter}
 
   clim_dat2 <- clim_dat[,c("SiteCode", "SiteName", "UnitCode", "month", "mon", "year", param)]
@@ -159,8 +162,8 @@ plotClimTrend <- function(park = "all", site = "all",
   #-- Set up plotting features --
   ylab <- ifelse(length(unique(clim_dat_long$param)) == 1, unique(clim_dat_long$param), "Monthly Value")
 
-  facet_site <- ifelse(length(unique(clim_dat_long$SiteCode)) > 1, TRUE, FALSE)
-  facet_param <- ifelse(length(unique(clim_dat_long$param)) > 1, TRUE, FALSE)
+  facetsite <- ifelse(facet_site == TRUE & length(unique(clim_dat_long$SiteCode)) > 1, TRUE, FALSE)
+  facetparam <- ifelse(facet_param == TRUE & length(unique(clim_dat_long$param)) > 1, TRUE, FALSE)
 
   pars <- c("dm_ppt_mm", "dm_tmax_C", "dm_tmin_C", "dm_tmean_C", "dm_BAL", "dm_SPEI01", "dm_SPEI03",
             "ws_ppt_mm", "ws_tmax_C", "ws_tmin_C", "ws_tmean_C")
@@ -172,14 +175,14 @@ plotClimTrend <- function(park = "all", site = "all",
   param_labels <- data.frame(
                     param = c("dm_ppt_mm", "dm_tmax_C", "dm_tmin_C", "dm_tmean_C", "dm_BAL", "dm_SPEI01", "dm_SPEI03",
                               "ws_ppt_mm", "ws_tmax_C", "ws_tmin_C", "ws_tmean_C"),
-                    param_label = c("Mon. Gridded Total Precip. (mm)", "Mon. Gridded Max. Temp. (C)", "Mon. Gridded Min. Temp. (C)",
-                                    "Mon. Gridded Avg. Temp. (C)", "Mon. Water Balance", "SPEI - 1 month", "SPEI - 3 month",
-                                    "Mon. WS Total Precip. (mm)", "Mon. WS Max. Temp. (C)", "Mon. WS Min. Temp. (C)",
-                                    "Mon. WS Avg. Temp (C)"))
+                    param_label = c("DM Total Precip. (mm)", "DM Max. Temp. (C)", "DM Min. Temp. (C)",
+                                    "DM Avg. Temp. (C)", "Water Balance", "SPEI - 1 month", "SPEI - 3 month",
+                                    "WS Total Precip. (mm)", "WS Max. Temp. (C)", "WS Min. Temp. (C)",
+                                    "WS Avg. Temp (C)"))
 
   clim_dat_long <- left_join(clim_dat_long, param_labels, by = 'param')
 
-  ylab <- ifelse(length(parameter) > 1, "Value", param_labels$param_label[param_labels$param == parameter])
+  ylab <- ifelse(length(parameter) > 1, "Monthly Value", param_labels$param_label[param_labels$param == parameter])
 
   clim_dat_long$date2 <- as.Date(clim_dat_long$date, format = c("%Y-%m-%d"))
 
@@ -199,16 +202,15 @@ plotClimTrend <- function(park = "all", site = "all",
 
   #-- Create plot --
   climtrendplot <-
-    ggplot(clim_dat_long, aes(x = date2, y = value, group = SiteName,
-                     color = SiteName, fill = SiteName)) +
+    if(facetparam == FALSE & facetsite == FALSE){
+    ggplot(clim_dat_long, aes(x = date2, y = value,
+            group = interaction(param_label, SiteName),
+            color = interaction(param_label, SiteName),
+            fill = interaction(param_label, SiteName))) +
       # layers
       {if(smooth == TRUE) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +
       {if(smooth == FALSE & any(layers %in% "lines")) geom_line()} +
       {if(any(layers %in% "points")) geom_point(alpha = 0.6)} +
-      # facets
-      {if(facet_site == TRUE & facet_param == TRUE) facet_wrap(~SiteName + param_label, drop = T)} +
-      {if(facet_site == TRUE & facet_param == FALSE) facet_wrap(~SiteName, drop = T)} +
-      {if(facet_site == FALSE & facet_param == TRUE) facet_wrap(~param_label, drop = T)} +
       # themes
       theme_WQ() + theme(legend.position = legend_position,
                          legend.title = element_blank(),
@@ -226,8 +228,65 @@ plotClimTrend <- function(park = "all", site = "all",
       scale_x_date(breaks = datebreaks, labels = scales::label_date(date_format)) +
       # labels
       labs(x = NULL, y = ylab)
+    } else if(facetparam == FALSE & facetsite == TRUE){
+      ggplot(clim_dat_long, aes(x = date2, y = value,
+                                group = param_label,  color = param_label,
+                                fill = param_label)) +
+        # layers
+        {if(smooth == TRUE) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +
+        {if(smooth == FALSE & any(layers %in% "lines")) geom_line()} +
+        {if(any(layers %in% "points")) geom_point(alpha = 0.6)} +
+        # facets
+        facet_wrap(~SiteName, drop = T) +
+        # themes
+        theme_WQ() + theme(legend.position = legend_position,
+                           legend.title = element_blank(),
+                           axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
+        # palettes
+        {if(color_theme == "viridis") scale_color_viridis_d()} +
+        {if(color_theme == "set1") scale_color_brewer(palette = "Set1")} +
+        {if(color_theme == "dark2") scale_color_brewer(palette = "Dark2")} +
+        {if(color_theme == "accent") scale_color_brewer(palette = "Accent")} +
+        {if(color_theme == "viridis") scale_fill_viridis_d()} +
+        {if(color_theme == "set1") scale_fill_brewer(palette = "Set1")} +
+        {if(color_theme == "dark2") scale_fill_brewer(palette = "Dark2")} +
+        {if(color_theme == "accent") scale_fill_brewer(palette = "Accent")} +
+        # axis format
+        scale_x_date(breaks = datebreaks, labels = scales::label_date(date_format)) +
+        # labels
+        labs(x = NULL, y = ylab)
+    } else if(facetparam == TRUE & facetsite == TRUE){
+      ggplot(clim_dat_long, aes(x = date2, y = value,
+                                group = SiteName,  color = SiteName,
+                                fill = SiteName)) +
+        # layers
+        {if(smooth == TRUE) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +
+        {if(smooth == FALSE & any(layers %in% "lines")) geom_line()} +
+        {if(any(layers %in% "points")) geom_point(alpha = 0.6)} +
+        # facets
+        facet_wrap(~SiteName + param_label, drop = T) +
+        # themes
+        theme_WQ() + theme(legend.position = legend_position,
+                           legend.title = element_blank(),
+                           axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
+        # palettes
+        {if(color_theme == "viridis") scale_color_viridis_d()} +
+        {if(color_theme == "set1") scale_color_brewer(palette = "Set1")} +
+        {if(color_theme == "dark2") scale_color_brewer(palette = "Dark2")} +
+        {if(color_theme == "accent") scale_color_brewer(palette = "Accent")} +
+        {if(color_theme == "viridis") scale_fill_viridis_d()} +
+        {if(color_theme == "set1") scale_fill_brewer(palette = "Set1")} +
+        {if(color_theme == "dark2") scale_fill_brewer(palette = "Dark2")} +
+        {if(color_theme == "accent") scale_fill_brewer(palette = "Accent")} +
+        # axis format
+        scale_x_date(breaks = datebreaks, labels = scales::label_date(date_format)) +
+        # labels
+        labs(x = NULL, y = ylab)
+    }
 
- return(suppressWarnings(climtrendplot))
+
+ return(#suppressWarnings(
+   climtrendplot)#)
 }
 
 
