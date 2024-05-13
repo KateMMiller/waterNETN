@@ -28,12 +28,13 @@ Collate:
     'getStreamObs.R'
     'getWaterLevel.R'
     'importData.R'
-    'theme_WQ.R'
-    'plotLakeProfile.R'
-    'plotTrend.R'
-    'plotTrendClimate.R'
-    'sumClim30yr.R'
     'sumClimMonthly.R'
+    'theme_WQ.R'
+    'plotClimTrend.R'
+    'plotLakeProfile.R'
+    'plotPrecipDischarge.R'
+    'plotTrend.R'
+    'sumClim30yr.R'
 Imports: 
     dplyr,
     purrr,
@@ -44,6 +45,7 @@ Suggests:
     httr,
     jsonlite,
     odbc,
+    scales,
     zip
 Depends: 
     R (>= 4.0)
