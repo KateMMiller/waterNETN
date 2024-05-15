@@ -45,7 +45,10 @@ Suggests:
     httr,
     jsonlite,
     odbc,
+    rLakeAnalyzer,
     scales,
+    SPEI,
+    XML,
     zip
 Depends: 
     R (>= 4.0)
