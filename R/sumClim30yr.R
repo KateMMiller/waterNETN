@@ -45,6 +45,8 @@
 #' (1980 - 2009; default), or 1990 (1990 - 2019). Daymet data only go back to 1980, so
 #' earlier norms are not possible.
 #'
+#' @param ... Additional arguments relevant to \code{getSites()} or \code{getClimDaymet()}
+#'
 #' @return Data frame of 30-year normals for selected parameters.
 #'
 #' @examples

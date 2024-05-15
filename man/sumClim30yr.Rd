@@ -45,6 +45,8 @@ If FALSE, returns all sites that have been monitored.}
 \item{start_year}{Year to start the 30-year normal. Common choices are 1980
 (1980 - 2009; default), or 1990 (1990 - 2019). Daymet data only go back to 1980, so
 earlier norms are not possible.}
+
+\item{...}{Additional arguments relevant to \code{getSites()} or \code{getClimDaymet()}}
 }
 \value{
 Data frame of 30-year normals for selected parameters.

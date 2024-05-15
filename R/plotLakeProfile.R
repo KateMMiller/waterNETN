@@ -71,8 +71,30 @@
 #' @examples
 #' \dontrun{
 #'
+#'# Plot temperature for Upper Hadlock for years 2013 - 2023 corrected by elevation with thermocline
+#' # plotted as black lines.
+#' plotLakeProfile(site = "ACUHAD", parameter = "Temp_C", depth_type = 'elev',
+#'                 years = 2013:2023)
 #'
+#' # Plot temperature for Eagle Lake for years 2006 - 2023 with raw sample depth.
+#' # Note that we can go back to 2006 because we're using raw sample depth instead of elevation.
+#' plotLakeProfile(site = "ACEAGL", parameter = "Temp_C", depth_type = 'raw',
+#'                years = 2006:2023)
 #'
+#' # Same plot as above, but with no plot title or thermocline.
+#' plotLakeProfile(site = "ACEAGL", parameter = "Temp_C", depth_type = 'raw',
+#'                 years = 2006:2023, plot_title = FALSE, plot_thermocline = F)
+#' # Plot temperature for all ACAD lakes sampled in 2023 and raw sample depth.
+#' lakes23 <- c("ACBUBL", "ACEAGL", "ACECHO", "ACJORD", "ACLONG", "ACROUN",
+#'              "ACSEAL", "ACUBRK", "ACUHAD", "ACWHOL")
+#' plotLakeProfile(park = "ACAD", site = lakes23, parameter = "Temp_C",
+#'                depth_type = 'raw', years = 2023)
+#'
+#' # Plot DO all ACAD lakes sampled in 2023 and raw sample depth, using reversed ryb palette.
+#' Temperature thermocline is also included as black lines.
+#' plotLakeProfile(park = "ACAD", site = lakes23,
+#'                parameter = "DOsat_pct", depth_type = 'raw', years = 2023,
+#'                color_theme = 'ryb', color_rev = TRUE)
 #'}
 #'
 #' @return Returns a panel of hydrographs during the growing season for each year

@@ -612,7 +612,7 @@ plotLakeProfile(park = "ACAD", site = lakes23, parameter = "Temp_C",
 
 ```
 
-<p class = 'fxn'>Plot DO all ACAD lakes sampled in 2023 and raw sample depth, using reversed ryb palette. Temperature thermocline is also included as black circles.</p>
+<p class = 'fxn'>Plot DO all ACAD lakes sampled in 2023 and raw sample depth, using reversed ryb palette. Temperature thermocline is also included as black lines.</p>
 ```{r message = FALSE, warning = FALSE}
 plotLakeProfile(park = "ACAD", site = lakes23, 
                 parameter = "DOsat_pct", depth_type = 'raw', years = 2023, 
@@ -693,7 +693,7 @@ plot_grid(title, pgrid, ncol = 1, rel_heights = c(0.1, 1))
 </details>
 
 #### plotPrecipDischarge()
-This function produces a plot with dual y-axes, one for precipitation an done for discharge. The x-axis is date. This function only works for one stream monitoring site at a time. Note that ggplot tends to have a lot of warnings that are hard to suppress, particularly for this plot, which has a daily value for precipitation and only monthly values for discharge. You're always going to get a message about that by using this function. Function currently only plots years where discharge is collected. Discharge is plotted as points and not lines, because discharge can change a lot between sampling events.
+This function produces a plot with dual y-axes, one for precipitation and one for discharge. The x-axis is date. This function only works for one stream monitoring site at a time. Note that ggplot tends to have a lot of warnings that are hard to suppress, particularly for this plot, which has a daily value for precipitation and only monthly values for discharge. You're always going to get a message about that by using this function. Function currently only plots years where discharge is collected. Discharge is plotted as points and not lines, because discharge can change a lot between sampling events.
 
 <p class = 'fxn'>Plot Discharge for Mill Brook in MIMA for past 5 years using default colors. </p>
 ```{r message=FALSE, warning=FALSE}

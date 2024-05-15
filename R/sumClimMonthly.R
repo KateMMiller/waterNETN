@@ -56,6 +56,8 @@
 #' data aren't available immediately, whereas weather station data may be available within days of current day.
 #' When Daymet data are requested, results also return 1-month and 3-month SPEI, a drought index.
 #'
+#' @param ... Additional arguments relevant to \code{getSites()}
+#'
 #' @return Data frame of monthly statistics for selected parameters.
 #'
 #' @examples

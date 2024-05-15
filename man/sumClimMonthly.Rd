@@ -53,6 +53,8 @@ When Daymet data are requested, results also return 1-month and 3-month SPEI, a 
 
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 events are between months 5 and 10, and these are set as the defaults.}
+
+\item{...}{Additional arguments relevant to \code{getSites()}}
 }
 \value{
 Data frame of monthly statistics for selected parameters.
