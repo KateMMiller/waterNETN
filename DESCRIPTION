@@ -37,6 +37,7 @@ Collate:
     'sumClim30yr.R'
 Imports: 
     dplyr,
+    ggplot2,
     purrr,
     tidyr
 Suggests: 
