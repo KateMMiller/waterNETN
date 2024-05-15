@@ -693,7 +693,7 @@ plot_grid(title, pgrid, ncol = 1, rel_heights = c(0.1, 1))
 </details>
 
 #### plotPrecipDischarge()
-This function produces a plot with dual y-axes, one for precipitation an done for discharge. The x-axis is date. This function only works for one stream monitoring site at a time. Note that ggplot tends to have a lot of warnings that are hard to suppress, particularly for this plot, which has a daily value for precipitation and only monthly values for discharge. You're always going to get a message about that by using this function. Function currently only plots years where discharge is collected.
+This function produces a plot with dual y-axes, one for precipitation an done for discharge. The x-axis is date. This function only works for one stream monitoring site at a time. Note that ggplot tends to have a lot of warnings that are hard to suppress, particularly for this plot, which has a daily value for precipitation and only monthly values for discharge. You're always going to get a message about that by using this function. Function currently only plots years where discharge is collected. Discharge is plotted as points and not lines, because discharge can change a lot between sampling events.
 
 <p class = 'fxn'>Plot Discharge for Mill Brook in MIMA for past 5 years using default colors. </p>
 ```{r message=FALSE, warning=FALSE}
