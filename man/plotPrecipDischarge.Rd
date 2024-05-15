@@ -8,7 +8,6 @@ plotPrecipDischarge(
   park = "all",
   site = "all",
   years = 2006:format(Sys.Date(), "\%Y"),
-  layers = c("points", "lines"),
   months = 5:10,
   active = TRUE,
   colors = c("#257EF6", "black"),
@@ -35,8 +34,6 @@ plotPrecipDischarge(
 
 \item{years}{Numeric. Years to query. Accepted values start at 2006.}
 
-\item{layers}{Options are "points" and "lines". By default, both will plot.}
-
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 events are between months 5 and 10, and these are set as the defaults.}
 
@@ -56,6 +53,7 @@ Returns a ggplot object of specified climate trends
 \description{
 This function produces a plot with dual y-axes, one for precipitation an done for discharge.
 The x-axis is date. If multiple sites and/or years are specified, they will be plotted as separate figures.
+Note that lines aren't plotted for discharge because discharge likely varies a lot between samples.
 }
 \examples{
 \dontrun{

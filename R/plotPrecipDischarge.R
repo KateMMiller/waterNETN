@@ -9,6 +9,7 @@
 #'
 #' @description This function produces a plot with dual y-axes, one for precipitation an done for discharge.
 #' The x-axis is date. If multiple sites and/or years are specified, they will be plotted as separate figures.
+#' Note that lines aren't plotted for discharge because discharge likely varies a lot between samples.
 #'
 #' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
 #' \describe{
@@ -32,8 +33,6 @@
 #' events are between months 5 and 10, and these are set as the defaults.
 #'
 #' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
-#'
-#' @param layers Options are "points" and "lines". By default, both will plot.
 #'
 #' @param colors Change colors of precipitation bar plot and discharge point and line plot. Default is c('#257EF6', 'black'), which are dark blue for precipitation,
 #' and black for discharge. Y axes are color coded the same.
@@ -62,7 +61,7 @@
 #'
 plotPrecipDischarge <- function(park = "all", site = "all",
                                 years = 2006:format(Sys.Date(), "%Y"),
-                                layers = c("points", "lines"),
+                                #layers = c("points", "lines"),
                                 months = 5:10, active = TRUE,
                                 colors = c("#257EF6", "black"),
                                 legend_position = 'none', ...){
@@ -117,10 +116,10 @@ dp_plot <-
       # layers y-right
       {if(any(layers %in% "points"))
         geom_point(data = disch, aes(x = Date2, y = Discharge_cfs * scale),
-                   color = colors[2]) }+
-      {if(any(layers %in% "lines"))
-        geom_line(data = disch, aes(x = Date2, y = Discharge_cfs * scale),
-                  color = colors[2], linewidth = 0.7)} +
+                   color = colors[2], shape = "-") }+
+      # {if(any(layers %in% "lines"))
+      #   geom_line(data = disch, aes(x = Date2, y = Discharge_cfs * scale),
+      #             color = colors[2], linewidth = 0.7)} +
       # create 2nd axis
       scale_y_continuous(name = "Daily Precip. (mm)",
                          sec.axis = sec_axis(~./scale, name = "Discharge (cfs)")) +
