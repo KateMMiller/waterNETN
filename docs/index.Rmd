@@ -565,11 +565,11 @@ plotTrend(park = "MORR", parameter = c("TN_mgL", "TP_ugL", "SO4_ueqL"),
 #### plotLakeProfile()
 This function produces a heatmap in 1-m bins filtered on park (mostly for ACAD), site, year, month, Sonde in situ parameter and either sample relative to the surface or relative to surface elevation. Can only specify one parameter at a time. If multiple sites or years are selected, plots will be faceted on those factors. Keep options limited for best plotting. 
 
-The option to plot relative to surface elevation (eg depth_type = 'elev') corrects sample depth for elevation using water level data and datum elevation for that sampling event. The elevation-corrected option allows you to see how the water column is shifting over time, but currently only works for years >= 2013 in ACAD, as water levels prior to that are not in the current data package. 
+The option to plot relative to surface elevation (eg depth_type = 'elev') corrects sample depth for elevation using water level data and datum elevation for that sampling event. The elevation-corrected option allows you to see how the water column is shifting over time, but currently only works for years >= 2013 in ACAD, as water levels prior to that are not in the current data package. Default setting is raw, where the raw sample depths are plotted instead of elevation.
 
 Note that occasionally profiles skip a 1-m bin, which show up as white sections in the plots. Incomplete sampling in 2020 and 2021 also shows up as white sections. If you specify a lake x year x parameter combination that doesn't exist (e.g., a year a lake isn't sampled), the function will return an error message instead of an empty plot.
 
-Next step with lake profiles is to model them by day of year, so we can plot a consistent interval between samples, rather than just use the month to plot, like here. This would allow samples taken twice within a month to both be counted, and for early vs. late in the month samples to be corrected for. That will take a bit to figure out...
+The width of the profiles take into account the number of days between sampling events. For the first and last months (typically May and October), the left/right side of the profiles are padded by 14 days. Otherwise, profile widths are centered on the sample day with the left side representing half the number of days between that visit and the previous visit and the right side representing half the number of days between that visit and the following visit. Black lines are the thermocline, as calculated by rLakeAnalyzer.  
 
 There are several arguments to customize plots. 
 <ul>

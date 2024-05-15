@@ -10,10 +10,11 @@
 #'
 #' @description This function produces a heatmap filtered on park (mostly for ACAD), site, year, month, Sonde in situ
 #' parameter and either sample relative to the surface or relative to surface elevation. The y-axis is 1m bins. If multiple
-#' samples occur within a 1-m depth, the value plotted is the median. Can only specify one parameter
-#' at a time. If multiple sites or years are selected, plots will be faceted on those factors. Keep options limited
-#' for best plotting. The option to plot relative to surface elevation uses the water level data and datum elevation
-#' to convert sample depth to 1-m binned elevations. This allows you to see how the water column is shifting over time.
+#' samples are taken within the same 1-m bin, the median value is used. The width of the profile columns reflects the
+#' number of days between sample events, centered on the day sampled. Shorter intervals between events result in a narrower bar.
+#' You can only specify one parameter at a time. If multiple sites or years are selected, plots will be faceted on those factors.
+#' Keep options limited for best plotting. The option to plot relative to surface elevation uses the water level data and
+#' datum elevation to convert sample depth to 1-m binned elevations. This allows you to see how the water column is shifting over time.
 #' If you specify a lake x year x parameter combination that doesn't exist (e.g., a year a lake isn't sampled), the
 #' function will return an error message instead of an empty plot.
 #'
@@ -36,7 +37,8 @@
 #' @param years Numeric. Years to query. Accepted values start at 2006 for depth_type = "surface". For depth_type = "elev", accepted
 #' values start at 2013, as water level data prior to 2013 are not available in the data package.
 #'
-#' @param months Numeric. Months to query by number. This function is restricted to months 5:10.
+#' @param months Numeric. Months to query by number. This function is restricted to months 5:10. X-axis may plot weird if specifying
+#' anything but 5:10 for months.
 #'
 #' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
 #'
@@ -44,8 +46,8 @@
 #' c("Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
 #'  "Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg").
 #'
-#' @param depth_type Specify whether to plot sample depth relative to elevation of surface water (depth_type = "elev"; default) or
-#' depth, with each sample starting at 0 regardless of level of the lake surface (depth_type = "raw").
+#' @param depth_type Specify whether to plot sample depth relative to elevation of surface water (depth_type = "elev") or
+#' depth, with each sample starting at 0 regardless of level of the lake surface (depth_type = "raw"; default).
 #'
 #' @param color_theme Divering color palette for plots. Options currently are 'spectral' (default), 'ryb' (red - yellow - blue),
 #' 'rb' (red - blue), and 'viridis' (yellow - green - blue) (see https://ggplot2-book.org/scales-colour for more info).
@@ -82,7 +84,7 @@ plotLakeProfile <- function(park = "all", site = "all",
                       years = 2006:format(Sys.Date(), "%Y"),
                       months = 5:10, active = TRUE,
                       parameter = NA,
-                      depth_type = 'elev',
+                      depth_type = 'raw',
                       color_theme = "spectral", color_rev = FALSE,
                       plot_title = TRUE,
                       plot_thermocline = TRUE,
@@ -148,6 +150,26 @@ plotLakeProfile <- function(park = "all", site = "all",
   color_dir <- ifelse(color_rev == FALSE, -1, 1)
   ptitle <- if(length(unique(wcomb2$SiteCode)) == 1 & plot_title == TRUE){unique(wcomb2$SiteName)} else {NULL}
 
+  prof_width <- wcomb2 |> select(SiteCode, year, doy) |> unique() |> arrange(SiteCode, year, doy)
+  prof_width <- prof_width |> group_by(SiteCode, year) |>
+    mutate(lag_doy = lag(doy, 1),
+           lead_doy = lead(doy, 1))
+
+  # Populate NAs with 121 and 304 as first and last day of monitoring period
+  prof_width$lag_doy[is.na(prof_width$lag_doy) & prof_width$doy < 200] <- prof_width$doy[is.na(prof_width$lag_doy) & prof_width$doy < 200]  - 28 # beginning of sample period: May 1; 121
+  prof_width$lead_doy[is.na(prof_width$lead_doy) & prof_width$doy > 273] <- prof_width$doy[is.na(prof_width$lead_doy) & prof_width$doy > 273] + 28 # end of sample period: Oct 31.; 304
+
+  # Calculate width of profile columns as half of distance in days between samples on left and right.
+  prof_width$lag_dif <- (prof_width$doy - prof_width$lag_doy)/2
+  prof_width$lead_dif <- (prof_width$lead_doy - prof_width$doy)/2
+
+  prof_width$col_width <- prof_width$lag_dif + prof_width$lead_dif
+  prof_width$doy_plot <- prof_width$doy - prof_width$lag_dif + ((prof_width$lag_dif + prof_width$lead_dif)/2)
+
+  # join prof params with original data
+  wcomb3 <- left_join(wcomb2, prof_width, by = c("SiteCode", "year", "doy"))
+
+
   #-- Calculate thermocline --
   if(plot_thermocline == TRUE){
     if(!requireNamespace("rLakeAnalyzer", quietly = TRUE) & depth_type %in% c('DSN', 'dbfile')){
@@ -202,32 +224,37 @@ plotLakeProfile <- function(park = "all", site = "all",
   # add thermocline to temp/wl data
   tcline2 <-
     if(depth_type == "elev"){
-       left_join(tcomb |> select(SiteCode, SiteName, year, month, WaterLevel_m) |> unique(),
+       left_join(tcomb |> select(SiteCode, SiteName, year, month, doy, WaterLevel_m) |> unique(),
                   tcline1, by = c("SiteCode", "year", "month")) |>
           mutate(value = WaterLevel_m - value,
                  mon = factor(month, levels = unique(month),
-                               labels = unique(month.abb[month])))
+                 labels = unique(month.abb[month])))
     } else if(depth_type == "raw"){
-      left_join(tcomb |> select(SiteCode, SiteName, year, month) |> unique(),
+      left_join(tcomb |> select(SiteCode, SiteName, year, month, doy) |> unique(),
                 tcline1, by = c("SiteCode", "year", "month")) |>
         mutate(mon = factor(month, levels = unique(month),
                             labels = unique(month.abb[month])))
     }
   tcline <- tcline2[!is.na(tcline2$value),]
+  # add prof width data to tcline
+  prof_unique <- prof_width |> select(SiteCode, year, doy, doy_plot, col_width) |> unique()
+
+  tcline_final <- left_join(tcline, prof_unique, by = c("SiteCode", "year", "doy"))
   }
-
-
 
   #-- Create plot --
   profplot <-
     if(depth_type == "elev"){
-     ggplot(wcomb2 |> droplevels(), aes(x = mon, y = sample_elev)) +
-      geom_tile(aes(width = 1, height = 1, color = value, fill = value), na.rm = F) +
+     ggplot(wcomb3 |> droplevels(), aes(x = doy_plot, y = sample_elev)) +
+      geom_tile(aes(width = col_width, height = 1, color = value, fill = value), na.rm = F) +
       theme(legend.position = legend_position, axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
       theme_WQ() +
       # plot thermocline as point
       {if(plot_thermocline == TRUE){
-        geom_point(data = tcline, aes(x = mon, y = value), color = 'black', show.legend = F)}} +
+        geom_segment(data = tcline_final,
+                     aes(x = doy_plot - (col_width/2), xend = doy_plot + (col_width/2),
+                         y = value, yend = value), size = 1) }}+
+        #geom_point(data = tcline, aes(x = mon, y = value), color = 'black', show.legend = F)}} +
       # facets if more than 1 year or site
       {if(facet_site == TRUE & facet_year == TRUE) facet_wrap(~SiteName + year, drop = T)} +
       {if(facet_site == TRUE & facet_year == FALSE) facet_wrap(~SiteName, drop = T)} +
@@ -242,14 +269,20 @@ plotLakeProfile <- function(park = "all", site = "all",
       {if(color_theme == 'viridis') scale_fill_viridis_c(direction = color_dir)} +
       {if(color_theme == 'viridis') scale_color_viridis_c(direction = color_dir)} +
       # labels
-      labs(x = NULL, y = ylab, color = param_label, fill = param_label, title = ptitle)
+      labs(x = NULL, y = ylab, color = param_label, fill = param_label, title = ptitle) +
+      scale_x_continuous(limits = c(115, 320),
+                         breaks = c(121, 152, 182, 213, 244, 274, 305),
+                         labels = c("May-1", "Jun-1", "Jul-1", "Aug-1", "Sep-1", "Oct-1", "Nov-1"))
 
     } else if(depth_type == "raw"){
-      ggplot(wcomb2 |> droplevels(), aes(x = mon, y = -depth_1m_bin)) +
-        geom_tile(aes(width = 1, height = 1, color = value, fill = value)) +
+      ggplot(wcomb3 |> droplevels(), aes(x = doy_plot, y = -depth_1m_bin)) +
+        geom_tile(aes(width = col_width, height = 1, color = value, fill = value)) +
         theme(legend.position = legend_position, axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
         theme_WQ() +
-        {if(plot_thermocline == TRUE){geom_point(data = tcline, aes(x = mon, y = -value), color = 'black')}} +
+        {if(plot_thermocline == TRUE){
+          geom_segment(data = tcline_final,
+                       aes(x = doy_plot - (col_width/2), xend = doy_plot + (col_width/2),
+                           y = -value, yend = -value), size = 1) }} +
         # facets if more than 1 year or site
         {if(facet_site == TRUE & facet_year == TRUE) facet_wrap(~SiteName + year, drop = T)} +
         {if(facet_site == TRUE & facet_year == FALSE) facet_wrap(~SiteName, drop = T)} +
@@ -264,7 +297,10 @@ plotLakeProfile <- function(park = "all", site = "all",
         {if(color_theme == 'viridis') scale_fill_viridis_c(direction = color_dir)} +
         {if(color_theme == 'viridis') scale_color_viridis_c(direction = color_dir)} +
         # labels
-        labs(x = NULL, y = ylab, color = param_label, fill = param_label, title = ptitle)
+        labs(x = NULL, y = ylab, color = param_label, fill = param_label, title = ptitle) +
+        scale_x_continuous(limits = c(115, 320),
+                           breaks = c(121, 152, 182, 213, 244, 274, 305),
+                           labels = c("May-1", "Jun-1", "Jul-1", "Aug-1", "Sep-1", "Oct-1", "Nov-1"))
       }
 
  return(#suppressWarnings(

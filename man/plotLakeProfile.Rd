@@ -11,7 +11,7 @@ plotLakeProfile(
   months = 5:10,
   active = TRUE,
   parameter = NA,
-  depth_type = "elev",
+  depth_type = "raw",
   color_theme = "spectral",
   color_rev = FALSE,
   plot_title = TRUE,
@@ -40,7 +40,8 @@ plotLakeProfile(
 \item{years}{Numeric. Years to query. Accepted values start at 2006 for depth_type = "surface". For depth_type = "elev", accepted
 values start at 2013, as water level data prior to 2013 are not available in the data package.}
 
-\item{months}{Numeric. Months to query by number. This function is restricted to months 5:10.}
+\item{months}{Numeric. Months to query by number. This function is restricted to months 5:10. X-axis may plot weird if specifying
+anything but 5:10 for months.}
 
 \item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
 
@@ -48,8 +49,8 @@ values start at 2013, as water level data prior to 2013 are not available in the
 c("Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
 "Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg").}
 
-\item{depth_type}{Specify whether to plot sample depth relative to elevation of surface water (depth_type = "elev"; default) or
-depth, with each sample starting at 0 regardless of level of the lake surface (depth_type = "raw").}
+\item{depth_type}{Specify whether to plot sample depth relative to elevation of surface water (depth_type = "elev") or
+depth, with each sample starting at 0 regardless of level of the lake surface (depth_type = "raw"; default).}
 
 \item{color_theme}{Divering color palette for plots. Options currently are 'spectral' (default), 'ryb' (red - yellow - blue),
 'rb' (red - blue), and 'viridis' (yellow - green - blue) (see https://ggplot2-book.org/scales-colour for more info).}
@@ -77,10 +78,11 @@ in the data frame.
 \description{
 This function produces a heatmap filtered on park (mostly for ACAD), site, year, month, Sonde in situ
 parameter and either sample relative to the surface or relative to surface elevation. The y-axis is 1m bins. If multiple
-samples occur within a 1-m depth, the value plotted is the median. Can only specify one parameter
-at a time. If multiple sites or years are selected, plots will be faceted on those factors. Keep options limited
-for best plotting. The option to plot relative to surface elevation uses the water level data and datum elevation
-to convert sample depth to 1-m binned elevations. This allows you to see how the water column is shifting over time.
+samples are taken within the same 1-m bin, the median value is used. The width of the profile columns reflects the
+number of days between sample events, centered on the day sampled. Shorter intervals between events result in a narrower bar.
+You can only specify one parameter at a time. If multiple sites or years are selected, plots will be faceted on those factors.
+Keep options limited for best plotting. The option to plot relative to surface elevation uses the water level data and
+datum elevation to convert sample depth to 1-m binned elevations. This allows you to see how the water column is shifting over time.
 If you specify a lake x year x parameter combination that doesn't exist (e.g., a year a lake isn't sampled), the
 function will return an error message instead of an empty plot.
 }
