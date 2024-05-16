@@ -275,7 +275,7 @@ plotLakeProfile <- function(park = "all", site = "all",
       {if(plot_thermocline == TRUE){
         geom_segment(data = tcline_final,
                      aes(x = doy_plot - (col_width/2), xend = doy_plot + (col_width/2),
-                         y = value, yend = value), size = 1) }}+
+                         y = value, yend = value), size = 0.7) }}+
         #geom_point(data = tcline, aes(x = mon, y = value), color = 'black', show.legend = F)}} +
       # facets if more than 1 year or site
       {if(facet_site == TRUE & facet_year == TRUE) facet_wrap(~SiteName + year, drop = T)} +
@@ -304,7 +304,7 @@ plotLakeProfile <- function(park = "all", site = "all",
         {if(plot_thermocline == TRUE){
           geom_segment(data = tcline_final,
                        aes(x = doy_plot - (col_width/2), xend = doy_plot + (col_width/2),
-                           y = -value, yend = -value), size = 1) }} +
+                           y = -value, yend = -value), size = 0.7) }} +
         # facets if more than 1 year or site
         {if(facet_site == TRUE & facet_year == TRUE) facet_wrap(~SiteName + year, drop = T)} +
         {if(facet_site == TRUE & facet_year == FALSE) facet_wrap(~SiteName, drop = T)} +
