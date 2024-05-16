@@ -34,7 +34,7 @@ Collate:
     'plotLakeProfile.R'
     'plotPrecipDischarge.R'
     'plotTrend.R'
-    'sumClim30yr.R'
+    'sumClimAvgs.R'
 Imports: 
     dplyr,
     ggplot2,
