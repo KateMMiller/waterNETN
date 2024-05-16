@@ -116,7 +116,7 @@ dp_plot <-
       # layers y-right
       # {if(any(layers %in% "points"))
         geom_point(data = disch, aes(x = Date2, y = Discharge_cfs * scale),
-                   color = colors[2], shape = "+", size = 4) +  #}+
+                   color = colors[2], shape = "+", size = 6) +  #}+
       # {if(any(layers %in% "lines"))
       #   geom_line(data = disch, aes(x = Date2, y = Discharge_cfs * scale),
       #             color = colors[2], linewidth = 0.7)} +
