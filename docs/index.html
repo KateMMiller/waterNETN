@@ -4324,8 +4324,6 @@ print_head(lnetn_evs) #just printing first 6 rows</code></pre>
 <thead>
 <tr>
 <th style="text-align:left;">
-</th>
-<th style="text-align:left;">
 SiteCode
 </th>
 <th style="text-align:left;">
@@ -4339,9 +4337,6 @@ EventDate
 <tbody>
 <tr>
 <td style="text-align:left;">
-1
-</td>
-<td style="text-align:left;">
 MABIPA
 </td>
 <td style="text-align:left;">
@@ -4352,9 +4347,6 @@ The Pogue
 </td>
 </tr>
 <tr>
-<td style="text-align:left;">
-2
-</td>
 <td style="text-align:left;">
 MABISA
 </td>
@@ -4367,58 +4359,46 @@ Pogue Brook
 </tr>
 <tr>
 <td style="text-align:left;">
-NA
+MIMASA
 </td>
 <td style="text-align:left;">
-NA
+Mill Brook
 </td>
 <td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
+2023-05-02
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-NA.1
+MIMASB
 </td>
 <td style="text-align:left;">
-NA
+Elm Brook
 </td>
 <td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
+2023-05-02
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-NA.2
+MIMASC
 </td>
 <td style="text-align:left;">
-NA
+Concord River
 </td>
 <td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
+2023-05-02
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-NA.3
+MORRSB
 </td>
 <td style="text-align:left;">
-NA
+Primrose Brook Confluence
 </td>
 <td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
+2023-05-10
 </td>
 </tr>
 </tbody>
@@ -4443,14 +4423,8 @@ code.</p>
 <pre class="r"><code>n_params &lt;- c(&quot;NH3&quot;, &quot;NH3_mgL&quot;, &quot;NO2&quot;, &quot;NO2_mgL&quot;, &quot;NO2+NO3&quot;, 
               &quot;NO2+NO3_mgL&quot;, &quot;NO3&quot;, &quot;NO3_ueqL&quot;, &quot;TN&quot;, &quot;TN_mgL&quot;)
 period &lt;- 2006:2023
-mima_n &lt;- getChemistry(park = &quot;MIMA&quot;, years = period, parameter = n_params)</code></pre>
-<pre><code>## Warning:
-## Unknown
-## or
-## uninitialised
-## column:
-## `MeasurementTime`.</code></pre>
-<pre class="r"><code>print_head(mima_n) # top 6 rows</code></pre>
+mima_n &lt;- getChemistry(park = &quot;MIMA&quot;, years = period, parameter = n_params)
+print_head(mima_n) # top 6 rows</code></pre>
 <table class=" lightable-classic" style="font-size: 12px; color: black; font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -4543,7 +4517,7 @@ NA
 232
 </td>
 <td style="text-align:left;">
-NA
+2006-08-21 12:45:00
 </td>
 <td style="text-align:left;">
 ENV
@@ -4602,7 +4576,7 @@ NA
 232
 </td>
 <td style="text-align:left;">
-NA
+2006-08-21 12:45:00
 </td>
 <td style="text-align:left;">
 ENV
@@ -4661,7 +4635,7 @@ NA
 232
 </td>
 <td style="text-align:left;">
-NA
+2006-08-21 12:45:00
 </td>
 <td style="text-align:left;">
 ENV
@@ -4720,7 +4694,7 @@ NA
 232
 </td>
 <td style="text-align:left;">
-NA
+2006-08-21 12:45:00
 </td>
 <td style="text-align:left;">
 ENV
@@ -4779,7 +4753,7 @@ NA
 126
 </td>
 <td style="text-align:left;">
-NA
+2007-05-07 12:31:00
 </td>
 <td style="text-align:left;">
 ENV
@@ -4838,7 +4812,7 @@ NA
 126
 </td>
 <td style="text-align:left;">
-NA
+2007-05-07 12:31:00
 </td>
 <td style="text-align:left;">
 ENV
@@ -4875,14 +4849,8 @@ Get results for all surface samples, including QC samples, in Browns
 Brook in 2023 in ACAD
 </p>
 <pre class="r"><code>brbk &lt;- getChemistry(site = &quot;ACBRWN&quot;, QC_type = &quot;all&quot;, param = &quot;all&quot;, 
-                     years = 2023)</code></pre>
-<pre><code>## Warning:
-## Unknown
-## or
-## uninitialised
-## column:
-## `MeasurementTime`.</code></pre>
-<pre class="r"><code>print_head(brbk)</code></pre>
+                     years = 2023)
+print_head(brbk)</code></pre>
 <table class=" lightable-classic" style="font-size: 12px; color: black; font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -4975,7 +4943,7 @@ NA
 127
 </td>
 <td style="text-align:left;">
-NA
+2023-05-08 15:32:47
 </td>
 <td style="text-align:left;">
 ENV
@@ -5034,7 +5002,7 @@ NA
 127
 </td>
 <td style="text-align:left;">
-NA
+2023-05-08 15:32:47
 </td>
 <td style="text-align:left;">
 ENV
@@ -5093,7 +5061,7 @@ NA
 127
 </td>
 <td style="text-align:left;">
-NA
+2023-05-08 15:32:47
 </td>
 <td style="text-align:left;">
 ENV
@@ -5152,7 +5120,7 @@ NA
 127
 </td>
 <td style="text-align:left;">
-NA
+2023-05-08 15:32:47
 </td>
 <td style="text-align:left;">
 ENV
@@ -5211,7 +5179,7 @@ NA
 127
 </td>
 <td style="text-align:left;">
-NA
+2023-05-08 15:32:47
 </td>
 <td style="text-align:left;">
 ENV
@@ -5270,7 +5238,7 @@ NA
 158
 </td>
 <td style="text-align:left;">
-NA
+2023-06-08 14:33:08
 </td>
 <td style="text-align:left;">
 BLANK
@@ -5307,14 +5275,8 @@ Get ANC for LNETN parks for all years during month of May. Note that by
 not specifying years, all years by default will be included in the
 output.
 </p>
-<pre class="r"><code>anc &lt;- getChemistry(park = &quot;LNETN&quot;, param = &quot;ANC&quot;, months = 5)</code></pre>
-<pre><code>## Warning:
-## Unknown
-## or
-## uninitialised
-## column:
-## `MeasurementTime`.</code></pre>
-<pre class="r"><code>print_head(anc)</code></pre>
+<pre class="r"><code>anc &lt;- getChemistry(park = &quot;LNETN&quot;, param = &quot;ANC&quot;, months = 5)
+print_head(anc)</code></pre>
 <table class=" lightable-classic" style="font-size: 12px; color: black; font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -5407,7 +5369,7 @@ NA
 127
 </td>
 <td style="text-align:left;">
-NA
+2007-05-08 13:25:00
 </td>
 <td style="text-align:left;">
 ENV
@@ -5643,7 +5605,7 @@ NA
 143
 </td>
 <td style="text-align:left;">
-NA
+2011-05-24 14:30:00
 </td>
 <td style="text-align:left;">
 ENV
@@ -5702,7 +5664,7 @@ NA
 134
 </td>
 <td style="text-align:left;">
-NA
+2012-05-14 10:20:00
 </td>
 <td style="text-align:left;">
 ENV
@@ -5737,14 +5699,8 @@ NA
 <p class="fxn">
 Get for ACAD lakes from 2021:2023 from all sample depths.
 </p>
-<pre class="r"><code>surf &lt;- getChemistry(park = &quot;ACAD&quot;, site_type = &quot;lake&quot;, years = 2021:2023)</code></pre>
-<pre><code>## Warning:
-## Unknown
-## or
-## uninitialised
-## column:
-## `MeasurementTime`.</code></pre>
-<pre class="r"><code>print_head(surf)</code></pre>
+<pre class="r"><code>surf &lt;- getChemistry(park = &quot;ACAD&quot;, site_type = &quot;lake&quot;, years = 2021:2023)
+print_head(surf)</code></pre>
 <table class=" lightable-classic" style="font-size: 12px; color: black; font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -5837,7 +5793,7 @@ NA
 143
 </td>
 <td style="text-align:left;">
-NA
+2021-05-24 10:26:22
 </td>
 <td style="text-align:left;">
 ENV
@@ -5896,7 +5852,7 @@ NA
 143
 </td>
 <td style="text-align:left;">
-NA
+2021-05-24 10:26:22
 </td>
 <td style="text-align:left;">
 ENV
@@ -5955,7 +5911,7 @@ NA
 143
 </td>
 <td style="text-align:left;">
-NA
+2021-05-24 10:26:22
 </td>
 <td style="text-align:left;">
 ENV
@@ -6014,7 +5970,7 @@ NA
 143
 </td>
 <td style="text-align:left;">
-NA
+2021-05-24 10:26:22
 </td>
 <td style="text-align:left;">
 ENV
@@ -6073,7 +6029,7 @@ NA
 174
 </td>
 <td style="text-align:left;">
-NA
+2021-06-24 11:07:28
 </td>
 <td style="text-align:left;">
 ENV
@@ -6132,7 +6088,7 @@ NA
 174
 </td>
 <td style="text-align:left;">
-NA
+2021-06-24 11:07:28
 </td>
 <td style="text-align:left;">
 ENV
@@ -6169,14 +6125,8 @@ Get censored and non-censored NH3 data for LNETN all years. Note the
 Flag column indicates the measurement is censored by reporting the
 detection limit used.
 </p>
-<pre class="r"><code>cens &lt;- getChemistry(park = &quot;LNETN&quot;, param = &quot;NH3&quot;, include_censored = TRUE)</code></pre>
-<pre><code>## Warning:
-## Unknown
-## or
-## uninitialised
-## column:
-## `MeasurementTime`.</code></pre>
-<pre class="r"><code>print_head(cens) </code></pre>
+<pre class="r"><code>cens &lt;- getChemistry(park = &quot;LNETN&quot;, param = &quot;NH3&quot;, include_censored = TRUE)
+print_head(cens) </code></pre>
 <table class=" lightable-classic" style="font-size: 12px; color: black; font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -6269,7 +6219,7 @@ NA
 163
 </td>
 <td style="text-align:left;">
-NA
+2006-06-13 15:30:00
 </td>
 <td style="text-align:left;">
 ENV
@@ -6328,7 +6278,7 @@ NA
 234
 </td>
 <td style="text-align:left;">
-NA
+2006-08-23 10:45:00
 </td>
 <td style="text-align:left;">
 ENV
@@ -6387,7 +6337,7 @@ NA
 157
 </td>
 <td style="text-align:left;">
-NA
+2007-06-07 14:30:00
 </td>
 <td style="text-align:left;">
 ENV
@@ -6446,7 +6396,7 @@ NA
 225
 </td>
 <td style="text-align:left;">
-NA
+2007-08-14 14:20:00
 </td>
 <td style="text-align:left;">
 ENV
@@ -6505,7 +6455,7 @@ NA
 234
 </td>
 <td style="text-align:left;">
-NA
+2011-08-23 19:50:00
 </td>
 <td style="text-align:left;">
 ENV
@@ -6564,7 +6514,7 @@ NA
 215
 </td>
 <td style="text-align:left;">
-NA
+2014-08-04 10:00:00
 </td>
 <td style="text-align:left;">
 ENV
@@ -13356,13 +13306,13 @@ May
 45.974
 </td>
 <td style="text-align:right;">
-18.5416250
+18.7908235
 </td>
 <td style="text-align:right;">
-7.812750
+7.876059
 </td>
 <td style="text-align:right;">
-10.728875
+10.914765
 </td>
 </tr>
 <tr>
