@@ -89,8 +89,7 @@ if(!requireNamespace("SPEI", quietly = TRUE)){
 park <- match.arg(park, several.ok = TRUE,
                   c("all", "LNETN", "ACAD", "MABI", "MIMA", "MORR",
                     "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
-park <- ifelse(park == "LNETN",
-               c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA"), park)
+if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
 site_type <- match.arg(site_type)
 stopifnot(class(active) == 'logical')
 stopifnot(class(years) %in% c("numeric", "integer"))

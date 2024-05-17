@@ -59,8 +59,8 @@ getSites <- function(park = "all", site = "all", site_type = c("all", "lake", "s
   park <- match.arg(park, several.ok = TRUE,
                     c("all", "LNETN", "ACAD", "MABI", "MIMA", "MORR",
                       "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
-  park <- ifelse(park == "LNETN",
-                 c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA"), park)
+ if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
+
   site_type <- match.arg(site_type)
   output <- match.arg(output)
   stopifnot(class(active) == "logical")

@@ -45,8 +45,7 @@ getSitesStream <- function(park = "all", site = "all", active = TRUE, output = c
   park <- match.arg(park, several.ok = TRUE,
                     c("all", "LNETN", "ACAD", "MABI", "MIMA", "MORR",
                       "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
-  park <- ifelse(park == "LNETN",
-                 c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA"), park)
+  if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
   output <- match.arg(output)
   stopifnot(class(active) == "logical")
 

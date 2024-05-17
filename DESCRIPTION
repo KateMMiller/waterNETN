@@ -28,13 +28,14 @@ Collate:
     'getStreamObs.R'
     'getWaterLevel.R'
     'importData.R'
+    'sumClimAvgs.R'
     'sumClimMonthly.R'
     'theme_WQ.R'
+    'plotClimComps.R'
     'plotClimTrend.R'
     'plotLakeProfile.R'
     'plotPrecipDischarge.R'
     'plotTrend.R'
-    'sumClimAvgs.R'
 Imports: 
     dplyr,
     ggplot2,

@@ -119,8 +119,7 @@ plotLakeProfile <- function(park = "all", site = "all",
   park <- match.arg(park, several.ok = TRUE,
                     c("all", "LNETN", "ACAD", "MABI", "MIMA", "MORR",
                       "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
-  park <- ifelse(park == "LNETN",
-                 c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA"), park)
+  if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   if(any(depth_type == 'elev' & years < 2013)){
     warning("Water level data not available before 2013. Select sample_depth = 'surface' to plot earlier data")}
