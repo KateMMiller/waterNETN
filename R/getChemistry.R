@@ -247,7 +247,7 @@ getChemistry <- function(park = "all", site = "all",
     } else {filter(chem_comb3, QCtype %in% QC_type)}
 
   # add date/time stamp for rLakeAnalyzer and LakeMonitoR
-  chem_comb4$datetime <- as.POSIXct(paste(chem_comb4$EventDate, chem_comb4$MeasurementTime),
+  chem_comb4$datetime <- as.POSIXct(paste(chem_comb4$EventDate, chem_comb4$SampleTime),
                                     format = "%Y-%m-%d %H:%M:%S")
 
   chem_comb5 <-
