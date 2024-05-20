@@ -74,7 +74,7 @@ park <- match.arg(park, several.ok = TRUE,
                   c("all", "LNETN", "ACAD", "MABI", "MIMA", "MORR",
                     "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
 if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
-site_type <- match.arg(site_type)
+site_type <- match.arg(site_type, c("all", "lake", "stream"))
 stopifnot(class(active) == 'logical')
 
 sites <- force(getSites(park = park, site = site, site_type = site_type,

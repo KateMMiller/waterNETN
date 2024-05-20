@@ -90,11 +90,11 @@ park <- match.arg(park, several.ok = TRUE,
                   c("all", "LNETN", "ACAD", "MABI", "MIMA", "MORR",
                     "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
 if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
-site_type <- match.arg(site_type)
+site_type <- match.arg(site_type, c("all", "lake", "stream"))
+data_type <- match.arg(data_type, c("all", "daymet", "wstn"))
 stopifnot(class(active) == 'logical')
 stopifnot(class(years) %in% c("numeric", "integer"))
 stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
-data_type <- match.arg(data_type, c("all", "daymet", "wstn"))
 
 #--- compile data ---
 sites <- force(getSites(park = park, site = site, site_type = site_type,
