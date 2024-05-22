@@ -46,6 +46,9 @@
 #' @param active Logical. If TRUE (Default) only queries actively monitored sites.
 #' If FALSE, returns all sites that have been monitored.
 #'
+#' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
+#' events are between months 5 and 10, and these are set as the defaults.
+#'
 #' @param ... Additional arguments relevant to \code{getSites()} or \code{getClimDaymet()}
 #'
 #' @return Data frame of averaged monthly climate variables.
@@ -66,7 +69,7 @@
 #'
 #' @export
 
-sumClimAvgs <- function(park = 'all', site = 'all', site_type = 'all',
+sumClimAvgs <- function(park = 'all', site = 'all', site_type = 'all', months = 1:12,
                         active = TRUE, ...){
 
 #--- Bug handling ---
@@ -76,27 +79,29 @@ park <- match.arg(park, several.ok = TRUE,
 if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
 site_type <- match.arg(site_type, c("all", "lake", "stream"))
 stopifnot(class(active) == 'logical')
+stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
 
 sites <- force(getSites(park = park, site = site, site_type = site_type,
                   active = active, ...)) |>
   select(SiteCode, SiteName, UnitCode, SiteLatitude, SiteLongitude)
 
-daym <- force(getClimDaymet(park = park, site = site, site_type = site_type,
+daym1 <- force(getClimDaymet(park = park, site = site, site_type = site_type,
                       active = active, years = 1980:2020,
                       ...))
 
-daym$month <- as.numeric(format(daym$Date, "%m"))
-daym$mon <- format(daym$Date, "%b")
+daym1$month <- as.numeric(format(daym1$Date, "%m"))
+daym1$mon <- format(daym1$Date, "%b")
+daym <- daym1 |> filter(month %in% months)
 
 daym_mon <- daym |>
-  mutate(decade = paste0("d", year - year %% 10)) |>
+  mutate(decade = paste0("d", year - year %% 10),
+         tmean_C = (dm_tmax_degc + dm_tmin_degc)/2) |>
   group_by(SiteCode, decade, year, month, mon) |>
   summarize(ppt_mm = sum(dm_prcp_mmday, na.rm = T),
             tmax_C = mean(dm_tmax_degc, na.rm = T),
             tmin_C = mean(dm_tmin_degc, na.rm = T),
-            tmean_C = mean((dm_tmax_degc - dm_tmin_degc), na.rm = T),
+            tmean_C = mean(tmean_C, na.rm = T),
             .groups = 'drop')
-head(daym_mon)
 
 daym_10 <- daym_mon |> filter(year %in% 1980:2019) |>
   group_by(SiteCode, month, mon, decade) |>

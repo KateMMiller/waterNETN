@@ -4,7 +4,14 @@
 \alias{sumClimAvgs}
 \title{sumClimAvgs: Summarize monthly climate norms}
 \usage{
-sumClimAvgs(park = "all", site = "all", site_type = "all", active = TRUE, ...)
+sumClimAvgs(
+  park = "all",
+  site = "all",
+  site_type = "all",
+  months = 1:12,
+  active = TRUE,
+  ...
+)
 }
 \arguments{
 \item{park}{Combine data from all parks or one or more parks at a time. Valid inputs:
@@ -31,6 +38,9 @@ particular sites.
 \item{"lake"}{Include only lakes.}
 \item{"stream"}{Include streams only.}
 }}
+
+\item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
+events are between months 5 and 10, and these are set as the defaults.}
 
 \item{active}{Logical. If TRUE (Default) only queries actively monitored sites.
 If FALSE, returns all sites that have been monitored.}

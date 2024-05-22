@@ -111,11 +111,13 @@ daym$month <- as.numeric(format(daym$Date, "%m"))
 daym$mon <- format(daym$Date, "%b")
 daym$year <- as.numeric(daym$year)
 
-daym_mon <- daym |> group_by(SiteCode, year, month, mon, SiteLatitude) |>
+daym_mon <- daym |>
+  mutate(dm_tmean_degc = (dm_tmax_degc + dm_tmin_degc)/2) |>
+  group_by(SiteCode, year, month, mon, SiteLatitude) |>
   summarize(dm_ppt_mm = sum(dm_prcp_mmday, na.rm = T),
             dm_tmax_C = mean(dm_tmax_degc, na.rm = T),
             dm_tmin_C = mean(dm_tmin_degc, na.rm = T),
-            dm_tmean_C = mean((dm_tmax_degc - dm_tmin_degc), na.rm = T),
+            dm_tmean_C = mean(dm_tmean_degc, na.rm = T),
             dm_srad = mean(srad_mjm2),
             .groups = 'drop')
 
