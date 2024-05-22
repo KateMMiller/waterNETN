@@ -42,17 +42,23 @@
 #'
 #' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
 #'
-#' @param parameter Specify the parameter to return (can only choose 1 per function call). Current accepted values are:.
+#' @param parameter Specify the parameter to return (can only choose 1 per function call). Current
+#' accepted values are:
 #' c("Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
 #'  "Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg").
 #'
-#' @param depth_type Specify whether to plot sample depth relative to elevation of surface water (depth_type = "elev") or
-#' depth, with each sample starting at 0 regardless of level of the lake surface (depth_type = "raw"; default).
+#' @param depth_type Specify whether to plot sample depth relative to elevation of surface water
+#' (depth_type = "elev") or depth, with each sample starting at 0 regardless of level of the lake
+#' surface (depth_type = "raw"; default).
 #'
-#' @param color_theme Divering color palette for plots. Options currently are 'spectral' (default), 'ryb' (red - yellow - blue),
-#' 'rb' (red - blue), and 'viridis' (yellow - green - blue) (see https://ggplot2-book.org/scales-colour for more info).
+#' @param color_theme Diverging color palette for plots. Options currently are 'viridis'
+#' (yellow - green - blue), 'mako' (light blue grading to black), or any built-in continuous color palette
+#' available in RColorBrewer. Run RColorBrewer::display.brewer.all() to see the diverging color
+#' palettes. Common palettes include "Blues", "BuGn", "RdPu", "Spectral", "RdYlBu", "RdBu", "PiYg".
+#' See https://ggplot2-book.org/scales-colour for more info.
 #'
-#' @param color_rev Reverse the order of the color pallete. For example change ryb from red - yellow - blue to blue - yellow -red.
+#' @param color_rev Reverse the order of the color pallete. For example change RdYlBu from red - yellow - blue
+#' to blue - yellow -red.
 #'
 #' @param plot_title Logical. If TRUE (default) prints site name at top of figure. If FALSE, does not print site name. Only enabled when
 #' one site is selected.
@@ -107,7 +113,7 @@ plotLakeProfile <- function(park = "all", site = "all",
                       months = 5:10, active = TRUE,
                       parameter = NA,
                       depth_type = 'raw',
-                      color_theme = "spectral", color_rev = FALSE,
+                      color_theme = "Spectral", color_rev = FALSE,
                       plot_title = TRUE,
                       plot_thermocline = TRUE,
                       legend_position = 'right', ...){
@@ -128,9 +134,14 @@ plotLakeProfile <- function(park = "all", site = "all",
   stopifnot(class(color_rev) == "logical")
   stopifnot(class(plot_title) == "logical")
   depth_type <- match.arg(depth_type, c("elev", "raw"))
-  color_theme <- match.arg(color_theme, c("spectral", "ryb", "rb", "viridis"))
   legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
   if(length(parameter) > 1){stop("Can only use 1 parameter at a time.")}
+
+  if(!color_theme %in% "viridis"){
+    if(!requireNamespace("RColorBrewer", quietly = TRUE) & depth_type %in% c('DSN', 'dbfile')){
+      stop("Package 'RColorBrewer' needed if color_theme is anything but 'viridis'. Please install it.",
+           call. = FALSE)
+    }}
 
   #-- Compile data for plotting --
   # combine sonde and water level data and group depths by 1 m bins
@@ -194,7 +205,7 @@ plotLakeProfile <- function(park = "all", site = "all",
   #-- Calculate thermocline --
   if(plot_thermocline == TRUE){
     if(!requireNamespace("rLakeAnalyzer", quietly = TRUE) & depth_type %in% c('DSN', 'dbfile')){
-      stop("Package 'rLakeAnalyzer' needed for if plot_thermocline = TRUE. Please install it.", call. = FALSE)
+      stop("Package 'rLakeAnalyzer' needed if plot_thermocline = TRUE. Please install it.", call. = FALSE)
     }
   # thermocline calcuated for temperature only
   temp <- force(getSondeInSitu(park = park, site = site, site_type = "lake",
@@ -281,14 +292,10 @@ plotLakeProfile <- function(park = "all", site = "all",
       {if(facet_site == TRUE & facet_year == FALSE) facet_wrap(~SiteName, drop = T)} +
       {if(facet_site == FALSE & facet_year == TRUE) facet_wrap(~year, drop = T)} +
       # color palettes
-      {if(color_theme == 'spectral') scale_fill_distiller(palette = "Spectral", direction = color_dir)} +
-      {if(color_theme == 'spectral') scale_color_distiller(palette = "Spectral", direction = color_dir)} +
-      {if(color_theme == 'ryb') scale_fill_distiller(palette = "RdYlBu", direction = color_dir)} +
-      {if(color_theme == 'ryb') scale_color_distiller(palette = "RdYlBu", direction = color_dir)} +
-      {if(color_theme == 'rb') scale_fill_distiller(palette = "RdBu", direction = color_dir)} +
-      {if(color_theme == 'rb') scale_color_distiller(palette = "RdBu", direction = color_dir)} +
       {if(color_theme == 'viridis') scale_fill_viridis_c(direction = color_dir)} +
       {if(color_theme == 'viridis') scale_color_viridis_c(direction = color_dir)} +
+      {if(!color_theme %in% 'viridis') scale_fill_distiller(palette = color_theme, direction = color_dir)} +
+      {if(!color_theme %in% 'viridis') scale_color_distiller(palette = color_theme, direction = color_dir)} +
       # labels
       labs(x = NULL, y = ylab, color = param_label, fill = param_label, title = ptitle) +
       scale_x_continuous(limits = c(115, 320),

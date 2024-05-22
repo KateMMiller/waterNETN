@@ -67,8 +67,8 @@
 #'
 #' @param layers Options are "points" and "lines". By default, both will plot.
 #'
-#' @param color_theme Theme to plot points and lines. Options currently are 'viridis' (Default- ranges of blue, green and yellow),
-#' or from RColorBrewer: 'set1', 'dark2', or 'accent' (see https://ggplot2-book.org/scales-colour).
+#' @param color_theme Theme to plot points and lines. Options currently are 'viridis' (Default- ranges of blue, green and yellow), or discrete palettes from RColorBrewer. Common options are "Set1", "Set2", "Dark2", "Accent".
+#' Run RColorBrewer::display.brewer.all(type = 'qual') to see full set of options.
 #'
 #' @param threshold Logical. If TRUE (Default), will plot a dashed (upper) or dotted (lower) line if a water quality threshold exists for that
 #' parameter and site. If FALSE, no threshold line will be plotted.
@@ -88,13 +88,13 @@
 #' \dontrun{
 #'
 #' # Plot smoothed surface pH for Eagle Lake for past 3 years using default span of 0.3 and by default not including the legend.
-#' plotTrend(site = "ACEAGL", parameter = "pH", color_theme = 'dark2', years = 2021:2023)
+#' plotTrend(site = "ACEAGL", parameter = "pH", color_theme = 'Dark2', years = 2021:2023)
 #'
 #' # Plot smoothed surface pH for Eagle Lake for all years, removing the legend and using span of 0.75.
 #' plotTrend(site = "ACEAGL", parameter = "pH", span = 0.75)
 #'
 #' # Plot smoothed Secchi Depth in Jordan Pond for all years, including the legend, different color palette, and using span of 0.75.
-#' plotTrend(site = "ACJORD", parameter = "SDepth_m", span = 0.75, color_theme = 'set1')
+#' plotTrend(site = "ACJORD", parameter = "SDepth_m", span = 0.75, color_theme = 'Set1')
 #'
 #' # Plot smoothed surface pH for active SARA streams over all years with 0.6 span.
 #' plotTrend(park = "SARA", site = c("SARASA", "SARASC", "SARASD"), site_type = "stream", parameter = "pH",
@@ -145,7 +145,6 @@ plotTrend <- function(park = "all", site = "all",
   stopifnot(class(span) %in% "numeric")
   layers <- match.arg(layers, several.ok = TRUE)
   stopifnot(class(threshold) == "logical")
-  color_theme <- match.arg(color_theme, c("viridis", "set1", "dark2", "accent"))
   legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
 
   #-- Compile data for plotting --
@@ -281,13 +280,9 @@ plotTrend <- function(park = "all", site = "all",
                          axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
       # palettes
       {if(color_theme == "viridis") scale_color_viridis_d()} +
-      {if(color_theme == "set1") scale_color_brewer(palette = "Set1")} +
-      {if(color_theme == "dark2") scale_color_brewer(palette = "Dark2")} +
-      {if(color_theme == "accent") scale_color_brewer(palette = "Accent")} +
       {if(color_theme == "viridis") scale_fill_viridis_d()} +
-      {if(color_theme == "set1") scale_fill_brewer(palette = "Set1")} +
-      {if(color_theme == "dark2") scale_fill_brewer(palette = "Dark2")} +
-      {if(color_theme == "accent") scale_fill_brewer(palette = "Accent")} +
+      {if(!color_theme == "viridis") scale_color_brewer(palette = color_theme)} +
+      {if(!color_theme == "viridis") scale_fill_brewer(palette = color_theme)} +
       #axis format
       scale_x_date(breaks = datebreaks, labels = scales::label_date(date_format)) +
       # labels

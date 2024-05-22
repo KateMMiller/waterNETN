@@ -13,7 +13,8 @@ plotClimComps(
   active = TRUE,
   layers = "lines",
   parameter = NA,
-  color_theme = "rb",
+  color_theme = "RdBu",
+  color_rev = FALSE,
   legend_position = "right",
   ...
 )
@@ -58,9 +59,14 @@ If FALSE, returns all sites that have been monitored.}
 \item{"precip"}{Plot precipitation comparisons (in mm).}
 }}
 
-\item{color_theme}{Diverging color palette for plots. Options currently are 'spectral' (default), 'ryb' (red - yellow - blue),
-'rb' (red - blue), 'pr'  (purple - red), and 'viridis' (yellow - green - blue). (see https://ggplot2-book.org/scales-colour
-for more info).}
+\item{color_theme}{Diverging color palette for plots. Options currently are 'viridis'
+(yellow - green - blue), 'mako' (light blue grading to black), or any diverging color palette
+available in RColorBrewer. Run RColorBrewer::display.brewer.all() to see the diverging color
+palettes. Common palettes include "Blues", "BuGn", "RdPu", "Spectral", "RdYlBu", "RdBu", "PiYg".
+See https://ggplot2-book.org/scales-colour for more info.}
+
+\item{color_rev}{Reverse the order of the color pallete. For example change RdYlBu from red - yellow - blue
+to blue - yellow -red.}
 
 \item{legend_position}{Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
 options are "top", "bottom", "left", "right".}
@@ -80,16 +86,16 @@ so is not immediately available for the current date.
 \dontrun{
 
 # Plot mean monthly temp for the Pogue in MABI for 2019:2023 and all months with red-blue color palette
-plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "temp_mean", color_theme = "rb")
+plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "temp_mean", color_theme = "RdBu")
 
 # Same as above, but with points too
-plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "temp_mean", color_theme = "rb", layers = c('points', 'lines'))
+plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "temp_mean", color_theme = "RdBu", layers = c('points', 'lines'))
 
 # Plot max monthly temp for Eagle Lake and Jordan Pond for 2019:2023 and all months
-plotClimComps(site = c("ACEAGL", "ACJORD"), years = 2019:2023, parameter = "temp_max", color_theme = "rb", layers = 'lines')
+plotClimComps(site = c("ACEAGL", "ACJORD"), years = 2019:2023, parameter = "temp_max", color_theme = "RdBu", layers = 'lines')
 
-# Plot total monthly precip for Jordan Pond for past 10 years
-plotClimComps(site = "ACJORD", years = 2013:2023, parameter = 'precip')
+# Plot total monthly precip for Jordan Pond for past 10 years using blue color scheme
+plotClimComps(site = "ACJORD", years = 2013:2023, parameter = 'precip', color_theme = "Blues")
 }
 
 }

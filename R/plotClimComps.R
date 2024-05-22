@@ -53,9 +53,14 @@
 #'
 #' @param layers Options are "points", "lines", or both for annual averages. By default, only lines will plot.
 #'
-#' @param color_theme Diverging color palette for plots. Options currently are 'spectral' (default), 'ryb' (red - yellow - blue),
-#' 'rb' (red - blue), 'pr'  (purple - red), and 'viridis' (yellow - green - blue). (see https://ggplot2-book.org/scales-colour
-#' for more info).
+#' @param color_theme Diverging color palette for plots. Options currently are 'viridis'
+#' (yellow - green - blue), 'mako' (light blue grading to black), or any diverging color palette
+#'  available in RColorBrewer. Run RColorBrewer::display.brewer.all() to see the diverging color
+#'  palettes. Common palettes include "Blues", "BuGn", "RdPu", "Spectral", "RdYlBu", "RdBu", "PiYg".
+#'  See https://ggplot2-book.org/scales-colour for more info.
+#'
+#' @param color_rev Reverse the order of the color pallete. For example change RdYlBu from red - yellow - blue
+#' to blue - yellow -red.
 #'
 #' @param legend_position Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
 #' options are "top", "bottom", "left", "right".
@@ -66,16 +71,16 @@
 #' \dontrun{
 #'
 #' # Plot mean monthly temp for the Pogue in MABI for 2019:2023 and all months with red-blue color palette
-#' plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "temp_mean", color_theme = "rb")
+#' plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "temp_mean", color_theme = "RdBu")
 #'
 #' # Same as above, but with points too
-#' plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "temp_mean", color_theme = "rb", layers = c('points', 'lines'))
+#' plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "temp_mean", color_theme = "RdBu", layers = c('points', 'lines'))
 #'
 #' # Plot max monthly temp for Eagle Lake and Jordan Pond for 2019:2023 and all months
-#' plotClimComps(site = c("ACEAGL", "ACJORD"), years = 2019:2023, parameter = "temp_max", color_theme = "rb", layers = 'lines')
+#' plotClimComps(site = c("ACEAGL", "ACJORD"), years = 2019:2023, parameter = "temp_max", color_theme = "RdBu", layers = 'lines')
 #'
-#' # Plot total monthly precip for Jordan Pond for past 10 years
-#' plotClimComps(site = "ACJORD", years = 2013:2023, parameter = 'precip')
+#' # Plot total monthly precip for Jordan Pond for past 10 years using blue color scheme
+#' plotClimComps(site = "ACJORD", years = 2013:2023, parameter = 'precip', color_theme = "Blues")
 #'}
 #'
 #' @return Returns a ggplot object of specified climate trends
@@ -88,7 +93,7 @@ plotClimComps <- function(park = "all", site = "all",
                           months = 1:12, active = TRUE,
                           layers = "lines",
                           parameter = NA,
-                          color_theme = "rb",
+                          color_theme = "RdBu", color_rev = FALSE,
                           legend_position = 'right', ...){
 
   #-- Error handling --
@@ -102,10 +107,7 @@ plotClimComps <- function(park = "all", site = "all",
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   stopifnot(class(active) == "logical")
   layers <- match.arg(layers, c("points", "lines"), several.ok = TRUE)
-  color_theme <- match.arg(color_theme, c("spectral", "ryb", "rb", 'pr', "viridis"))
   legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
-
-  #++++++ CHANGE PALETTE SO MORE FLEXIBLE CONDITIONAL ON VIRIDIS OR RCOLORBREWER. ++++++++++
 
   #-- Compile data for plotting --
   # Clim data as annual monthly averages
@@ -122,11 +124,12 @@ plotClimComps <- function(park = "all", site = "all",
   clim_dat_long$date <- as.Date(paste0(clim_dat_long$year, "-", clim_dat_long$month, "-", 15), format = "%Y-%m-%d")
 
   # Clim data in decadal and 30-year norms
-  avg_dat <- sumClimAvgs(park = park, site = site, site_type = site_type, active = active, ...)
+  avg_dat <- sumClimAvgs(park = park, site = site, site_type = site_type, active = active, months = months, ...)
   avg_dat_long <- avg_dat |> pivot_longer(ppt_mm_d1980:ncol(avg_dat), names_to = "param", values_to = "value") |>
     arrange(SiteCode, param, month)
 
   #-- Set up plotting features --
+  color_dir <- ifelse(color_rev == FALSE, -1, 1)
   # annual params
   param_labels_annual <-
     data.frame(param = c("dm_ppt_mm", "dm_tmax_C", "dm_tmin_C", "dm_tmean_C", "dm_BAL", "dm_SPEI01", "dm_SPEI03"),
@@ -145,19 +148,7 @@ plotClimComps <- function(park = "all", site = "all",
                                 "tmean_C_d1980", "tmean_C_d1990", "tmean_C_d2000", "tmean_C_d2010",
                                 "ppt_mm_30yr_80", "tmax_C_30yr_80", "tmin_C_30yr_80", "tmean_C_30yr_80",
                                 "ppt_mm_30yr_90",  "tmax_C_30yr_90",  "tmin_C_30yr_90", "tmean_C_30yr_90"),
-                      # param_label = c("Total Precip. 1980-1989", "Total Precip. 1990-1999",
-                      #                 "Total Precip. 2000-2009", "Total Precip. 2010-2019",
-                      #                 "Max. Temp. 1980-1989", "Max. Temp. 1990-1999",
-                      #                 "Max. Temp. 2000-2009", "Max. Temp. 2010-2019",
-                      #                 "Min. Temp. 1980-1989", "Min. Temp. 1990-1999",
-                      #                 "Min. Temp. 2000-2009", "Min. Temp. 2010-2019",
-                      #                 "Mean Temp. 1980-1989", "Mean Temp. 1990-1999",
-                      #                 "Mean Temp. 2000-2009", "Mean Temp. 2010-2019",
-                      #                 "Total Precip. 1980-2009", "Max. Temp. 1980-2009",
-                      #                 "Min. Temp. 1980-2009", "Mean Temp. 1980-2009",
-                      #                 "Total Precip. 1990-2019",  "Max. Temp. 1990-2019",
-                      #                 "Min. Temp. 1990-2019", "Mean Temp. 1990-2019"),
-                      param_label2 = c(rep(c("decade 1980-1989", "decade 1990-1999",
+                      param_label = c(rep(c("decade 1980-1989", "decade 1990-1999",
                                              "decade 2000-2009", "decade 2010-2019"), 4),
                                       "Total Precip. 1980-2009", "Max. Temp. 1980-2009",
                                       "Min. Temp. 1980-2009", "Mean Temp. 1980-2009",
@@ -189,31 +180,36 @@ plotClimComps <- function(park = "all", site = "all",
     y_label = "Total Monthly Precip. (mm)"
   }
 
-clim_plot <-
+  year_breaks <-
+    if(length(years) <= 5){
+      c(min(clim_dat_long2$year), median(clim_dat_long2$year), max(clim_dat_long2$year))
+    } else {c(quantile(clim_dat_long2$year, probs = c(0, 0.25, 0.5, 0.75, 1), names = FALSE))}
+
+
+  clim_plot <-
   ggplot() + theme_WQ() +
   # layers for annual data
   {if(any(layers %in% "lines"))
-      geom_line(data = clim_dat_long |> filter(param %in% ann_filt),
+      geom_line(data = clim_dat_long2 |> filter(param %in% ann_filt),
                 aes(x = mon, y = value, group = as.integer(year), color = as.integer(year)))} +
   {if(any(layers %in% "points"))
-      geom_point(data = clim_dat_long |> filter(param %in% ann_filt),
-                 aes(x = mon, y = value, group = as.integer(year), color = as.integer(year), fill = as.integer(year)))} +
+      geom_point(data = clim_dat_long2 |> filter(param %in% ann_filt),
+                 aes(x = mon, y = value, group = as.integer(year),
+                     color = as.integer(year), fill = as.integer(year)))} +
   # color palettes for annual data
-  {if(color_theme == 'spectral') scale_fill_distiller(palette = "Spectral", direction = color_dir, name = 'Annual Averages')} +
-  {if(color_theme == 'spectral') scale_color_distiller(palette = "Spectral", direction = color_dir, name = 'Annual Averages')} +
-  {if(color_theme == 'ryb') scale_fill_distiller(palette = "RdYlBu", direction = color_dir, name = 'Annual Averages')} +
-  {if(color_theme == 'ryb') scale_color_distiller(palette = "RdYlBu", direction = color_dir, name = 'Annual Averages')} +
-  {if(color_theme == 'rb') scale_fill_distiller(palette = "RdBu", direction = color_dir, name = 'Annual Averages')} +
-  {if(color_theme == 'rb') scale_color_distiller(palette = "RdBu", direction = color_dir, name = 'Annual Averages')} +
-  {if(color_theme == 'pr') scale_fill_distiller(palette = "PuRd", direction = color_dir, name = 'Annual Averages')} +
-  {if(color_theme == 'pr') scale_color_distiller(palette = "PuRd", direction = color_dir, name = 'Annual Averages')} +
-  {if(color_theme == 'viridis') scale_fill_viridis_c(direction = color_dir, name = 'Annual Averages')} +
-  {if(color_theme == 'viridis') scale_color_viridis_c(direction = color_dir, name = 'Annual Averages')} +
+  {if(color_theme == 'viridis') scale_fill_viridis_c(direction = color_dir,
+                                                     name = 'Annual Averages', breaks = year_breaks)} +
+  {if(color_theme == 'viridis') scale_color_viridis_c(direction = color_dir,
+                                                      name = 'Annual Averages', breaks = year_breaks)} +
+  {if(!color_theme %in% 'viridis') scale_fill_distiller(palette = color_theme, direction = color_dir,
+                                                        name = 'Annual Averages', breaks = year_breaks)} +
+  {if(!color_theme %in% 'viridis') scale_color_distiller(palette = color_theme, direction = color_dir,
+                                                          name = 'Annual Averages', breaks = year_breaks)} +
   # facets for multiple years
   {if(length(unique(clim_dat_long$SiteCode)) > 1) facet_wrap(~SiteName)} +
   # layers for decadal data
   geom_line(data = avg_dat_long2 |> filter(param %in% dec_filt),
-            aes(x = mon, y = value, group = param_label2, linetype = param_label2), linewidth = 0.8) +
+            aes(x = mon, y = value, group = param_label, linetype = param_label), linewidth = 0.8) +
   # line type for decadal data
   scale_linetype_manual(values = c("dotted", "dashed", "longdash", "solid"), name = "Decadal Averages") +
   # labels/themes

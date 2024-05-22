@@ -12,7 +12,7 @@ plotLakeProfile(
   active = TRUE,
   parameter = NA,
   depth_type = "raw",
-  color_theme = "spectral",
+  color_theme = "Spectral",
   color_rev = FALSE,
   plot_title = TRUE,
   plot_thermocline = TRUE,
@@ -45,17 +45,23 @@ anything but 5:10 for months.}
 
 \item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
 
-\item{parameter}{Specify the parameter to return (can only choose 1 per function call). Current accepted values are:.
+\item{parameter}{Specify the parameter to return (can only choose 1 per function call). Current
+accepted values are:
 c("Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
 "Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg").}
 
-\item{depth_type}{Specify whether to plot sample depth relative to elevation of surface water (depth_type = "elev") or
-depth, with each sample starting at 0 regardless of level of the lake surface (depth_type = "raw"; default).}
+\item{depth_type}{Specify whether to plot sample depth relative to elevation of surface water
+(depth_type = "elev") or depth, with each sample starting at 0 regardless of level of the lake
+surface (depth_type = "raw"; default).}
 
-\item{color_theme}{Divering color palette for plots. Options currently are 'spectral' (default), 'ryb' (red - yellow - blue),
-'rb' (red - blue), and 'viridis' (yellow - green - blue) (see https://ggplot2-book.org/scales-colour for more info).}
+\item{color_theme}{Diverging color palette for plots. Options currently are 'viridis'
+(yellow - green - blue), 'mako' (light blue grading to black), or any built-in continuous color palette
+available in RColorBrewer. Run RColorBrewer::display.brewer.all() to see the diverging color
+palettes. Common palettes include "Blues", "BuGn", "RdPu", "Spectral", "RdYlBu", "RdBu", "PiYg".
+See https://ggplot2-book.org/scales-colour for more info.}
 
-\item{color_rev}{Reverse the order of the color pallete. For example change ryb from red - yellow - blue to blue - yellow -red.}
+\item{color_rev}{Reverse the order of the color pallete. For example change RdYlBu from red - yellow - blue
+to blue - yellow -red.}
 
 \item{plot_title}{Logical. If TRUE (default) prints site name at top of figure. If FALSE, does not print site name. Only enabled when
 one site is selected.}
