@@ -817,8 +817,8 @@ leg <- cowplot::get_plot_component(
 
 
 grid1 <- cowplot::plot_grid(tmean, tmax, NULL, tmin, prec, NULL, 
-                            nrow = 2, ncol = 3, rel_widths = c(1, 1, 0.1, 1, 1, 0.1))
-grid2 <- cowplot::plot_grid(grid1, NULL, leg, ncol = 3, nrow = 1, rel_widths = c(1,0.05, 0.1))
+                            nrow = 2, ncol = 3, rel_widths = c(1, 1, 0.05, 1, 1, 0.05))
+grid2 <- cowplot::plot_grid(grid1, NULL, leg, ncol = 3, nrow = 1, rel_widths = c(1, 0.05, 0.3))
 grid2
 ```
 
@@ -865,8 +865,8 @@ leg <- cowplot::get_plot_component(
 
 
 grid1 <- cowplot::plot_grid(tmean, tmax, NULL, tmin, prec, NULL, 
-                            nrow = 2, ncol = 3, rel_widths = c(1, 1, 0.1, 1, 1, 0.1))
-grid2 <- cowplot::plot_grid(grid1, NULL, leg, ncol = 3, nrow = 1, rel_widths = c(1,0.05, 0.1))
+                            nrow = 2, ncol = 3, rel_widths = c(1, 1, 0.05, 1, 1, 0.05))
+grid2 <- cowplot::plot_grid(grid1, NULL, leg, ncol = 3, nrow = 1, rel_widths = c(1, 0.05, 0.3))
 grid2
 ```
 </details>
