@@ -49,6 +49,11 @@
 #' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 #' events are between months 5 and 10, and these are set as the defaults.
 #'
+#' @param data_type Specify Daymet ("daymet"), weather station ("wstn"), or both ('all'; default). Note that Daymet
+#' data aren't available immediately, whereas weather station data may be available within days of current day.
+#' When 'wstn' is selected, the averages are based on Daymet data at the coordinates of the weather station,
+#' because the closest weather stations to most parks do not have a period or record prior to 2000.
+#'
 #' @param ... Additional arguments relevant to \code{getSites()} or \code{getClimDaymet()}
 #'
 #' @return Data frame of averaged monthly climate variables.
@@ -69,7 +74,7 @@
 #'
 #' @export
 
-sumClimAvgs <- function(park = 'all', site = 'all', site_type = 'all', months = 1:12,
+sumClimAvgs <- function(park = 'all', site = 'all', site_type = 'all', months = 1:12, data_type = 'daymet',
                         active = TRUE, ...){
 
 #--- Bug handling ---
@@ -81,13 +86,14 @@ site_type <- match.arg(site_type, c("all", "lake", "stream"))
 stopifnot(class(active) == 'logical')
 stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
 
+wstn <- if(data_type == 'wstn') {TRUE} else {FALSE}
+
+daym1 <- force(getClimDaymet(park = park, site = site, site_type = site_type, weather_station = wstn,
+                             active = active, years = 1980:2020, ...))
+
 sites <- force(getSites(park = park, site = site, site_type = site_type,
                   active = active, ...)) |>
   select(SiteCode, SiteName, UnitCode, SiteLatitude, SiteLongitude)
-
-daym1 <- force(getClimDaymet(park = park, site = site, site_type = site_type,
-                      active = active, years = 1980:2020,
-                      ...))
 
 daym1$month <- as.numeric(format(daym1$Date, "%m"))
 daym1$mon <- format(daym1$Date, "%b")
@@ -132,6 +138,9 @@ daym_90_20 <- daym_mon |> filter(year %in% 1990:2019) |>
 daym_comb <- reduce(list(daym_10, daym_80_09, daym_90_20), left_join, by = c("SiteCode", "month", "mon"))
 
 daym_final <- left_join(sites, daym_comb, by = "SiteCode")
+
+if(data_type == "wstn"){
+  print("Climate averages were calcuated for the coordinates of the closest weather station, rather than the site.")}
 
 return(data.frame(daym_final))
 

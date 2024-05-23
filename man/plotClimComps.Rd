@@ -12,8 +12,11 @@ plotClimComps(
   months = 1:12,
   active = TRUE,
   layers = "lines",
-  parameter = NA,
-  color_theme = "RdBu",
+  data_type = "daymet",
+  averages = "norm80",
+  parameter = "tmean",
+  plot_title = TRUE,
+  palette = "viridis",
   color_rev = FALSE,
   legend_position = "right",
   ...
@@ -51,25 +54,39 @@ If FALSE, returns all sites that have been monitored.}
 
 \item{layers}{Options are "points", "lines", or both for annual averages. By default, only lines will plot.}
 
-\item{parameter}{Specify the monthly averaged parameter to plot. Acceptable values are
+\item{data_type}{Specify Daymet ("daymet"; default), or weather station ("wstn"). Note that Daymet
+data aren't available immediately, whereas weather station data may be available within days of current day.
+When 'wstn' is selected, the averages are based on Daymet data at the coordinates of the weather station,
+because the closest weather stations to most parks do not have a period or record prior to 2000.}
+
+\item{averages}{Specify averages to plot. By default, the 30-year normal from 1980-2009 plots. Options include
+one of the following:
 \describe{
-\item{"temp_mean"}{Plot mean temperature comparisons (in C).}
-\item{"temp_max"}{Plot max temperature comparisons (in C).}
-\item{"temp_min"}{Plot min temperature comparisons (in C).}
-\item{"precip"}{Plot precipitation comparisons (in mm).}
+\item{"norm80"}{Plots the 30-year norm from 1980 - 2009}
+\item{"norm90"}{Plots the 30-year norm from 1990 - 2019}
+\item{"decades"}{Plots 1980 - 1989, 1990 - 1999, 2000 - 2009, and 2010 - 2019 averages}
 }}
 
-\item{color_theme}{Diverging color palette for plots. Options currently are 'viridis'
-(yellow - green - blue), 'mako' (light blue grading to black), or any diverging color palette
-available in RColorBrewer. Run RColorBrewer::display.brewer.all() to see the diverging color
-palettes. Common palettes include "Blues", "BuGn", "RdPu", "Spectral", "RdYlBu", "RdBu", "PiYg".
-See https://ggplot2-book.org/scales-colour for more info.}
+\item{parameter}{Specify the monthly averaged parameter to plot. Acceptable values are
+\describe{
+\item{"tmean"}{Plot mean temperature comparisons (in C).}
+\item{"tmax"}{Plot max temperature comparisons (in C).}
+\item{"tmin"}{Plot min temperature comparisons (in C).}
+\item{"ppt"}{Plot precipitation comparisons (in mm).}
+}}
 
-\item{color_rev}{Reverse the order of the color pallete. For example change RdYlBu from red - yellow - blue
-to blue - yellow -red.}
+\item{plot_title}{Logical. If TRUE (default) prints site name at top of figure. If FALSE,
+does not print site name. Only enabled when one site is selected.}
 
-\item{legend_position}{Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
-options are "top", "bottom", "left", "right".}
+\item{palette}{Color palette for plots. Options currently are 'viridis' (yellow - green - blue),
+or create your own by specifying 2 or more colors in quotes, like palette = c("red", "yellow", "blue"),
+or palette = c("yellow", "blue"). Hexcodes work too. If only 1 year is specified, only need to
+specify 1 color}
+
+\item{color_rev}{Reverse the order of the color pallet. Only enabled for palette = 'viridis'.}
+
+\item{legend_position}{Specify location of legend. To turn legend off, use legend_position =
+"none" (Default). Other options are "top", "bottom", "left", "right".}
 
 \item{...}{Additional arguments relevant to \code{sumClimAvgs()} or \code{sumClimMonthly()}}
 }
@@ -86,16 +103,23 @@ so is not immediately available for the current date.
 \dontrun{
 
 # Plot mean monthly temp for the Pogue in MABI for 2019:2023 and all months with red-blue color palette
-plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "temp_mean", color_theme = "RdBu")
+plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "temp_mean", palette = c('red', 'blue'))
 
 # Same as above, but with points too
-plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "temp_mean", color_theme = "RdBu", layers = c('points', 'lines'))
+plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "temp_mean", palette = c('red', 'blue'),
+layers = c('points', 'lines'))
 
 # Plot max monthly temp for Eagle Lake and Jordan Pond for 2019:2023 and all months
-plotClimComps(site = c("ACEAGL", "ACJORD"), years = 2019:2023, parameter = "temp_max", color_theme = "RdBu", layers = 'lines')
+plotClimComps(site = c("ACEAGL", "ACJORD"), years = 2019:2023, parameter = "temp_max",
+palette = c('red', 'blue'), layers = 'lines')
 
-# Plot total monthly precip for Jordan Pond for past 10 years using blue color scheme
-plotClimComps(site = "ACJORD", years = 2013:2023, parameter = 'precip', color_theme = "Blues")
+# Plot total monthly precip for Jordan Pond for past 10 years using a blue color scheme
+plotClimComps(site = "ACJORD", years = 2013:2023, parameter = 'precip',
+palette = c("#75C5FF", "#3563DD", "#323969"))
+
+# Plot total monthly precip for latest year using weather station data
+plotClimComps(site = "ACJORD", years = 2024, parameter = "precip", data_type = 'wstn')
+
 }
 
 }

@@ -15,7 +15,7 @@ plotTrend(
   include_censored = FALSE,
   sample_depth = c("surface", "all"),
   layers = c("points", "lines"),
-  color_theme = "viridis",
+  palette = "viridis",
   threshold = TRUE,
   smooth = TRUE,
   span = 0.3,
@@ -74,7 +74,7 @@ all sample depths are plotted. Plotting all depths may return a funky plot for o
 
 \item{layers}{Options are "points" and "lines". By default, both will plot.}
 
-\item{color_theme}{Theme to plot points and lines. Options currently are 'viridis' (Default- ranges of blue, green and yellow), or discrete palettes from RColorBrewer. Common options are "Set1", "Set2", "Dark2", "Accent".
+\item{palette}{Theme to plot points and lines. Options currently are 'viridis' (Default- ranges of blue, green and yellow), or discrete palettes from RColorBrewer. Common options are "Set1", "Set2", "Dark2", "Accent".
 Run RColorBrewer::display.brewer.all(type = 'qual') to see full set of options.}
 
 \item{threshold}{Logical. If TRUE (Default), will plot a dashed (upper) or dotted (lower) line if a water quality threshold exists for that
@@ -105,13 +105,13 @@ collected in lakes), the function will return an error message instead of an emp
 \dontrun{
 
 # Plot smoothed surface pH for Eagle Lake for past 3 years using default span of 0.3 and by default not including the legend.
-plotTrend(site = "ACEAGL", parameter = "pH", color_theme = 'Dark2', years = 2021:2023)
+plotTrend(site = "ACEAGL", parameter = "pH", palette = 'Dark2', years = 2021:2023)
 
 # Plot smoothed surface pH for Eagle Lake for all years, removing the legend and using span of 0.75.
 plotTrend(site = "ACEAGL", parameter = "pH", span = 0.75)
 
 # Plot smoothed Secchi Depth in Jordan Pond for all years, including the legend, different color palette, and using span of 0.75.
-plotTrend(site = "ACJORD", parameter = "SDepth_m", span = 0.75, color_theme = 'Set1')
+plotTrend(site = "ACJORD", parameter = "SDepth_m", span = 0.75, palette = 'Set1')
 
 # Plot smoothed surface pH for active SARA streams over all years with 0.6 span.
 plotTrend(park = "SARA", site = c("SARASA", "SARASC", "SARASD"), site_type = "stream", parameter = "pH",

@@ -4,7 +4,7 @@
 #'
 #' @title sumClimMonthly: Summarize monthly climate statistics
 #'
-#' @importFrom dplyr filter full_join group_by mutate select summarize
+#' @importFrom dplyr filter full_join group_by left_join mutate select summarize
 #'
 #' @description This function calculates monthly statistics from daily Daymet and/or
 #' weather station data by site. Statistics returned are monthly total precipitation
@@ -50,7 +50,7 @@
 #' Note that not all weather stations have complete a complete period of record from 2006 to current.
 #'
 #' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
-#' events are between months 5 and 10, and these are set as the defaults.
+#' events are between months 5 and 10, and these are set as the defaults. Note that only returns data for complete months.
 #'
 #' @param data_type Specify Daymet ("daymet"), weather station ("wstn"), or both ('all'; default). Note that Daymet
 #' data aren't available immediately, whereas weather station data may be available within days of current day.
@@ -103,7 +103,8 @@ sites <- force(getSites(park = park, site = site, site_type = site_type,
 
 if(data_type %in% c("all", "daymet")){
 daym <- force(getClimDaymet(park = park, site = site, site_type = site_type,
-                           active = active, years = years, silent = TRUE, ...))
+                           active = active, years = years, silent = TRUE,
+                           weather_station = F, ...))
 
 daym$srad_mjm2 <- (daym$dm_srad_Wm2 * daym$dm_dayl_s/1000000)
 
@@ -139,12 +140,25 @@ if(data_type %in% c("all", "wstn")){
   wstn$Date <- as.Date(wstn$Date, format = "%Y-%m-%d")
   wstn$month <- as.numeric(format(wstn$Date, "%m"))
   wstn$mon <- format(wstn$Date, "%b")
+  wstn$ws_tmean_C <- (wstn$ws_tmaxc + wstn$ws_tminc)/2
 
-  wstn_mon <- wstn |> group_by(SiteCode, year, month, mon) |>
+  # drop data for incomplete months
+  wstn$mon_next_day <- as.numeric(format(wstn$Date + 1, "%m"))
+
+  wstn$mon_comp <- ifelse(wstn$month == 12 & wstn$mon_next_day == 1,
+                          1, wstn$mon_next_day - wstn$month)
+
+  wstn_comp <- wstn |> filter(!is.na(ws_tmaxc)) |>
+    group_by(SiteCode, year, month, mon) |>
+    summarize(mon_comp = sum(mon_comp), .groups = 'drop') |> filter(mon_comp == 1)
+
+  wstn_comp <- left_join(wstn_comp, wstn, by = c("SiteCode", "year", "month", "mon"))
+
+  wstn_mon <- wstn_comp |> group_by(SiteCode, year, month, mon) |>
     summarize(ws_ppt_mm = sum(ws_pcpmm, na.rm = T),
               ws_tmax_C = mean(ws_tmaxc, na.rm = T),
               ws_tmin_C = mean(ws_tminc, na.rm = T),
-              ws_tmean_C = mean((ws_tmaxc - ws_tminc), na.rm = T),
+              ws_tmean_C = mean(ws_tmean_C, na.rm = T),
               .groups = 'drop')
 
   wstn_mon$year <- as.numeric(wstn_mon$year)

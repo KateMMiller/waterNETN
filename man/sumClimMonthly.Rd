@@ -52,7 +52,7 @@ data aren't available immediately, whereas weather station data may be available
 When Daymet data are requested, results also return 1-month and 3-month SPEI, a drought index.}
 
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
-events are between months 5 and 10, and these are set as the defaults.}
+events are between months 5 and 10, and these are set as the defaults. Note that only returns data for complete months.}
 
 \item{...}{Additional arguments relevant to \code{getSites()}}
 }

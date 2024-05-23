@@ -9,6 +9,7 @@ sumClimAvgs(
   site = "all",
   site_type = "all",
   months = 1:12,
+  data_type = "daymet",
   active = TRUE,
   ...
 )
@@ -41,6 +42,11 @@ particular sites.
 
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 events are between months 5 and 10, and these are set as the defaults.}
+
+\item{data_type}{Specify Daymet ("daymet"), weather station ("wstn"), or both ('all'; default). Note that Daymet
+data aren't available immediately, whereas weather station data may be available within days of current day.
+When 'wstn' is selected, the averages are based on Daymet data at the coordinates of the weather station,
+because the closest weather stations to most parks do not have a period or record prior to 2000.}
 
 \item{active}{Logical. If TRUE (Default) only queries actively monitored sites.
 If FALSE, returns all sites that have been monitored.}

@@ -51,7 +51,7 @@
 #' (depth_type = "elev") or depth, with each sample starting at 0 regardless of level of the lake
 #' surface (depth_type = "raw"; default).
 #'
-#' @param color_theme Diverging color palette for plots. Options currently are 'viridis'
+#' @param palette Diverging color palette for plots. Options currently are 'viridis'
 #' (yellow - green - blue), 'mako' (light blue grading to black), or any built-in continuous color palette
 #' available in RColorBrewer. Run RColorBrewer::display.brewer.all() to see the diverging color
 #' palettes. Common palettes include "Blues", "BuGn", "RdPu", "Spectral", "RdYlBu", "RdBu", "PiYg".
@@ -60,8 +60,8 @@
 #' @param color_rev Reverse the order of the color pallete. For example change RdYlBu from red - yellow - blue
 #' to blue - yellow -red.
 #'
-#' @param plot_title Logical. If TRUE (default) prints site name at top of figure. If FALSE, does not print site name. Only enabled when
-#' one site is selected.
+#' @param plot_title Logical. If TRUE (default) prints site name at top of figure. If FALSE,
+#' does not print site name. Only enabled when one site is selected.
 #'
 #' @param plot_thermocline Logical. If TRUE (default) plots the depth of the thermocline, calculated by rLakeAnalyzer as the depth/elevation
 #' within the water column where the temperature gradient is the steepest and indicates where the upper waters are typically not mixing with
@@ -100,7 +100,7 @@
 #' Temperature thermocline is also included as black lines.
 #' plotLakeProfile(park = "ACAD", site = lakes23,
 #'                parameter = "DOsat_pct", depth_type = 'raw', years = 2023,
-#'                color_theme = 'ryb', color_rev = TRUE)
+#'                palette = 'ryb', color_rev = TRUE)
 #'}
 #'
 #' @return Returns a panel of hydrographs during the growing season for each year
@@ -113,7 +113,7 @@ plotLakeProfile <- function(park = "all", site = "all",
                       months = 5:10, active = TRUE,
                       parameter = NA,
                       depth_type = 'raw',
-                      color_theme = "Spectral", color_rev = FALSE,
+                      palette = "Spectral", color_rev = FALSE,
                       plot_title = TRUE,
                       plot_thermocline = TRUE,
                       legend_position = 'right', ...){
@@ -137,9 +137,9 @@ plotLakeProfile <- function(park = "all", site = "all",
   legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
   if(length(parameter) > 1){stop("Can only use 1 parameter at a time.")}
 
-  if(!color_theme %in% "viridis"){
+  if(!palette %in% "viridis"){
     if(!requireNamespace("RColorBrewer", quietly = TRUE) & depth_type %in% c('DSN', 'dbfile')){
-      stop("Package 'RColorBrewer' needed if color_theme is anything but 'viridis'. Please install it.",
+      stop("Package 'RColorBrewer' needed if palette is anything but 'viridis'. Please install it.",
            call. = FALSE)
     }}
 
@@ -292,10 +292,10 @@ plotLakeProfile <- function(park = "all", site = "all",
       {if(facet_site == TRUE & facet_year == FALSE) facet_wrap(~SiteName, drop = T)} +
       {if(facet_site == FALSE & facet_year == TRUE) facet_wrap(~year, drop = T)} +
       # color palettes
-      {if(color_theme == 'viridis') scale_fill_viridis_c(direction = color_dir)} +
-      {if(color_theme == 'viridis') scale_color_viridis_c(direction = color_dir)} +
-      {if(!color_theme %in% 'viridis') scale_fill_distiller(palette = color_theme, direction = color_dir)} +
-      {if(!color_theme %in% 'viridis') scale_color_distiller(palette = color_theme, direction = color_dir)} +
+      {if(palette == 'viridis') scale_fill_viridis_c(direction = color_dir)} +
+      {if(palette == 'viridis') scale_color_viridis_c(direction = color_dir)} +
+      {if(!palette %in% 'viridis') scale_fill_distiller(palette = palette, direction = color_dir)} +
+      {if(!palette %in% 'viridis') scale_color_distiller(palette = palette, direction = color_dir)} +
       # labels
       labs(x = NULL, y = ylab, color = param_label, fill = param_label, title = ptitle) +
       scale_x_continuous(limits = c(115, 320),
@@ -316,14 +316,14 @@ plotLakeProfile <- function(park = "all", site = "all",
         {if(facet_site == TRUE & facet_year == FALSE) facet_wrap(~SiteName, drop = T)} +
         {if(facet_site == FALSE & facet_year == TRUE) facet_wrap(~year, drop = T)} +
         # color palettes
-        {if(color_theme == 'spectral') scale_fill_distiller(palette = "Spectral", direction = color_dir)} +
-        {if(color_theme == 'spectral') scale_color_distiller(palette = "Spectral", direction = color_dir)} +
-        {if(color_theme == 'ryb') scale_fill_distiller(palette = "RdYlBu", direction = color_dir)} +
-        {if(color_theme == 'ryb') scale_color_distiller(palette = "RdYlBu", direction = color_dir)} +
-        {if(color_theme == 'rb') scale_fill_distiller(palette = "RdBu", direction = color_dir)} +
-        {if(color_theme == 'rb') scale_color_distiller(palette = "RdBu", direction = color_dir)} +
-        {if(color_theme == 'viridis') scale_fill_viridis_c(direction = color_dir)} +
-        {if(color_theme == 'viridis') scale_color_viridis_c(direction = color_dir)} +
+        {if(palette == 'spectral') scale_fill_distiller(palette = "Spectral", direction = color_dir)} +
+        {if(palette == 'spectral') scale_color_distiller(palette = "Spectral", direction = color_dir)} +
+        {if(palette == 'ryb') scale_fill_distiller(palette = "RdYlBu", direction = color_dir)} +
+        {if(palette == 'ryb') scale_color_distiller(palette = "RdYlBu", direction = color_dir)} +
+        {if(palette == 'rb') scale_fill_distiller(palette = "RdBu", direction = color_dir)} +
+        {if(palette == 'rb') scale_color_distiller(palette = "RdBu", direction = color_dir)} +
+        {if(palette == 'viridis') scale_fill_viridis_c(direction = color_dir)} +
+        {if(palette == 'viridis') scale_color_viridis_c(direction = color_dir)} +
         # labels
         labs(x = NULL, y = ylab, color = param_label, fill = param_label, title = ptitle) +
         scale_x_continuous(limits = c(115, 320),

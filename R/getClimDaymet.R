@@ -40,7 +40,12 @@
 #' \item{"stream"}{Include streams only.}
 #' }
 #'
-#' @param years Vector of years to download Daymet data for. Earliest available year is 1980. Latest is currently 12/31/2023.
+#' @param weather_station Logical. If TRUE, will return Daymet data for coordinates of nearest weather station to a park.
+#' If FALSE (default), returns Daymet data for water monitoring sites only. This argument facilitates calculating decadal
+#' averages to compare with current-year weather station data.
+#'
+#' @param years Vector of years to download Daymet data. Earliest available year is 1980. Latest is
+#' currently 12/31/2023.
 #'
 #' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
 #'
@@ -73,6 +78,7 @@
 getClimDaymet <- function(park = "all", site = "all",
                           site_type = c("all", "lake", "stream"),
                           years = c(2006:2023), active = TRUE,
+                          weather_station = FALSE,
                           filepath = NA, export = FALSE,
                           silent = TRUE){
   #--- error handling ---
@@ -84,12 +90,12 @@ getClimDaymet <- function(park = "all", site = "all",
   stopifnot(class(silent) == 'logical')
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 1980)
   stopifnot(class(active) == "logical")
+  stopifnot(class(weather_station) == "logical")
 
   # Check that suggested package required for this function are installed
   if(!requireNamespace("daymetr", quietly = TRUE)){
     stop("Package 'daymetr' needed to download Daymet data. Please install it.", call. = FALSE)
   }
-
 
   if(export == TRUE){
     if(is.na(filepath)){stop(paste0("Must specify a filepath to the database when export = TRUE"))
@@ -101,8 +107,15 @@ getClimDaymet <- function(park = "all", site = "all",
 
   #--- compile data ---
   # Create list of lat/longs to generate
-  sites <- force(getSites(park = park, site = site, site_type = site_type, active = active)) |>
+  data("closest_WS")
+
+  sites1 <- force(getSites(park = park, site = site, site_type = site_type, active = active)) |>
     select(site = SiteCode, latitude = SiteLatitude, longitude = SiteLongitude)
+
+  sites <- if(weather_station == TRUE){
+    left_join(sites1, closest_WS, c("site" = "SiteCode")) |>
+      select(site, latitude = ws_lat, longitude = ws_long)
+  } else {sites1}
 
   # save to tmp folder for daymet to pull from and save indiv. site files to
   dir.create(tmp <- tempfile())
@@ -134,7 +147,8 @@ getClimDaymet <- function(park = "all", site = "all",
                                       dm_srad_Wm2, dm_swe_kgm2, dm_tmax_degc, dm_tmin_degc, dm_vp_Pa)
 
   if(export == TRUE){write.csv(cdata_final,
-                               paste0(filepath, "Daymet_climate_data_", min(years), "-", max(years), ".csv"),
+                               paste0(filepath, "Daymet_climate_data_",
+                                      min(years), "-", max(years), ".csv"),
                                row.names = F)}
 
   return(data.frame(cdata_final))

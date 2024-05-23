@@ -10,6 +10,7 @@ getClimDaymet(
   site_type = c("all", "lake", "stream"),
   years = c(2006:2023),
   active = TRUE,
+  weather_station = FALSE,
   filepath = NA,
   export = FALSE,
   silent = TRUE
@@ -39,9 +40,14 @@ getClimDaymet(
 \item{"stream"}{Include streams only.}
 }}
 
-\item{years}{Vector of years to download Daymet data for. Earliest available year is 1980. Latest is currently 12/31/2023.}
+\item{years}{Vector of years to download Daymet data. Earliest available year is 1980. Latest is
+currently 12/31/2023.}
 
 \item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
+
+\item{weather_station}{Logical. If TRUE, will return Daymet data for coordinates of nearest weather station to a park.
+If FALSE (default), returns Daymet data for water monitoring sites only. This argument facilitates calculating decadal
+averages to compare with current-year weather station data.}
 
 \item{filepath}{Quoted path to save files to. If not specified, will save to working directory.}
 

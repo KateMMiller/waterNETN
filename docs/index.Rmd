@@ -470,7 +470,7 @@ There are several arguments to customize plots.
 <li> Choose whether to plot any water quality thresholds that exist via `threshold`. Upper limits are dashed. Lower limits are dotted. </li>
 <li> Choose whether to plot surface (default) or all depth measurements via `sample_depth`. </li>
 <li> Choose whether to include censored values or not via `include_censored`. </li>
-<li> Choose color palette via `color_theme`. Default is 'viridis', but other options are discrete palettes in RColorBrewer, including 'Set1', 'Dark2', and 'Accent'. </li>
+<li> Choose color palette via `palette`. Default is 'viridis', but other options are discrete palettes in RColorBrewer, including 'Set1', 'Dark2', and 'Accent'. </li>
 <li> Choose position of legend via `legend_position`. If you don't want to show the legend, `legend_position = 'none'`.
 </ul>
 
@@ -490,7 +490,7 @@ plotTrend(site = "ACEAGL", parameter = "pH", smooth = FALSE)
 
 <p class = 'fxn'>Plot smoothed surface pH for Eagle Lake for past 3 years using default span of 0.3 and by default not including the legend. </p>
 ```{r message = FALSE, warning = FALSE}
-plotTrend(site = "ACEAGL", parameter = "pH", color_theme = 'Dark2', years = 2021:2023)
+plotTrend(site = "ACEAGL", parameter = "pH", palette = 'Dark2', years = 2021:2023)
 
 ```
 <p class = 'fxn'>Plot smoothed surface pH for Eagle Lake for all years, removing the legend and using span of 0.75. </p>
@@ -502,7 +502,7 @@ plotTrend(site = "ACEAGL", parameter = "pH", span = 0.75)
 <p class = 'fxn'>Plot smoothed Secchi Depth in Jordan Pond for all years, including the legend, different color palette, and using span of 0.75. </p>
 ```{r message = FALSE, warning = FALSE}
 plotTrend(site = "ACJORD", parameter = "SDepth_m", 
-          span = 0.75, color_theme = 'Set1')
+          span = 0.75, palette = 'Set1')
 
 ```
 
@@ -550,21 +550,21 @@ plotTrend(park = "MIMA", site_type = "stream",
 <p class = 'fxn'>Plot smoothed surface Secchi Depth, Penetration Ratio, pH, and DOC in Jordan Pond for all years, including the legend, different color palette, and using span of 0.75. </p>
 ```{r message = FALSE, warning = FALSE}
 plotTrend(site = "ACJORD", parameter = c("SDepth_m", "PenetrationRatio", "pH", "DOC_mgL"), 
-          span = 0.75, color_theme = 'Set1')
+          span = 0.75, palette = 'Set1')
 
 ```
 
 <p class = 'fxn'>Plot smoothed surface water depth in the Pogue for all years, including a different color palette, and using span of 0.75. </p>
 ```{r message = FALSE, warning = FALSE}
 plotTrend(site = "MABIPA", parameter = "WaterLevelFeet", span = 0.75, 
-          color_theme = 'Set1')
+          palette = 'Set1')
 
 ```
 
 <p class = 'fxn'>Plot smoothed TN, TP and SO4 in all MORR sites for all years, including the legend, different color palette, and using span of 0.6. Thresholds, where they exist,  plot by default.</p>
 ```{r message = FALSE, warning = FALSE}
 plotTrend(park = "MORR", parameter = c("TN_mgL", "TP_ugL", "SO4_ueqL"), 
-          span = 0.6, legend_position = 'bottom', color_theme = 'accent')
+          span = 0.6, legend_position = 'bottom', palette = 'accent')
 ```
 
 </details>
@@ -582,7 +582,7 @@ There are several arguments to customize plots.
 <ul>
 <li>Choose whether to plot the theromocline as points on each profile via `plot_thermocline = TRUE` (default). The thermocline is calculated by rLakeAnalyzer, and is the depth/elevation at which the largest change in temperature occurs in the sampled water column. If no thermocline is detected, as defined by `rLakeAnalyzer::thermo.depth()`, nothing is plotted.</li>
 <li> Choose whether to include only active sites (default) or all sites that have been monitored via `active`. </li>
-<li> Choose color theme. Current enabled themes are 'viridis' (yellow - green - blue), and built in continuous color patterns in RColorBrewer. If you prefer other palettes, I can add those too. The only thing I'm trying to avoid is creating the palette manually, since number 1-m bins varies by site and across years. More info on built in ggplot scales can be found here: <a href="https://ggplot2-book.org/scales-colour">https://ggplot2-book.org/scales-colour</a>. </li>
+<li> Choose palette. Current enabled themes are 'viridis' (yellow - green - blue), and built in continuous color patterns in RColorBrewer. If you prefer other palettes, I can add those too. The only thing I'm trying to avoid is creating the palette manually, since number 1-m bins varies by site and across years. More info on built in ggplot scales can be found here: <a href="https://ggplot2-book.org/scales-colour">https://ggplot2-book.org/scales-colour</a>. </li>
 <li> Choose position of legend via `legend_position`. If you don't want to show the legend, `legend_position = 'none'`.
 <li> Include site name as plot title (title = TRUE). Only enabled when 1 site is selected. Otherwise site names will be in the facets.
 </ul>
@@ -631,7 +631,7 @@ plotLakeProfile(park = "ACAD", site = lakes23, parameter = "Temp_C",
 ```{r message = FALSE, warning = FALSE}
 plotLakeProfile(park = "ACAD", site = lakes23, 
                 parameter = "DOsat_pct", depth_type = 'raw', years = 2023, 
-                color_theme = 'ryb', color_rev = TRUE)
+                palette = 'ryb', color_rev = TRUE)
 
 ```
 
@@ -655,7 +655,7 @@ plotLakeProfile(site = "ACJORD", parameter = "pH",
 plotLakeProfile(park = "ACAD", site = c("ACBUBL", "ACEAGL", "ACECHO", "ACJORD", "ACLONG", "ACSEAL", 
                                         "ACUHAD", "ACWHOL"), 
                 parameter = "pH", depth_type = 'raw', years = 2022:2023, 
-                color_theme = 'ryb', color_rev = TRUE)
+                palette = 'ryb', color_rev = TRUE)
 
 ```
 
@@ -683,11 +683,11 @@ doplot <- plotLakeProfile(site = sitecode, parameter = "DOsat_pct", depth_type =
                           years = year, months = mon, color_rev = T, plot_title = ptitle)
 
 pHplot <- plotLakeProfile(site = sitecode, parameter = "pH", depth_type = depth,
-                          years = year, months = mon, color_theme = "ryb", color_rev = T,
+                          years = year, months = mon, palette = "ryb", color_rev = T,
                           plot_title = ptitle)
 
 cnplot <- plotLakeProfile(site = sitecode, parameter = "SpCond_uScm", depth_type = depth,
-                         years = year, months = mon, color_theme = 'rb',
+                         years = year, months = mon, palette = 'rb',
                          plot_title = ptitle)
 
 # Default settings
@@ -744,44 +744,115 @@ plotClimTrend(site = c("MABIPA", "SARASA"), years = 2006:2023,
 ```
 
 #### plotClimComps()
-This function compares decadal (1980 - 1989, ..., 2010 - 2019) average monthly climate variables with user-specified years to provide an idea of how extreme or normal a given month in a year is. This function currently only works with Daymet data, so is not immediately available for the current date.
+This function compares 30-year normals (1980 - 2009, or 1990 - 2019), or decadal (1980 - 1989, ..., 2010 - 2019) average monthly climate variables with user-specified years to provide an idea of how extreme or normal a given month in a year is. 
+
+By default, this function works with Daymet data, and so is not always available for the given year. By specifying data_type = 'wstn', data from the nearest weather station is compared with Daymet data extracted from the lat/long coordinates of the nearest weather station. 
 
 <details open><summary class='drop'>Single parameter</summary>
-<p class = 'fxn'>Plot mean monthly temp for the Pogue in MABI for 2019:2023 and all months with red-blue color palette.</p>
+<p class = 'fxn'>Plot mean monthly temp for The Pogue in MABI for 2019:2023 and all months with red-blue color palette and the 4 decadal averages.</p>
 ```{r}
-plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "temp_mean", color_theme = "RdBu")
+plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "tmean", 
+              palette = c("red", "blue"), averages = "decades")
 ```
-<p class = 'fxn'>Same as above, but with points too.</p>
+<p class = 'fxn'>Same as above, but with points and 30-year normal starting at 1990.</p>
 ```{r}
-plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "temp_mean", color_theme = "RdBu", layers = c('points', 'lines'))
+plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "tmean", palette = c("red", "blue"), 
+              layers = c('points', 'lines'), averages = "norm90")
 ```
-<p class = 'fxn'>Plot max monthly temp for Eagle Lake and Jordan Pond for 2019:2023 and sample months only, with 'viridis' palette</p>
+<p class = 'fxn'>Plot max monthly temp for Eagle Lake and Jordan Pond for 2019:2023 and sample months only, with 'viridis' palette and 30-year norm starting at 1980 (default).</p>
 
 ```{r}
 plotClimComps(site = c("ACEAGL", "ACJORD"), years = 2019:2023, months = 5:10,
-              parameter = "temp_max", color_theme = "viridis", layers = 'lines')
+              parameter = "tmax", palette = "viridis", layers = 'lines')
 ```
+<p class = 'fxn'>Plot total monthly precip for Jordan Pond for past 5 years using yellow-blue color palette, compared with the 30-year norm starting at 1980.</p>
 ```{r}
-# Plot total monthly precip for Jordan Pond for past 10 years using red-yellow-blue color scheme
-plotClimComps(site = "ACJORD", years = 2013:2023, parameter = 'precip', color_theme = "RdYlBu")
+plotClimComps(site = "ACJORD", years = 2018:2023, parameter = 'ppt', 
+              palette = c("#E8E62C", "blue"))
 ```
+
+<p class = 'fxn'>Plot total monthly precip for Jordan Pond for current year using red for 2023 and blue for 2024</p>
+```{r}
+plotClimComps(site = "ACJORD", years = 2023:2024, parameter = 'ppt', 
+              palette = c("red", "blue"), data_type = 'wstn')
+```
+
+<p class = 'fxn'>Plot total monthly max temp for Jordan Pond for current year using red for current year color.</p>
+```{r}
+plotClimComps(site = "ACJORD", years = 2024, parameter = 'tmean', 
+              palette = c("red"), data_type = 'wstn')
+```
+
+
 </details><br>
 
 <details open><summary class = 'drop'>Multiple plots</summary>
+
+The code below would take a lot to program into waterNETN functions, so I'm instead showing you how you can create panels of multiple plots using the cowplot package. 
+
+<p class = 'fxn'>Generate grid of all parameters in Eagle Lake from past 10 years</p> 
+Note that the code that names leg is extracting a legend from a copy of the figures to be plotted separately from the other figures. This allows you to control the sizing and alignment better. The NULLs also allow you to create white space between plots.
 ```{r}
-tmax <- plotClimComps(site = "ACEAGL", years = 2013:2023, parameter = "temp_max", months = 5:10,
-                      layers = 'lines', legend_position = 'none', color_theme = "Blues", color_rev = T)
+tmax <- plotClimComps(site = "ACEAGL", years = 2013:2023, parameter = "tmax", months = 5:10,
+                      layers = 'lines', legend_position = 'none', palette = c("red", "blue"))
 
-tmin <- plotClimComps(site = "ACEAGL", years = 2013:2023, parameter = "temp_min", months = 5:10, 
-                      layers = 'lines', legend_position = 'none', color_theme = "Blues", color_rev = T)
-tmean <- plotClimComps(site = "ACEAGL", years = 2013:2023, parameter = "temp_mean", months = 5:10, 
-                       layers = 'lines', legend_position = 'none', color_theme = "Blues", color_rev = T)
-prec <- plotClimComps(site = "ACEAGL", years = 2013:2023, parameter = 'precip', months = 5:10, 
-                      layers = 'lines', legend_position = 'none', color_theme = "Blues", color_rev = T)
+tmin <- plotClimComps(site = "ACEAGL", years = 2013:2023, parameter = "tmin", months = 5:10, 
+                      layers = 'lines', legend_position = 'none', palette = c("red", "blue"))
+tmean <- plotClimComps(site = "ACEAGL", years = 2013:2023, parameter = "tmean", months = 5:10, 
+                       layers = 'lines', legend_position = 'none', palette = c("red", "blue"))
+prec <- plotClimComps(site = "ACEAGL", years = 2013:2023, parameter = 'ppt', months = 5:10, 
+                      layers = 'lines', legend_position = 'none', palette = c("red", "blue"))
 
-prec_leg <- plotClimComps(site = "ACEAGL", years = 2013:2023, parameter = 'precip', months = 5:10, 
-                          layers = 'lines', legend_position = 'right', color_theme = "Blues", 
-                          color_rev = T) +
+prec_leg <- plotClimComps(site = "ACEAGL", years = 2013:2023, parameter = 'tmax', months = 5:10, 
+                          layers = 'lines', legend_position = 'right', palette = c("red", "blue")) +
+ theme(legend.box.margin = margin(0, 0, 0, 5), 
+       legend.text = element_text(size = 9), 
+       legend.title = element_text(size = 9))
+
+leg <- cowplot::get_plot_component(
+  prec_leg,
+  'guide-box-right',
+  return_all = T
+  )
+
+
+grid1 <- cowplot::plot_grid(tmean, tmax, NULL, tmin, prec, NULL, 
+                            nrow = 2, ncol = 3, rel_widths = c(1, 1, 0.1, 1, 1, 0.1))
+grid2 <- cowplot::plot_grid(grid1, NULL, leg, ncol = 3, nrow = 1, rel_widths = c(1,0.05, 0.1))
+grid2
+```
+
+<p class = 'fxn'>Generate grid of all parameters in Eagle Lake for 2024, Jan through April.</p>
+Because waterNETN plotting functions return ggplot objects, we can tweak the plots so that temp plots all have the same y axis (so you can see that max is higher than min). 
+```{r}
+wstn_temp <- sumClimMonthly(site = "ACEAGL", years = 2024, data_type = "wstn") 
+avg_temp <- sumClimAvgs(site = "ACEAGL", data_type = "daymet")
+
+ymin <- round(min(wstn_temp$ws_tmin_C, avg_temp$tmin_C_d1980, avg_temp$tmin_C_d1990, 
+              avg_temp$tmin_C_d2000, avg_temp$tmin_C_d2010), 0) - 1
+
+ymax <- round(max(wstn_temp$ws_tmax_C, avg_temp$tmax_C_d1980, avg_temp$tmax_C_d1990, 
+              avg_temp$tmax_C_d2000, avg_temp$tmax_C_d2010), 0) - 1
+
+tmax <- plotClimComps(site = "ACEAGL", years = 2024, parameter = "tmax", data_type = "wstn",
+                      layers = 'lines', legend_position = 'none', palette = c("red", "blue"),
+                      plot_title = F) +
+        ylim(ymin, ymax)
+tmin <- plotClimComps(site = "ACEAGL", years = 2024, parameter = "tmin", data_type = "wstn", 
+                      layers = 'lines', legend_position = 'none', palette = c("red", "blue"),
+                      plot_title = F) +
+        ylim(ymin, ymax)
+tmean <- plotClimComps(site = "ACEAGL", years = 2024, parameter = "tmean", data_type = "wstn",
+                       layers = 'lines', legend_position = 'none', palette = c("red", "blue"),
+                      plot_title = F)+
+        ylim(ymin, ymax)
+prec <- plotClimComps(site = "ACEAGL", years = 2024, parameter = 'ppt', data_type = "wstn",
+                      layers = 'lines', legend_position = 'none', palette = c("red", "blue"),
+                      plot_title = F)
+
+prec_leg <- plotClimComps(site = "ACEAGL", years = 2024, parameter = 'tmax', data_type = "wstn",
+                          layers = 'lines', legend_position = 'right', 
+                          palette = c("red", "blue")) +
  theme(legend.box.margin = margin(0, 0, 0, 5), 
        legend.text = element_text(size = 9), 
        legend.title = element_text(size = 9))

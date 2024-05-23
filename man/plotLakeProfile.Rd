@@ -12,7 +12,7 @@ plotLakeProfile(
   active = TRUE,
   parameter = NA,
   depth_type = "raw",
-  color_theme = "Spectral",
+  palette = "Spectral",
   color_rev = FALSE,
   plot_title = TRUE,
   plot_thermocline = TRUE,
@@ -54,7 +54,7 @@ c("Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
 (depth_type = "elev") or depth, with each sample starting at 0 regardless of level of the lake
 surface (depth_type = "raw"; default).}
 
-\item{color_theme}{Diverging color palette for plots. Options currently are 'viridis'
+\item{palette}{Diverging color palette for plots. Options currently are 'viridis'
 (yellow - green - blue), 'mako' (light blue grading to black), or any built-in continuous color palette
 available in RColorBrewer. Run RColorBrewer::display.brewer.all() to see the diverging color
 palettes. Common palettes include "Blues", "BuGn", "RdPu", "Spectral", "RdYlBu", "RdBu", "PiYg".
@@ -63,8 +63,8 @@ See https://ggplot2-book.org/scales-colour for more info.}
 \item{color_rev}{Reverse the order of the color pallete. For example change RdYlBu from red - yellow - blue
 to blue - yellow -red.}
 
-\item{plot_title}{Logical. If TRUE (default) prints site name at top of figure. If FALSE, does not print site name. Only enabled when
-one site is selected.}
+\item{plot_title}{Logical. If TRUE (default) prints site name at top of figure. If FALSE,
+does not print site name. Only enabled when one site is selected.}
 
 \item{plot_thermocline}{Logical. If TRUE (default) plots the depth of the thermocline, calculated by rLakeAnalyzer as the depth/elevation
 within the water column where the temperature gradient is the steepest and indicates where the upper waters are typically not mixing with
@@ -118,7 +118,7 @@ plotLakeProfile(park = "ACAD", site = lakes23, parameter = "Temp_C",
 Temperature thermocline is also included as black lines.
 plotLakeProfile(park = "ACAD", site = lakes23,
                parameter = "DOsat_pct", depth_type = 'raw', years = 2023,
-               color_theme = 'ryb', color_rev = TRUE)
+               palette = 'ryb', color_rev = TRUE)
 }
 
 }
