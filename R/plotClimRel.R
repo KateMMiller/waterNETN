@@ -109,7 +109,6 @@ plotClimRel <- function(park = "all", site = "all",
   stopifnot(class(active) == "logical")
   layers <- match.arg(layers, c("points", "lines"), several.ok = TRUE)
   legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
-  data_type <- match.arg(data_type, c("daymet", "wstn"))
   #if(all(!palette %in% c("viridis")) & length(years) > 1){stopifnot(length(palette) > 1)}
   stopifnot(class(plot_title) == "logical")
   averages <- match.arg(averages, c("norm80", "norm90"))
@@ -120,10 +119,8 @@ plotClimRel <- function(park = "all", site = "all",
                              active = active, years = years,
                              months = months, data_type = 'wstn', ...)
 
-  clim_dat <- if(data_type == "daymet"){clim_dat1[,c("SiteCode", "SiteName", "UnitCode", "year", "month",
-                                                     "mon", "dm_ppt_mm", "dm_tmax_C", "dm_tmin_C", "dm_tmean_C")]
-  } else {clim_dat1[,c("SiteCode", "SiteName", "UnitCode", "year", "month", "mon", "ws_ppt_mm",
-                       "ws_tmax_C", "ws_tmin_C", "ws_tmean_C")]}
+  clim_dat <- clim_dat1[,c("SiteCode", "SiteName", "UnitCode", "year", "month", "mon", "ws_ppt_mm",
+                       "ws_tmax_C", "ws_tmin_C", "ws_tmean_C")]
 
   if(nrow(clim_dat) == 0){stop("Specified arguments returned a data frame with 0 records.")}
 
@@ -136,8 +133,6 @@ plotClimRel <- function(park = "all", site = "all",
     clim_dat_long$year, "-", clim_dat_long$month, "-", 15), format = "%Y-%m-%d")
 
   # Clim data in decadal and 30-year norms
-  wstndat <- if(data_type == 'wstn') {TRUE} else {FALSE}
-
   avg_dat <- sumClimAvgs(park = park, site = site, site_type = site_type,
                          active = active, months = months, data_type = "wstn", ...)
 
