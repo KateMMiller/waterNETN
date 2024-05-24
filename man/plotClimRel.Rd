@@ -62,6 +62,7 @@ one of the following:
 \item{parameter}{Specify the monthly averaged parameter to plot. Acceptable values are
 \describe{
 \item{"temp"}{Plot all temperature comparisons (in C).}
+\item{"tminmax}{Plot min and max temperature comparisons (in C).}
 \item{"tmean"}{Plot mean temperature comparisons (in C).}
 \item{"tmax"}{Plot max temperature comparisons (in C).}
 \item{"tmin"}{Plot min temperature comparisons (in C).}

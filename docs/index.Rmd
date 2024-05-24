@@ -871,6 +871,19 @@ grid2
 ```
 </details>
 
+#### plotClimRel()
+This function plots a given year compared against either the 1980 - 2009 normal or the 1990 - 2019 normal. The 30-year normals are derived from Daymet data. The annual comparisons are derived from the nearest weather station to each park. You can either plot all temp variables, min/max temp, mean temp or precipitation. If multiple years are specified, resulting plots will facet on year. You can make your own palette by specifying colors, or by default use viridis. Currently can only plot one site at a time.
+
+<p class = 'fxn'>Plot all temperature variables on 1 graph for the Pogue in 2024.</p>
+```{r}
+plotClimRel(site = "MABIPA", years = 2024, parameter = "temp", palette = c("#75C5FF", "#3563DD", "#323969"))
+```
+
+<p class = 'fxn'>Plot precip for Kroma Kill in SARA 2023 compared to 1990 - 2019 normals.</p>
+```{r}
+plotClimRel(site = "SARASA", years = 2023, parameter = "ppt", palette = "grey", averages = "norm90")
+```
+
 ### Summary Functions {.tabset}
 #### sumClimAvgs()
 This function calculates monthly decadal and 30-year norms from daily Daymet data by site. For each decade from 1980 to 2020 and for 30-year spans through 2020, this function returns monthly averages for total precipitation in mm (ppt_mm), average maximum temperature (tmax_C),average minimum temperature (tmin_C), and average temperature (tmean_C) based on Daymet gridded climate data. The 30-year norms from 1980 - 2009 and 1990 - 2019 are designated by _30yr_1980 for 1980-2009, and _30yr_1990 for 1990 - 2020. Averages by decade are designated by _d1980 for 1980-1989, _d1990 for 1990 - 1999, etc. Note that Daymet data are downloaded from an online web service and can be slow if many sites selected, and occasionally the server is down that will result in an error message.

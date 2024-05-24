@@ -28,7 +28,8 @@
 #' \item{"WEFA"}{Weir Farm NHP only}}
 #'
 #' @param site Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site.
-#' Defaults to "all". If multiple sites sites selected, will facet on site.
+#' Defaults to "all". If multiple sites sites selected, will facet on site. Currently can only plot one
+#' site at a time.
 #'
 #' @param site_type Combine all site types, lakes or streams. Not needed if specifying particular sites.
 #' \describe{
@@ -47,6 +48,7 @@
 #' @param parameter Specify the monthly averaged parameter to plot. Acceptable values are
 #' \describe{
 #'\item{"temp"}{Plot all temperature comparisons (in C).}
+#'\item{"tminmax}{Plot min and max temperature comparisons (in C).}
 #' \item{"tmean"}{Plot mean temperature comparisons (in C).}
 #' \item{"tmax"}{Plot max temperature comparisons (in C).}
 #' \item{"tmin"}{Plot min temperature comparisons (in C).}
@@ -102,7 +104,7 @@ plotClimRel <- function(park = "all", site = "all",
   if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
   site_type <- match.arg(site_type)
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
-  parameter <- match.arg(parameter, c("temp", "tmean", "tmax", "tmin", "ppt"))
+  parameter <- match.arg(parameter, c("temp", "tminmax", "tmean", "tmax", "tmin", "ppt"))
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   stopifnot(class(active) == "logical")
   layers <- match.arg(layers, c("points", "lines"), several.ok = TRUE)
@@ -141,20 +143,20 @@ plotClimRel <- function(park = "all", site = "all",
 
   # filter on parameter and averages
   cols1 <- switch(parameter,
-                 temp = c("tmax_C_30yr_80", "tmax_C_30yr_90", "tmean_C_30yr_80", "tmean_C_30yr_90",
-                          "tmin_C_30yr_80", "tmean_C_30yr_90"),
-                 tmax = c("tmax_C_30yr_80", "tmax_C_30yr_90"),
-                 tmean = c("tmean_C_30yr_80", "tmean_C_30yr_90"),
-                 tmin = c("tmax_C_30yr_80", "tmax_C_30yr_90"),
-                 ppt = c("ppt_mm_30yr_80", "ppt_mm_30yr_90"))
+                  temp = c("tmax_C_30yr_80", "tmax_C_30yr_90", "tmean_C_30yr_80", "tmean_C_30yr_90",
+                           "tmin_C_30yr_80", "tmean_C_30yr_90"),
+                  tminmax = c("tmax_C_30yr_80", "tmax_C_30yr_90",
+                              "tmin_C_30yr_80", "tmean_C_30yr_90"),
+                  tmax = c("tmax_C_30yr_80", "tmax_C_30yr_90"),
+                  tmean = c("tmean_C_30yr_80", "tmean_C_30yr_90"),
+                  tmin = c("tmax_C_30yr_80", "tmax_C_30yr_90"),
+                  ppt = c("ppt_mm_30yr_80", "ppt_mm_30yr_90"))
 
   # select the 80 or 90 norm specified in averages
   cols <- cols1[grepl(as.numeric(substr(averages, 5, 6)), cols1)]
 
   avg_dat2 <- avg_dat[,c("SiteCode", "SiteName", "UnitCode", "month", cols)]
-  # avg_dat2$mon <- factor(avg_dat2$month,
-  #                        levels = unique(avg_dat2$month),
-  #                        labels = unique(month.abb[avg_dat2$month]), ordered = T)
+
   avg_dat_long <- avg_dat2 |>
     pivot_longer(cols = -c(SiteCode, SiteName, UnitCode, month),
                  names_to = "param", values_to = "value")
@@ -194,10 +196,21 @@ plotClimRel <- function(park = "all", site = "all",
       }
     }
 
+  # set up legend labels
+  param_labels <-
+    data.frame(param_gen = c("tmax", "tmean", "tmin", "ppt"),
+               param_label = c("Max. Temp. (C)", "Avg. Temp. (C)",
+                               "Min. Temp. (C)", "Total Precip. (mm)"))
+  clim_comb2 <- left_join(clim_comb, param_labels, by = "param_gen")
+
+  clim_comb2$mon <- factor(clim_comb2$month,
+                          levels = unique(clim_comb2$month),
+                          labels = unique(month.abb[clim_comb2$month]), ordered = T)
+
   barplot <-
-  ggplot(clim_comb,
-         aes(x = mon, y = rel_dif, group = param_gen,
-             color = param_gen, fill = param_gen)) +
+  ggplot(clim_comb2,
+         aes(x = mon, y = rel_dif, group = param_label,
+             color = param_label, fill = param_label)) +
     theme_WQ() +
     geom_bar(stat = 'identity', position = 'dodge') +
     geom_hline(aes(yintercept = 0), linetype = "dashed", color = 'black', linewidth = 0.8) +
@@ -211,7 +224,6 @@ plotClimRel <- function(park = "all", site = "all",
     {if(!any(palette %in% 'viridis')) scale_color_manual(values = pal, name = 'Parameter')} +
     # facets for multiple years
     {if(length(unique(clim_comb$year)) > 1) facet_wrap(~year)}
-
 
  return(#suppressWarnings(
    barplot
