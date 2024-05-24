@@ -36,7 +36,8 @@ plotClimRel(
 \item{"WEFA"}{Weir Farm NHP only}}}
 
 \item{site}{Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site.
-Defaults to "all". If multiple sites sites selected, will facet on site.}
+Defaults to "all". If multiple sites sites selected, will facet on site. Currently can only plot one
+site at a time.}
 
 \item{site_type}{Combine all site types, lakes or streams. Not needed if specifying particular sites.
 \describe{

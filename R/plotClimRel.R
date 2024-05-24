@@ -110,7 +110,7 @@ plotClimRel <- function(park = "all", site = "all",
   layers <- match.arg(layers, c("points", "lines"), several.ok = TRUE)
   legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
   data_type <- match.arg(data_type, c("daymet", "wstn"))
-  if(all(!palette %in% c("viridis")) & length(years) > 1){stopifnot(length(palette) > 1)}
+  #if(all(!palette %in% c("viridis")) & length(years) > 1){stopifnot(length(palette) > 1)}
   stopifnot(class(plot_title) == "logical")
   averages <- match.arg(averages, c("norm80", "norm90"))
 
