@@ -875,17 +875,17 @@ grid2
 This function plots a given year compared against either the 1980 - 2009 normal or the 1990 - 2019 normal. The 30-year normals are derived from Daymet data. The annual comparisons are derived from the nearest weather station to each park. You can either plot all temp variables, min/max temp, mean temp or precipitation. If multiple years are specified, resulting plots will facet on year. You can make your own palette by specifying colors, or by default use viridis. Currently can only plot one site at a time.
 
 <p class = 'fxn'>Plot all temperature variables on 1 graph for the Pogue in 2024.</p>
-```{r}
+```{r message = F, warning = FALSE}
 plotClimRel(site = "MABIPA", years = 2024, parameter = "temp", palette = c("#75C5FF", "#3563DD", "#323969"))
 ```
 
 <p class = 'fxn'>Plot precip for Kroma Kill in SARA 2023 compared to 1990 - 2019 normals.</p>
-```{r}
+```{r message = F, warning = FALSE}
 plotClimRel(site = "SARASA", years = 2023, parameter = "ppt", palette = "grey", averages = "norm90")
 ```
 
 <p class = 'fxn'>Plot precip for Kroma Kill in SARA 2023 and 2024 compared to 1990 - 2019 normals.</p> 
-```{r}
+```{r message = F, warning = FALSE}
 plotClimRel(site = "SARASA", years = 2023:2024, parameter = "ppt", 
             palette = "grey", averages = "norm90")
 ```
