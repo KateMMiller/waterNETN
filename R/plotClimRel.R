@@ -173,8 +173,8 @@ plotClimRel <- function(park = "all", site = "all",
   clim_comb$param_gen <- factor(clim_comb$param_gen, levels = c("tmax", "tmean", "tmin", "ppt"), ordered = T)
 
   # set up plotting features
-  ptitle <- if(length(unique(clim_dat_long2$SiteCode)) == 1 & plot_title == TRUE){
-    unique(clim_dat_long2$SiteName)} else {NULL}
+  ptitle <- if(length(unique(clim_comb$SiteCode)) == 1 & plot_title == TRUE){
+    unique(clim_comb$SiteName)} else {NULL}
 
   color_dir <- ifelse(color_rev == FALSE, -1, 1)
 
