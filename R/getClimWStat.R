@@ -230,7 +230,7 @@ getClimWStat <- function(park = "all", site = "all",
   # ACAD McFarland WS doesn't include precip. on any site but NADP. Downloading from NADP
   # park_list <- sort(unique(sites_ws$UnitCode))
 
-  if(park_list %in% "ACAD"){
+  if(any(park_list %in% "ACAD")){
   start_date <- paste0("01/01/", min(years))
   end_date <- paste0("12/31/", max(years))
   stationID <- "ME98"
@@ -249,7 +249,7 @@ getClimWStat <- function(park = "all", site = "all",
   }
 
   ws_comb2 <-
-  if(park_list %in% "ACAD"){
+  if(any(park_list %in% "ACAD")){
     left_join(ws_comb, precip_ACAD, by = c("UnitCode", "Date"))
   } else {ws_comb}
 
