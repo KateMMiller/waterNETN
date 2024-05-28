@@ -237,21 +237,22 @@ getClimWStat <- function(park = "all", site = "all",
   # park_list <- sort(unique(sites_ws$UnitCode))
 
   if(any(park_list %in% "ACAD")){
-  start_date <- paste0("01/01/", min(years))
+  year_start <- ifelse(min(years) < 2008, 2008, min(years)) # dataset doesn't start until 2008
+  start_date <- paste0("01/01/", year_start)
   end_date <- paste0("12/31/", max(years))
   stationID <- "ME98"
 
-  PrecipURL<-paste0('http://nadp2.slh.wisc.edu/siteOps/ppt/Data.aspx?id=', stationID, '&stdate=',
-                    start_date,'T13:35&endate=', end_date,
-                    'T13:30&plot_sel=1111110&data_sel1=H&data_sel2=110&sel2_count=2&offset_txt=-5')
+  # daily precip
+  PrecipURL <- paste0("http://nadp2.slh.wisc.edu/siteOps/ppt/Data.aspx?id=", stationID, "&stdate=", start_date,
+                      "T14:05&endate=", end_date, "T14:00&plot_sel=1000110&data_sel1=D&data_sel2=110&sel2_count=2&offset_txt=-5")
 
   precip_tbl <- XML::readHTMLTable(PrecipURL, header=T, as.data.frame = T,
-                                   stringsAsFactors = F)$GridView_data[,c('Date','Hour','Precip (in)')]
+                                   stringsAsFactors = F)$GridView_data[,c('Date', 'Precip (in)')]
   precip_tbl$precip_in <- as.numeric(precip_tbl$`Precip (in)`)
-  precip_day <- precip_tbl |> group_by(Date) |> summarize(tot_prec_in = sum(precip_in))
-  precip_day$precip_mm <- precip_day$tot_prec_in * 25.4
-  precip_day$UnitCode <- "ACAD"
-  precip_ACAD <- precip_day[,c("UnitCode", "Date", "precip_mm")]
+
+  precip_tbl$precip_mm <- precip_tbl$precip_in * 25.4
+  precip_tbl$UnitCode <- "ACAD"
+  precip_ACAD <- precip_tbl[,c("UnitCode", "Date", "precip_mm")]
   }
 
   ws_comb2 <-
