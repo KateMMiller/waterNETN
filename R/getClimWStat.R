@@ -14,7 +14,7 @@
 #' to daily value. ACAD NADP Precip data only go back to 2008.
 #'
 #' @importFrom dplyr arrange filter group_by left_join right_join select summarize
-#' @importFrom purrr map_dfr reduce
+#' @importFrom purrr map list_rbind reduce
 #'
 #' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
 #' \describe{
@@ -166,12 +166,13 @@ getClimWStat <- function(park = "all", site = "all",
   park_list <- sort(unique(parks_ws$UnitCode))
 
   if(length(park_list) > 1){
-  ws_comb <- map_dfr(seq_along(park_list),
+  ws_comb <- purrr::map(park_list,
 
     function(x){
-      station = parks_ws$id[[x]]
-      parkc = parks_ws$UnitCode[[x]]
-      if(!parkc %in% "ACAD"){ # no precip data for MCCF
+      station = parks_ws$id[parks_ws$UnitCode == x]
+      parkc = x
+
+      if(!parkc == "ACAD"){ # no precip data for MCCF
       pcp_in <- get_wdat('pcpn',
                          stn = station,
                          park = parkc)
@@ -183,8 +184,12 @@ getClimWStat <- function(park = "all", site = "all",
                          park = parkc)
 
     ws_ls <- list(pcp_in, tmax_f, tmin_f)
-    ws_comb <- reduce(ws_ls, full_join, by = c("UnitCode", "Date"))
-    } else {
+    ws_comb1 <- reduce(ws_ls, full_join, by = c("UnitCode", "Date"))
+    # print(head(data.frame(ws_comb1)))
+    # print(dim(ws_comb1))
+    return(data.frame(ws_comb1))
+
+    } else if(parkc == "ACAD"){
     tmax_f <- get_wdat('maxt',
                        stn = station,
                        park = parkc)
@@ -193,10 +198,11 @@ getClimWStat <- function(park = "all", site = "all",
                        park = parkc)
 
     ws_ls <- list(tmax_f, tmin_f)
-    ws_comb <- purrr::reduce(ws_ls, full_join, by = c("UnitCode", "Date"))
-    ws_comb$pcp_in <- NA_real_
+    ws_comb1 <- purrr::reduce(ws_ls, full_join, by = c("UnitCode", "Date"))
+    ws_comb1$pcp_in <- NA_real_
+    return(ws_comb1)
     }
-  })
+  }) |> list_rbind()
   } else {
     station = parks_ws$id
     parkc = parks_ws$UnitCode
