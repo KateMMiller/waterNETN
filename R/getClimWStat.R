@@ -183,7 +183,7 @@ getClimWStat <- function(park = "all", site = "all",
                          park = parkc)
 
     ws_ls <- list(pcp_in, tmax_f, tmin_f)
-    ws_comb <- reduce(ws_ls, full_join, by = c("SiteCode", "UnitCode", "Date"))
+    ws_comb <- reduce(ws_ls, full_join, by = c("UnitCode", "Date"))
     } else {
     tmax_f <- get_wdat('maxt',
                        stn = station,
@@ -193,7 +193,7 @@ getClimWStat <- function(park = "all", site = "all",
                        park = parkc)
 
     ws_ls <- list(tmax_f, tmin_f)
-    ws_comb <- purrr::reduce(ws_ls, full_join, by = c("SiteCode", "UnitCode", "Date"))
+    ws_comb <- purrr::reduce(ws_ls, full_join, by = c("UnitCode", "Date"))
     ws_comb$pcp_in <- NA_real_
     }
   })
