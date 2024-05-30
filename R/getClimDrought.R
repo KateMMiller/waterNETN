@@ -1,0 +1,150 @@
+#' @include getSites.R
+#'
+#' @title getClimDrought: Download weekly county-level drought index
+#'
+#' @description This function downloads weekly drought index at the county level for each specified park, site or
+#' weather station nearest to a specified site. If downloading for multiple sites and multiple weeks/years, function
+#' may be slow, particularly ACAD.
+#'
+#' @importFrom dplyr between case_when filter select
+#' @importFrom tidyr pivot_longer
+#'
+#' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
+#' \describe{
+#' \item{"all"}{Includes all parks in the network}
+#' \item{"LNETN"}{Includes all parks but ACAD}
+#' \item{"ACAD"}{Acadia NP only}
+#' \item{"MABI"}{Marsh-Billings-Rockefeller NHP only}
+#' \item{"MIMA"}{Minute Man NHP only}
+#' \item{"MORR"}{Morristown NHP only}
+#' \item{"ROVA"}{Roosevelt-Vanderbilt NHS only}
+#' \item{"SAGA"}{Saint-Gaudens NHP only}
+#' \item{"SAIR"}{Saugus Iron Works NHS only}
+#' \item{"SARA"}{Saratoga NHP only}
+#' \item{"WEFA"}{Weir Farm NHP only}}
+#'
+#' @param site Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".
+#'
+#' @param site_type Combine all site types, lakes or streams. Not needed if specifying particular sites.
+#' \describe{
+#' \item{"all"}{Default. Includes all site types, unless site or site_name select specific site types.}
+#' \item{"lake"}{Include only lakes.}
+#' \item{"stream"}{Include streams only.}
+#' }
+#'
+#' @param years Vector of years to download drought index for, will start with 01/01/year and end with 12/31/year.
+#'
+#' @param week_start Quoted start of week formatted as "mm/dd/yyyy". If specified, will return drought index for given week.
+#' If blank, will return drought index for all weeks available in specified years.
+#'
+#' @param weather_station Logical. If TRUE, will return county-level data for coordinates of nearest weather station to a park.
+#' If FALSE (default), returns county-level drought data for water monitoring sites. In most cases, the results are the same.
+#'
+#' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
+#'
+#' @return Data frame of weather station daily climate data for each specified site.
+#'
+#' @examples
+#' \dontrun{
+#' # RUN FIRST
+#' library(waterNETN)
+#' importData()
+#'
+#'
+#' #+++++ ADD EXAMPLES +++++
+#'
+#'}
+#'
+#' @export
+
+getClimDrought <- function(park = "all", site = "all",
+                           site_type = c("all", "lake", "stream"),
+                           years = c(2006:2023), week_start = NA,
+                           active = TRUE,
+                           weather_station = FALSE){
+
+  #--- error handling ---
+  park <- match.arg(park, several.ok = TRUE,
+                    c("all", "LNETN", "ACAD", "MABI", "MIMA", "MORR",
+                      "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
+  if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
+  site_type <- match.arg(site_type)
+  stopifnot(class(years) %in% c("numeric", "integer"), years >= 1980)
+  if(nchar(week_start) != 10){stop("Must specify week_start as 'dd/mm/yyyy'")}
+  stopifnot(class(active) == "logical")
+  stopifnot(class(weather_station) == "logical")
+  date_check <- as.Date(week_start, format = "%m/%d/%Y")
+  if(is.na(date_check)){stop("Wrong date format specified. Must be formatted as 'mm/dd/yyyy'.")}
+
+  # Check that suggested package required for this function are installed
+  if(!requireNamespace("jsonlite", quietly = TRUE)){
+    stop("Package 'jsonlite' needed to download weather station data. Please install it.", call. = FALSE)
+  }
+
+  sites <- force(getSites(park = park, site = site, site_type = site_type, active = active)
+                 )[, c("UnitCode", "SiteCode", "SiteName")]
+
+  data("closest_WS")
+
+  # Set up start and end dates and FIPS based on specified arguments
+  current_year <- format(Sys.Date(), "%Y")
+  stopifnot(max(years) <= current_year) # bug handling
+
+  start_day <-
+    if(is.na(week_start)){
+      format(as.Date(paste0("01/01/", min(years)), format = "%m/%d/%Y"), "%m/%d/%Y")
+    } else if(!is.na(week_start)){
+        format(as.Date(week_start, format = "%m/%d/%Y"), "%m/%d/%Y")
+      }
+
+  end_day <-
+    if(max(years) == current_year & is.na(week_start)){
+      format(Sys.Date(), "%m/%d/%Y")
+    } else if(max(years) < current_year & is.na(week_start)){
+      format(as.Date(paste0("12/31/", max(years)), format = "%m/%d/%Y"), "%m/%d/%Y")
+      }
+
+  fips <- if(weather_station == TRUE){"WStnFIPS"} else {"ParkFIPS"}
+  aoi <- filter(closest_WS, SiteCode == site)[,fips]
+  area = "CountyStatistics"
+  stats_type = "GetDSCI"#"GetDroughtSeverityStatisticsByArea"#"GetDSCI"
+  stats_type2 = 1
+
+  getDSCI <- function(fips){
+
+    url_dsci <- paste0("https://usdmdataservices.unl.edu/api/", area,
+                       "/GetDSCI?aoi=", aoi,
+                       "&startdate=", start_day, "&enddate=", end_day,
+                       "&statisticsType=", stats_type2)
+
+    dsci <- fromJSON(url_dsci) # DSCI ranges from 0 to 500 with 500 being most extreme drought
+    return(dsci)
+    }
+
+  getDrought <- function(fips){
+
+  url_drght <- paste0("https://usdmdataservices.unl.edu/api/", area,
+                      "/GetDroughtSeverityStatisticsByArea?aoi=", aoi,
+                      "&startdate=", start_day, "&enddate=", end_day,
+                      "&statisticsType=", stats_type2)
+
+  drgt <- fromJSON(url_drght)
+  return(drgt)
+  }
+
+  # ENDED HERE- want to iterate on fips code using the above git functions, so can download data for
+  # multiple sites.
+  dsci_full <- map()
+
+  drgt_long <- drgt |> pivot_longer(cols = c(D0, D1, D2, D3, D4),
+                                    names_to = "Drought_Level", values_to = "Pct_Area")
+
+  head(drgt)
+
+  # ggplot(drgt_long, aes(x = MapDate, y = Pct_Area, color = Drought_Level, fill = Drought_Level))+
+  #   geom_bar(stat = 'identity') +
+  #   scale_fill_manual(values = c("blue", "green", "yellow", "orange", "red")) +
+  #   scale_color_manual(values = c("blue", "green", "yellow", "orange", "red"))
+
+
+  }
