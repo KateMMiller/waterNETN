@@ -1,7 +1,5 @@
 #' @include getSites.R
 #'
-#' @include getSites.R
-#'
 #' @title getClimWStat: Download daily data from nearest weather station
 #'
 #' @description This function downloads daily weather data from data.rcc-acis.org from the nearest
