@@ -114,8 +114,8 @@ dp_plot <-
       geom_bar(color = colors[1], fill = colors[1], stat = 'identity', alpha = 0.5) +
       # layers y-right
       # {if(any(layers %in% "points"))
-        geom_point(data = disch, aes(x = Date2, y = Discharge_cfs * scale),
-                   color = colors[2], shape = "+", size = 6) +  #}+
+      geom_point(data = disch, aes(x = Date2, y = Discharge_cfs * scale),
+                 color = colors[2], shape = "+", size = 6) +  #}+
       # {if(any(layers %in% "lines"))
       #   geom_line(data = disch, aes(x = Date2, y = Discharge_cfs * scale),
       #             color = colors[2], linewidth = 0.7)} +
