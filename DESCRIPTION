@@ -33,6 +33,7 @@ Collate:
     'sumClimMonthly.R'
     'theme_WQ.R'
     'plotClimComps.R'
+    'plotClimDrought.R'
     'plotClimRel.R'
     'plotClimTrend.R'
     'plotLakeProfile.R'

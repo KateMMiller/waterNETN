@@ -6,11 +6,10 @@
 \usage{
 getClimDrought(
   park = "all",
-  site = "all",
-  site_type = c("all", "lake", "stream"),
   years = c(2006:2023),
   week_start = NA,
   active = TRUE,
+  dom_county = TRUE,
   weather_station = FALSE
 )
 }
@@ -29,15 +28,6 @@ getClimDrought(
 \item{"SARA"}{Saratoga NHP only}
 \item{"WEFA"}{Weir Farm NHP only}}}
 
-\item{site}{Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
-
-\item{site_type}{Combine all site types, lakes or streams. Not needed if specifying particular sites.
-\describe{
-\item{"all"}{Default. Includes all site types, unless site or site_name select specific site types.}
-\item{"lake"}{Include only lakes.}
-\item{"stream"}{Include streams only.}
-}}
-
 \item{years}{Vector of years to download drought index for, will start with 01/01/year and end with 12/31/year.}
 
 \item{week_start}{Quoted start of week formatted as "mm/dd/yyyy". If specified, will return drought index for
@@ -47,19 +37,25 @@ Tuesday of the specified start week.}
 
 \item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
 
+\item{dom_county}{Logical. If TRUE (Default) only plots predominant county if park covers multiple counties.
+If FALSE, facets on county.}
+
 \item{weather_station}{Logical. If TRUE, will return county-level data for coordinates of nearest weather station to a park.
 If FALSE (default), returns county-level drought data for water monitoring sites. In most cases, the results are the same.}
 }
 \value{
-Data frame of weather station daily climate data for each specified site.
+Data frame of weekly county drought data for each park.
 }
 \description{
-This function downloads weekly drought index at the county level for each specified park, site or
-weather station nearest to a specified site. If downloading for multiple sites and multiple weeks/years, function
-may be slow. Returned data frame includes percent of county area in 5 levels of drought, with D0 = Abnormally Dry,
-D1 = Moderate Drought, D2 = Severe Drought, D3 = Extreme Drought, and D4 = Exceptional Drought. Also returned is
-the Drought Severity and Coverage Index, which ranges from 0 to 500, and is a weighted sum of area within each
-of the drought categories. A score of 500 indicates the entire area is in exceptional drought (D4).
+This function downloads weekly drought index at the county level based on the U.S. Drought Monitor
+for each specified park or weather station nearest to a specified site. If downloading for multiple parks
+and multiple weeks/years, function may be slow. Returned data frame includes amount of county area in 5
+levels of drought, with D0 = Abnormally Dry, D1 = Moderate Drought, D2 = Severe Drought, D3 = Extreme Drought,
+and D4 = Exceptional Drought. Also returned is the Drought Severity and Coverage Index, which ranges from 0 to
+500, and is a weighted sum of area within each of the drought categories. A score of 500 indicates the entire
+area is in exceptional drought (D4). Where multiple counties occur in a park, data can be faceted by county if
+dom_county = FALSE. To only plot predominant county, specify dom_county = TRUE (default). Otherwise, only
+park-level data are returned, as the results won't vary by site within a park.
 }
 \examples{
 \dontrun{
@@ -70,8 +66,8 @@ importData()
 # Get drought info for MABI and SAGA sites for first week of May
 mabisaga <- getClimDrought(park = c("MABI", "SAGA"), week_start = "05/01/2024")
 
-# Get drought info for Lower FDR Brook in ROVA for 2023
-rovasa <- getClimDrought(site = "ROVASA", years = 2023)
+# Get drought info for both counties in MORR in 2023
+morr <- getClimDrought(park = "MORR", years = 2023, dom_county = TRUE)
 
 }
 
