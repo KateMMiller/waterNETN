@@ -65,8 +65,8 @@ of the drought categories. A score of 500 indicates the entire area is in except
 library(waterNETN)
 importData()
 
-
-#+++++ ADD EXAMPLES +++++
+# Get drought info for MABI and SAGA sites for first week of May
+mabisaga <- getClimDrought(park = c("MABI", "SAGA"), week_start = "05/01/2024")
 
 }
 

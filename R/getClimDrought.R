@@ -53,8 +53,8 @@
 #' library(waterNETN)
 #' importData()
 #'
-#'
-#' #+++++ ADD EXAMPLES +++++
+#' # Get drought info for MABI and SAGA sites for first week of May
+#' mabisaga <- getClimDrought(park = c("MABI", "SAGA"), week_start = "05/01/2024")
 #'
 #'}
 #'
@@ -105,7 +105,7 @@ getClimDrought <- function(park = "all", site = "all",
       format(Sys.Date(), "%m/%d/%Y")
     } else if(max(years) < current_year & is.na(week_start)){
       format(as.Date(paste0("12/31/", max(years)), format = "%m/%d/%Y"), "%m/%d/%Y")
-      }
+      } else if(!is.na(week_start)){format(as.Date(start_day, format = "%m/%d/%Y") + 6, "%m/%d/%Y")}
 
   fips <- if(weather_station == TRUE){"WStnFIPS"} else {"ParkFIPS"}
   aoi <- filter(closest_WS, SiteCode == sites$SiteCode)[,fips]
