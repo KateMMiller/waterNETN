@@ -46,9 +46,6 @@ does not print site name. Only enabled when one site is selected.}
 \item{weather_station}{Logical. If TRUE, will return county-level data for coordinates of nearest weather station
 to a park. If FALSE (default), returns county-level drought data for water monitoring sites. In most cases, the
 results are the same.}
-
-\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites
-that have been monitored.}
 }
 \value{
 Data frame of weather station daily climate data for each specified site.

@@ -38,9 +38,6 @@
 #' to a park. If FALSE (default), returns county-level drought data for water monitoring sites. In most cases, the
 #' results are the same.
 #'
-#' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites
-#' that have been monitored.
-#'
 #' @param dom_county Logical. If TRUE (Default) only plots predominant county if park covers multiple counties.
 #' If FALSE, facets on county.
 #'
@@ -83,28 +80,25 @@ plotClimDrought <- function(park = "all",
   if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 1980)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
-  stopifnot(class(active) == "logical")
   stopifnot(class(plot_title) == "logical")
   stopifnot(class(dom_county) == "logical")
   stopifnot(class(weather_station) == "logical")
-  if(!is.na(week_start)){
-    date_check <- as.Date(week_start, format = "%m/%d/%Y")
-    if(is.na(date_check)){stop("Wrong date format specified. Must be formatted as 'mm/dd/yyyy'.")}
-  }
 
-  # Need to include sites to get fips code
+  # Need to include park to get fips code
   sites <- force(unique(getSites(park = park))[, c("UnitCode", "UnitName")]) |> unique()
 
-  ddata <- getClimDrought(park = park, years = years,
-                          active = active, weather_station = weather_station) |>
+  ddata <- getClimDrought(park = park, years = years, weather_station = weather_station) |>
     mutate(dom_county = case_when(UnitCode == "ACAD" & County == "Knox County" ~ FALSE,
                                   UnitCode == "MORR" & County == "Somerset County" ~ FALSE,
-                                  TRUE ~ TRUE)) |> unique()
+                                  TRUE ~ TRUE)) |> unique() |>
+    select(-D0, -D1, -D2, -D3, -D4)
 
-  # Take only dominant county
+  # Take only dominant county if specified
   ddata2 <- if(dom_county == TRUE){filter(ddata, dom_county == TRUE)} else {ddata}
 
-  ddata_long <- ddata2 |> pivot_longer(cols = c(D0, D1, D2, D3, D4),
+  # Add column that's a proportion of county area
+
+  ddata_long <- ddata2 |> pivot_longer(cols = c(D0pct, D1pct, D2pct, D3pct, D4pct),
                                        names_to = "Drought_Level", values_to = "Pct_Area")
 
   ddata_long$Date <- as.Date(ddata_long$ValidStart, format = "%Y-%m-%d")
@@ -113,12 +107,11 @@ plotClimDrought <- function(park = "all",
 
   ddata3 <- left_join(ddata_long, sites, by = "UnitCode") |>
     filter(month %in% months) |>
-    mutate(drought_legend = case_when(Drought_Level == "D0" ~ "Abnormally Dry",
-                                      Drought_Level == "D1" ~ "Moderate Drought",
-                                      Drought_Level == "D2" ~ "Severe Drought",
-                                      Drought_Level == "D3" ~ "Extreme Drought",
-                                      Drought_Level == "D4" ~ "Exceptional Drought"))
-
+    mutate(drought_legend = case_when(Drought_Level == "D0pct" ~ "D0: Abnormally Dry",
+                                      Drought_Level == "D1pct" ~ "D1: Moderate Drought",
+                                      Drought_Level == "D2pct" ~ "D2: Severe Drought",
+                                      Drought_Level == "D3pct" ~ "D3: Extreme Drought",
+                                      Drought_Level == "D4pct" ~ "D4: Exceptional Drought"))
 
   year_len <- length(unique(ddata3$year))
   mon_len <- length(unique(ddata3$month))
@@ -135,24 +128,25 @@ plotClimDrought <- function(park = "all",
   datebreaks <- seq(min(ddata3$Date), max(ddata3$Date) + 30, by = break_len)
 
   dplot <-
-    ggplot(ddata3, aes(x = Date, y = Pct_Area, fill = drought_legend)) +
+    ggplot(ddata3, aes(x = Date, y = Pct_Area, fill = drought_legend, color = drought_legend)) +
     # layers
     geom_area() +
-    geom_line(aes(y = DSCI, linetype = "Cumulative Index"), linewidth = 0.5) +
+    # geom_line(aes(y = DSCI, linetype = "Cumulative Index"), linewidth = 0.5) +
     # axis format
     scale_x_date(breaks = datebreaks, labels = scales::label_date(date_format)) +
     # layer formattting
-    scale_linetype_manual(values = "dashed", name = "Drought Severity") +
+    # scale_linetype_manual(values = "dashed", name = "Drought Severity") +
     scale_fill_manual(values = c("#FFF000", "#FCD37F", "#FFAA00", "#E60000", "#730000"), name = "Drought Level") +
+    scale_color_manual(values = c("#F0E100", "#E7C274", "#E19600", "#D10000", "#680000"), name = "Drought Level") +
     # theme and labels
     theme_WQ() +
     theme(legend.position = legend_position,
           axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
-    labs(y = "County Area in Drought", x = NULL) +
+    labs(y = "% of County in Drought", x = NULL) +
     {if(length(sites$UnitCode) > 1 & length(unique(ddata3$County)) == 1){facet_wrap(~UnitCode)}} + #change to county
     {if(length(sites$UnitCode) == 1 & length(unique(ddata3$County)) > 1){facet_wrap(~County)}} +
-    {if(length(sites$UnitCode) > 1 & length(unique(ddata3$County)) > 1){facet_wrap(~UnitCode + County)}} +
-    guides(fill = guide_legend(order = 1))
+    {if(length(sites$UnitCode) > 1 & length(unique(ddata3$County)) > 1){facet_wrap(~UnitCode + County)}} #+
+   # guides(fill = guide_legend(order = 1))
 
   return(dplot)
 

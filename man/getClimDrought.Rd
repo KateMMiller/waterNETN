@@ -8,7 +8,6 @@ getClimDrought(
   park = "all",
   years = c(2006:2023),
   week_start = NA,
-  active = TRUE,
   dom_county = TRUE,
   weather_station = FALSE
 )
@@ -35,8 +34,6 @@ given week. If blank, will return drought index for all weeks available in speci
 data are available every Tuesday. If the week_start specified is not a Tuesday, code will shift the date to the
 Tuesday of the specified start week.}
 
-\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
-
 \item{dom_county}{Logical. If TRUE (Default) only plots predominant county if park covers multiple counties.
 If FALSE, facets on county.}
 
@@ -49,13 +46,16 @@ Data frame of weekly county drought data for each park.
 \description{
 This function downloads weekly drought index at the county level based on the U.S. Drought Monitor
 for each specified park or weather station nearest to a specified site. If downloading for multiple parks
-and multiple weeks/years, function may be slow. Returned data frame includes amount of county area in 5
+and multiple weeks/years, function may be slow. Returned data frame includes percent of county area in 5
 levels of drought, with D0 = Abnormally Dry, D1 = Moderate Drought, D2 = Severe Drought, D3 = Extreme Drought,
 and D4 = Exceptional Drought. Also returned is the Drought Severity and Coverage Index, which ranges from 0 to
 500, and is a weighted sum of area within each of the drought categories. A score of 500 indicates the entire
 area is in exceptional drought (D4). Where multiple counties occur in a park, data can be faceted by county if
 dom_county = FALSE. To only plot predominant county, specify dom_county = TRUE (default). Otherwise, only
-park-level data are returned, as the results won't vary by site within a park.
+park-level data are returned, as the results won't vary by site within a park. More info on the data are at
+https://droughtmonitor.unl.edu/CurrentMap.aspx. Note that Drought Monitor reports data such that, when
+drought a level moves into a higher category (e.g. D1 = 10), the previous level (e.g. D0) is listed as
+100. The columns with pct (e.g. D0pct) correct for that, so that D0 + ... + D05 + None = 100.
 }
 \examples{
 \dontrun{
@@ -65,6 +65,9 @@ importData()
 
 # Get drought info for MABI and SAGA sites for first week of May
 mabisaga <- getClimDrought(park = c("MABI", "SAGA"), week_start = "05/01/2024")
+
+# Get drought info for MABI from 2020:2024
+mabi5 <- getClimDrought(park = "MABI", years = 2020:2024)
 
 # Get drought info for both counties in MORR in 2023
 morr <- getClimDrought(park = "MORR", years = 2023, dom_county = TRUE)

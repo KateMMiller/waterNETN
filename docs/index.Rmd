@@ -247,6 +247,21 @@ acad_ws <- getClimWStat(park = "ACAD", site_type = "lake", years = 2023)
 print_head(acad_ws)
 ```
 
+#### getClimDrought()
+This function downloads weekly drought index at the county level based on the U.S. Drought Monitor for each specified park or weather station nearest to a specified site. If downloading for multiple parks and multiple weeks/years, function may be slow. Returned data frame includes percent of county area in 5 levels of drought, with D0 = Abnormally Dry, D1 = Moderate Drought, D2 = Severe Drought, D3 = Extreme Drought, and D4 = Exceptional Drought. Also returned is the Drought Severity and Coverage Index, which ranges from 0 to 500, and is a weighted sum of area within each of the drought categories. A score of 500 indicates the entire area is in exceptional drought (D4). Where multiple counties occur in a park, data can be faceted by county if `dom_county = FALSE`. To only plot predominant county, specify dom_county = TRUE (default). Otherwise, only park-level data are returned, as the results won't vary by site within a park. Note that Drought Monitor reports data such that, when drought a level moves into a higher category (e.g. D1 = 10), the previous level (e.g. D0) is listed as 100. The columns with pct (e.g. D0pct) correct for that, so that D0 + ... + D05 + None = 100.For more info on the data, see <a href= "https://droughtmonitor.unl.edu/CurrentMap.aspx"><US Drought Monitor</a>
+
+<p class='fxn'> Get drought info for MABI and SAGA sites for first week of May</p>
+```{r}
+mabisaga <- getClimDrought(park = c("MABI", "SAGA"), week_start = "05/01/2024")
+print_head(mabisaga)
+```
+
+<p class='fxn'>Get drought info for both counties in MORR in 2023</p>
+```{r}
+morr <- getClimDrought(park = "MORR", years = 2023, dom_county = TRUE)
+print_head(morr)
+```
+
 #### getSites() {.tabset}
 ##### getSites()
 Query site-level data. This function combines columns in common between the Sites_Stream and Sites_Lake views. This is a good building block for other functions, but may be less helpful on its own. Though, one helpful use of this function is to get the site codes for a given park or site.
@@ -746,7 +761,7 @@ plotClimTrend(site = c("MABIPA", "SARASA"), years = 2006:2023,
 #### plotClimComps()
 This function compares 30-year normals (1980 - 2009, or 1990 - 2019), or decadal (1980 - 1989, ..., 2010 - 2019) average monthly climate variables with user-specified years to provide an idea of how extreme or normal a given month in a year is. 
 
-By default, this function works with Daymet data, and so is not always available for the given year. By specifying data_type = 'wstn', data from the nearest weather station is compared with Daymet data extracted from the lat/long coordinates of the nearest weather station. 
+By default, this function works with Daymet data, and so is not always available for the given year. By specifying data_type = 'wstn', data from the nearest weather station is compared with Daymet data extracted from the lat/long coordinates of the nearest weather station. <b style="font-color:red;">NOTE THAT PRELIMINARY COMPARISONS BETWEEN DAYMET AND WEATHER STATION DATA INDICATE BIAS. I'M CURRENTLY TESTING THE USE OF PRISM INSTEAD</b>
 
 <details open><summary class='drop'>Single parameter</summary>
 <p class = 'fxn'>Plot mean monthly temp for The Pogue in MABI for 2019:2023 and all months with red-blue color palette and the 4 decadal averages.</p>
@@ -872,7 +887,7 @@ grid2
 </details>
 
 #### plotClimRel()
-This function plots a given year compared against either the 1980 - 2009 normal or the 1990 - 2019 normal. The 30-year normals are derived from Daymet data. The annual comparisons are derived from the nearest weather station to each park. You can either plot all temp variables, min/max temp, mean temp or precipitation. If multiple years are specified, resulting plots will facet on year. You can make your own palette by specifying colors, or by default use viridis. Currently can only plot one site at a time.
+This function plots a given year compared against either the 1980 - 2009 normal or the 1990 - 2019 normal. The 30-year normals are derived from Daymet data. The annual comparisons are derived from the nearest weather station to each park. You can either plot all temp variables, min/max temp, mean temp or precipitation. If multiple years are specified, resulting plots will facet on year. You can make your own palette by specifying colors, or by default use viridis. Currently can only plot one site at a time. <b style="font-color:red;">NOTE THAT PRELIMINARY COMPARISONS BETWEEN DAYMET AND WEATHER STATION DATA INDICATE BIAS. I'M CURRENTLY TESTING THE USE OF PRISM INSTEAD</b>
 
 <p class = 'fxn'>Plot all temperature variables on 1 graph for the Pogue in 2024.</p>
 ```{r message = F, warning = FALSE}
@@ -890,6 +905,24 @@ plotClimRel(site = "SARASA", years = 2023:2024, parameter = "ppt",
             palette = "grey", averages = "norm90")
 ```
 
+#### plotClimDrought()
+This function plots weekly drought index at the county level for each specified park or weather station nearest to a specified park. Resulting plot shows the percent of county area in 5 levels of drought, with D0 = Abnormally Dry, D1 = Moderate Drought, D2 = Severe Drought, D3 = Extreme Drought, and D4 = Exceptional Drought. Drought designations come from the U.S. Drought Monitor. If multiple parks are specified, results will be faceted with a separate plot for each park. Where multiple counties occur in a park, data can be faceted by county if `dom_county = FALSE`. To only plot predominant county, specify `dom_county = TRUE` (default).
+
+<p class='fxn'>Plot drought info for MABI and SAGA for 2020 to 2024</p>
+```{r}
+plotClimDrought(park = c("MABI", "SAGA"), years = 2020:2024)
+```
+
+
+<p class='fxn'>Plot drought info for both MORR counties for 2023</p>
+```{r}
+ plotClimDrought(park = "MORR", years = 2023, dom_county = FALSE)
+```
+
+<p class="fxn">Plot drought info for ACAD counties in 2024</p>
+```{r message = F, warning = F}
+plotClimDrought(park = "ACAD", years = 2024, dom_county = FALSE)
+```
 
 ### Summary Functions {.tabset}
 #### sumClimAvgs()
