@@ -15,7 +15,6 @@
 #'
 #' @importFrom dplyr select
 #' @importFrom tidyr pivot_wider
-#' @importFrom purrr map_dfr
 #'
 #' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
 #' \describe{
