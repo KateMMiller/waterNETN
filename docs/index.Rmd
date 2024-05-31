@@ -761,7 +761,7 @@ plotClimTrend(site = c("MABIPA", "SARASA"), years = 2006:2023,
 #### plotClimComps()
 This function compares 30-year normals (1980 - 2009, or 1990 - 2019), or decadal (1980 - 1989, ..., 2010 - 2019) average monthly climate variables with user-specified years to provide an idea of how extreme or normal a given month in a year is. 
 
-By default, this function works with Daymet data, and so is not always available for the given year. By specifying data_type = 'wstn', data from the nearest weather station is compared with Daymet data extracted from the lat/long coordinates of the nearest weather station. <b style="font-color:red;">NOTE THAT PRELIMINARY COMPARISONS BETWEEN DAYMET AND WEATHER STATION DATA INDICATE BIAS. I'M CURRENTLY TESTING THE USE OF PRISM INSTEAD</b>
+By default, this function works with Daymet data, and so is not always available for the given year. By specifying data_type = 'wstn', data from the nearest weather station is compared with Daymet data extracted from the lat/long coordinates of the nearest weather station. <b style="color:red;">NOTE THAT PRELIMINARY COMPARISONS BETWEEN DAYMET AND WEATHER STATION DATA INDICATE BIAS. I'M CURRENTLY TESTING THE USE OF PRISM INSTEAD</b>
 
 <details open><summary class='drop'>Single parameter</summary>
 <p class = 'fxn'>Plot mean monthly temp for The Pogue in MABI for 2019:2023 and all months with red-blue color palette and the 4 decadal averages.</p>
@@ -887,7 +887,7 @@ grid2
 </details>
 
 #### plotClimRel()
-This function plots a given year compared against either the 1980 - 2009 normal or the 1990 - 2019 normal. The 30-year normals are derived from Daymet data. The annual comparisons are derived from the nearest weather station to each park. You can either plot all temp variables, min/max temp, mean temp or precipitation. If multiple years are specified, resulting plots will facet on year. You can make your own palette by specifying colors, or by default use viridis. Currently can only plot one site at a time. <b style="font-color:red;">NOTE THAT PRELIMINARY COMPARISONS BETWEEN DAYMET AND WEATHER STATION DATA INDICATE BIAS. I'M CURRENTLY TESTING THE USE OF PRISM INSTEAD</b>
+This function plots a given year compared against either the 1980 - 2009 normal or the 1990 - 2019 normal. The 30-year normals are derived from Daymet data. The annual comparisons are derived from the nearest weather station to each park. You can either plot all temp variables, min/max temp, mean temp or precipitation. If multiple years are specified, resulting plots will facet on year. You can make your own palette by specifying colors, or by default use viridis. Currently can only plot one site at a time. <b style="color:red;">NOTE THAT PRELIMINARY COMPARISONS BETWEEN DAYMET AND WEATHER STATION DATA INDICATE BIAS. I'M CURRENTLY TESTING THE USE OF PRISM INSTEAD</b>
 
 <p class = 'fxn'>Plot all temperature variables on 1 graph for the Pogue in 2024.</p>
 ```{r message = F, warning = FALSE}
