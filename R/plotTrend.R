@@ -270,8 +270,9 @@ plotTrend <- function(park = "all", site = "all",
       {if(any(layers %in% "points")) geom_point(aes(shape = censored, size = censored), alpha = 0.6)} +
       {if(any(layers %in% "points")) scale_shape_manual(values = c(19, 18), labels = c("Real", "Censored"))} +
       {if(any(layers %in% "points")) scale_size_manual(values = c(3,3.5), labels = c("Real", "Censored"))} +
-      {if(threshold == TRUE){geom_hline(aes(yintercept = UpperThreshold), linetype = "dashed")}} +
-      {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold), linetype = 'dotted')}} +
+      {if(threshold == TRUE){geom_hline(aes(yintercept = UpperThreshold, linetype = "Upper WQ Threshold"))}} +
+      {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold, linetype = "Lower WQ Threshold"))}} +
+      {if(threshold == TRUE){scale_linetype_manual(values = c("dotted", "dashed"))}} +
       # facets
       {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free')} +
       # themes
@@ -286,7 +287,10 @@ plotTrend <- function(park = "all", site = "all",
       #axis format
       scale_x_date(breaks = datebreaks, labels = scales::label_date(date_format)) +
       # labels
-      labs(x = "Year", y = ylab)
+      labs(x = "Year", y = ylab) +
+      guides(fill = guide_legend(order = 1),
+             color = guide_legend(order = 1),
+             shape = guide_legend(order = 1))
     } else {
       ggplot(wdat2, aes(x = date2, y = value, group = SiteName,
                         color = SiteName, fill = SiteName)) +
@@ -294,8 +298,9 @@ plotTrend <- function(park = "all", site = "all",
         {if(smooth == TRUE) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +
         {if(smooth == FALSE & any(layers %in% "lines")) geom_line()} +
         {if(any(layers %in% "points")) geom_point(alpha = 0.6)} +
-        {if(threshold == TRUE){geom_hline(aes(yintercept = UpperThreshold), linetype = "dashed")}} +
-        {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold), linetype = 'dotted')}} +
+        {if(threshold == TRUE){geom_hline(aes(yintercept = UpperThreshold, linetype = "Upper WQ Threshold"))}} +
+        {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold, linetype = "Lower WQ Threshold"))}} +
+        {if(threshold == TRUE){scale_linetype_manual(values = c("dotted", "dashed"))}} +
         # facets
         {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free')} +
         # themes
@@ -314,7 +319,10 @@ plotTrend <- function(park = "all", site = "all",
         #axis format
         scale_x_date(breaks = datebreaks, labels = scales::label_date(date_format)) +
         # labels
-        labs(x = "Year", y = ylab)
+        labs(x = "Year", y = ylab) +
+        guides(fill = guide_legend(order = 1),
+               color = guide_legend(order = 1),
+               shape = guide_legend(order = 1))
 
       }
 

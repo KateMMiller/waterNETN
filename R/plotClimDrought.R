@@ -127,26 +127,31 @@ plotClimDrought <- function(park = "all",
   date_format <- ifelse(break_len %in% c("1 year", "2 years"), "%Y", "%m/%d/%y")
   datebreaks <- seq(min(ddata3$Date), max(ddata3$Date) + 30, by = break_len)
 
+  num_parks <- length(unique(sites$UnitCode))
+  num_county <- length(unique(ddata3$County))
+
+  facet_park <- if(num_parks > 1 & num_parks == num_county){TRUE} else {FALSE}
+  facet_county <- if(num_parks == 1 & num_parks < num_county){TRUE} else {FALSE}
+  facet_park_county <- if(num_parks > 1 & num_county > num_parks){TRUE} else {FALSE}
+
   dplot <-
     ggplot(ddata3, aes(x = Date, y = Pct_Area, fill = drought_legend, color = drought_legend)) +
     # layers
     geom_area() +
-    # geom_line(aes(y = DSCI, linetype = "Cumulative Index"), linewidth = 0.5) +
     # axis format
     scale_x_date(breaks = datebreaks, labels = scales::label_date(date_format)) +
-    # layer formattting
-    # scale_linetype_manual(values = "dashed", name = "Drought Severity") +
+    # layer formatting
     scale_fill_manual(values = c("#FFF000", "#FCD37F", "#FFAA00", "#E60000", "#730000"), name = "Drought Level") +
     scale_color_manual(values = c("#F0E100", "#E7C274", "#E19600", "#D10000", "#680000"), name = "Drought Level") +
     # theme and labels
     theme_WQ() +
     theme(legend.position = legend_position,
-          axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
+          axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5)) +
     labs(y = "% of County in Drought", x = NULL) +
-    {if(length(sites$UnitCode) > 1 & length(unique(ddata3$County)) == 1){facet_wrap(~UnitCode)}} + #change to county
-    {if(length(sites$UnitCode) == 1 & length(unique(ddata3$County)) > 1){facet_wrap(~County)}} +
-    {if(length(sites$UnitCode) > 1 & length(unique(ddata3$County)) > 1){facet_wrap(~UnitCode + County)}} #+
-   # guides(fill = guide_legend(order = 1))
+    # facets
+    {if(facet_park){facet_wrap(~UnitCode)}} + #change to county
+    {if(facet_county){facet_wrap(~County)}} +
+    {if(facet_park_county){facet_wrap(~UnitCode + County)}}
 
   return(dplot)
 
