@@ -40,8 +40,10 @@ getClimDrought(
 
 \item{years}{Vector of years to download drought index for, will start with 01/01/year and end with 12/31/year.}
 
-\item{week_start}{Quoted start of week formatted as "mm/dd/yyyy". If specified, will return drought index for given week.
-If blank, will return drought index for all weeks available in specified years.}
+\item{week_start}{Quoted start of week formatted as "mm/dd/yyyy". If specified, will return drought index for
+given week. If blank, will return drought index for all weeks available in specified years. Note that weekly
+data are available every Tuesday. If the week_start specified is not a Tuesday, code will shift the date to the
+Tuesday of the specified start week.}
 
 \item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
 
@@ -67,6 +69,9 @@ importData()
 
 # Get drought info for MABI and SAGA sites for first week of May
 mabisaga <- getClimDrought(park = c("MABI", "SAGA"), week_start = "05/01/2024")
+
+# Get drought info for Lower FDR Brook in ROVA for 2023
+rovasa <- getClimDrought(site = "ROVASA", years = 2023)
 
 }
 

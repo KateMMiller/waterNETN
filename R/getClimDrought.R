@@ -37,8 +37,10 @@
 #'
 #' @param years Vector of years to download drought index for, will start with 01/01/year and end with 12/31/year.
 #'
-#' @param week_start Quoted start of week formatted as "mm/dd/yyyy". If specified, will return drought index for given week.
-#' If blank, will return drought index for all weeks available in specified years.
+#' @param week_start Quoted start of week formatted as "mm/dd/yyyy". If specified, will return drought index for
+#' given week. If blank, will return drought index for all weeks available in specified years. Note that weekly
+#' data are available every Tuesday. If the week_start specified is not a Tuesday, code will shift the date to the
+#' Tuesday of the specified start week.
 #'
 #' @param weather_station Logical. If TRUE, will return county-level data for coordinates of nearest weather station to a park.
 #' If FALSE (default), returns county-level drought data for water monitoring sites. In most cases, the results are the same.
@@ -55,6 +57,9 @@
 #'
 #' # Get drought info for MABI and SAGA sites for first week of May
 #' mabisaga <- getClimDrought(park = c("MABI", "SAGA"), week_start = "05/01/2024")
+#'
+#' # Get drought info for Lower FDR Brook in ROVA for 2023
+#' rovasa <- getClimDrought(site = "ROVASA", years = 2023)
 #'
 #'}
 #'
@@ -98,14 +103,22 @@ getClimDrought <- function(park = "all", site = "all",
       format(as.Date(paste0("01/01/", min(years)), format = "%m/%d/%Y"), "%m/%d/%Y")
     } else if(!is.na(week_start)){
         format(as.Date(week_start, format = "%m/%d/%Y"), "%m/%d/%Y")
-      }
+    }
+
+  dow_shift <- as.POSIXlt(start_day, format = "%m/%d/%Y")$wday
+
+  start_tues <- if(dow_shift > 3){
+    format(as.Date(start_day, format = "%m/%d/%Y") - dow_shift + 2, "%m/%d/%Y")
+  } else if(dow_shift < 3){
+    format(as.Date(start_day, format = "%m/%d/%Y") + dow_shift, "%m/%d/%Y")
+    }
 
   end_day <-
     if(max(years) == current_year & is.na(week_start)){
       format(Sys.Date(), "%m/%d/%Y")
     } else if(max(years) < current_year & is.na(week_start)){
       format(as.Date(paste0("12/31/", max(years)), format = "%m/%d/%Y"), "%m/%d/%Y")
-      } else if(!is.na(week_start)){format(as.Date(start_day, format = "%m/%d/%Y") + 6, "%m/%d/%Y")}
+      } else if(!is.na(week_start)){format(as.Date(start_tues, format = "%m/%d/%Y") + 6, "%m/%d/%Y")}
 
   fips <- if(weather_station == TRUE){"WStnFIPS"} else {"ParkFIPS"}
   aoi <- filter(closest_WS, SiteCode == sites$SiteCode)[,fips]
@@ -116,7 +129,7 @@ getClimDrought <- function(park = "all", site = "all",
     aoi <- filter(closest_WS, SiteCode == sitecode)[,fips]
     url_dsci <- paste0("https://usdmdataservices.unl.edu/api/CountyStatistics",
                        "/GetDSCI?aoi=", aoi,
-                       "&startdate=", start_day, "&enddate=", end_day,
+                       "&startdate=", start_tues, "&enddate=", end_day,
                        "&statisticsType=1")
 
     dsci <- fromJSON(url_dsci) # DSCI ranges from 0 to 500 with 500 being most extreme drought
@@ -130,7 +143,7 @@ getClimDrought <- function(park = "all", site = "all",
 
     url_drght <- paste0("https://usdmdataservices.unl.edu/api/CountyStatistics",
                         "/GetDroughtSeverityStatisticsByArea?aoi=", aoi,
-                        "&startdate=", start_day, "&enddate=", end_day,
+                        "&startdate=", start_tues, "&enddate=", end_day,
                         "&statisticsType=1")
 
     drgt <- fromJSON(url_drght)
