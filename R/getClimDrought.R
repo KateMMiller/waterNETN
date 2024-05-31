@@ -4,10 +4,13 @@
 #'
 #' @description This function downloads weekly drought index at the county level for each specified park, site or
 #' weather station nearest to a specified site. If downloading for multiple sites and multiple weeks/years, function
-#' may be slow, particularly ACAD.
+#' may be slow. Returned data frame includes percent of county area in 5 levels of drought, with D0 = Abnormally Dry,
+#' D1 = Moderate Drought, D2 = Severe Drought, D3 = Extreme Drought, and D4 = Exceptional Drought. Also returned is
+#' the Drought Severity and Coverage Index, which ranges from 0 to 500, and is a weighted sum of area within each
+#' of the drought categories. A score of 500 indicates the entire area is in exceptional drought (D4).
 #'
-#' @importFrom dplyr between case_when filter select
-#' @importFrom tidyr pivot_longer
+#' @importFrom dplyr case_when filter select
+#' @importFrom purrr list_rbind map
 #'
 #' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
 #' \describe{
@@ -70,12 +73,12 @@ getClimDrought <- function(park = "all", site = "all",
   if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
   site_type <- match.arg(site_type)
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 1980)
-  if(nchar(week_start) != 10){stop("Must specify week_start as 'dd/mm/yyyy'")}
   stopifnot(class(active) == "logical")
   stopifnot(class(weather_station) == "logical")
-  date_check <- as.Date(week_start, format = "%m/%d/%Y")
-  if(is.na(date_check)){stop("Wrong date format specified. Must be formatted as 'mm/dd/yyyy'.")}
-
+  if(!is.na(week_start)){
+    date_check <- as.Date(week_start, format = "%m/%d/%Y")
+    if(is.na(date_check)){stop("Wrong date format specified. Must be formatted as 'mm/dd/yyyy'.")}
+  }
   # Check that suggested package required for this function are installed
   if(!requireNamespace("jsonlite", quietly = TRUE)){
     stop("Package 'jsonlite' needed to download weather station data. Please install it.", call. = FALSE)
@@ -105,46 +108,50 @@ getClimDrought <- function(park = "all", site = "all",
       }
 
   fips <- if(weather_station == TRUE){"WStnFIPS"} else {"ParkFIPS"}
-  aoi <- filter(closest_WS, SiteCode == site)[,fips]
+  aoi <- filter(closest_WS, SiteCode == sites$SiteCode)[,fips]
   area = "CountyStatistics"
-  stats_type = "GetDSCI"#"GetDroughtSeverityStatisticsByArea"#"GetDSCI"
-  stats_type2 = 1
 
-  getDSCI <- function(fips){
-
-    url_dsci <- paste0("https://usdmdataservices.unl.edu/api/", area,
+  getDSCI <- function(sitecode){
+    fips <- if(weather_station == TRUE){"WStnFIPS"} else {"ParkFIPS"}
+    aoi <- filter(closest_WS, SiteCode == sitecode)[,fips]
+    url_dsci <- paste0("https://usdmdataservices.unl.edu/api/CountyStatistics",
                        "/GetDSCI?aoi=", aoi,
                        "&startdate=", start_day, "&enddate=", end_day,
-                       "&statisticsType=", stats_type2)
+                       "&statisticsType=1")
 
     dsci <- fromJSON(url_dsci) # DSCI ranges from 0 to 500 with 500 being most extreme drought
+    dsci$SiteCode <- sitecode
     return(dsci)
     }
 
-  getDrought <- function(fips){
+  getDrought <- function(sitecode){
+    fips <- if(weather_station == TRUE){"WStnFIPS"} else {"ParkFIPS"}
+    aoi <- filter(closest_WS, SiteCode == sitecode)[,fips]
 
-  url_drght <- paste0("https://usdmdataservices.unl.edu/api/", area,
-                      "/GetDroughtSeverityStatisticsByArea?aoi=", aoi,
-                      "&startdate=", start_day, "&enddate=", end_day,
-                      "&statisticsType=", stats_type2)
+    url_drght <- paste0("https://usdmdataservices.unl.edu/api/CountyStatistics",
+                        "/GetDroughtSeverityStatisticsByArea?aoi=", aoi,
+                        "&startdate=", start_day, "&enddate=", end_day,
+                        "&statisticsType=1")
 
-  drgt <- fromJSON(url_drght)
-  return(drgt)
+    drgt <- fromJSON(url_drght)
+    drgt$SiteCode <- sitecode
+    return(drgt)
   }
 
-  # ENDED HERE- want to iterate on fips code using the above git functions, so can download data for
-  # multiple sites.
-  dsci_full <- map()
+  # Iterate if multiple sites
+  dsci_full <- if(length(sites$SiteCode) > 1){
+    map(sites$SiteCode, \(x) getDSCI(x)) |> list_rbind()
+    } else {getDSCI(sites$SiteCode)}
 
-  drgt_long <- drgt |> pivot_longer(cols = c(D0, D1, D2, D3, D4),
-                                    names_to = "Drought_Level", values_to = "Pct_Area")
+  drgt_full <- if(length(sites$SiteCode) > 1){
+    map(sites$SiteCode, \(x) getDrought(x)) |> list_rbind()
+  } else {getDrought(sites$SiteCode)}
 
-  head(drgt)
+  drgt_comb <- full_join(drgt_full, dsci_full, by = c("MapDate", "FIPS", "County", "State", "SiteCode")) |>
+    data.frame()
 
-  # ggplot(drgt_long, aes(x = MapDate, y = Pct_Area, color = Drought_Level, fill = Drought_Level))+
-  #   geom_bar(stat = 'identity') +
-  #   scale_fill_manual(values = c("blue", "green", "yellow", "orange", "red")) +
-  #   scale_color_manual(values = c("blue", "green", "yellow", "orange", "red"))
+  num_cols <- c("None", "D0", "D1", "D2", "D3", "D4", "DSCI")
+  drgt_comb[,num_cols] <- as.numeric(unlist(drgt_comb[, num_cols]))
 
-
+  return(drgt_comb)
   }

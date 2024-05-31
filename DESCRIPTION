@@ -18,6 +18,7 @@ Collate:
     'getEvents.R'
     'getChemistry.R'
     'getClimDaymet.R'
+    'getClimDrought.R'
     'getClimWStat.R'
     'getDischarge.R'
     'getLightPen.R'
