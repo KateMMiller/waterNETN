@@ -200,17 +200,18 @@ In waterNETN, you can download Daymet data by park, site, site type, and spannin
 ```{r, eval = F}
 prim <- getClimDaymet(site = "MORRSB", years = 2006:2023, export = T, 
                       filepath = "./data")
-#print_head(prim) # table of first 6 rows- this is a custom function I wrote to save on coding
+print_head(prim) # table of first 6 rows- this is a custom function I wrote to save on coding
 ```
 
-```{r, echo = F, eval = F}
+```{r, echo = F}
 prim <- getClimDaymet(site = "MORRSB", years = 2006:2023, export = T, 
                       filepath = "../data")
 print_head(prim) # table of first 6 rows- this is a custom function I wrote to save on coding
 ```
 
 
-```{r echo = F, include = F, eval = F}
+
+```{r echo = F, include = F}
 file.remove("../data/Daymet_climate_data_2006-2023.csv")
 ```
 
