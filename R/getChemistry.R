@@ -5,7 +5,7 @@
 #'
 #' @description Queries NETN water chemistry data by site, event, and parameter.
 #'
-#' @importFrom dplyr all_of filter full_join group_by left_join mutate select summarize
+#' @importFrom dplyr all_of filter full_join group_by inner_join left_join mutate select summarize
 #' @importFrom purrr reduce
 #' @importFrom tidyr pivot_longer pivot_wider
 #'
@@ -122,7 +122,7 @@ getChemistry <- function(park = "all", site = "all",
   # Check if the views exist and stop if they don't
   env <- if(exists("VIEWS_WQ")){VIEWS_WQ} else {.GlobalEnv}
 
-  tryCatch({chem <- get("Chemistry_Data", envir = env)},
+  tryCatch({chem <- get("Chemistry_Data_Long", envir = env)},
            error = function(e){stop("Water views not found. Please import data.")}
   )
 
@@ -130,12 +130,14 @@ getChemistry <- function(park = "all", site = "all",
 
   # Fix data types (will wait on the params until long)
   # character fixes
-  chr_cols <- c("SubUnitCode", "SubUnitName", "SampleType", "LabCode", "QCtype", "pH_Lab_Method",
-                "Comments")
+  chr_cols <- c("SubUnitCode", "SubUnitName", "SampleType", "LabCode", "QCtype", "ValueFlag",
+                "ValueUnit", "ValueDetectionCondition")
   chem[,chr_cols][chem[,chr_cols] == "NA"] <- NA_character_
 
   # numeric fixes
   chem$SampleDepth_m <-  as.numeric(gsub("NA", NA_real_, chem$SampleDepth_m))
+  chem$Value <- gsub(",", "", chem$Value)
+  chem$Value <- as.numeric(gsub("NA", NA_real_, chem$Value))
 
   # logic fixes
   chem$IsEventCUI <- as.logical(chem$IsEventCUI)
@@ -149,14 +151,14 @@ getChemistry <- function(park = "all", site = "all",
   # Need to end up with a column for each: parameter, value, flag, Method,
   # I don't want to hard code the pivot, in case a new parameter is ever added, so
   # selecting the columns based on what I don't want to include in the pivot.
-  keep_cols <- c("GroupCode", "GroupName", "UnitCode", "UnitName", "SubUnitCode",
-                 "SubUnitName", "SiteCode", "SiteName", "SiteType", "EventDate", "EventCode",
-                 "year", "month", "doy", "QCtype", "LabCode",
-                 "SampleTime", "SampleDepth_m", "SampleType", "Comments", "IsEventCUI")
-  param_cols <- setdiff(names(chem), keep_cols)
-
-  # Pivoting numeric and character fields in one step, so converting all non-keep to character.
-  chem[,param_cols] <- apply(chem[,param_cols], 2, as.character)
+  # keep_cols <- c("GroupCode", "GroupName", "UnitCode", "UnitName", "SubUnitCode",
+  #                "SubUnitName", "SiteCode", "SiteName", "SiteType", "EventDate", "EventCode",
+  #                "year", "month", "doy", "QCtype", "LabCode",
+  #                "SampleTime", "SampleDepth_m", "SampleType", "Comments", "IsEventCUI")
+  # param_cols <- setdiff(names(chem), keep_cols)
+  #
+  # # Pivoting numeric and character fields in one step, so converting all non-keep to character.
+  # chem[,param_cols] <- apply(chem[,param_cols], 2, as.character)
 
   #sort(unique(getSites()$SiteCode))
   # Filter by site, years, and months to make data set small
@@ -166,100 +168,104 @@ getChemistry <- function(park = "all", site = "all",
     select(SiteCode, SiteType, EventDate, EventCode)
 
   chem2 <- chem |> filter(SiteCode %in% sites)
-  chem3 <- left_join(evs, chem2, by = c("SiteCode", "EventDate", "EventCode"))
+  chem3 <- inner_join(evs, chem2, by = c("SiteCode", "EventDate", "EventCode"))
 
-  chem_long <- chem3 |> pivot_longer(cols = !all_of(keep_cols),
-                                     names_to = 'param',
-                                     values_to = 'value') |>
-    filter(value != "NA") |>
-    mutate(Flag = ifelse(grepl("Flag", param), "Flag", NA_character_),
-           Lab = ifelse(grepl("pH_Lab_Method", param), "pH_Lab_Method", NA_character_))
+  # chem_long <- chem3 |> pivot_longer(cols = !all_of(keep_cols),
+  #                                    names_to = 'param',
+  #                                    values_to = 'value') |>
+  #   filter(value != "NA") |>
+  #   mutate(Flag = ifelse(grepl("Flag", param), "Flag", NA_character_),
+  #          Lab = ifelse(grepl("pH_Lab_Method", param), "pH_Lab_Method", NA_character_))
   #table(chem_long$param)
 
   # Break params, flags and lab designations into separate dfs to combine back as colums
-  chem_long_param <- chem_long |>
-    filter(!Flag %in% "Flag") |> filter(!Lab %in% "pH_Lab_Method") |>
-    select(-Flag, -Lab)
-
-  chem_long_flag <- chem_long |> filter(Flag == "Flag") |>
-    mutate(param = gsub("Flag", "", param)) |>
-    select(-Lab, -Flag, flag = value)
-
-  chem_long_lab <- chem_long |> filter(Lab == "pH_Lab_Method") |>
-    mutate(param = gsub("_Method", "", param)) |>
-    select(-Lab, -Flag, lab_method = value)
-
-  cols <- intersect(names(chem_long_param), names(chem_long_flag))
-  cols2 <- intersect(cols, names(chem_long_lab))
-
-  chem_list <- list(chem_long_param, chem_long_flag, chem_long_lab)
-  chem_comb <- purrr::reduce(chem_list, full_join, by = cols2)
+  # chem3_param <- chem3 |>
+  #   filter(!Flag %in% "Flag") |> filter(!Lab %in% "pH_Lab_Method") |>
+  #   select(-Flag, -Lab)
+  #
+  # chem3_flag <- chem_long |> filter(Flag == "Flag") |>
+  #   mutate(param = gsub("Flag", "", param)) |>
+  #   select(-Lab, -Flag, flag = value)
+  #
+  # chem_long_lab <- chem_long |> filter(Lab == "pH_Lab_Method") |>
+  #   mutate(param = gsub("_Method", "", param)) |>
+  #   select(-Lab, -Flag, lab_method = value)
+  #
+  # cols <- intersect(names(chem_long_param), names(chem_long_flag))
+  # cols2 <- intersect(cols, names(chem_long_lab))
+  #
+  # chem_list <- list(chem_long_param, chem_long_flag, chem_long_lab)
+  # chem_comb <- purrr::reduce(chem_list, full_join, by = cols2)
 
   # find special characters forcing chr instead of num
   # values = sort(unique(chem_comb$value))
   # values[which(!grepl('^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$',values))]
 
-  chem_comb$value <- as.numeric(gsub(",", "", chem_comb$value))
-  chem_comb$censored <- ifelse(is.na(chem_comb$value), TRUE, FALSE)
+  # chem_comb$value <- as.numeric(gsub(",", "", chem_comb$value))
+  # chem_comb$censored <- ifelse(is.na(chem_comb$value), TRUE, FALSE)
+
+  chem3$censored <- ifelse(is.na(chem3$ValueDetectionCondition) | chem3$ValueDetectionCondition == "Not Detected",
+                           TRUE, FALSE)
 
   if(include_censored == TRUE){
-    chem_comb$value <- suppressWarnings(
-      ifelse(is.na(chem_comb$value),
+    chem3$Value <- suppressWarnings(
+      ifelse(chem3$censored == TRUE,
              as.numeric(gsub("<MRL |<MDL |, color interference|>UQL |E, <MRL |E, >UQL |ND, Cl interference|IS",
-                             "", chem_comb$flag)),
-             chem_comb$value))
+                             "", chem3$ValueFlag)),
+             chem3$Value))
   }
 
-  # Using the flag columns to assign parameter units for censored data, so they plot with uncensored.
-  chem_comb$param[chem_comb$param == "ANC" & chem_comb$censored == TRUE] <- "ANC_ueqL"
-  chem_comb$param[chem_comb$param == "AppColor" & chem_comb$censored == TRUE] <- "AppColor_PCU"
-  chem_comb$param[chem_comb$param == "ChlA" & chem_comb$censored == TRUE] <- "ChlA_ugL"
-  chem_comb$param[chem_comb$param == "Cl" & chem_comb$censored == TRUE] <- "Cl_ueqL"
-  chem_comb$param[chem_comb$param == "DOC" & chem_comb$censored == TRUE] <- "DOC_mgL"
-  chem_comb$param[chem_comb$param == "NH3" & chem_comb$censored == TRUE] <- "NH3_mgL"
-  chem_comb$param[chem_comb$param == "NO2" & chem_comb$censored == TRUE] <- "NO2_mgL"
-  chem_comb$param[chem_comb$param == "NO2+NO3" & chem_comb$censored == TRUE] <- "NO2+NO3_mgL"
-  chem_comb$param[chem_comb$param == "NO3" & chem_comb$censored == TRUE] <- "NO3_ueqL"
-  chem_comb$param[chem_comb$param == "PO4" & chem_comb$censored == TRUE] <- "PO4_ugL"
-  chem_comb$param[chem_comb$param == "SO4" & chem_comb$censored == TRUE] <- "SO4_ueqL"
-  chem_comb$param[chem_comb$param == "TN" & chem_comb$censored == TRUE] <- "TN_mgL"
-  chem_comb$param[chem_comb$param == "TotDissN" & chem_comb$censored == TRUE] <- "TotDissN_mgL"
-  chem_comb$param[chem_comb$param == "TotDissP" & chem_comb$censored == TRUE] <- "TotDissP_ugL"
-  chem_comb$param[chem_comb$param == "TP" & chem_comb$censored == TRUE] <- "TP_ugL"
-  table(chem_comb$param, chem_comb$censored)
+
+  # # Using the flag columns to assign parameter units for censored data, so they plot with uncensored.
+  # chem_comb$param[chem_comb$param == "ANC" & chem_comb$censored == TRUE] <- "ANC_ueqL"
+  # chem_comb$param[chem_comb$param == "AppColor" & chem_comb$censored == TRUE] <- "AppColor_PCU"
+  # chem_comb$param[chem_comb$param == "ChlA" & chem_comb$censored == TRUE] <- "ChlA_ugL"
+  # chem_comb$param[chem_comb$param == "Cl" & chem_comb$censored == TRUE] <- "Cl_ueqL"
+  # chem_comb$param[chem_comb$param == "DOC" & chem_comb$censored == TRUE] <- "DOC_mgL"
+  # chem_comb$param[chem_comb$param == "NH3" & chem_comb$censored == TRUE] <- "NH3_mgL"
+  # chem_comb$param[chem_comb$param == "NO2" & chem_comb$censored == TRUE] <- "NO2_mgL"
+  # chem_comb$param[chem_comb$param == "NO2+NO3" & chem_comb$censored == TRUE] <- "NO2+NO3_mgL"
+  # chem_comb$param[chem_comb$param == "NO3" & chem_comb$censored == TRUE] <- "NO3_ueqL"
+  # chem_comb$param[chem_comb$param == "PO4" & chem_comb$censored == TRUE] <- "PO4_ugL"
+  # chem_comb$param[chem_comb$param == "SO4" & chem_comb$censored == TRUE] <- "SO4_ueqL"
+  # chem_comb$param[chem_comb$param == "TN" & chem_comb$censored == TRUE] <- "TN_mgL"
+  # chem_comb$param[chem_comb$param == "TotDissN" & chem_comb$censored == TRUE] <- "TotDissN_mgL"
+  # chem_comb$param[chem_comb$param == "TotDissP" & chem_comb$censored == TRUE] <- "TotDissP_ugL"
+  # chem_comb$param[chem_comb$param == "TP" & chem_comb$censored == TRUE] <- "TP_ugL"
+  # table(chem_comb$param, chem_comb$censored)
 
   # check that parameter matches param_list
-  param_list <- sort(unique(chem_comb$param))
+  param_list <- sort(unique(chem3$Parameter))
   parameter <- match.arg(parameter, several.ok = TRUE, c("all", param_list))
 
   # filters for params, sampletype, qctype
-  chem_comb2 <-
-  if(any(parameter == "all")){chem_comb
-  } else {filter(chem_comb, param %in% parameter)}
+  chem4 <-
+  if(any(parameter == "all")){chem3
+  } else {filter(chem3, Parameter %in% parameter)}
 
-  chem_comb3 <-
-    if(any(sample_type == "all")){chem_comb2
-    } else {filter(chem_comb2, SampleType %in% sample_type)}
+  chem5 <-
+    if(any(sample_type == "all")){chem4
+    } else {filter(chem4, SampleType %in% sample_type)}
 
-  chem_comb4 <-
-    if(any(QC_type == "all")){chem_comb3
-    } else {filter(chem_comb3, QCtype %in% QC_type)}
+  chem6 <-
+    if(any(QC_type == "all")){chem5
+    } else {filter(chem5, QCtype %in% QC_type)}
 
   # add date/time stamp for rLakeAnalyzer and LakeMonitoR
-  chem_comb4$datetime <- as.POSIXct(paste(chem_comb4$EventDate, chem_comb4$SampleTime),
+  chem6$datetime <- as.POSIXct(paste(chem6$EventDate, chem6$SampleTime),
                                     format = "%Y-%m-%d %H:%M:%S")
 
-  chem_comb5 <-
-  if(output == "short"){chem_comb4[,c("SiteCode", "SiteName", "UnitCode", "SubUnitCode", "EventDate","EventCode",
-                                     "year", "month", "doy", "datetime", "QCtype", "SampleType",
-                                     "SampleDepth_m", "param", "value", "flag", "censored",
-                                     "lab_method", "Comments")]
-  } else {chem_comb4}
+  chem7 <-
+  if(output == "short"){chem6[,c("SiteCode", "SiteName", "UnitCode", "SubUnitCode", "EventDate","EventCode",
+                                 "year", "month", "doy", "datetime", "QCtype", "SampleType", "SampleTime",
+                                 "SampleDepth_m", "Parameter", "Value", "ValueFlag", "ValueUnit",
+                                 "ValueDetectionCondition", "censored", "LabCode")]
+  } else {chem6}
 
-  if(nrow(chem_comb5) == 0){
+  if(nrow(chem7) == 0){
     stop("Returned data frame with no records. Check your park, site, and site_type arguments.")}
 
-  return(data.frame(chem_comb5))
+  return(data.frame(chem7))
 
   }
 

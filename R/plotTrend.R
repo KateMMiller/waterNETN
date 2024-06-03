@@ -177,69 +177,69 @@ plotTrend <- function(park = "all", site = "all",
     if(length(par_chem) > 0){
       force(getChemistry(park = park, site = site, site_type = site_type, include_censored = include_censored,
                    years = years, months = months, parameter = par_chem, ...)) |>
-        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, param, value, censored)
+        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value, censored)
         } else {NULL},
     if(length(par_sonde) > 0){
       force(getSondeInSitu(park = park, site = site, site_type = site_type,
                      years = years, months = months, parameter = par_sonde, ...)) |>
-        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, param, value) |>
+        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
         mutate(censored = FALSE)
         } else {NULL},
     if(length(par_sec) > 0){
       force(getSecchi(park = park, site = site,
                 years = years, months = months, observer_type = 'first')) |>
-        mutate(param = "SDepth_m", value = SDepth_m) |>
-        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, param, value) |>
+        #mutate(param = "SDepth_m", Value = SDepth_m) |>
+        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
         mutate(censored = FALSE)
         } else {NULL},
     if(length(par_dis) > 0){
       force(getDischarge(park = park, site = site,
                    years = years, months = months)) |>
-        mutate(param = "Discharge_cfs", value = Discharge_cfs) |>
-        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, param, value) |>
+        mutate(Parameter = "Discharge_cfs", Value = Discharge_cfs) |>
+        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
         mutate(censored = FALSE)
         } else {NULL},
     if(length(par_pen) > 0){
       force(getLightPen(park = park, site = site,
                   years = years, months = months)) |>
-        mutate(param = "PenetrationRatio", value = PenetrationRatio) |>
-        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, param, value) |>
+        mutate(Parameter = "PenetrationRatio", Value = PenetrationRatio) |>
+        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
         mutate(censored = FALSE)
         } else {NULL},
     if(length(par_wl) > 0){
       force(getWaterLevel(park = park, site = site,
                     years = years, months = months)) |>
-        mutate(param = "WaterLevelFeet", value = WaterLevelFeet) |>
-        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, param, value) |>
+        mutate(Parameter = "WaterLevelFeet", Value = WaterLevelFeet) |>
+        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
         mutate(censored = FALSE)
     } else {NULL},
     if(length(par_wlm) > 0){
       force(getWaterLevel(park = park, site = site,
                     years = years, months = months)) |>
-        mutate(param = "WaterLevel_m", value = WaterLevel_m) |>
-        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, param, value) |>
+        mutate(Parameter = "WaterLevel_m", Value = WaterLevel_m) |>
+        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
         mutate(censored = FALSE)
     } else {NULL}
     )
 
   # Drop NAs (often from params that only have censored data and censored = F)
-  wdat <- wdat[!is.na(wdat$value),]
+  wdat <- wdat[!is.na(wdat$Value),]
 
-  wdat$param_label <- ifelse(grepl("_", wdat$param),
-                             paste0(gsub("_", " (", wdat$param), ")"),
-                             paste0(wdat$param)
+  wdat$param_label <- ifelse(grepl("_", wdat$Parameter),
+                             paste0(gsub("_", " (", wdat$Parameter), ")"),
+                             paste0(wdat$Parameter)
   )
 
   # join wdat with WQ thresholds, stored as a dataset in the package
   data("NETN_WQ_thresh")
   wdat2 <- left_join(wdat,
                      NETN_WQ_thresh[,c("SiteCode", "parameter", "UpperThreshold", "LowerThreshold")],
-                     by = c("SiteCode", "param" = "parameter"))
+                     by = c("SiteCode", "Parameter" = "parameter"))
 
   if(nrow(wdat2) == 0){stop("Combination of sites and parameters returned a data frame with no records.")}
 
   #-- Set up plotting features --
-  ylab <- ifelse(length(unique(wdat2$param_label)) == 1, unique(wdat2$param_label), "value")
+  ylab <- ifelse(length(unique(wdat2$param_label)) == 1, unique(wdat2$param_label), "Value")
   wdat_cens <- wdat2 |> filter(censored == TRUE)
 
   wdat2$date2 <- as.Date(wdat2$EventDate, format = c("%Y-%m-%d"))
@@ -262,7 +262,7 @@ plotTrend <- function(park = "all", site = "all",
   trendplot <-
     if(include_censored == TRUE){
 
-    ggplot(wdat2, aes(x = date2, y = value, group = SiteName,
+    ggplot(wdat2, aes(x = date2, y = Value, group = SiteName,
                      color = SiteName, fill = SiteName, shape = censored)) +
       # layers
       {if(smooth == TRUE) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +
@@ -292,7 +292,7 @@ plotTrend <- function(park = "all", site = "all",
              color = guide_legend(order = 1),
              shape = guide_legend(order = 1))
     } else {
-      ggplot(wdat2, aes(x = date2, y = value, group = SiteName,
+      ggplot(wdat2, aes(x = date2, y = Value, group = SiteName,
                         color = SiteName, fill = SiteName)) +
         #layers
         {if(smooth == TRUE) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +

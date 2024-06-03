@@ -118,7 +118,7 @@ plotLakeProfile(park = "ACAD", site = lakes23, parameter = "Temp_C",
 Temperature thermocline is also included as black lines.
 plotLakeProfile(park = "ACAD", site = lakes23,
                parameter = "DOsat_pct", depth_type = 'raw', years = 2023,
-               palette = 'ryb', color_rev = TRUE)
+               palette = 'RdYlBu', color_rev = TRUE)
 }
 
 }

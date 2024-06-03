@@ -200,18 +200,17 @@ In waterNETN, you can download Daymet data by park, site, site type, and spannin
 ```{r, eval = F}
 prim <- getClimDaymet(site = "MORRSB", years = 2006:2023, export = T, 
                       filepath = "./data")
-print_head(prim) # table of first 6 rows- this is a custom function I wrote to save on coding
+#print_head(prim) # table of first 6 rows- this is a custom function I wrote to save on coding
 ```
 
-```{r, echo = F}
+```{r, echo = F, eval = F}
 prim <- getClimDaymet(site = "MORRSB", years = 2006:2023, export = T, 
                       filepath = "../data")
 print_head(prim) # table of first 6 rows- this is a custom function I wrote to save on coding
 ```
 
 
-
-```{r echo = F, include = F}
+```{r echo = F, include = F, eval = F}
 file.remove("../data/Daymet_climate_data_2006-2023.csv")
 ```
 
@@ -642,11 +641,11 @@ plotLakeProfile(park = "ACAD", site = lakes23, parameter = "Temp_C",
 
 ```
 
-<p class = 'fxn'>Plot DO all ACAD lakes sampled in 2023 and raw sample depth, using reversed ryb palette. Temperature thermocline is also included as black lines.</p>
+<p class = 'fxn'>Plot DO all ACAD lakes sampled in 2023 and raw sample depth, using reversed RdYlBu palette. Temperature thermocline is also included as black lines.</p>
 ```{r message = FALSE, warning = FALSE}
 plotLakeProfile(park = "ACAD", site = lakes23, 
                 parameter = "DOsat_pct", depth_type = 'raw', years = 2023, 
-                palette = 'ryb', color_rev = TRUE)
+                palette = 'RdYlBu', color_rev = TRUE)
 
 ```
 
@@ -665,12 +664,12 @@ plotLakeProfile(site = "ACJORD", parameter = "pH",
 
 ```
 
-<p class = 'fxn'>Plot pH for all ACAD lakes sampled in 2022 and 2023 and raw sample depth, using reversed ryb palette. </p>
+<p class = 'fxn'>Plot pH for all ACAD lakes sampled in 2022 and 2023 and raw sample depth, using reversed RdYlBu palette. </p>
 ```{r message = FALSE, warning = FALSE}
 plotLakeProfile(park = "ACAD", site = c("ACBUBL", "ACEAGL", "ACECHO", "ACJORD", "ACLONG", "ACSEAL", 
                                         "ACUHAD", "ACWHOL"), 
                 parameter = "pH", depth_type = 'raw', years = 2022:2023, 
-                palette = 'ryb', color_rev = TRUE)
+                palette = 'RdYlBu', color_rev = TRUE)
 
 ```
 

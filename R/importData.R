@@ -70,6 +70,9 @@ importData <- function(type = c("DSN", "dbfile", "csv", "zip"),
                          "")))}
     if(!grepl("/$", filepath)){filepath <- paste0(filepath, "/")}} # add / to end of filepath if doesn't exist
 
+  # Check if type = 'csv' was specified, but .zip file is filepath
+  if(type == 'csv' & grepl(".zip", filepath)){stop("Specified a zip file in filepath. Must use type = 'zip' instead of 'csv'.")}
+
   # check for required packages for certain arguments
   if(!requireNamespace("odbc", quietly = TRUE) & type %in% c('DSN', 'dbfile')){
     stop("Package 'odbc' needed for this function to work. Please install it.", call. = FALSE)
@@ -86,8 +89,8 @@ importData <- function(type = c("DSN", "dbfile", "csv", "zip"),
   env <- if(new_env == TRUE){VIEWS_WQ} else {.GlobalEnv}
 
   # Vector of file names in filepath that end in .csv (ie the data package views)
-  wq_views <- c("Chemistry_Data", "Discharge_Data", "Event_Info", "Light_Penetration_Data",
-                "Secchi_Data", "Sites_Lake", "Sites_Stream", "Sonde_InSitu_Data",
+  wq_views <- c("Chemistry_Data_Long", "Discharge_Data", "Event_Info", "Light_Penetration_Data",
+                "Secchi_Data_Long", "Sites_Lake", "Sites_Stream", "Sonde_InSitu_Data_Long",
                 "StageDatum_Info", "StreamSite_Observations", "WaterLevel_Data")
 
   #-- Import from database --
@@ -168,7 +171,10 @@ importData <- function(type = c("DSN", "dbfile", "csv", "zip"),
                 function(x){
                   fname = dp_list[[x]]
                   setTxtProgressBar(pb, x)
-                  read.csv(paste0(filepath, fname), na.string = "NA", check.names = FALSE)
+                  read.csv(paste0(filepath, fname),
+                           na.string = "NA",
+                           tryLogical = TRUE,
+                           check.names = FALSE)
          })
 
   # Set the names of dp_files as the shorter dp_list2 names

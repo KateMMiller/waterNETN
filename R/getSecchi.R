@@ -73,7 +73,7 @@ getSecchi <- function(park = "all", site = "all",
   # Check if the views exist and stop if they don't
   env <- if(exists("VIEWS_WQ")){VIEWS_WQ} else {.GlobalEnv}
 
-  tryCatch({sec <- get("Secchi_Data", envir = env)},
+  tryCatch({sec <- get("Secchi_Data_Long", envir = env)},
            error = function(e){stop("Water views not found. Please import data.")}
   )
 
@@ -81,24 +81,26 @@ getSecchi <- function(park = "all", site = "all",
   start_cols <-  c("GroupCode", "GroupName", "UnitCode", "UnitName",
                    "SubUnitCode", "SubUnitName", "SiteCode", "SiteName",
                    "EventDate", "EventCode", "IsEventCUI")
-  sec1 <- sec |> select(all_of(start_cols),
-                        SDepth_m = SDepth1_m, SecchiObs = SecchiObs1, Bot_SD = Bot_SD1) |>
-                 mutate(Observer = 1)
-  sec2 <- sec |> select(all_of(start_cols),
-                        SDepth_m = SDepth2_m, SecchiObs = SecchiObs2, Bot_SD = Bot_SD2) |>
-                 mutate(Observer = 2)
-
-  sec_long <- rbind(sec1, sec2)
-  sec_long <- sec_long |> arrange(SiteCode, EventDate, Observer)
+  # sec1 <- sec |> select(all_of(start_cols),
+  #                       SDepth_m = SDepth1_m, SecchiObs = SecchiObs1, Bot_SD = Bot_SD1) |>
+  #                mutate(Observer = 1)
+  # sec2 <- sec |> select(all_of(start_cols),
+  #                       SDepth_m = SDepth2_m, SecchiObs = SecchiObs2, Bot_SD = Bot_SD2) |>
+  #                mutate(Observer = 2)
+  #
+  # sec_long <- rbind(sec1, sec2)
+  # sec_long <- sec_long |> arrange(SiteCode, EventDate, Observer)
 
   # Add year, month and day of year column to dataset and fix data types
-  sec_long$year <- as.numeric(substr(sec_long$EventDate, 1, 4))
-  sec_long$month <- as.numeric(substr(sec_long$EventDate, 6, 7))
-  sec_long$doy <- as.numeric(strftime(sec_long$EventDate, format = "%j"))
-  sec_long$IsEventCUI <- as.logical(sec_long$IsEventCUI)
-  sec_long$SDepth_m <- as.numeric(gsub("NA", NA_real_, sec_long$SDepth_m))
-  sec_long$SecchiObs <- gsub("NA", NA_character_, sec_long$SecchiObs)
-  sec_long$Bot_SD <- gsub("NA", NA_character_, sec_long$Bot_SD)
+  sec$year <- as.numeric(substr(sec$EventDate, 1, 4))
+  sec$month <- as.numeric(substr(sec$EventDate, 6, 7))
+  sec$doy <- as.numeric(strftime(sec$EventDate, format = "%j"))
+  sec$IsEventCUI <- as.logical(sec$IsEventCUI)
+  sec$Value <- as.numeric(gsub("NA", NA_real_, sec$Value))
+  sec$ObsInit <- gsub("NA", NA_character_, sec$ObsInit)
+  sec$SD_HitBottom <- as.logical(sec$SD_HitBottom)
+  sec$Observer <- as.numeric(gsub('[A-z]', "", sec$Parameter))
+  sec$Parameter = "SecchiDepth_m"
 
   # Filter by site, years, and months to make data set small
   sites <- force(getSites(park = park, site = site, site_type = 'lake', active = active))$SiteCode
@@ -106,18 +108,18 @@ getSecchi <- function(park = "all", site = "all",
                          years = years, months = months, output = 'verbose')) |>
     select(SiteCode, SiteType, EventDate, EventCode)
 
-  sec2 <- sec_long |> filter(SiteCode %in% sites)
+  sec2 <- sec |> filter(SiteCode %in% sites)
   sec3 <- left_join(evs, sec2, by = c("SiteCode", "EventDate", "EventCode"))
 
   sec4 <- if(observer_type == "all"){sec3
   } else if(observer_type == "first"){filter(sec3, Observer %in% 1)
   } else if(observer_type == "second"){filter(sec3, Observer %in% 2)}
 
-  sec5 <- sec4 |> filter(!is.na(SDepth_m))
+  sec5 <- sec4 |> filter(!is.na(Value))
 
   sec6 <-
   if(output == "short"){sec5[,c("SiteCode", "SiteName", "UnitCode", "SubUnitCode", "EventDate", "EventCode",
-                                "year", "month", "doy", "SDepth_m", "SecchiObs", "Bot_SD", "Observer")]
+                                "year", "month", "doy", "Parameter", "Value", "SD_HitBottom", "Observer")]
     } else {sec4}
 
   if(nrow(sec6) == 0){
