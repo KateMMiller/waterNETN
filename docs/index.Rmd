@@ -194,25 +194,12 @@ Daymet data are 1km gridded daily climate data, similar to PRISM data, but with 
 
 Daymet data are typically available for a calendar year a a few months into the next year.
 
-In waterNETN, you can download Daymet data by park, site, site type, and spanning years 1980 to 2023. See examples below. The larger the number of sites and years, the longer it can take. I added the option to save the data as a csv to disk via `export = T` and specifying a `filepath`, so you don't have to download these data over and over. I'll make it possible to read csvs into R to work with climate summary and plotting functions.  
+In waterNETN, you can download Daymet data by park, site, site type, and spanning years 1980 to 2023. See examples below. The larger the number of sites and years, the longer it can take. 
 
-<p class = 'fxn'>The following code downloads Daymet data for East Primrose Brook in MORR for the entire monitoring period, and exports to a data folder in the working directory.</p>
+<p class = 'fxn'>The following code downloads Daymet data for East Primrose Brook in MORR for the entire monitoring period.</p>
 ```{r, eval = F}
-prim <- getClimDaymet(site = "MORRSB", years = 2006:2023, export = T, 
-                      filepath = "./data")
+prim <- getClimDaymet(site = "MORRSB", years = 2006:2023)
 print_head(prim) # table of first 6 rows- this is a custom function I wrote to save on coding
-```
-
-```{r, echo = F}
-prim <- getClimDaymet(site = "MORRSB", years = 2006:2023, export = T, 
-                      filepath = "../data")
-print_head(prim) # table of first 6 rows- this is a custom function I wrote to save on coding
-```
-
-
-
-```{r echo = F, include = F}
-file.remove("../data/Daymet_climate_data_2006-2023.csv")
 ```
 
 <p class = 'fxn'>The following code downloads Daymet data for all sites in MABI for 2023. Results are assigned to R session environment and not exported to data folder in the working directory.</p>

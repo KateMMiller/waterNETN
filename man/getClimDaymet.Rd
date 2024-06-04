@@ -2,7 +2,7 @@
 % Please edit documentation in R/getClimDaymet.R
 \name{getClimDaymet}
 \alias{getClimDaymet}
-\title{getClimDaymet: Download daily Daymet gridded climate data}
+\title{getClimDaymet: Download daily Daymet gridded climate data directly from REST}
 \usage{
 getClimDaymet(
   park = "all",
@@ -10,10 +10,7 @@ getClimDaymet(
   site_type = c("all", "lake", "stream"),
   years = c(2006:2023),
   active = TRUE,
-  weather_station = FALSE,
-  filepath = NA,
-  export = FALSE,
-  silent = TRUE
+  weather_station = FALSE
 )
 }
 \arguments{
@@ -48,26 +45,18 @@ currently 12/31/2023.}
 \item{weather_station}{Logical. If TRUE, will return Daymet data for coordinates of nearest weather station to a park.
 If FALSE (default), returns Daymet data for water monitoring sites only. This argument facilitates calculating decadal
 averages to compare with current-year weather station data.}
-
-\item{filepath}{Quoted path to save files to. If not specified, will save to working directory.}
-
-\item{export}{Logical. If TRUE, will export a CSV of the compiled Daymet data with a date stamp. Must supply
-a filepath to write output to. If FALSE (Default), will only return results to R environment.}
-
-\item{silent}{Logical. If TRUE (Default), won't show Daymet comments in console. If FALSE, will print Daymet comments
-as sign of progress (and working) in console.}
 }
 \value{
 Data frame of Daymet daily climate data for each specified site.
 }
 \description{
-This function downloads daily gridded climate data from Daymet for each selected NETN
-water monitoring site based on its lat/long coordinates, and binds each site's data into a single
-dataframe. Final dataframe can also be written to disk (export = T). If downloading for all sites
-and multiple years, function may be slow. The returned data frame includes
-Day length (dayl in s/day), Precipitation (prcp in mm/day), Shortwave radiation (srad in W/m2),
-Snow water equivalent (swe in kg/m2), Maximum air temperature (tmax in C), Minimum air temperature (tmin in C),
-and Water vapor pressure (vp in Pascals). More details on metrics can be found online:
+This function downloads daily gridded climate data directly from Daymet REST for
+each selected NETN water monitoring site based on its lat/long coordinates, and binds each
+site's data into a single dataframe. If downloading for all sites and multiple years, function
+may be slow. The returned data frame includes Day length (dayl in s/day), Precipitation (prcp
+in mm/day), Shortwave radiation (srad in W/m2), Snow water equivalent (swe in kg/m2),
+Maximum air temperature (tmax in C), Minimum air temperature (tmin in C), and Water vapor
+pressure (vp in Pascals). More details on metrics can be found online:
 https://daymet.ornl.gov/overview.html > Parameters, Parameter abbreviations, Units and Descriptions.
 Note that occasionally you're unable to connect to the server, and will receive an error message
 when that happens.
@@ -78,8 +67,8 @@ when that happens.
 library(waterNETN)
 importData()
 
-# download for MORR 2023 only and export to csv
-morr <- getClimDaymet(park = "MORR", years = 2023, filepath = "C:/data", export = T)
+# download for MORR 2023 only
+morr <- getClimDaymet(park = "MORR", years = 2023)
 
 # download for ACAD lakes from 1980:2023
 acad_lakes <- getClimDaymet(park = "ACAD", site_type = "lake", years = 1980:2023)

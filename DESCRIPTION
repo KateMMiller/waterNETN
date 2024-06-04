@@ -45,7 +45,6 @@ Imports:
     purrr,
     tidyr
 Suggests: 
-    daymetr,
     DBI,
     httr,
     jsonlite,

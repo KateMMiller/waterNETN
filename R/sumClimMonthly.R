@@ -103,7 +103,7 @@ sites <- force(getSites(park = park, site = site, site_type = site_type,
 
 if(data_type %in% c("all", "daymet")){
 daym <- force(getClimDaymet(park = park, site = site, site_type = site_type,
-                           active = active, years = years, silent = TRUE,
+                           active = active, years = years,
                            weather_station = F, ...))
 
 daym$srad_mjm2 <- (daym$dm_srad_Wm2 * daym$dm_dayl_s/1000000)

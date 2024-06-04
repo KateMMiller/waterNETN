@@ -1,19 +1,20 @@
 #' @include getSites.R
 #'
-#' @title getClimDaymet: Download daily Daymet gridded climate data
+#' @title getClimDaymet: Download daily Daymet gridded climate data directly from REST
 #'
-#' @description This function downloads daily gridded climate data from Daymet for each selected NETN
-#' water monitoring site based on its lat/long coordinates, and binds each site's data into a single
-#' dataframe. Final dataframe can also be written to disk (export = T). If downloading for all sites
-#' and multiple years, function may be slow. The returned data frame includes
-#' Day length (dayl in s/day), Precipitation (prcp in mm/day), Shortwave radiation (srad in W/m2),
-#' Snow water equivalent (swe in kg/m2), Maximum air temperature (tmax in C), Minimum air temperature (tmin in C),
-#' and Water vapor pressure (vp in Pascals). More details on metrics can be found online:
+#' @description This function downloads daily gridded climate data directly from Daymet REST for
+#' each selected NETN water monitoring site based on its lat/long coordinates, and binds each
+#' site's data into a single dataframe. If downloading for all sites and multiple years, function
+#' may be slow. The returned data frame includes Day length (dayl in s/day), Precipitation (prcp
+#' in mm/day), Shortwave radiation (srad in W/m2), Snow water equivalent (swe in kg/m2),
+#' Maximum air temperature (tmax in C), Minimum air temperature (tmin in C), and Water vapor
+#' pressure (vp in Pascals). More details on metrics can be found online:
 #' https://daymet.ornl.gov/overview.html > Parameters, Parameter abbreviations, Units and Descriptions.
 #' Note that occasionally you're unable to connect to the server, and will receive an error message
 #' when that happens.
 #'
-#' @importFrom dplyr select
+#' @importFrom dplyr left_join select
+#' @importFrom purrr pmap
 #' @importFrom tidyr pivot_wider
 #'
 #' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
@@ -48,14 +49,6 @@
 #'
 #' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
 #'
-#' @param export Logical. If TRUE, will export a CSV of the compiled Daymet data with a date stamp. Must supply
-#' a filepath to write output to. If FALSE (Default), will only return results to R environment.
-#'
-#' @param filepath Quoted path to save files to. If not specified, will save to working directory.
-#'
-#' @param silent Logical. If TRUE (Default), won't show Daymet comments in console. If FALSE, will print Daymet comments
-#' as sign of progress (and working) in console.
-#'
 #' @return Data frame of Daymet daily climate data for each specified site.
 #'
 #' @examples
@@ -64,8 +57,8 @@
 #' library(waterNETN)
 #' importData()
 #'
-#' # download for MORR 2023 only and export to csv
-#' morr <- getClimDaymet(park = "MORR", years = 2023, filepath = "C:/data", export = T)
+#' # download for MORR 2023 only
+#' morr <- getClimDaymet(park = "MORR", years = 2023)
 #'
 #' # download for ACAD lakes from 1980:2023
 #' acad_lakes <- getClimDaymet(park = "ACAD", site_type = "lake", years = 1980:2023)
@@ -75,81 +68,82 @@
 #' @export
 
 getClimDaymet <- function(park = "all", site = "all",
-                          site_type = c("all", "lake", "stream"),
-                          years = c(2006:2023), active = TRUE,
-                          weather_station = FALSE,
-                          filepath = NA, export = FALSE,
-                          silent = TRUE){
+                              site_type = c("all", "lake", "stream"),
+                              years = c(2006:2023), active = TRUE,
+                              weather_station = FALSE){
   #--- error handling ---
   park <- match.arg(park, several.ok = TRUE,
                     c("all", "LNETN", "ACAD", "MABI", "MIMA", "MORR",
                       "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
   if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
   site_type <- match.arg(site_type)
-  stopifnot(class(silent) == 'logical')
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 1980)
   stopifnot(class(active) == "logical")
   stopifnot(class(weather_station) == "logical")
-
-  # Check that suggested package required for this function are installed
-  if(!requireNamespace("daymetr", quietly = TRUE)){
-    stop("Package 'daymetr' needed to download Daymet data. Please install it.", call. = FALSE)
-  }
-
-  if(export == TRUE){
-    if(is.na(filepath)){stop(paste0("Must specify a filepath to the database when export = TRUE"))
-    } else if(!file.exists(filepath)){
-        stop("Specified file path does not exist.")}
-
-    if(!grepl("/$", filepath)){filepath <- paste0(filepath, "/")} # add / to end of filepath if doesn't exist
-  }
 
   #--- compile data ---
   # Create list of lat/longs to generate
   data("closest_WS")
 
-  sites1 <- force(getSites(park = park, site = site, site_type = site_type, active = active)) |>
-    select(site = SiteCode, latitude = SiteLatitude, longitude = SiteLongitude)
+  sites1 <- force(getSites(park = park, site = site, site_type = site_type,
+                           active = active)) |>
+    select(site = SiteCode, lat = SiteLatitude, long = SiteLongitude)
 
   sites <- if(weather_station == TRUE){
     left_join(sites1, closest_WS, c("site" = "SiteCode")) |>
-      select(site, latitude = ws_lat, longitude = ws_long)
+      select(site, lat = ws_lat, long = ws_long)
   } else {sites1}
 
-  # save to tmp folder for daymet to pull from and save indiv. site files to
-  dir.create(tmp <- tempfile())
-  write.csv(sites, paste0(tmp, "\\daymet_sites.csv"), row.names = F)
+  test <- httr::POST("https://daymet.ornl.gov/single-pixel/api/data?")$status_code
+  if(test %in% c(503, 404)){stop("Unable to reach Daymet Server.")}
 
-  cdata_long <-
-    tryCatch({
-      daymetr::download_daymet_batch(
-      file_location = paste0(tmp, "\\daymet_sites.csv"),
-                             start = min(years),
-                             end = max(years),
-                             path = tmp,
-                             simplify = TRUE,
-                             silent = silent)},
-      error = function(e){stop('Unable to connect to Daymet server.')}
-    )
+  # Function to download one site
+  getdaym <- function(sitecode, lat, long, years){
+    # set up url
+    year_range <- paste0(years, collapse = ",")
+    daym_server <- "https://daymet.ornl.gov/single-pixel/api/data?"
+    daym_url <- paste0(daym_server,
+                       "lat=", lat,
+                       "&lon=", long,
+                       #"&vars=tmax,tmin,dayl,prcp,srad,swe,vp",
+                       "&years=", year_range)
+    # Download from server
+    dat <- httr::GET(daym_url)
+    # Turn into dataframe
+    dat2 <- httr::content(dat, as = "text", encoding = "UTF-8")
+    header_start <- unlist(gregexpr("year,yday", dat2))
+    tile_pos <- unlist(gregexpr("Tile: ", dat2)) + 5
+    tile <- as.numeric(substr(dat2, tile_pos, tile_pos + 6)) #12116
+    alt_pos <- unlist(gregexpr("Elevation: " , dat2)) + 11
+    altitude <- as.numeric(gsub("[[:alpha:]]|", "", (substr(dat2, alt_pos, alt_pos + 5))))
+    dat3 <- substr(dat2, header_start, nchar(dat2))
+    dat4 <- read.table(textConnection(dat3), sep = ",", header = T)
+    colnames(dat4) <- gsub("\\.\\.", "_", names(dat4))
+    colnames(dat4) <- gsub("\\.", "", names(dat4))
+    dat4$SiteLatitude = lat
+    dat4$SiteLongitude = long
+    dat4$SiteCode = sitecode
+    dat4$dm_tile = tile
+    dat4$altitude = altitude
+    dat4$Date <- as.Date(dat4$yday, origin = paste0(dat4$year, "-01-01"))
+    dat4 <- dat4[, c("SiteCode", "dm_tile", "SiteLatitude", "SiteLongitude", "altitude",
+                     "Date", "year", "yday",
+                     "dayl_s", "prcp_mmday", "srad_Wm2", "swe_kgm2", "tmax_degc",
+                     "tmin_degc", "vp_Pa")]
 
-  cdata_wide <- cdata_long |> pivot_wider(names_from = measurement, values_from = value) |> data.frame()
-  colnames(cdata_wide) <- gsub("\\.\\.", "_", names(cdata_wide))
-  colnames(cdata_wide) <- gsub("\\.", "", names(cdata_wide))
-  newnames <- c(names(cdata_wide[1:7]), paste0("dm_", names(cdata_wide[8:14])))
-  colnames(cdata_wide) <- newnames
+    newnames <- c(names(dat4[, 1:8]),
+                  paste0("dm_", names(dat4[, 9:ncol(dat4)])))
+    colnames(dat4) <- newnames
+    dat4
+  }
 
-  cdata_wide$Date <- as.Date(cdata_wide$yday, origin = paste0(cdata_wide$year, "-01-01"))
+  # Iterate to download all sites
+  site_list <- list(sites$site, sites$lat, sites$long)
+  yrs = years
 
-  cdata_final <- cdata_wide |> select(SiteCode = site, dm_tile = tile,
-                                      SiteLatitude = latitude, SiteLongitude = longitude,
-                                      altitude, Date, year, yday, dm_dayl_s, dm_prcp_mmday,
-                                      dm_srad_Wm2, dm_swe_kgm2, dm_tmax_degc, dm_tmin_degc, dm_vp_Pa)
-
-  if(export == TRUE){write.csv(cdata_final,
-                               paste0(filepath, "Daymet_climate_data_",
-                                      min(years), "-", max(years), ".csv"),
-                               row.names = F)}
-
-  return(data.frame(cdata_final))
+  comb_daym <- pmap(site_list, function(sitecode, lat, long, yrs){
+    getdaym(sitecode, lat, long, years)
+  }) |> list_rbind()
+  return(comb_daym)
 
 }
