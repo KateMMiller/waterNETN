@@ -19,6 +19,7 @@ Collate:
     'getChemistry.R'
     'getClimDaymet.R'
     'getClimDrought.R'
+    'getClimNOAA.R'
     'getClimWStat.R'
     'getDischarge.R'
     'getLightPen.R'
@@ -49,6 +50,7 @@ Suggests:
     httr,
     jsonlite,
     odbc,
+    raster,
     rLakeAnalyzer,
     scales,
     SPEI,
