@@ -4,13 +4,36 @@
 \alias{getClimNOAA}
 \title{getClimNOAA: Download monthly gridded NOAA climate data}
 \usage{
-getClimNOAA(year = 2024, months = 5)
+getClimNOAA(park = "all", year = 2024, months = 4, parameter = "all")
 }
 \arguments{
+\item{park}{Combine data from all parks or one or more parks at a time. Valid inputs:
+\describe{
+\item{"all"}{Includes all parks in the network}
+\item{"LNETN"}{Includes all parks but ACAD}
+\item{"ACAD"}{Acadia NP only}
+\item{"MABI"}{Marsh-Billings-Rockefeller NHP only}
+\item{"MIMA"}{Minute Man NHP only}
+\item{"MORR"}{Morristown NHP only}
+\item{"ROVA"}{Roosevelt-Vanderbilt NHS only}
+\item{"SAGA"}{Saint-Gaudens NHP only}
+\item{"SAIR"}{Saugus Iron Works NHS only}
+\item{"SARA"}{Saratoga NHP only}
+\item{"WEFA"}{Weir Farm NHP only}}}
+
 \item{year}{4-digit year to query. Earliest available year is 1951, and latest is 2024. Currently can only
 handle 1 year at a time.}
 
-\item{months}{vector of months to query. Typically there's about a 6 week delay in monthly data availability.}
+\item{months}{Vector of numeric months to query. Typically there's about a 6 week delay in monthly data availability.}
+
+\item{parameter}{Quoted vector of climate parameters to download. Acceptable values are:
+\describe{
+\item{"all"}{Download all climate variables}
+\item{"prcp"}{Total precipitation in mm.}
+\item{"tmax"}{Monthly average maximum temperature in C.}
+\item{"tmin"}{Monthly average minimum temperature in C.}
+\item{"tavg"}{Monthly average temperature in C.}
+}}
 }
 \value{
 Data frame of Daymet daily climate data for each specified site.
