@@ -53,6 +53,7 @@ Suggests:
     raster,
     rLakeAnalyzer,
     scales,
+    sf,
     SPEI,
     XML,
     zip
