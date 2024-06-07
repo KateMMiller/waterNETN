@@ -235,6 +235,6 @@ importData <- function(type = c("DSN", "dbfile", "csv", "zip"),
 
   # Print message in console
   print(ifelse(new_env == TRUE,
-               paste0("Import complete. Views are located in VIEWS_WQ environment."),
-               paste0("Import complete. Views are located in global environment.")), quote = FALSE)
+               paste0(" Import complete. Views are located in VIEWS_WQ environment."),
+               paste0(" Import complete. Views are located in global environment.")), quote = FALSE)
 }

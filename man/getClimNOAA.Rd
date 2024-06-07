@@ -4,7 +4,7 @@
 \alias{getClimNOAA}
 \title{getClimNOAA: Download monthly gridded NOAA climate data}
 \usage{
-getClimNOAA(park = "all", year = 2024, months = 4, parameter = "all")
+getClimNOAA(park = "all", year = format(Sys.Date(), "\%Y"), months = 4)
 }
 \arguments{
 \item{park}{Combine data from all parks or one or more parks at a time. Valid inputs:
@@ -25,15 +25,6 @@ getClimNOAA(park = "all", year = 2024, months = 4, parameter = "all")
 handle 1 year at a time.}
 
 \item{months}{Vector of numeric months to query. Typically there's about a 6 week delay in monthly data availability.}
-
-\item{parameter}{Quoted vector of climate parameters to download. Acceptable values are:
-\describe{
-\item{"all"}{Download all climate variables}
-\item{"prcp"}{Total precipitation in mm.}
-\item{"tmax"}{Monthly average maximum temperature in C.}
-\item{"tmin"}{Monthly average minimum temperature in C.}
-\item{"tavg"}{Monthly average temperature in C.}
-}}
 }
 \value{
 Data frame of Daymet daily climate data for each specified site.
@@ -52,7 +43,15 @@ when that happens.
 library(waterNETN)
 importData()
 
-#+++++ UPDATE ++++++
+# get weather data for January - May 2024 for all NETN (will take a bit to download)
+getClimNOAA(months = 1:5)
+
+# get weather data for May 2024 for ROVA
+getClimNOAA(park = "ROVA", months = 5)
+
+# get weather data for all of 2023 in LNETN
+getClimNOAA(park = "LNETN", year = 2023, months = 1:12)
+
 }
 
 }
