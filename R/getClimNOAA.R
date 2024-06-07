@@ -80,7 +80,7 @@ getClimNOAA <- function(park = 'all', year = format(Sys.Date(), "%Y"), months = 
   data("NETN_centroids")
 
   cent <- if(any(park == "all")){NETN_centroids
-    } else {NETN_centroids |> filter(UNIT_CODE %in% park)}
+    } else {NETN_centroids |> filter(UnitCode %in% park)}
 
   # bounding box to crop before extract to speed up function
   NETN_bbox <- data.frame(lat = c(47.38, 44.80, 38.71, 43.40),#, 39.994187),
@@ -116,7 +116,7 @@ getClimNOAA <- function(park = 'all', year = format(Sys.Date(), "%Y"), months = 
         netn_tavg <- cbind(cent, tavg = raster::extract(tavg_crop, cent[,c("long", "lat")]))
 
         clim_list <- list(netn_prcp, netn_tmax, netn_tmin, netn_tavg)
-        netn_comb <- reduce(clim_list, full_join, by = c("UNIT_CODE", "long", "lat"))
+        netn_comb <- reduce(clim_list, full_join, by = c("UnitCode", "long", "lat"))
 
         netn_comb$year = yr
         netn_comb$month = as.numeric(mon)
