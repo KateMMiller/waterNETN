@@ -76,7 +76,7 @@ install_github("KateMMiller/waterNETN")
 library(waterNETN)
 ```
 <h4><b>Step 5.</b> Import data</h4>
-Note that R is not able to connect to files on Sharepoint or MS Teams (b/c Teams also stores all files on Sharepoint). That means you need to store data package files on your local machine or on a server (e.g. NETN Z drive). The default option for importing data will add the data package views (i.e., flatfiles) to an environment called VIEWS_WQ to your Environment work space (i.e. Environtment tab in top right panel). If you would rather import each individual view into your R session, specify with the new_env argument (e.g., `importData(new_env = F)`).
+Note that R is not able to connect to files on Sharepoint or MS Teams (b/c Teams also stores all files on Sharepoint). That means you need to store data package files on your local machine or on a server (e.g. NETN Z drive). The default option for importing data will add the data package views (i.e., flatfiles) to an environment called VIEWS_WQ to your Environment work space (i.e. Environment tab in top right panel). If you would rather import each individual view into your R session, specify with the new_env argument (e.g., `importData(new_env = F)`).
 ```{r echo = F, results = 'hide', include = F}
 importData()
 ```
@@ -143,7 +143,7 @@ print_head <- function(df){
 #### Getting help
 <h4><b>Getting (and improving) help</b></h4>
 The functions in `waterNETN` have help documentation like any R package. To view the help, you can go to the Packages tab and click on waterNETN (see below). That will show you all the functions in the package. Clicking on individual functions will take you to the help documentation for that function. 
-```{r echo = F, out.height = 150, fig.align = 'center'}
+```{r echo = F, out.width = 500, fig.align = 'center'}
 knitr::include_graphics("C:/NETN/R_Dev/Water/waterNETN/testing_scripts/finding_R_package.jpg")
 ```
 
@@ -171,17 +171,17 @@ Finally, if you ever want to peak under the hood at the function, you can view i
 <ol>
 <li>Go to Windows Start Menu and search ODBC. Click on ODBC Data Sources (64-bit) </li>
 
-```{r echo = F, out.height = 350, fig.align = 'center'}
+```{r echo = F, out.height = '457px', out.width = '564px', fig.align = 'center'}
 knitr::include_graphics("C:/NETN/R_Dev/Water/waterNETN/testing_scripts/ODBC_step_1.jpg")
 ```
 <li>Click on <i>Add</i>, then select <i>Microsoft Access Driver (\*.mdb, \*.accdb)</i> then click <i>Finish</i> in next menu.</li>
 
-```{r echo = F, out.height = 400, fig.align = 'center'}
+```{r echo = F, out.height = '450px', out.width = '1018px', fig.align = 'center'}
 knitr::include_graphics("C:/NETN/R_Dev/Water/waterNETN/testing_scripts/ODBC_step_2.jpg")
 ```
 
 <li>Enter <b>NETNWQ_DP</b> into the Data Source Name (red arrow), click on Select (red circle). In new window, click on C:/ (orange arrow) and find the path to your database. If it's on the Z drive, then click on the Drives window and select correct Drive. Click on the data package database (yellow arrow). When complete, click OK. Finally, add the name of the database file to the Description (blue arrow), so it's easier to check whether you're using the latest version.  </li>
-```{r echo = F, out.height = 400, fig.align = 'center'}
+```{r echo = F, out.height = '486px', out.width = '600px', fig.align = 'center'}
 knitr::include_graphics("C:/NETN/R_Dev/Water/waterNETN/testing_scripts/ODBC_step_3.jpg")
 ```
 
@@ -189,6 +189,43 @@ knitr::include_graphics("C:/NETN/R_Dev/Water/waterNETN/testing_scripts/ODBC_step
 </ol>
 
 ### get Data functions {.tabset}
+#### getClimNOAA()
+Extracts gridded NOAA climate data for park centroids. After looking over Daymet, Prism and weather station data, I've settled on the NOAA gridded data to make comparisons because they use the same algorithm and scale to calculate historic averages and annual data. Historic averages are available for the 20th century (1901 - 2000), which I also like, and for the latest 30 year normal (1991 - 2020). The normals for NETN park centroids have been compiled and are a data source that exists when you install the waterNETN package (called NETN_clim_norms.rda). This means you don't have to download or summarize the normals every time you want to use them, which speeds up plotting. You can download data as far back as 1951. However, I've also saved time by compiling all of the monthly data from 2006 - 2023, and saved this as a dataset for the package called NETN_clim_2006_2023.rda (see code chunk below on how to access this data set). That means you only need to download and compile data for the current year. Once a year ends, I'll add those data to the package dataset. 
+
+Now that I've settled on the NOAA data, I will update each of the climate comparison plotting functions to work with this data. The plotClimTrend() function will still allow you to select from weather station, Daymet, or NOAA data for plotting, for now at least.
+
+Currently the `getClimNOAA()` function only works for 1 year at a time, which should be fine, because I've already compiled 2006 - 2023 data for you. New data availability is usually delayed by about a week after a month ends. For example, on 6/7/2024, the data for May 2024 were posted as final. If you try to download data for a month before it's available, you'll get an error telling you which months are not available yet. You then just need to change your `months` argument to include only the months that didn't fail. I have a web alert on my phone that tells me when the previous month's data were posted, so I'll be able to update any visualizers or reports we build as soon as data are available.
+
+The more months you include in the function, the longer it will take, as each month and climate variable is a separate raster to download. Number of parks minimally impacts performance.
+
+Note that soon I'm going to strip most of these climate functions out of this package and create a new climateNETN package, so any protocol can work with these data. The function names won't change, and you won't need to update your code beyond needing to install and load the separate package. I'll update this website once I'm finished with that transition.
+
+<p class = 'fxn'> get weather data for January - May 2024 for all NETN. </p>
+This may take a minute or so to download. If you're ultimately interested in plotting the data using one of the waterNETN package functions, don't worry about downloading separately. Just run the function, and it will 
+```{r cache = T}
+netn_jan_may <- getClimNOAA(months = 1:5)
+print_head(netn_jan_may)
+```
+
+<p class = 'fxn'>Get weather data for May 2024 for ROVA</p>
+```{r cache = T}
+rova_may <- getClimNOAA(park = "ROVA", months = 5)
+print_head(rova_may)
+```
+
+<p class = 'fxn'>Get weather data for all of 2023 in LNETN</p>
+```{r cache = T}
+lnetn_2023 <- getClimNOAA(park = "LNETN", year = 2023, months = 1:12)
+print_head(lnetn_2023)
+```
+
+<p class = 'fxn'>View dataset containing 2006 - 2023 NOAA climate data</p>
+```{r}
+data("NETN_clim_2006_2023.rda")
+print_head(NETN_clim_2006_2023)
+
+```
+
 #### getClimDaymet()
 Daymet data are 1km gridded daily climate data, similar to PRISM data, but with more daily data associated with each location and more efficient downloading process (extract data from lat/long points, rather than download nationwide raster files and extract manually). Daymet data go back to 1980. See <a href="https://daymet.ornl.gov/">https://daymet.ornl.gov/</a> for more information. Another benefit of Daymet over PRISM is the data can be used to calculate drought indices, like Standardized Precipitation-Evapotranspiration Index (SPEI). Note: I'll eventually add SPEI metrics to the output of this function. 
 
@@ -728,17 +765,17 @@ This function produces a line or smoothed trend plot filtered on park, site, yea
 
 
 <p class = 'fxn'>Plot monthly weather station data for Pogue Stream in MABI from 2006:2023 (all months is default), without a smoothed line.</p>
-```{r}
+```{r cache = T}
 plotClimTrend(site = "MABIPA", years = 2006:2023, parameter = "ws_ppt_mm", smooth = F)
 ```
 <p class = 'fxn'>Plot monthly weather station data for Pogue Stream in MABI from 2006:2023, with smoothed line and span 0.7.</p>
-```{r}
+```{r cache = T}
 plotClimTrend(site = "MABIPA", years = 2006:2023, parameter = "ws_ppt_mm", span = 0.7)
 ```
 
 
 <p class = 'fxn'>Plot monthly Daymet min, max and mean temperature for Pogue Stream in MABI and Kroma Kill in SARA from 2006:2023, with smoothed line, span 0.7, only sample months, and sites on separate plots, but parameters on the same plots. </p>
-```{r}
+```{r cache = T}
 plotClimTrend(site = c("MABIPA", "SARASA"), years = 2006:2023, 
               parameter = c("dm_tmean_C", "dm_tmax_C", "dm_tmin_C"), 
               span = 0.7, months = 5:10, facet_site = TRUE, facet_param = F,
@@ -752,35 +789,35 @@ By default, this function works with Daymet data, and so is not always available
 
 <details open><summary class='drop'>Single parameter</summary>
 <p class = 'fxn'>Plot mean monthly temp for The Pogue in MABI for 2019:2023 and all months with red-blue color palette and the 4 decadal averages.</p>
-```{r}
+```{r cache = T}
 plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "tmean", 
               palette = c("red", "blue"), averages = "decades")
 ```
 <p class = 'fxn'>Same as above, but with points and 30-year normal starting at 1990.</p>
-```{r}
+```{r cache = T}
 plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "tmean", palette = c("red", "blue"), 
               layers = c('points', 'lines'), averages = "norm90")
 ```
 <p class = 'fxn'>Plot max monthly temp for Eagle Lake and Jordan Pond for 2019:2023 and sample months only, with 'viridis' palette and 30-year norm starting at 1980 (default).</p>
 
-```{r}
+```{r cache = T}
 plotClimComps(site = c("ACEAGL", "ACJORD"), years = 2019:2023, months = 5:10,
               parameter = "tmax", palette = "viridis", layers = 'lines')
 ```
 <p class = 'fxn'>Plot total monthly precip for Jordan Pond for past 5 years using yellow-blue color palette, compared with the 30-year norm starting at 1980.</p>
-```{r}
+```{r cache = T}
 plotClimComps(site = "ACJORD", years = 2018:2023, parameter = 'ppt', 
               palette = c("#E8E62C", "blue"))
 ```
 
 <p class = 'fxn'>Plot total monthly precip for Jordan Pond for current year using red for 2023 and blue for 2024</p>
-```{r}
+```{r cache = T}
 plotClimComps(site = "ACJORD", years = 2023:2024, parameter = 'ppt', 
               palette = c("red", "blue"), data_type = 'wstn')
 ```
 
 <p class = 'fxn'>Plot total monthly max temp for Jordan Pond for current year using red for current year color.</p>
-```{r}
+```{r cache = T}
 plotClimComps(site = "ACJORD", years = 2024, parameter = 'tmean', 
               palette = c("red"), data_type = 'wstn')
 ```
@@ -794,7 +831,7 @@ The code below would take a lot to program into waterNETN functions, so I'm inst
 
 <p class = 'fxn'>Generate grid of all parameters in Eagle Lake from past 10 years</p> 
 Note that the code that names leg is extracting a legend from a copy of the figures to be plotted separately from the other figures. This allows you to control the sizing and alignment better. The NULLs also allow you to create white space between plots.
-```{r}
+```{r cache = T}
 tmax <- plotClimComps(site = "ACEAGL", years = 2013:2023, parameter = "tmax", months = 5:10,
                       layers = 'lines', legend_position = 'none', palette = c("red", "blue"))
 
@@ -826,7 +863,7 @@ grid2
 
 <p class = 'fxn'>Generate grid of all parameters in Eagle Lake for 2024, Jan through April.</p>
 Because waterNETN plotting functions return ggplot objects, we can tweak the plots so that temp plots all have the same y axis (so you can see that max is higher than min). 
-```{r}
+```{r cache = T}
 wstn_temp <- sumClimMonthly(site = "ACEAGL", years = 2024, data_type = "wstn") 
 avg_temp <- sumClimAvgs(site = "ACEAGL", data_type = "daymet")
 
