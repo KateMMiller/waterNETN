@@ -73,7 +73,7 @@ getClimNOAA <- function(park = 'all', year = format(Sys.Date(), "%Y"), months = 
     stop("Package 'ncdf4' needed to download NOAA gridded climate data. Please install it.", call. = FALSE)
   }
 
-  mos <- sprintf("%02d", months)
+  #mos <- sprintf("%02d", months)
 
   #--- compile data ---
   # Create list of lat/longs to generate
@@ -87,47 +87,47 @@ getClimNOAA <- function(park = 'all', year = format(Sys.Date(), "%Y"), months = 
                           long = c(-68.71, -66.67, -74.84, -75.54)) |> #, -80.521832)) |>
     sf::st_as_sf(coords = c("long", "lat"), crs = 4326) |> sf::st_bbox()
 
+  #"https://noaa-nclimgrid-monthly-pds.s3.amazonaws.com/202404.prcp.conus.pnt"
 
   getnoaa <- function(yr, mon){
-    mly_url <- paste0("https://www.ncei.noaa.gov/thredds/dodsC/nclimgrid-daily/", yr,
-                      "/ncdd-", yr, mon, "-grd-scaled.nc")
-    tryCatch(prcp <- raster::raster(mly_url, varname = "prcp"),
-              error = function(e){
-                stop(paste0("Unable to download from ncei.noaa.gov for ",
-                       year, " and ", mon, ".\n",
-                       "The year, month combination may not be availble yet, or the server is down.", "\n",
-                       "Check https://www.ncei.noaa.gov/thredds/catalog/nclimgrid-daily/catalog.html for more info.", "\n",
-                       "Only files ending in 'scaled' are considered available."))})
+    url_base <- "https://www.ncei.noaa.gov/thredds/dodsC/data-in-development/nclimgrid/nclimgrid_"
+    url_prcp <- paste0(url_base, "prcp", ".nc")
+    url_tavg <- paste0(url_base, "tavg", ".nc")
+    url_tmax <- paste0(url_base, "tmax", ".nc")
+    url_tmin <- paste0(url_base, "tmin", ".nc")
 
-        prcp <- raster::raster(mly_url, varname = "prcp")
-        prcp_crop <- raster::crop(prcp, NETN_bbox)
-        netn_prcp <- cbind(cent, prcp = raster::extract(prcp_crop, cent[,c("long", "lat")]))
+    band <- (yr - 1895)*12 + mon
 
-        tmax <- raster::raster(mly_url, varname = "tmax")
-        tmax_crop <- raster::crop(tmax, NETN_bbox)
-        netn_tmax <- cbind(cent, tmax = raster::extract(tmax_crop, cent[,c("long", "lat")]))
+    prcp <- tryCatch(raster::raster(url_prcp, band = band),
+                     error = function(e){stop(paste0(e))})
+    prcp_crop <- raster::crop(prcp, NETN_bbox)
+    netn_prcp <- cbind(cent, prcp = raster::extract(prcp_crop, cent[,c("long", "lat")]))
 
-        tmin <- raster::raster(mly_url, varname = "tmin")
-        tmin_crop <- raster::crop(tmin, NETN_bbox)
-        netn_tmin <- cbind(cent, tmin = raster::extract(tmin_crop, cent[,c("long", "lat")]))
+    tmax <- raster::raster(url_tmax, band = band)
+    tmax_crop <- raster::crop(tmax, NETN_bbox)
+    netn_tmax <- cbind(cent, tmax = raster::extract(tmax_crop, cent[,c("long", "lat")]))
 
-        tavg <- raster::raster(mly_url, varname = "tavg")
-        tavg_crop <- raster::crop(tavg, NETN_bbox)
-        netn_tavg <- cbind(cent, tavg = raster::extract(tavg_crop, cent[,c("long", "lat")]))
+    tmin <- raster::raster(url_tmin, band = band)
+    tmin_crop <- raster::crop(tmin, NETN_bbox)
+    netn_tmin <- cbind(cent, tmin = raster::extract(tmin_crop, cent[,c("long", "lat")]))
 
-        clim_list <- list(netn_prcp, netn_tmax, netn_tmin, netn_tavg)
-        netn_comb <- reduce(clim_list, full_join, by = c("UnitCode", "long", "lat"))
+    tavg <- raster::raster(url_tavg, band = band)
+    tavg_crop <- raster::crop(tavg, NETN_bbox)
+    netn_tavg <- cbind(cent, tavg = raster::extract(tavg_crop, cent[,c("long", "lat")]))
 
-        netn_comb$year = yr
-        netn_comb$month = as.numeric(mon)
+    clim_list <- list(netn_prcp, netn_tmax, netn_tmin, netn_tavg)
+    netn_comb <- reduce(clim_list, full_join, by = c("UnitCode", "long", "lat"))
 
-        data.frame(netn_comb)
+    netn_comb$year = yr
+    netn_comb$month = as.numeric(mon)
+
+    data.frame(netn_comb)
     }
 
-  netn_final <- if(length(mos) > 1){
-    purrr::map(mos, function(x){
+  netn_final <- if(length(months) > 1){
+    purrr::map(months, function(x){
       getnoaa(yr = year, mon = x)}) |> list_rbind()
-    } else {getnoaa(yr = year, mon = mos)}
+    } else {getnoaa(yr = year, mon = months)}
 
   return(netn_final)
 }
