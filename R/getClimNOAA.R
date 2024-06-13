@@ -116,7 +116,7 @@ getClimNOAA <- function(park = 'all', year = format(Sys.Date(), "%Y"), months = 
     netn_tavg <- cbind(cent, tavg = raster::extract(tavg_crop, cent[,c("long", "lat")]))
 
     clim_list <- list(netn_prcp, netn_tmax, netn_tmin, netn_tavg)
-    netn_comb <- reduce(clim_list, full_join, by = c("UnitCode", "long", "lat"))
+    netn_comb <- reduce(clim_list, full_join, by = c("UnitCode", "UnitName", "long", "lat"))
 
     netn_comb$year = yr
     netn_comb$month = as.numeric(mon)
