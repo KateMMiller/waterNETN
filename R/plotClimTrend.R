@@ -1,5 +1,6 @@
 #' @include getSites.R
 #' @include theme_WQ.R
+#' @include getClimNOAA.R
 #'
 #' @title plotClimTrend: Plot climate trends
 #'
