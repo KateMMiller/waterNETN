@@ -52,13 +52,13 @@
 #'
 #' @export
 
-getClimNOAA <- function(park = 'all', year = format(Sys.Date(), "%Y"), months = 4){
+getClimNOAA <- function(park = 'all', year = as.integer(format(Sys.Date(), "%Y")), months = 4){
   #--- error handling ---
   park <- match.arg(park, several.ok = TRUE,
                     c("all", "LNETN", "ACAD", "MABI", "MIMA", "MORR",
                       "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
   if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
-  stopifnot(class(year) %in% c("numeric", "integer"), years >= 1980)
+  stopifnot(class(year) %in% c("numeric", "integer"), year >= 1951)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
 
   if(!requireNamespace("raster", quietly = TRUE)){

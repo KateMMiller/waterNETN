@@ -4,7 +4,11 @@
 \alias{getClimNOAA}
 \title{getClimNOAA: Download monthly gridded NOAA climate data}
 \usage{
-getClimNOAA(park = "all", year = format(Sys.Date(), "\%Y"), months = 4)
+getClimNOAA(
+  park = "all",
+  year = as.integer(format(Sys.Date(), "\%Y")),
+  months = 4
+)
 }
 \arguments{
 \item{park}{Combine data from all parks or one or more parks at a time. Valid inputs:
