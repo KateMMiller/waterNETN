@@ -962,5 +962,6 @@ plotClimDrought(park = "LNETN", years = 2023, legend_position = 'bottom')
 ### Summary Functions {.tabset}
 #### sumClimAvgs()
 Now that we're using NOAA gridded climate data, we no longer need this function. It's been removed from the package. 
+
 #### sumClimMonthly()
 Now that we're using NOAA gridded climate data, we no longer need this function. It's been removed from the package. 
