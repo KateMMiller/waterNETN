@@ -190,15 +190,15 @@ knitr::include_graphics("C:/NETN/R_Dev/Water/waterNETN/testing_scripts/ODBC_step
 
 ### get Data functions {.tabset}
 #### getClimNOAA()
-Extracts gridded NOAA climate data for park centroids. After looking over Daymet, Prism and weather station data, I've settled on the NOAA gridded data to make comparisons because they use the same algorithm and scale to calculate historic averages and annual data. Historic averages are available for the 20th century (1901 - 2000), which I also like, and for the latest 30 year normal (1991 - 2020). The normals for NETN park centroids have been compiled and are a data source that exists when you install the waterNETN package (called NETN_clim_norms.rda). This means you don't have to download or summarize the normals every time you want to use them, which speeds up plotting. You can download data as far back as 1951. However, I've also saved time by compiling all of the monthly data from Jan. 2006 - May 2024, and saved this as a dataset for the package called NETN_clim_annual.rda (see code chunk below on how to access this data set). That means you only need to download and compile data for months after May 2024. I have a webalert set for when a new month is posted, and will add that to the annual data as I have time. If I get behind, you'll want to use the getClimNOAA() function to download the new months of data.
+Extracts gridded NOAA climate data for park centroids. After looking over Daymet, Prism and weather station data, I've settled on the NOAA gridded data to make comparisons because they use the same algorithm and scale to calculate historic averages and annual data. Historic averages are available for the 20th century (1901 - 2000), which I also like, and for the latest 30 year normal (1991 - 2020). The normals for NETN park centroids have been compiled and are a data source that exists when you install the waterNETN package (called NETN_clim_norms.rda). This means you don't have to download or summarize the normals every time you want to use them, which speeds up plotting. You can download data as far back as 1951. However, I've also saved time by compiling all of the monthly data from Jan. 2006 - May 2024, and saved this as a dataset for the package called NETN_clim_annual.rda (see code chunk below on how to access this data set). That means you only need to download and compile data for months after May 2024. I have a webalert set for when a new month is posted, and will add that to the annual data as I have time. If I get behind, you can use the getClimNOAA() function to download the new months of data.
 
-I've also updated all of the climate comparison plotting functions to work with the NOAA data. These functions will also check for months not included in the NETN_clim_annual, and will download what's available. The plotting functions use getClimNOAA() under the hood to perform this. You're unlikely to need to use the getClimNOAA() function yourself, unless you want to summarize/plot the data not using functions in waterNETN. 
+I've also updated all of the climate comparison plotting functions to work with the NOAA data. These functions will check for months not included in the NETN_clim_annual, and will download what's available. The plotting functions use getClimNOAA() under the hood to perform this. You're therefore unlikely to need to use the getClimNOAA() function yourself, unless you want to summarize/plot the data not using functions in waterNETN. 
 
 Currently the `getClimNOAA()` function only works for 1 year at a time, which should be fine, because I've already compiled 2006 - May 2024 data. New data availability is usually delayed by about 2 weeks after a month ends. For example, on 6/16/2024, the data for May 2024 were posted as final. If you try to download data for a month before it's available, you'll get an error telling you which months are not available yet. You then just need to change your `months` argument to include only the months that didn't fail. 
 
 The more months you include in the function, the longer it will take, as each month and climate variable is a separate raster to download. Number of parks minimally impacts performance.
 
-Note that soon I'm going to strip most of these climate functions out of this package and create a new climateNETN package, so any protocol can work with these data. The function names won't change, and you won't need to update your code beyond needing to install and load the separate package. I'll update this website once I'm finished with that transition.
+Note that I'm considering stripping most of these climate functions out of this package and creating a new climateNETN package, so any protocol can work with these data. The function names won't change, and you won't need to update your code beyond needing to install and load the separate package. I'll update this website once I'm finished with that transition.
 
 <p class = 'fxn'> get weather data for January - May 2024 for all NETN. </p>
 This may take a minute or so to download. If you're ultimately interested in plotting the data using one of the waterNETN package functions, don't worry about downloading separately. Just run the function, and it will run this function under the hood for months not already compiled. 
@@ -210,7 +210,7 @@ print_head(netn_jan_may)
 <p class = 'fxn'>Get weather data for May 2024 for ROVA</p>
 ```{r cache = T}
 rova_may <- getClimNOAA(park = "ROVA", months = 5)
-print_head(rova_may)
+head(rova_may)
 ```
 
 <p class = 'fxn'>Get weather data for all of 2023 in LNETN</p>
@@ -221,12 +221,14 @@ print_head(lnetn_2023)
 
 <p class = 'fxn'>View dataset containing 2006 - 2024 NOAA climate data</p>
 ```{r}
-data("NETN_clim_annual.rda")
+data("NETN_clim_annual")
 print_head(NETN_clim_annual)
 
 ```
 
 #### getClimDaymet()
+<b style="color:red;">NOTE THAT THIS IS NO LONGER THE PRIMARY FUNCTION TO USE FOR WORKING WITH CLIMATE DATA. </b>. I'm leaving it in the package just in case there's a reason to use it in the future. If I create a new climateNETN package, I'll remove this function from the waterNETN package.
+
 Daymet data are 1km gridded daily climate data, similar to PRISM data, but with more daily data associated with each location and more efficient downloading process (extract data from lat/long points, rather than download nationwide raster files and extract manually). Daymet data go back to 1980. See <a href="https://daymet.ornl.gov/">https://daymet.ornl.gov/</a> for more information. Another benefit of Daymet over PRISM is the data can be used to calculate drought indices, like Standardized Precipitation-Evapotranspiration Index (SPEI). Note: I'll eventually add SPEI metrics to the output of this function. 
 
 Daymet data are typically available for a calendar year a a few months into the next year.
@@ -247,6 +249,8 @@ print_head(mabi_dm)
 ```
 
 #### getClimWStat()
+<b style="color:red;">NOTE THAT THIS IS NO LONGER THE PRIMARY FUNCTION TO USE FOR WORKING WITH CLIMATE DATA. </b>. I'm leaving it in the package just in case there's a reason to use it in the future. If I create a new climateNETN package, I'll remove this function from the waterNETN package.
+
 For each NETN monitoring site, I used the `rnoaa` package to find all weather stations within 20km radius of each site's lat/long coordinates. I then checked the period of record for each of these sites. I selected the closest weather station with the longest period of record that included 2023 and 2024. This assessment was done at the park level, so the data for each site within a park is the same. The API used to download weather station data is <a href="data.rcc-acis.org">data.rcc-acis.org</a>. Unfortunately only temperature data are available for ACAD's McFarland Hill weather station (AKA MARS). ACAD's hourly precipitation data were downloaded separately from the NADP website <a href="http://nadp2.slh.wisc.edu/siteOps/ppt/">http://nadp2.slh.wisc.edu/siteOps/ppt/</a>. These data only go back to 2008 and were aggregated to daily total precipitation. This function is slower for ACAD as a result. Though note that data are downloaded at the park level, then joined with site-specific data. In other words, data are downloaded for a park x combination of years once, then joined to site-level data. Weather stations used and their distance from each site are included in the output.
 
 <p class = 'fxn'>The following code downloads weather station data for all sites in ROVA the past 10 years and writes to a csv.</p>
@@ -272,7 +276,7 @@ print_head(acad_ws)
 ```
 
 #### getClimDrought()
-This function downloads weekly drought index at the county level based on the U.S. Drought Monitor for each specified park or weather station nearest to a specified site. If downloading for multiple parks and multiple weeks/years, function may be slow. Returned data frame includes percent of county area in 5 levels of drought, with D0 = Abnormally Dry, D1 = Moderate Drought, D2 = Severe Drought, D3 = Extreme Drought, and D4 = Exceptional Drought. Also returned is the Drought Severity and Coverage Index, which ranges from 0 to 500, and is a weighted sum of area within each of the drought categories. A score of 500 indicates the entire area is in exceptional drought (D4). Where multiple counties occur in a park, data can be faceted by county if `dom_county = FALSE`. To only plot predominant county, specify dom_county = TRUE (default). Otherwise, only park-level data are returned, as the results won't vary by site within a park. Note that Drought Monitor reports data such that, when drought a level moves into a higher category (e.g. D1 = 10), the previous level (e.g. D0) is listed as 100. The columns with pct (e.g. D0pct) correct for that, so that D0 + ... + D05 + None = 100.For more info on the data, see <a href= "https://droughtmonitor.unl.edu/CurrentMap.aspx"><US Drought Monitor</a>
+This function downloads weekly drought index at the county level based on the U.S. Drought Monitor for each specified park. If downloading for multiple parks and multiple weeks/years, function may be slow. Returned data frame includes percent of county area in 5 levels of drought, with D0 = Abnormally Dry, D1 = Moderate Drought, D2 = Severe Drought, D3 = Extreme Drought, and D4 = Exceptional Drought. Also returned is the Drought Severity and Coverage Index, which ranges from 0 to 500, and is a weighted sum of area within each of the drought categories. A score of 500 indicates the entire area is in exceptional drought (D4). Where multiple counties occur in a park, data can be faceted by county if `dom_county = FALSE`. To only plot predominant county, specify dom_county = TRUE (default). Otherwise, only park-level data are returned, as the results won't vary by site within a park. Note that Drought Monitor reports data such that, when drought a level moves into a higher category (e.g. D1 = 10), the previous level (e.g. D0) is listed as 100. The columns with pct (e.g. D0pct) correct for that, so that D0 + ... + D05 + None = 100.For more info on the data, see <a href= "https://droughtmonitor.unl.edu/CurrentMap.aspx"><US Drought Monitor</a>
 
 <p class='fxn'> Get drought info for MABI and SAGA sites for first week of May</p>
 ```{r}
@@ -800,7 +804,8 @@ plotClimComps(park = "MABI", years = 2019:2023, parameter = "tmean", palette = c
 <p class = 'fxn'>Plot max monthly temp for ROVA for 2023 and 2024, with 'viridis' palette and 20th century norm (default).</p>
 
 ```{r}
-plotClimComps(park = "ROVA", years = 2023:2024, parameter = "tmax", palette = "viridis", layers = 'lines')
+plotClimComps(park = "ROVA", years = 2023:2024, parameter = "tmax", 
+              palette = "viridis", layers = 'lines')
 ```
 <p class = 'fxn'>Plot total monthly precip for Jordan Pond for past 5 years using orange-blue color palette, compared with the 30-year norm starting at 1990.</p>
 ```{r}
@@ -917,7 +922,7 @@ plotClimRel(park = "MABI", years = 2024, parameter = "temp", palette = c("#EEE55
 plotClimRel(park = "SARA", years = 2023, parameter = "ppt", palette = "grey", averages = "norm1990")
 ```
 
-<p class = 'fxn'>Plot precip for Kroma Kill in SARA 2023 and 2024 compared to 1990 - 2019 normals.</p> 
+<p class = 'fxn'>Plot precip for SARA 2023 and 2024 compared to 1990 - 2019 normals.</p> 
 ```{r message = F, warning = FALSE}
 plotClimRel(park = "SARA", years = 2023:2024, parameter = "ppt", 
             palette = "grey", averages = "norm1990")
@@ -925,6 +930,13 @@ plotClimRel(park = "SARA", years = 2023:2024, parameter = "ppt",
 
 #### plotClimDrought()
 This function plots weekly drought index at the county level for each specified park or weather station nearest to a specified park. Resulting plot shows the percent of county area in 5 levels of drought, with D0 = Abnormally Dry, D1 = Moderate Drought, D2 = Severe Drought, D3 = Extreme Drought, and D4 = Exceptional Drought. Drought designations come from the U.S. Drought Monitor. If multiple parks are specified, results will be faceted with a separate plot for each park. Where multiple counties occur in a park, data can be faceted by county if `dom_county = FALSE`. To only plot predominant county, specify `dom_county = TRUE` (default).
+
+I tweaked the x-axis formatting a bit based on whether 1 year or many years are plotted. Let me know if you'd like further tweaks. 
+
+<p class='fxn'>Plot drought info for ACAD in 2023</p>
+```{r}
+plotClimDrought(park = c("ACAD"), years = 2023)
+```
 
 <p class='fxn'>Plot drought info for MABI and SAGA for 2020 to 2024</p>
 ```{r}
