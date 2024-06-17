@@ -64,9 +64,6 @@ specify 1 color}
 "none" (Default). Other options are "top", "bottom", "left", "right".}
 
 \item{...}{Additional arguments relevant to \code{sumClimAvgs()} or \code{sumClimMonthly()}}
-
-\item{active}{Logical. If TRUE (Default) only queries actively monitored sites.
-If FALSE, returns all sites that have been monitored.}
 }
 \value{
 Returns a ggplot object of specified climate trends

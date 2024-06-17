@@ -30,9 +30,6 @@
 #'
 #' @param years Numeric. Years to plot separately. Accepted values start at 2006.
 #'
-#' @param active Logical. If TRUE (Default) only queries actively monitored sites.
-#' If FALSE, returns all sites that have been monitored.
-#'
 #' @param parameter Specify the monthly averaged parameter to plot. Acceptable values are
 #' \describe{
 #' \item{"tmean"}{Plot mean temperature comparisons (in C).}
