@@ -84,15 +84,18 @@ plotClimDrought <- function(park = "all",
     mutate(dom_county = case_when(UnitCode == "ACAD" & County == "Knox County" ~ FALSE,
                                   UnitCode == "MORR" & County == "Somerset County" ~ FALSE,
                                   TRUE ~ TRUE)) |> unique() |>
-    select(-D0, -D1, -D2, -D3, -D4)
+    dplyr::select(-D0, -D1, -D2, -D3, -D4)
 
   # Take only dominant county if specified
   ddata2 <- if(dom_county == TRUE){filter(ddata, dom_county == TRUE)} else {ddata}
+  ddata2$year <- format(as.Date(ddata2$ValidStart, "%Y-%m-%d"), "%Y")
 
   # Add column that's a proportion of county area
 
-  ddata_long <- ddata2 |> pivot_longer(cols = c(D0pct, D1pct, D2pct, D3pct, D4pct),
-                                       names_to = "Drought_Level", values_to = "Pct_Area")
+  ddata_long <- ddata2 |>
+    filter(year %in% years) |>
+    pivot_longer(cols = c(D0pct, D1pct, D2pct, D3pct, D4pct),
+                 names_to = "Drought_Level", values_to = "Pct_Area")
 
   ddata_long$Date <- as.Date(ddata_long$ValidStart, format = "%Y-%m-%d")
   ddata_long$year <- format(as.Date(ddata_long$Date, format = "%Y-%m-%d"), "%Y")
@@ -113,11 +116,18 @@ plotClimDrought <- function(park = "all",
   } else if(year_len  %in% c(2, 3, 4) & mon_len <= 6){"2 months"
   } else if(year_len == 2 & mon_len > 6){"4 months"
     #} else if(year_len > 4 & mon_len <= 6){"6 months"
-  } else if(year_len %in% c(4, 5, 6)){"1 year"
-  } else if(year_len > 6){"2 years"
+  # } else if(year_len %in% c(4, 5, 6)){"1 year"
+  # } else if(year_len > 6){"2 years"
   } else {"6 months"}
 
-  date_format <- ifelse(break_len %in% c("1 year", "2 years"), "%Y", "%m/%d/%y")
+  date_format <- switch(break_len,
+                        "1 month" = "%b",
+                        "2 months" = "%b-%Y",
+                        "4 months" = "%m-%Y",
+                        "6 months" = "%m/%y")
+                        #"1 year" =  "%Y"
+                        #"2 years" = "%Y")
+
   datebreaks <- seq(min(ddata3$Date), max(ddata3$Date) + 30, by = break_len)
 
   num_parks <- length(unique(ddata3$UnitCode))
@@ -126,6 +136,8 @@ plotClimDrought <- function(park = "all",
   facet_park <- if(num_parks > 1 & num_parks == num_county){TRUE} else {FALSE}
   facet_county <- if(num_parks == 1 & num_parks < num_county){TRUE} else {FALSE}
   facet_park_county <- if(num_parks > 1 & num_county > num_parks){TRUE} else {FALSE}
+
+  x_lab <- ifelse(year_len == 1, paste0("Year: ", years), NULL)
 
   dplot <-
     ggplot(ddata3, aes(x = Date, y = Pct_Area, fill = drought_legend, color = drought_legend)) +
@@ -140,7 +152,7 @@ plotClimDrought <- function(park = "all",
     theme_WQ() +
     theme(legend.position = legend_position,
           axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5)) +
-    labs(y = "% of County in Drought", x = NULL) +
+    labs(y = "% of County in Drought", x = x_lab) +
     # facets
     {if(facet_park){facet_wrap(~UnitCode)}} + #change to county
     {if(facet_county){facet_wrap(~County)}} +
