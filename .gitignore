@@ -5,3 +5,5 @@
 .DS_Store
 .quarto
 testing_scripts/
+docs/index_cache/
+docs/index_files/
