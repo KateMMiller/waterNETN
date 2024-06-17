@@ -10,8 +10,7 @@ plotClimDrought(
   months = 1:12,
   dom_county = TRUE,
   legend_position = "right",
-  plot_title = TRUE,
-  weather_station = FALSE
+  plot_title = TRUE
 )
 }
 \arguments{
@@ -42,21 +41,17 @@ options are "top", "bottom", "left", "right" (default).}
 
 \item{plot_title}{Logical. If TRUE (default) prints site name at top of figure. If FALSE,
 does not print site name. Only enabled when one site is selected.}
-
-\item{weather_station}{Logical. If TRUE, will return county-level data for coordinates of nearest weather station
-to a park. If FALSE (default), returns county-level drought data for water monitoring sites. In most cases, the
-results are the same.}
 }
 \value{
-Data frame of weather station daily climate data for each specified site.
+Returns a ggplot object of specified drought trends
 }
 \description{
-This function plots weekly drought index at the county level for each specified park or
-weather station nearest to a specified park. Resulting plot shows the percent of county area in 5 levels
-of drought, with D0 = Abnormally Dry, D1 = Moderate Drought, D2 = Severe Drought, D3 = Extreme Drought,
-and D4 = Exceptional Drought. Drought designations come from the U.S. Drought Monitor. If multiple parks are
-specified, results will be faceted with a separate plot for each park. Where multiple counties occur in
-a park, data can be faceted by county if dom_county = FALSE. To only plot predominant county, specify
+This function plots weekly drought index at the county level for each specified park.
+Resulting plot shows the percent of county area in 5 levels of drought, with D0 = Abnormally Dry,
+D1 = Moderate Drought, D2 = Severe Drought, D3 = Extreme Drought, and D4 = Exceptional Drought.
+Drought designations come from the U.S. Drought Monitor. If multiple parks are specified, results
+will be faceted with a separate plot for each park. Where multiple counties occur in a park, data
+can be faceted by county if dom_county = FALSE. To only plot predominant county, specify
 dom_county = TRUE (default).
 }
 \examples{

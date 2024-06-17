@@ -3,17 +3,17 @@
 #' @title getClimDrought: Download weekly county-level drought index
 #'
 #' @description This function downloads weekly drought index at the county level based on the U.S. Drought Monitor
-#' for each specified park or weather station nearest to a specified site. If downloading for multiple parks
-#' and multiple weeks/years, function may be slow. Returned data frame includes percent of county area in 5
-#' levels of drought, with D0 = Abnormally Dry, D1 = Moderate Drought, D2 = Severe Drought, D3 = Extreme Drought,
-#' and D4 = Exceptional Drought. Also returned is the Drought Severity and Coverage Index, which ranges from 0 to
-#' 500, and is a weighted sum of area within each of the drought categories. A score of 500 indicates the entire
-#' area is in exceptional drought (D4). Where multiple counties occur in a park, data can be faceted by county if
-#' dom_county = FALSE. To only plot predominant county, specify dom_county = TRUE (default). Otherwise, only
-#' park-level data are returned, as the results won't vary by site within a park. More info on the data are at
-#' https://droughtmonitor.unl.edu/CurrentMap.aspx. Note that Drought Monitor reports data such that, when
-#' drought a level moves into a higher category (e.g. D1 = 10), the previous level (e.g. D0) is listed as
-#' 100. The columns with pct (e.g. D0pct) correct for that, so that D0 + ... + D05 + None = 100.
+#' for each specified park. If downloading for multiple parks and multiple weeks/years, function may be slow.
+#' Returned data frame includes percent of county area in 5 levels of drought, with D0 = Abnormally Dry, D1 =
+#' Moderate Drought, D2 = Severe Drought, D3 = Extreme Drought, and D4 = Exceptional Drought. Also returned is the
+#' Drought Severity and Coverage Index, which ranges from 0 to 500, and is a weighted sum of area within each of
+#' the drought categories. A score of 500 indicates the entire area is in exceptional drought (D4). Where multiple
+#' counties occur in a park, data can be faceted by county if dom_county = FALSE. To only plot predominant county,
+#' specify dom_county = TRUE (default). Otherwise, only park-level data are returned, as the results won't vary
+#' by site within a park. More info on the data are at #' https://droughtmonitor.unl.edu/CurrentMap.aspx.
+#' Note that Drought Monitor reports data such that, when drought a level moves into a higher category (e.g. D1 = 10),
+#' the previous level (e.g. D0) is listed as 100. The columns with pct (e.g. D0pct) correct for that, so that
+#' D0 + ... + D05 + None = 100.
 #'
 #' @importFrom dplyr case_when filter select
 #' @importFrom purrr list_rbind map
@@ -38,9 +38,6 @@
 #' given week. If blank, will return drought index for all weeks available in specified years. Note that weekly
 #' data are available every Tuesday. If the week_start specified is not a Tuesday, code will shift the date to the
 #' Tuesday of the specified start week.
-#'
-#' @param weather_station Logical. If TRUE, will return county-level data for coordinates of nearest weather station to a park.
-#' If FALSE (default), returns county-level drought data for water monitoring sites. In most cases, the results are the same.
 #'
 #' @param dom_county Logical. If TRUE (Default) only plots predominant county if park covers multiple counties.
 #' If FALSE, facets on county.
@@ -68,27 +65,24 @@
 
 getClimDrought <- function(park = "all",
                            years = c(2006:2023), week_start = NA,
-                           dom_county = TRUE,
-                           weather_station = FALSE){
+                           dom_county = TRUE){
 
   #--- error handling ---
   park <- match.arg(park, several.ok = TRUE,
                     c("all", "LNETN", "ACAD", "MABI", "MIMA", "MORR",
                       "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
+  if(any(park == "all")){park = c("ACAD", "MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")}
   if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 1980)
-  stopifnot(class(weather_station) == "logical")
   stopifnot(class(dom_county) == "logical")
   if(!is.na(week_start)){
     date_check <- as.Date(week_start, format = "%m/%d/%Y")
     if(is.na(date_check)){stop("Wrong date format specified. Must be formatted as 'mm/dd/yyyy'.")}
   }
   # Check that suggested package required for this function are installed
-  if(!requireNamespace("jsonlite", quietly = TRUE)){
-    stop("Package 'jsonlite' needed to download weather station data. Please install it.", call. = FALSE)
+  if(!requireNamespace("httr", quietly = TRUE)){
+    stop("Package 'httr' needed to download weather station data. Please install it.", call. = FALSE)
   }
-
-  sites <- force(getSites(park = park))[, c("UnitCode", "UnitName")]
 
   data("closest_WS")
 
@@ -119,9 +113,9 @@ getClimDrought <- function(park = "all",
       } else if(!is.na(week_start)){format(as.Date(start_tues, format = "%m/%d/%Y") + 6, "%m/%d/%Y")}
 
   # Set up aoi and filters for iterations
-  fips <- if(weather_station == TRUE){"WStnFIPS"} else {"ParkFIPS"}
-  aoi1 <- closest_WS |> filter(UnitCode %in% sites$UnitCode) |>
-                        mutate(UnitCode = substr(SiteCode, 1, 4),
+  fips <- "ParkFIPS"
+  aoi1 <- closest_WS |> filter(UnitCode %in% park) |>
+                        mutate(#UnitCode = substr(SiteCode, 1, 4),
                                dom_county =
                                  case_when(UnitCode == "ACAD" & ParkCounty == "Knox County" ~ FALSE,
                                            UnitCode == "MORR" & ParkCounty == "Somerset County" ~ FALSE,
@@ -139,10 +133,13 @@ getClimDrought <- function(park = "all",
                        "&startdate=", start_tues, "&enddate=", end_day,
                        "&statisticsType=1")
 
-    dsci <- jsonlite::fromJSON(url_dsci) # DSCI ranges from 0 to 500 with 500 being most extreme drought
+    dsci1 <- httr::GET(url_dsci)
+    dsci2 <- httr::content(dsci1, as = "text")
+    dsci <- read.table(textConnection(dsci2), sep = ",", header = T)
+#    dsci <- jsonlite::fromJSON(url_dsci) # DSCI ranges from 0 to 500 with 500 being most extreme drought
     dsci$UnitCode <- park
     return(dsci)
-    }
+  }
 
   getDrought <- function(aoi){
     park <- unique(closest_WS$UnitCode[closest_WS[,fips] == aoi])
@@ -151,7 +148,9 @@ getClimDrought <- function(park = "all",
                         "&startdate=", start_tues, "&enddate=", end_day,
                         "&statisticsType=1")
 
-    drgt <- jsonlite::fromJSON(url_drght)
+    drgt1 <- httr::GET(url_drght)
+    drgt2 <- httr::content(drgt1, as = "text")
+    drgt <- read.table(textConnection(drgt2), sep = ",", header = T)
     drgt$UnitCode <- park
     return(drgt)
   }
