@@ -8,8 +8,7 @@ getClimDrought(
   park = "all",
   years = c(2006:2023),
   week_start = NA,
-  dom_county = TRUE,
-  weather_station = FALSE
+  dom_county = TRUE
 )
 }
 \arguments{
@@ -36,26 +35,23 @@ Tuesday of the specified start week.}
 
 \item{dom_county}{Logical. If TRUE (Default) only plots predominant county if park covers multiple counties.
 If FALSE, facets on county.}
-
-\item{weather_station}{Logical. If TRUE, will return county-level data for coordinates of nearest weather station to a park.
-If FALSE (default), returns county-level drought data for water monitoring sites. In most cases, the results are the same.}
 }
 \value{
 Data frame of weekly county drought data for each park.
 }
 \description{
 This function downloads weekly drought index at the county level based on the U.S. Drought Monitor
-for each specified park or weather station nearest to a specified site. If downloading for multiple parks
-and multiple weeks/years, function may be slow. Returned data frame includes percent of county area in 5
-levels of drought, with D0 = Abnormally Dry, D1 = Moderate Drought, D2 = Severe Drought, D3 = Extreme Drought,
-and D4 = Exceptional Drought. Also returned is the Drought Severity and Coverage Index, which ranges from 0 to
-500, and is a weighted sum of area within each of the drought categories. A score of 500 indicates the entire
-area is in exceptional drought (D4). Where multiple counties occur in a park, data can be faceted by county if
-dom_county = FALSE. To only plot predominant county, specify dom_county = TRUE (default). Otherwise, only
-park-level data are returned, as the results won't vary by site within a park. More info on the data are at
-https://droughtmonitor.unl.edu/CurrentMap.aspx. Note that Drought Monitor reports data such that, when
-drought a level moves into a higher category (e.g. D1 = 10), the previous level (e.g. D0) is listed as
-100. The columns with pct (e.g. D0pct) correct for that, so that D0 + ... + D05 + None = 100.
+for each specified park. If downloading for multiple parks and multiple weeks/years, function may be slow.
+Returned data frame includes percent of county area in 5 levels of drought, with D0 = Abnormally Dry, D1 =
+Moderate Drought, D2 = Severe Drought, D3 = Extreme Drought, and D4 = Exceptional Drought. Also returned is the
+Drought Severity and Coverage Index, which ranges from 0 to 500, and is a weighted sum of area within each of
+the drought categories. A score of 500 indicates the entire area is in exceptional drought (D4). Where multiple
+counties occur in a park, data can be faceted by county if dom_county = FALSE. To only plot predominant county,
+specify dom_county = TRUE (default). Otherwise, only park-level data are returned, as the results won't vary
+by site within a park. More info on the data are at #' https://droughtmonitor.unl.edu/CurrentMap.aspx.
+Note that Drought Monitor reports data such that, when drought a level moves into a higher category (e.g. D1 = 10),
+the previous level (e.g. D0) is listed as 100. The columns with pct (e.g. D0pct) correct for that, so that
+D0 + ... + D05 + None = 100.
 }
 \examples{
 \dontrun{

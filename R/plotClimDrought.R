@@ -3,12 +3,12 @@
 #'
 #' @title plotClimDrought: Plots weekly drought based on county-level drought index
 #'
-#' @description This function plots weekly drought index at the county level for each specified park or
-#' weather station nearest to a specified park. Resulting plot shows the percent of county area in 5 levels
-#' of drought, with D0 = Abnormally Dry, D1 = Moderate Drought, D2 = Severe Drought, D3 = Extreme Drought,
-#' and D4 = Exceptional Drought. Drought designations come from the U.S. Drought Monitor. If multiple parks are
-#' specified, results will be faceted with a separate plot for each park. Where multiple counties occur in
-#' a park, data can be faceted by county if dom_county = FALSE. To only plot predominant county, specify
+#' @description This function plots weekly drought index at the county level for each specified park.
+#' Resulting plot shows the percent of county area in 5 levels of drought, with D0 = Abnormally Dry,
+#' D1 = Moderate Drought, D2 = Severe Drought, D3 = Extreme Drought, and D4 = Exceptional Drought.
+#' Drought designations come from the U.S. Drought Monitor. If multiple parks are specified, results
+#' will be faceted with a separate plot for each park. Where multiple counties occur in a park, data
+#' can be faceted by county if dom_county = FALSE. To only plot predominant county, specify
 #' dom_county = TRUE (default).
 #'
 #' @importFrom dplyr case_when filter left_join
@@ -34,10 +34,6 @@
 #'
 #' @param months Vector of months to download drought index for. Default = 1:12.
 #'
-#' @param weather_station Logical. If TRUE, will return county-level data for coordinates of nearest weather station
-#' to a park. If FALSE (default), returns county-level drought data for water monitoring sites. In most cases, the
-#' results are the same.
-#'
 #' @param dom_county Logical. If TRUE (Default) only plots predominant county if park covers multiple counties.
 #' If FALSE, facets on county.
 #'
@@ -47,7 +43,7 @@
 #' @param plot_title Logical. If TRUE (default) prints site name at top of figure. If FALSE,
 #' does not print site name. Only enabled when one site is selected.
 #'
-#' @return Data frame of weather station daily climate data for each specified site.
+#' @return Returns a ggplot object of specified drought trends
 #'
 #' @examples
 #' \dontrun{
@@ -70,24 +66,21 @@
 plotClimDrought <- function(park = "all",
                             years = format(Sys.Date(), format = "%Y"),
                             months = 1:12, dom_county = TRUE,
-                            legend_position = 'right', plot_title = TRUE,
-                            weather_station = FALSE){
+                            legend_position = 'right', plot_title = TRUE){
 
   #--- error handling ---
   park <- match.arg(park, several.ok = TRUE,
                     c("all", "LNETN", "ACAD", "MABI", "MIMA", "MORR",
                       "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
+  if(any(park == "all")){park = c("ACAD", "MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")}
   if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 1980)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   stopifnot(class(plot_title) == "logical")
   stopifnot(class(dom_county) == "logical")
-  stopifnot(class(weather_station) == "logical")
 
   # Need to include park to get fips code
-  sites <- force(unique(getSites(park = park))[, c("UnitCode", "UnitName")]) |> unique()
-
-  ddata <- getClimDrought(park = park, years = years, weather_station = weather_station) |>
+  ddata <- getClimDrought(park = park, years = years, dom_county = dom_county) |>
     mutate(dom_county = case_when(UnitCode == "ACAD" & County == "Knox County" ~ FALSE,
                                   UnitCode == "MORR" & County == "Somerset County" ~ FALSE,
                                   TRUE ~ TRUE)) |> unique() |>
