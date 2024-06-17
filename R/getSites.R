@@ -121,7 +121,7 @@ getSites <- function(park = "all", site = "all", site_type = c("all", "lake", "s
 
   # filter on active. Currently hard coded until data package includes it
   inactive = c("ACBUBO", "ACEGLO", "ACJRDO", "ACMOWB", "MORRSA", "MORRSC", "ROVASC", "SARASB", #streams
-               "ACDKPD", "ACLPIH", "ACTARN", "ROVAPA") # lakes
+               "ACDKPD", "ACLPIH", "ACTARN", "ROVAPA", "SAGAPA") # lakes
   wdata3 <-
   if(active == TRUE){
     filter(wdata2, !SiteCode %in% inactive)
