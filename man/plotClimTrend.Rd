@@ -35,8 +35,9 @@ plotClimTrend(
 
 \item{years}{Numeric. Years to query. Accepted values start at 2006.}
 
-\item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
-events are between months 5 and 10, and these are set as the defaults.}
+\item{months}{Numeric. Months to query by number. Accepted values range from 1:12.
+If specifying new months not yet included in NETN_clim_2006_2024 dataset, will
+download months that are available from NOAA.}
 
 \item{layers}{Options are "points" and "lines". By default, both will plot.}
 

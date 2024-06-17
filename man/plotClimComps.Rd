@@ -33,6 +33,9 @@ plotClimComps(
 
 \item{years}{Numeric. Years to plot separately. Accepted values start at 2006.}
 
+\item{months}{Vector of numeric months to query. If specifying new months not yet included in
+NETN_clim_annual dataset, will download months that are available from NOAA.}
+
 \item{layers}{Options are "points", "lines", or both for Annual Values. By default, only lines will plot.}
 
 \item{averages}{Specify averages to plot. By default, the 20th century normal (1901-2000) plots.
@@ -73,7 +76,7 @@ This function compares historic average monthly climate variables with
 user-specified years and months to provide an idea of how extreme or normal a given month in a
 year is. This function only works with NOAA gridded climate data, and plots park
 centroids, not site-level values. Each month's data are typically available about
-two weeks after the month ends. To save download time, the NETN_clim_2006_2024 dataset contains
+two weeks after the month ends. To save download time, the NETN_clim_annual dataset contains
 monthly climate data from January 2006 through May 2024.
 }
 \examples{

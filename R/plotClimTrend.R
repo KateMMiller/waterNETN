@@ -28,8 +28,9 @@
 #'
 #' @param years Numeric. Years to query. Accepted values start at 2006.
 #'
-#' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
-#' events are between months 5 and 10, and these are set as the defaults.
+#' @param months Numeric. Months to query by number. Accepted values range from 1:12.
+#' If specifying new months not yet included in NETN_clim_2006_2024 dataset, will
+#' download months that are available from NOAA.
 #'
 #' @param parameter Specify the parameter(s) to plot. Acceptable values are
 #' \describe{
@@ -113,10 +114,10 @@ plotClimTrend <- function(park = "all",
 
   #-- Compile data for plotting --
   # Clim data as annual monthly averages
-  data("NETN_clim_2006_2024")
+  data("NETN_clim_annual")
   data("NETN_clim_norms")
 
-  clim_dat <- NETN_clim_2006_2024 |> filter(UnitCode %in% park)
+  clim_dat <- NETN_clim_annual |> filter(UnitCode %in% park)
   clim_dat2 <- clim_dat |> filter(year %in% years) |> filter(month %in% months)
   clim_dat2$date <- as.Date(paste0(clim_dat2$year, "-", clim_dat2$month, "-", 15), format = "%Y-%m-%d")
 

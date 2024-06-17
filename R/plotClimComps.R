@@ -13,7 +13,7 @@
 #' user-specified years and months to provide an idea of how extreme or normal a given month in a
 #' year is. This function only works with NOAA gridded climate data, and plots park
 #' centroids, not site-level values. Each month's data are typically available about
-#' two weeks after the month ends. To save download time, the NETN_clim_2006_2024 dataset contains
+#' two weeks after the month ends. To save download time, the NETN_clim_annual dataset contains
 #' monthly climate data from January 2006 through May 2024.
 #'
 #' @param park Specify park to plot. Currently can only plot 1 park at a time. Valid inputs:
@@ -29,6 +29,9 @@
 #' \item{"WEFA"}{Weir Farm NHP only}}
 #'
 #' @param years Numeric. Years to plot separately. Accepted values start at 2006.
+#'
+#' @param months Vector of numeric months to query. If specifying new months not yet included in
+#' NETN_clim_annual dataset, will download months that are available from NOAA.
 #'
 #' @param parameter Specify the monthly averaged parameter to plot. Acceptable values are
 #' \describe{
@@ -115,10 +118,10 @@ plotClimComps <- function(park = "ACAD",
 
   #-- Compile data for plotting --
   # Clim data as annual monthly averages
-  data("NETN_clim_2006_2024")
+  data("NETN_clim_annual")
   data("NETN_clim_norms")
 
-  clim_dat <- NETN_clim_2006_2024 |> filter(UnitCode %in% park)
+  clim_dat <- NETN_clim_annual |> filter(UnitCode %in% park)
   clim_dat2 <- clim_dat |> filter(year %in% years) |> filter(month %in% months)
   clim_dat2$date <- as.Date(paste0(clim_dat2$year, "-", clim_dat2$month, "-", 15), format = "%Y-%m-%d")
 
@@ -128,7 +131,7 @@ plotClimComps <- function(park = "ACAD",
                   arrange(UnitCode, month, param)
 
   # Update clim data if requesting a year x month combination that is not currently in
-  # the saved NETN_clim_2006_2024.rda but only for complete months
+  # the saved NETN_clim_annual.rda but only for complete months
   date_range_data <- sort(unique(clim_dat_long$date))
   date_range_fxn <- paste0(rep(years, length(months)),"-", rep(sprintf("%02d", months), length(years)), "-", 15)
   new_dates1 <- date_range_fxn[!date_range_fxn %in% date_range_data]

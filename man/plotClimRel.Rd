@@ -6,8 +6,6 @@
 \usage{
 plotClimRel(
   park = "all",
-  site = "all",
-  site_type = c("all", "lake", "stream"),
   years = 2006:format(Sys.Date(), "\%Y"),
   months = 1:12,
   active = TRUE,
@@ -35,8 +33,7 @@ plotClimRel(
 \item{"WEFA"}{Weir Farm NHP only}}}
 
 \item{years}{Numeric. Years to plot separately. Accepted values start at 2006.If multiple years
-specified, will facet results on year. Note that selecting many years and/or many sites
-may be slow to return results.}
+specified, will facet results on year.}
 
 \item{active}{Logical. If TRUE (Default) only queries actively monitored sites.
 If FALSE, returns all sites that have been monitored.}
@@ -70,8 +67,6 @@ specify 1 color}
 
 \item{legend_position}{Specify location of legend. To turn legend off, use legend_position =
 "none" (Default). Other options are "top", "bottom", "left", "right".}
-
-\item{...}{Additional arguments relevant to \code{sumClimAvgs()} or \code{sumClimMonthly()}}
 }
 \value{
 Returns a ggplot object of specified climate trends

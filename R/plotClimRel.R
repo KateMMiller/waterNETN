@@ -1,5 +1,6 @@
 #' @include getSites.R
 #' @include theme_WQ.R
+#' @include getClimNOAA
 #'
 #' @title plotClimRel: Plot climate data relative to average value
 #'
@@ -27,8 +28,7 @@
 #' \item{"WEFA"}{Weir Farm NHP only}}
 #'
 #' @param years Numeric. Years to plot separately. Accepted values start at 2006.If multiple years
-#' specified, will facet results on year. Note that selecting many years and/or many sites
-#' may be slow to return results.
+#' specified, will facet results on year.
 #'
 #' @param active Logical. If TRUE (Default) only queries actively monitored sites.
 #' If FALSE, returns all sites that have been monitored.
@@ -63,8 +63,6 @@
 #' @param legend_position Specify location of legend. To turn legend off, use legend_position =
 #' "none" (Default). Other options are "top", "bottom", "left", "right".
 #'
-#' @param ... Additional arguments relevant to \code{sumClimAvgs()} or \code{sumClimMonthly()}
-#'
 #' @examples
 #' \dontrun{
 #'
@@ -76,8 +74,7 @@
 #'
 #' @export
 #'
-plotClimRel <- function(park = "all", site = "all",
-                        site_type = c("all", "lake", "stream"),
+plotClimRel <- function(park = "all",
                         years = 2006:format(Sys.Date(), "%Y"),
                         months = 1:12, active = TRUE,
                         averages = "norm20cent",
@@ -90,7 +87,6 @@ plotClimRel <- function(park = "all", site = "all",
                     c("all", "LNETN", "ACAD", "MABI", "MIMA", "MORR",
                       "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
   if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
-  site_type <- match.arg(site_type)
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   parameter <- match.arg(parameter, c("temp", "tminmax", "tmean", "tmax", "tmin", "ppt"))
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
@@ -101,10 +97,10 @@ plotClimRel <- function(park = "all", site = "all",
 
   #-- Compile data for plotting --
   # Clim data as annual monthly averages
-  data("NETN_clim_2006_2024")
+  data("NETN_clim_annual")
   data("NETN_clim_norms")
 
-  clim_dat <- NETN_clim_2006_2024 |> filter(UnitCode %in% park)
+  clim_dat <- NETN_clim_annual |> filter(UnitCode %in% park)
   clim_dat2 <- clim_dat |> filter(year %in% years) |> filter(month %in% months)
   clim_dat2$date <- as.Date(paste0(clim_dat2$year, "-", clim_dat2$month, "-", 15), format = "%Y-%m-%d")
 
@@ -114,7 +110,7 @@ plotClimRel <- function(park = "all", site = "all",
     arrange(UnitCode, month, param)
 
   # Update clim data if requesting a year x month combination that is not currently in
-  # the saved NETN_clim_2006_2024.rda but only for complete months
+  # the saved NETN_clim_annual.rda but only for complete months
   date_range_data <- sort(unique(clim_dat_long$date))
   date_range_fxn <- paste0(rep(years, length(months)),"-", rep(sprintf("%02d", months), length(years)), "-", 15)
   new_dates1 <- date_range_fxn[!date_range_fxn %in% date_range_data]
