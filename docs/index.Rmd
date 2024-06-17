@@ -190,18 +190,18 @@ knitr::include_graphics("C:/NETN/R_Dev/Water/waterNETN/testing_scripts/ODBC_step
 
 ### get Data functions {.tabset}
 #### getClimNOAA()
-Extracts gridded NOAA climate data for park centroids. After looking over Daymet, Prism and weather station data, I've settled on the NOAA gridded data to make comparisons because they use the same algorithm and scale to calculate historic averages and annual data. Historic averages are available for the 20th century (1901 - 2000), which I also like, and for the latest 30 year normal (1991 - 2020). The normals for NETN park centroids have been compiled and are a data source that exists when you install the waterNETN package (called NETN_clim_norms.rda). This means you don't have to download or summarize the normals every time you want to use them, which speeds up plotting. You can download data as far back as 1951. However, I've also saved time by compiling all of the monthly data from 2006 - 2023, and saved this as a dataset for the package called NETN_clim_2006_2023.rda (see code chunk below on how to access this data set). That means you only need to download and compile data for the current year. Once a year ends, I'll add those data to the package dataset. 
+Extracts gridded NOAA climate data for park centroids. After looking over Daymet, Prism and weather station data, I've settled on the NOAA gridded data to make comparisons because they use the same algorithm and scale to calculate historic averages and annual data. Historic averages are available for the 20th century (1901 - 2000), which I also like, and for the latest 30 year normal (1991 - 2020). The normals for NETN park centroids have been compiled and are a data source that exists when you install the waterNETN package (called NETN_clim_norms.rda). This means you don't have to download or summarize the normals every time you want to use them, which speeds up plotting. You can download data as far back as 1951. However, I've also saved time by compiling all of the monthly data from Jan. 2006 - May 2024, and saved this as a dataset for the package called NETN_clim_annual.rda (see code chunk below on how to access this data set). That means you only need to download and compile data for months after May 2024. I have a webalert set for when a new month is posted, and will add that to the annual data as I have time. If I get behind, you'll want to use the getClimNOAA() function to download the new months of data.
 
-Now that I've settled on the NOAA data, I will update each of the climate comparison plotting functions to work with this data. The plotClimTrend() function will still allow you to select from weather station, Daymet, or NOAA data for plotting, for now at least.
+I've also updated all of the climate comparison plotting functions to work with the NOAA data. These functions will also check for months not included in the NETN_clim_annual, and will download what's available. The plotting functions use getClimNOAA() under the hood to perform this. You're unlikely to need to use the getClimNOAA() function yourself, unless you want to summarize/plot the data not using functions in waterNETN. 
 
-Currently the `getClimNOAA()` function only works for 1 year at a time, which should be fine, because I've already compiled 2006 - 2023 data for you. New data availability is usually delayed by about a week after a month ends. For example, on 6/7/2024, the data for May 2024 were posted as final. If you try to download data for a month before it's available, you'll get an error telling you which months are not available yet. You then just need to change your `months` argument to include only the months that didn't fail. I have a web alert on my phone that tells me when the previous month's data were posted, so I'll be able to update any visualizers or reports we build as soon as data are available.
+Currently the `getClimNOAA()` function only works for 1 year at a time, which should be fine, because I've already compiled 2006 - May 2024 data. New data availability is usually delayed by about 2 weeks after a month ends. For example, on 6/16/2024, the data for May 2024 were posted as final. If you try to download data for a month before it's available, you'll get an error telling you which months are not available yet. You then just need to change your `months` argument to include only the months that didn't fail. 
 
 The more months you include in the function, the longer it will take, as each month and climate variable is a separate raster to download. Number of parks minimally impacts performance.
 
 Note that soon I'm going to strip most of these climate functions out of this package and create a new climateNETN package, so any protocol can work with these data. The function names won't change, and you won't need to update your code beyond needing to install and load the separate package. I'll update this website once I'm finished with that transition.
 
 <p class = 'fxn'> get weather data for January - May 2024 for all NETN. </p>
-This may take a minute or so to download. If you're ultimately interested in plotting the data using one of the waterNETN package functions, don't worry about downloading separately. Just run the function, and it will 
+This may take a minute or so to download. If you're ultimately interested in plotting the data using one of the waterNETN package functions, don't worry about downloading separately. Just run the function, and it will run this function under the hood for months not already compiled. 
 ```{r cache = T}
 netn_jan_may <- getClimNOAA(months = 1:5)
 print_head(netn_jan_may)
@@ -219,10 +219,10 @@ lnetn_2023 <- getClimNOAA(park = "LNETN", year = 2023, months = 1:12)
 print_head(lnetn_2023)
 ```
 
-<p class = 'fxn'>View dataset containing 2006 - 2023 NOAA climate data</p>
+<p class = 'fxn'>View dataset containing 2006 - 2024 NOAA climate data</p>
 ```{r}
-data("NETN_clim_2006_2023.rda")
-print_head(NETN_clim_2006_2023)
+data("NETN_clim_annual.rda")
+print_head(NETN_clim_annual)
 
 ```
 
@@ -761,67 +761,62 @@ plotPrecipDischarge(site = c("ACABIN", "ACKEBO"), years = 2022, colors = c("corn
 ```
 
 #### plotClimTrend()
-This function produces a line or smoothed trend plot filtered on park, site, year, month, and climate parameter. If multiple sites are specified, they can either be plotted on the same figure or separate figures. If multiple parameters are specified, they will be plotted on separate figures. For multiple sites to plot on the same figure, use facet_site = FALSE. For multiple parameters on the same figure, facet_param = FALSE. Note that all months (1:12) are default. If you only want sample months, specify months = 5:10.
+This function produces a line or smoothed trend plot filtered on park, year, month, and climate parameter. If multiple sites are specified, they can either be plotted on the same figure or separate figures. If multiple parameters are specified, they will be plotted on separate figures. For multiple sites to plot on the same figure, use facet_site = FALSE. For multiple parameters on the same figure, facet_param = FALSE. Note that all months (1:12) are default. If you only want sample months, specify months = 5:10.
 
 
-<p class = 'fxn'>Plot monthly weather station data for Pogue Stream in MABI from 2006:2023 (all months is default), without a smoothed line.</p>
+<p class = 'fxn'>Plot monthly climate data for MABI from 2006:2023 (all months is default), without a smoothed line.</p>
 ```{r cache = T}
-plotClimTrend(site = "MABIPA", years = 2006:2023, parameter = "ws_ppt_mm", smooth = F)
+plotClimTrend(park = "MABI", years = 2006:2023, parameter = "all", smooth = F, facet_param = T)
 ```
-<p class = 'fxn'>Plot monthly weather station data for Pogue Stream in MABI from 2006:2023, with smoothed line and span 0.7.</p>
+<p class = 'fxn'>Plot same monthly NOAA data for MABI from 2006:2023, with smoothed line and span 0.7, and using the Dark2 color palette.</p>
 ```{r cache = T}
-plotClimTrend(site = "MABIPA", years = 2006:2023, parameter = "ws_ppt_mm", span = 0.7)
+plotClimTrend(park = "MABI", years = 2006:2023, parameter = "all", span = 0.7, palette = "Dark2")
 ```
 
-
-<p class = 'fxn'>Plot monthly Daymet min, max and mean temperature for Pogue Stream in MABI and Kroma Kill in SARA from 2006:2023, with smoothed line, span 0.7, only sample months, and sites on separate plots, but parameters on the same plots. </p>
+<p class = 'fxn'>Plot monthly NOAA min, max and mean temperature for MABI and SARA from 2006:2024 (May), with smoothed line, span 0.7, and parks on separate plots, but parameters on the same plots. </p>
 ```{r cache = T}
-plotClimTrend(site = c("MABIPA", "SARASA"), years = 2006:2023, 
-              parameter = c("dm_tmean_C", "dm_tmax_C", "dm_tmin_C"), 
-              span = 0.7, months = 5:10, facet_site = TRUE, facet_param = F,
+plotClimTrend(park = c("MABI", "SARA"), years = 2006:2023, 
+              parameter = c("tmean", "tmax", "tmin"), 
+              span = 0.7, facet_park = TRUE, facet_param = FALSE,
               legend_position = "bottom")
 ```
 
 #### plotClimComps()
-This function compares 30-year normals (1980 - 2009, or 1990 - 2019), or decadal (1980 - 1989, ..., 2010 - 2019) average monthly climate variables with user-specified years to provide an idea of how extreme or normal a given month in a year is. 
+This function compares either the 20th century normals (1901 - 2000), or the most recent 30-year normal (1991 - 2020) average monthly climate variables with user-specified years to provide an idea of how extreme or normal a given month in a year is. 
 
-By default, this function works with Daymet data, and so is not always available for the given year. By specifying data_type = 'wstn', data from the nearest weather station is compared with Daymet data extracted from the lat/long coordinates of the nearest weather station. <b style="color:red;">NOTE THAT PRELIMINARY COMPARISONS BETWEEN DAYMET AND WEATHER STATION DATA INDICATE BIAS. I'M CURRENTLY TESTING THE USE OF PRISM INSTEAD</b>
+<b style="color:red;">This function has been overhauled to work with NOAA gridded climate data for both the normals and the current data.</b> The same algorithms are used to generate historic and current data, which minimizes the bias introduced by weather station vs. Daymet data (Prism had similar issues). Using the NOAA dataset is slower to process, so I went with park-level centroids to extract climate data instead of extracting at the site level. I also compiled all of the NOAA data from 2006 through May 2024. I have a webalert that tells me when a new month is available, so I can keep the compiled data up to date (see `data("NETN_clim_annual")`). However, if I get behind, this function will download the missing months of data that are available online. 
 
 <details open><summary class='drop'>Single parameter</summary>
-<p class = 'fxn'>Plot mean monthly temp for The Pogue in MABI for 2019:2023 and all months with red-blue color palette and the 4 decadal averages.</p>
+<p class = 'fxn'>Plot mean monthly temp for MABI for 2019:2023 and all months with red-blue color palette and the 4 decadal averages.</p>
 ```{r cache = T}
-plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "tmean", 
-              palette = c("red", "blue"), averages = "decades")
+plotClimComps(park = "MABI", years = 2019:2023, parameter = "tmean", 
+              palette = c("red", "blue"), averages = "norm20cent")
 ```
 <p class = 'fxn'>Same as above, but with points and 30-year normal starting at 1990.</p>
 ```{r cache = T}
-plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "tmean", palette = c("red", "blue"), 
-              layers = c('points', 'lines'), averages = "norm90")
+plotClimComps(park = "MABI", years = 2019:2023, parameter = "tmean", palette = c("red", "blue"), 
+              layers = c('points', 'lines'), averages = "norm1990")
 ```
-<p class = 'fxn'>Plot max monthly temp for Eagle Lake and Jordan Pond for 2019:2023 and sample months only, with 'viridis' palette and 30-year norm starting at 1980 (default).</p>
+<p class = 'fxn'>Plot max monthly temp for ROVA for 2023 and 2024, with 'viridis' palette and 20th century norm (default).</p>
 
 ```{r cache = T}
-plotClimComps(site = c("ACEAGL", "ACJORD"), years = 2019:2023, months = 5:10,
-              parameter = "tmax", palette = "viridis", layers = 'lines')
+plotClimComps(park = "ROVA", years = 2023:2024, parameter = "tmax", palette = "viridis", layers = 'lines')
 ```
-<p class = 'fxn'>Plot total monthly precip for Jordan Pond for past 5 years using yellow-blue color palette, compared with the 30-year norm starting at 1980.</p>
+<p class = 'fxn'>Plot total monthly precip for Jordan Pond for past 5 years using orange-blue color palette, compared with the 30-year norm starting at 1990.</p>
 ```{r cache = T}
-plotClimComps(site = "ACJORD", years = 2018:2023, parameter = 'ppt', 
-              palette = c("#E8E62C", "blue"))
+plotClimComps(park = "ACAD", years = 2018:2023, parameter = 'ppt', 
+              palette = c("orange","blue"), averages = "norm1990")
 ```
 
-<p class = 'fxn'>Plot total monthly precip for Jordan Pond for current year using red for 2023 and blue for 2024</p>
+<p class = 'fxn'>Plot total monthly precip for ACAD for current year using red for 2023 and blue for 2024</p>
 ```{r cache = T}
-plotClimComps(site = "ACJORD", years = 2023:2024, parameter = 'ppt', 
-              palette = c("red", "blue"), data_type = 'wstn')
+plotClimComps(park = "ACAD", years = 2023:2024, parameter = 'ppt', palette = c("red", "blue"))
 ```
 
-<p class = 'fxn'>Plot total monthly max temp for Jordan Pond for current year using red for current year color.</p>
+<p class = 'fxn'>Plot total monthly max temp for ACAD for current year using red for current year color and 30-year normal.</p>
 ```{r cache = T}
-plotClimComps(site = "ACJORD", years = 2024, parameter = 'tmean', 
-              palette = c("red"), data_type = 'wstn')
+plotClimComps(park = "ACAD", years = 2024, parameter = 'tmax', palette = c("red"), averages = "norm1990")
 ```
-
 
 </details><br>
 
@@ -829,20 +824,20 @@ plotClimComps(site = "ACJORD", years = 2024, parameter = 'tmean',
 
 The code below would take a lot to program into waterNETN functions, so I'm instead showing you how you can create panels of multiple plots using the cowplot package. 
 
-<p class = 'fxn'>Generate grid of all parameters in Eagle Lake from past 10 years</p> 
+<p class = 'fxn'>Generate grid of all parameters in ACAD from past 5 years</p> 
 Note that the code that names leg is extracting a legend from a copy of the figures to be plotted separately from the other figures. This allows you to control the sizing and alignment better. The NULLs also allow you to create white space between plots.
 ```{r cache = T}
-tmax <- plotClimComps(site = "ACEAGL", years = 2013:2023, parameter = "tmax", months = 5:10,
+tmax <- plotClimComps(park = "ACAD", years = 2019:2023, parameter = "tmax",
                       layers = 'lines', legend_position = 'none', palette = c("red", "blue"))
 
-tmin <- plotClimComps(site = "ACEAGL", years = 2013:2023, parameter = "tmin", months = 5:10, 
+tmin <- plotClimComps(park = "ACAD", years = 2019:2023, parameter = "tmin", 
                       layers = 'lines', legend_position = 'none', palette = c("red", "blue"))
-tmean <- plotClimComps(site = "ACEAGL", years = 2013:2023, parameter = "tmean", months = 5:10, 
+tmean <- plotClimComps(park = "ACAD", years = 2019:2023, parameter = "tmean",  
                        layers = 'lines', legend_position = 'none', palette = c("red", "blue"))
-prec <- plotClimComps(site = "ACEAGL", years = 2013:2023, parameter = 'ppt', months = 5:10, 
+prec <- plotClimComps(park = "ACAD", years = 2019:2023, parameter = 'ppt', 
                       layers = 'lines', legend_position = 'none', palette = c("red", "blue"))
 
-prec_leg <- plotClimComps(site = "ACEAGL", years = 2013:2023, parameter = 'tmax', months = 5:10, 
+prec_leg <- plotClimComps(park = "ACAD", years = 2019:2023, parameter = 'tmax', 
                           layers = 'lines', legend_position = 'right', palette = c("red", "blue")) +
  theme(legend.box.margin = margin(0, 0, 0, 5), 
        legend.text = element_text(size = 9), 
@@ -861,35 +856,34 @@ grid2 <- cowplot::plot_grid(grid1, NULL, leg, ncol = 3, nrow = 1, rel_widths = c
 grid2
 ```
 
-<p class = 'fxn'>Generate grid of all parameters in Eagle Lake for 2024, Jan through April.</p>
+<p class = 'fxn'>Generate grid of all parameters in ACAD for 2024, Jan through May.</p>
 Because waterNETN plotting functions return ggplot objects, we can tweak the plots so that temp plots all have the same y axis (so you can see that max is higher than min). 
 ```{r cache = T}
-wstn_temp <- sumClimMonthly(site = "ACEAGL", years = 2024, data_type = "wstn") 
-avg_temp <- sumClimAvgs(site = "ACEAGL", data_type = "daymet")
+data("NETN_clim_annual") # compiled annual data
+data("NETN_clim_norms") # compiled normals
+head(NETN_clim_annual)
+ymin <- round(min(NETN_clim_annual$tmin, NETN_clim_norms$tmin_norm_1901_2000,     
+                  NETN_clim_norms$tmin_norm_1991_2020), 0) - 1
+ymax <- round(max(NETN_clim_annual$tmax, NETN_clim_norms$tmax_norm_1901_2000, 
+                  NETN_clim_norms$tmax_norm_1991_2020), 0) -1
 
-ymin <- round(min(wstn_temp$ws_tmin_C, avg_temp$tmin_C_d1980, avg_temp$tmin_C_d1990, 
-              avg_temp$tmin_C_d2000, avg_temp$tmin_C_d2010), 0) - 1
-
-ymax <- round(max(wstn_temp$ws_tmax_C, avg_temp$tmax_C_d1980, avg_temp$tmax_C_d1990, 
-              avg_temp$tmax_C_d2000, avg_temp$tmax_C_d2010), 0) - 1
-
-tmax <- plotClimComps(site = "ACEAGL", years = 2024, parameter = "tmax", data_type = "wstn",
+tmax <- plotClimComps(park = "ACAD", years = 2024, parameter = "tmax", data_type = "wstn",
                       layers = 'lines', legend_position = 'none', palette = c("red", "blue"),
                       plot_title = F) +
         ylim(ymin, ymax)
-tmin <- plotClimComps(site = "ACEAGL", years = 2024, parameter = "tmin", data_type = "wstn", 
+tmin <- plotClimComps(park = "ACAD", years = 2024, parameter = "tmin", data_type = "wstn", 
                       layers = 'lines', legend_position = 'none', palette = c("red", "blue"),
                       plot_title = F) +
         ylim(ymin, ymax)
-tmean <- plotClimComps(site = "ACEAGL", years = 2024, parameter = "tmean", data_type = "wstn",
+tmean <- plotClimComps(park = "ACAD", years = 2024, parameter = "tmean", data_type = "wstn",
                        layers = 'lines', legend_position = 'none', palette = c("red", "blue"),
                       plot_title = F)+
-        ylim(ymin, ymax)
-prec <- plotClimComps(site = "ACEAGL", years = 2024, parameter = 'ppt', data_type = "wstn",
+        ylim(ymin, ymax) 
+prec <- plotClimComps(park = "ACAD", years = 2024, parameter = 'ppt', data_type = "wstn",
                       layers = 'lines', legend_position = 'none', palette = c("red", "blue"),
                       plot_title = F)
 
-prec_leg <- plotClimComps(site = "ACEAGL", years = 2024, parameter = 'tmax', data_type = "wstn",
+prec_leg <- plotClimComps(park = "ACAD", years = 2024, parameter = 'tmax', data_type = "wstn",
                           layers = 'lines', legend_position = 'right', 
                           palette = c("red", "blue")) +
  theme(legend.box.margin = margin(0, 0, 0, 5), 
@@ -911,22 +905,22 @@ grid2
 </details>
 
 #### plotClimRel()
-This function plots a given year compared against either the 1980 - 2009 normal or the 1990 - 2019 normal. The 30-year normals are derived from Daymet data. The annual comparisons are derived from the nearest weather station to each park. You can either plot all temp variables, min/max temp, mean temp or precipitation. If multiple years are specified, resulting plots will facet on year. You can make your own palette by specifying colors, or by default use viridis. Currently can only plot one site at a time. <b style="color:red;">NOTE THAT PRELIMINARY COMPARISONS BETWEEN DAYMET AND WEATHER STATION DATA INDICATE BIAS. I'M CURRENTLY TESTING THE USE OF PRISM INSTEAD</b>
+This function plots a given year compared against either the 19th century normal (1901 - 2000) or the 1991 - 2020 normal. Both normals and annual comparisons are derived from NOAA gridded climate data. You can either plot all temp variables, min/max temp, mean temp or precipitation. If multiple years are specified, resulting plots will facet on year. You can make your own palette by specifying colors, or by default use viridis. Currently can only plot one park at a time. 
 
-<p class = 'fxn'>Plot all temperature variables on 1 graph for the Pogue in 2024.</p>
-```{r message = F, warning = FALSE}
-plotClimRel(site = "MABIPA", years = 2024, parameter = "temp", palette = c("#75C5FF", "#3563DD", "#323969"))
+<p class = 'fxn'>Plot all temperature variables on 1 graph for MABI in 2024.</p>
+```{r message = F, warning = FALSE, cache = T}
+plotClimRel(park = "MABI", years = 2024, parameter = "temp", palette = c("#EEE55A", "#D56062", "#067BC2"))
 ```
 
-<p class = 'fxn'>Plot precip for Kroma Kill in SARA 2023 compared to 1990 - 2019 normals.</p>
+<p class = 'fxn'>Plot precip for SARA 2023 compared to 1990 - 2019 normals.</p>
 ```{r message = F, warning = FALSE}
-plotClimRel(site = "SARASA", years = 2023, parameter = "ppt", palette = "grey", averages = "norm90")
+plotClimRel(park = "SARA", years = 2023, parameter = "ppt", palette = "grey", averages = "norm1990")
 ```
 
 <p class = 'fxn'>Plot precip for Kroma Kill in SARA 2023 and 2024 compared to 1990 - 2019 normals.</p> 
 ```{r message = F, warning = FALSE}
-plotClimRel(site = "SARASA", years = 2023:2024, parameter = "ppt", 
-            palette = "grey", averages = "norm90")
+plotClimRel(park = "SARA", years = 2023:2024, parameter = "ppt", 
+            palette = "grey", averages = "norm1990")
 ```
 
 #### plotClimDrought()
@@ -937,10 +931,9 @@ This function plots weekly drought index at the county level for each specified 
 plotClimDrought(park = c("MABI", "SAGA"), years = 2020:2024)
 ```
 
-
 <p class='fxn'>Plot drought info for both MORR counties for 2023</p>
 ```{r}
- plotClimDrought(park = "MORR", years = 2023, dom_county = FALSE)
+plotClimDrought(park = "MORR", years = 2023, dom_county = FALSE)
 ```
 
 <p class="fxn">Plot drought info for both ACAD counties in 2020 for May through October </p>
@@ -956,34 +949,6 @@ plotClimDrought(park = "LNETN", years = 2023, legend_position = 'bottom')
 
 ### Summary Functions {.tabset}
 #### sumClimAvgs()
-This function calculates monthly decadal and 30-year norms from daily Daymet data by site. For each decade from 1980 to 2020 and for 30-year spans through 2020, this function returns monthly averages for total precipitation in mm (ppt_mm), average maximum temperature (tmax_C),average minimum temperature (tmin_C), and average temperature (tmean_C) based on Daymet gridded climate data. The 30-year norms from 1980 - 2009 and 1990 - 2019 are designated by _30yr_1980 for 1980-2009, and _30yr_1990 for 1990 - 2020. Averages by decade are designated by _d1980 for 1980-1989, _d1990 for 1990 - 1999, etc. Note that Daymet data are downloaded from an online web service and can be slow if many sites selected, and occasionally the server is down that will result in an error message.
-
-<p class = 'fxn'>Summarize 1980 - 2009 30-year normals for all MIMA sites.</p>
-```{r}
-mimaavgs <- sumClimAvgs(park = "MIMA")
-print_head(mimaavgs)
-```
-
-<p class = 'fxn'>Summarize 1990 - 2019 30-year normals for Weir Pond.</p>
-```{r}
-weirpond <- sumClimAvgs(site = "WEFAPA")
-print_head(weirpond)
-```
-
+Now that we're using NOAA gridded climate data, we no longer need this function. It's been removed from the package. 
 #### sumClimMonthly()
-This function calculates monthly statistics from daily Daymet and/or weather station data by site. Statistics returned are monthly total precipitation in mm (ppt_mm), average maximum temperature (tmax_C), average minimum temperature (tmin_C), and average temperature (tmean_C). When Daymet data are requested, results also return a solar radiation (srad in mjm2), potential evapotranspiration using Hargreaves (PEThar), water balance (BAL), 1- month and 3-month Standardized Precipitation Evapotranspiration Index (SPEI), a drought index that takes into account precipitation, temperature, evapotranspiration, and solar radiation. The 3-month SPEI will be NA for the first 2 months in the year span, because it's a 3-month average. Daymet vs. weather station metrics are indicated by whether they start with dm_ or ws_. Note that occasionally you're unable to connect to the Daymet or rcc-acis server and will receive and error message when that happens. 
-
-Note that Daymet data availability are typically not available for the latest year until a few months after the calendar year is over. Weather station data may be available within a day or two of the current date.
-
-<p class = 'fxn'>Summarize monthly Daymet and weather station data for Mill Brook in MIMA for 2020 to 2023.</p>
-```{r}
-mima <- sumClimMonthly(site = "MIMASA", years = 2020:2023, data_type = 'all')
-print_head(mima)
-
-```
-
-<p class = 'fxn'>Summarize monthly weather station data for the Pogue for 2024. </p>
-```{r}
-pogwstn <- sumClimMonthly(site = "MABIPA", years = 2024, data_type = 'wstn')
-print_head(pogwstn)
-```
+Now that we're using NOAA gridded climate data, we no longer need this function. It's been removed from the package. 
