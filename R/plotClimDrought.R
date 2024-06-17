@@ -124,7 +124,7 @@ plotClimDrought <- function(park = "all",
                         "1 month" = "%b",
                         "2 months" = "%b-%Y",
                         "4 months" = "%m-%Y",
-                        "6 months" = "%m/%y")
+                        "6 months" = "%m-%Y")
                         #"1 year" =  "%Y"
                         #"2 years" = "%Y")
 
@@ -137,7 +137,7 @@ plotClimDrought <- function(park = "all",
   facet_county <- if(num_parks == 1 & num_parks < num_county){TRUE} else {FALSE}
   facet_park_county <- if(num_parks > 1 & num_county > num_parks){TRUE} else {FALSE}
 
-  x_lab <- ifelse(year_len == 1, paste0("Year: ", years), NULL)
+  x_lab <- ifelse(year_len == 1, paste0("Year: ", years), "Date")
 
   dplot <-
     ggplot(ddata3, aes(x = Date, y = Pct_Area, fill = drought_legend, color = drought_legend)) +
