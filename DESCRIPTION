@@ -30,8 +30,6 @@ Collate:
     'getStreamObs.R'
     'getWaterLevel.R'
     'importData.R'
-    'sumClimAvgs.R'
-    'sumClimMonthly.R'
     'theme_WQ.R'
     'plotClimComps.R'
     'plotClimDrought.R'
