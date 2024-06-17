@@ -5,15 +5,11 @@
 \title{plotClimComps: Plot climate comparisons}
 \usage{
 plotClimComps(
-  park = "all",
-  site = "all",
-  site_type = c("all", "lake", "stream"),
+  park = "ACAD",
   years = 2006:format(Sys.Date(), "\%Y"),
   months = 1:12,
-  active = TRUE,
   layers = "lines",
-  data_type = "daymet",
-  averages = "norm80",
+  averages = "norm20cent",
   parameter = "tmean",
   plot_title = TRUE,
   palette = "viridis",
@@ -23,10 +19,8 @@ plotClimComps(
 )
 }
 \arguments{
-\item{park}{Combine data from all parks or one or more parks at a time. Valid inputs:
+\item{park}{Specify park to plot. Currently can only plot 1 park at a time. Valid inputs:
 \describe{
-\item{"all"}{Includes all parks in the network}
-\item{"LNETN"}{Includes all parks but ACAD}
 \item{"ACAD"}{Acadia NP only}
 \item{"MABI"}{Marsh-Billings-Rockefeller NHP only}
 \item{"MIMA"}{Minute Man NHP only}
@@ -37,34 +31,15 @@ plotClimComps(
 \item{"SARA"}{Saratoga NHP only}
 \item{"WEFA"}{Weir Farm NHP only}}}
 
-\item{site}{Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site.
-Defaults to "all". If multiple sites sites selected, will facet on site.}
-
-\item{site_type}{Combine all site types, lakes or streams. Not needed if specifying particular sites.
-\describe{
-\item{"all"}{Default. Includes all site types, unless site or site_name select specific site types.}
-\item{"lake"}{Include only lakes.}
-\item{"stream"}{Include streams only.}
-}}
-
 \item{years}{Numeric. Years to plot separately. Accepted values start at 2006.}
 
-\item{active}{Logical. If TRUE (Default) only queries actively monitored sites.
-If FALSE, returns all sites that have been monitored.}
+\item{layers}{Options are "points", "lines", or both for Annual Values. By default, only lines will plot.}
 
-\item{layers}{Options are "points", "lines", or both for annual averages. By default, only lines will plot.}
-
-\item{data_type}{Specify Daymet ("daymet"; default), or weather station ("wstn"). Note that Daymet
-data aren't available immediately, whereas weather station data may be available within days of current day.
-When 'wstn' is selected, the averages are based on Daymet data at the coordinates of the weather station,
-because the closest weather stations to most parks do not have a period or record prior to 2000.}
-
-\item{averages}{Specify averages to plot. By default, the 30-year normal from 1980-2009 plots. Options include
-one of the following:
+\item{averages}{Specify averages to plot. By default, the 20th century normal (1901-2000) plots.
+Other options include:
 \describe{
-\item{"norm80"}{Plots the 30-year norm from 1980 - 2009}
-\item{"norm90"}{Plots the 30-year norm from 1990 - 2019}
-\item{"decades"}{Plots 1980 - 1989, 1990 - 1999, 2000 - 2009, and 2010 - 2019 averages}
+\item{"norm20cent"}{Plots the 20th century normal (1901 - 2000)}
+\item{"norm1990"}{Plots the 30-year norm from 1991 - 2020}
 }}
 
 \item{parameter}{Specify the monthly averaged parameter to plot. Acceptable values are
@@ -89,36 +64,41 @@ specify 1 color}
 "none" (Default). Other options are "top", "bottom", "left", "right".}
 
 \item{...}{Additional arguments relevant to \code{sumClimAvgs()} or \code{sumClimMonthly()}}
+
+\item{active}{Logical. If TRUE (Default) only queries actively monitored sites.
+If FALSE, returns all sites that have been monitored.}
 }
 \value{
 Returns a ggplot object of specified climate trends
 }
 \description{
-This function compares decadal (1980 - 1989, ..., 2010 - 2019) average
-monthly climate variables with user-specified years to provide an idea of how extreme
-or normal a given month in a year is. This function only works with Daymet data,
-so is not immediately available for the current date.
+This function compares historic average monthly climate variables with
+user-specified years and months to provide an idea of how extreme or normal a given month in a
+year is. This function only works with NOAA gridded climate data, and plots park
+centroids, not site-level values. Each month's data are typically available about
+two weeks after the month ends. To save download time, the NETN_clim_2006_2024 dataset contains
+monthly climate data from January 2006 through May 2024.
 }
 \examples{
 \dontrun{
 
-# Plot mean monthly temp for the Pogue in MABI for 2019:2023 and all months with red-blue color palette
-plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "temp_mean", palette = c('red', 'blue'))
+# Plot mean monthly temp for MABI for 2019:2023 and all months with red-blue color palette
+plotClimComps(park = "MABI", years = 2019:2023, parameter = "temp_mean", palette = c('red', 'blue'))
 
 # Same as above, but with points too
-plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "temp_mean", palette = c('red', 'blue'),
-layers = c('points', 'lines'))
+plotClimComps(park = "MABI", years = 2019:2023, parameter = "temp_mean", palette = c('red', 'blue'),
+  layers = c('points', 'lines'))
 
-# Plot max monthly temp for Eagle Lake and Jordan Pond for 2019:2023 and all months
-plotClimComps(site = c("ACEAGL", "ACJORD"), years = 2019:2023, parameter = "temp_max",
-palette = c('red', 'blue'), layers = 'lines')
+# Plot max monthly temp ACAD for 2019:2023 and all months with 1991- 2020 normals
+plotClimComps(park = "ACAD", years = 2019:2023, parameter = "temp_max", averages = "norm1990",
+  palette = c('red', 'blue'), layers = 'lines')
 
-# Plot total monthly precip for Jordan Pond for past 10 years using a blue color scheme
-plotClimComps(site = "ACJORD", years = 2013:2023, parameter = 'precip',
-palette = c("#75C5FF", "#3563DD", "#323969"))
+# Plot total monthly precip for ACAD for past 10 years using a blue color scheme
+plotClimComps(park = "ACAD", years = 2013:2023, parameter = 'precip',
+  palette = c("#75C5FF", "#3563DD", "#323969"))
 
-# Plot total monthly precip for latest year using weather station data
-plotClimComps(site = "ACJORD", years = 2024, parameter = "precip", data_type = 'wstn')
+# Plot total monthly precip for latest year in ACAD
+plotClimComps(park = "ACAD", years = 2024, parameter = "precip", months = 1:5)
 
 }
 

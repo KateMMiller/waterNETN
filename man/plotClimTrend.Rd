@@ -6,20 +6,16 @@
 \usage{
 plotClimTrend(
   park = "all",
-  site = "all",
-  site_type = c("all", "lake", "stream"),
   years = 2006:format(Sys.Date(), "\%Y"),
   months = 1:12,
-  active = TRUE,
   layers = c("points", "lines"),
   parameter = NA,
-  facet_site = FALSE,
+  facet_park = FALSE,
   facet_param = TRUE,
-  color_theme = "viridis",
+  palette = "viridis",
   smooth = TRUE,
   span = 0.3,
-  legend_position = "none",
-  ...
+  legend_position = "none"
 )
 }
 \arguments{
@@ -37,49 +33,30 @@ plotClimTrend(
 \item{"SARA"}{Saratoga NHP only}
 \item{"WEFA"}{Weir Farm NHP only}}}
 
-\item{site}{Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
-
-\item{site_type}{Combine all site types, lakes or streams. Not needed if specifying particular sites.
-\describe{
-\item{"all"}{Default. Includes all site types, unless site or site_name select specific site types.}
-\item{"lake"}{Include only lakes.}
-\item{"stream"}{Include streams only.}
-}}
-
 \item{years}{Numeric. Years to query. Accepted values start at 2006.}
 
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 events are between months 5 and 10, and these are set as the defaults.}
-
-\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
 
 \item{layers}{Options are "points" and "lines". By default, both will plot.}
 
 \item{parameter}{Specify the parameter(s) to plot. Acceptable values are
 \describe{
 \item{"all"}{Plot all climate variables}
-\item{"dm_ppt_mm"}{Daymet monthly total precipitation in mm.}
-\item{"dm_tmax_C"}{Daymet monthly average maximum temperature in C.}
-\item{"dm_tmin_C"}{Daymet monthly average minimum temperature in C.}
-\item{"dm_tmean_C"}{Daymet monthly average temperature in C.}
-\item{"dm_PEThar"}{Daymet potential evapotranspiration using Hargreaves equation}
-\item{"dm_BAL"}{Daymet water balance, calculated as precip - PET}
-\item{"dm_SPEI01"}{Drought index: Standarized Precipitation Evapotranspiration Index at the 1-month level. }
-\item{"dm_SPEI03"}{Drought index: Standarized Precipitation Evapotranspiration Index at the 3-month level. }
-\item{"ws_ppt_mm"}{Weather station monthly total precipitation in mm.}
-\item{"ws_tmax_C"}{Weather station monthly average maximum temperature in C.}
-\item{"ws_tmin_C"}{Weather station monthly average minimum temperature in C.}
-\item{"ws_tmean_C"}{Weather station monthly average temperature in C.}
+\item{"ppt"}{Monthly total precipitation in mm.}
+\item{"tmax"}{Monthly average maximum temperature in C.}
+\item{"tmin}{Monthly average minimum temperature in C.}
+\item{"tmean}{Monthly average temperature in C.}
 }}
 
-\item{facet_site}{Logical. If TRUE, plots sites on separate facets (ie figures). If FALSE (Default),
+\item{facet_park}{Logical. If TRUE, plots sites on separate facets (ie figures). If FALSE (Default),
 plots all sites on the same figure. This is only enabled if multiple sites are chosen.}
 
 \item{facet_param}{Logical. If TRUE (Default), plots parameters on separate facets. If FALSE, plots
 all parameters on the same figure. Note that results will be funky if selected parameters have different units (e.g., temp and precip).}
 
-\item{color_theme}{Theme to plot points and lines. Options currently are 'viridis' (Default- ranges of blue, green and yellow),
-or from RColorBrewer: 'set1', 'dark2', or 'accent' (see https://ggplot2-book.org/scales-colour).}
+\item{palette}{Theme to plot points and lines. Options currently are 'viridis' (Default- ranges of blue, green and yellow), or discrete palettes from RColorBrewer. Common options are "Set1", "Set2", "Dark2", "Accent".
+Run RColorBrewer::display.brewer.all(type = 'qual') to see full set of options.}
 
 \item{smooth}{Logical. If TRUE (Default), will plot a loess smoothed line. If FALSE, will plot actual line. Only
 plots if layers argument includes 'lines'.}
@@ -89,28 +66,28 @@ cause more smoothing (straighter lines). Smaller spans are wavier. Span can rang
 
 \item{legend_position}{Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
 options are "top", "bottom", "left", "right".}
-
-\item{...}{Additional arguments relevant to \code{getChemistry()} or \code{getSondeInSitu()}}
 }
 \value{
 Returns a ggplot object of specified climate trends
 }
 \description{
-This function produces a line or smoothed trend plot filtered on park, site, year, month, and
-climate parameter. If multiple sites are specified, they can either be plotted on the same figure or separate
+This function produces a line or smoothed trend plot filtered on park, year, month, and
+climate parameter. If multiple parks are specified, they can either be plotted on the same figure or separate
 figures. If multiple parameters are specified, they will be plotted on separate figures.
 }
 \examples{
 \dontrun{
 
-# Plot weather station precip for the Pogue in MABI for 2006:2023 and all months, without smoothing
-plotClimTrend(site = "MABIPA", years = 2006:2023, parameter = "ws_ppt_mm", smooth = F)
+# Plot total monthly precip for 2006:2023 and all months, without smoothing
+plotClimTrend(park = "MABI", years = 2006:2023, parameter = "ppt", smooth = F)
 
-# Plot monthly weather station data for Pogue Stream in MABI from 2006:2023, with smoothed line and span 0.7.
-plotClimTrend(site = "MABIPA", years = 2006:2023, parameter = "ws_ppt_mm", span = 0.7)
+# Plot total monthly precip in MABI from 2006:2023, with smoothed line and span 0.7.
+plotClimTrend(park = "MABI", years = 2006:2024, parameter = "ppt", span = 0.7)
 
-# Plot monthly Daymet mean temperature for Pogue Stream in MABI and Kroma Kill in SARA, and  from 2006:2023, with smoothed line, span 0.7, and only sample months.
-plotClimTrend(site = c("MABIPA", "SARASA"), years = 2006:2023, parameter = "dm_tmean_C", span = 0.7, months = 5:10)
+# Plot monthly mean temperature for MABI and SARA from 2006:2024, with smoothed line, span 0.7,
+and only sample months using the Dark2 color palette.
+plotClimTrend(park = c("MABI", "SARA"), years = 2006:2024,
+              parameter = "tmean", span = 0.7, months = 5:10, paletted = "Dark2")
 
 }
 

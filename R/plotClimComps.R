@@ -1,23 +1,23 @@
-#' @include getSites.R
 #' @include theme_WQ.R
-#' @include sumClimMonthly.R
-#' @include sumClimAvgs.R
+#' @include getClimNOAA.R
+#' @include getSites.R
 #'
 #' @title plotClimComps: Plot climate comparisons
 #'
-#' @importFrom dplyr arrange filter left_join
+#' @importFrom dplyr arrange filter left_join mutate
 #' @importFrom tidyr pivot_longer
+#' @importFrom purrr map list_rbind
 #' @import ggplot2
 #'
-#' @description This function compares decadal (1980 - 1989, ..., 2010 - 2019) average
-#' monthly climate variables with user-specified years to provide an idea of how extreme
-#' or normal a given month in a year is. This function only works with Daymet data,
-#' so is not immediately available for the current date.
+#' @description This function compares historic average monthly climate variables with
+#' user-specified years and months to provide an idea of how extreme or normal a given month in a
+#' year is. This function only works with NOAA gridded climate data, and plots park
+#' centroids, not site-level values. Each month's data are typically available about
+#' two weeks after the month ends. To save download time, the NETN_clim_2006_2024 dataset contains
+#' monthly climate data from January 2006 through May 2024.
 #'
-#' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
+#' @param park Specify park to plot. Currently can only plot 1 park at a time. Valid inputs:
 #' \describe{
-#' \item{"all"}{Includes all parks in the network}
-#' \item{"LNETN"}{Includes all parks but ACAD}
 #' \item{"ACAD"}{Acadia NP only}
 #' \item{"MABI"}{Marsh-Billings-Rockefeller NHP only}
 #' \item{"MIMA"}{Minute Man NHP only}
@@ -27,16 +27,6 @@
 #' \item{"SAIR"}{Saugus Iron Works NHS only}
 #' \item{"SARA"}{Saratoga NHP only}
 #' \item{"WEFA"}{Weir Farm NHP only}}
-#'
-#' @param site Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site.
-#' Defaults to "all". If multiple sites sites selected, will facet on site.
-#'
-#' @param site_type Combine all site types, lakes or streams. Not needed if specifying particular sites.
-#' \describe{
-#' \item{"all"}{Default. Includes all site types, unless site or site_name select specific site types.}
-#' \item{"lake"}{Include only lakes.}
-#' \item{"stream"}{Include streams only.}
-#' }
 #'
 #' @param years Numeric. Years to plot separately. Accepted values start at 2006.
 #'
@@ -51,20 +41,14 @@
 #' \item{"ppt"}{Plot precipitation comparisons (in mm).}
 #' }
 #'
-#' @param data_type Specify Daymet ("daymet"; default), or weather station ("wstn"). Note that Daymet
-#' data aren't available immediately, whereas weather station data may be available within days of current day.
-#' When 'wstn' is selected, the averages are based on Daymet data at the coordinates of the weather station,
-#' because the closest weather stations to most parks do not have a period or record prior to 2000.
-#'
-#' @param averages Specify averages to plot. By default, the 30-year normal from 1980-2009 plots. Options include
-#' one of the following:
+#' @param averages Specify averages to plot. By default, the 20th century normal (1901-2000) plots.
+#' Other options include:
 #' \describe{
-#' \item{"norm80"}{Plots the 30-year norm from 1980 - 2009}
-#' \item{"norm90"}{Plots the 30-year norm from 1990 - 2019}
-#' \item{"decades"}{Plots 1980 - 1989, 1990 - 1999, 2000 - 2009, and 2010 - 2019 averages}
+#' \item{"norm20cent"}{Plots the 20th century normal (1901 - 2000)}
+#' \item{"norm1990"}{Plots the 30-year norm from 1991 - 2020}
 #' }
 #'
-#' @param layers Options are "points", "lines", or both for annual averages. By default, only lines will plot.
+#' @param layers Options are "points", "lines", or both for Annual Values. By default, only lines will plot.
 #'
 #' @param palette Color palette for plots. Options currently are 'viridis' (yellow - green - blue),
 #' or create your own by specifying 2 or more colors in quotes, like palette = c("red", "yellow", "blue"),
@@ -84,23 +68,23 @@
 #' @examples
 #' \dontrun{
 #'
-#' # Plot mean monthly temp for the Pogue in MABI for 2019:2023 and all months with red-blue color palette
-#' plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "temp_mean", palette = c('red', 'blue'))
+#' # Plot mean monthly temp for MABI for 2019:2023 and all months with red-blue color palette
+#' plotClimComps(park = "MABI", years = 2019:2023, parameter = "temp_mean", palette = c('red', 'blue'))
 #'
 #' # Same as above, but with points too
-#' plotClimComps(site = "MABIPA", years = 2019:2023, parameter = "temp_mean", palette = c('red', 'blue'),
-#' layers = c('points', 'lines'))
+#' plotClimComps(park = "MABI", years = 2019:2023, parameter = "temp_mean", palette = c('red', 'blue'),
+#'   layers = c('points', 'lines'))
 #'
-#' # Plot max monthly temp for Eagle Lake and Jordan Pond for 2019:2023 and all months
-#' plotClimComps(site = c("ACEAGL", "ACJORD"), years = 2019:2023, parameter = "temp_max",
-#' palette = c('red', 'blue'), layers = 'lines')
+#' # Plot max monthly temp ACAD for 2019:2023 and all months with 1991- 2020 normals
+#' plotClimComps(park = "ACAD", years = 2019:2023, parameter = "temp_max", averages = "norm1990",
+#'   palette = c('red', 'blue'), layers = 'lines')
 #'
-#' # Plot total monthly precip for Jordan Pond for past 10 years using a blue color scheme
-#' plotClimComps(site = "ACJORD", years = 2013:2023, parameter = 'precip',
-#' palette = c("#75C5FF", "#3563DD", "#323969"))
+#' # Plot total monthly precip for ACAD for past 10 years using a blue color scheme
+#' plotClimComps(park = "ACAD", years = 2013:2023, parameter = 'precip',
+#'   palette = c("#75C5FF", "#3563DD", "#323969"))
 #'
-#' # Plot total monthly precip for latest year using weather station data
-#' plotClimComps(site = "ACJORD", years = 2024, parameter = "precip", data_type = 'wstn')
+#' # Plot total monthly precip for latest year in ACAD
+#' plotClimComps(park = "ACAD", years = 2024, parameter = "precip", months = 1:5)
 #'
 #'}
 #'
@@ -108,185 +92,180 @@
 #'
 #' @export
 #'
-plotClimComps <- function(park = "all", site = "all",
-                          site_type = c("all", "lake", "stream"),
+plotClimComps <- function(park = "ACAD",
                           years = 2006:format(Sys.Date(), "%Y"),
-                          months = 1:12, active = TRUE,
-                          layers = "lines", data_type = 'daymet',
-                          averages = "norm80",
+                          months = 1:12,
+                          layers = "lines",
+                          averages = "norm20cent",
                           parameter = 'tmean', plot_title = TRUE,
                           palette = "viridis", color_rev = FALSE,
                           legend_position = 'right', ...){
 
   #-- Error handling --
-  park <- match.arg(park, several.ok = TRUE,
-                    c("all", "LNETN", "ACAD", "MABI", "MIMA", "MORR",
+  park <- match.arg(park, several.ok = FALSE,
+                    c(#"all", "LNETN",
+                      "ACAD", "MABI", "MIMA", "MORR",
                       "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
-  if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
-  site_type <- match.arg(site_type)
+  #if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   parameter <- match.arg(parameter, c("tmean", "tmax", "tmin", "ppt"))
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
-  stopifnot(class(active) == "logical")
   layers <- match.arg(layers, c("points", "lines"), several.ok = TRUE)
   legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
-  data_type <- match.arg(data_type, c("daymet", "wstn"))
   if(all(!palette %in% c("viridis")) & length(years) > 1){stopifnot(length(palette) > 1)}
   stopifnot(class(plot_title) == "logical")
-  averages <- match.arg(averages, c("norm80", "norm90", "decades"))
+  averages <- match.arg(averages, c("norm20cent", "norm1990"))
 
   #-- Compile data for plotting --
   # Clim data as annual monthly averages
-  clim_dat1 <- sumClimMonthly(park = park, site = site, site_type = site_type,
-                             active = active, years = years,
-                             months = months, data_type = data_type, ...)
+  data("NETN_clim_2006_2024")
+  data("NETN_clim_norms")
 
-  clim_dat <- if(data_type == "daymet"){clim_dat1[,c("SiteCode", "SiteName", "UnitCode", "year", "month",
-                                                     "mon", "dm_ppt_mm", "dm_tmax_C", "dm_tmin_C", "dm_tmean_C")]
-  } else {clim_dat1[,c("SiteCode", "SiteName", "UnitCode", "year", "month", "mon", "ws_ppt_mm",
-                       "ws_tmax_C", "ws_tmin_C", "ws_tmean_C")]}
-
-  if(nrow(clim_dat) == 0){stop("Specified arguments returned a data frame with 0 records.")}
+  clim_dat <- NETN_clim_2006_2024 |> filter(UnitCode %in% park)
+  clim_dat2 <- clim_dat |> filter(year %in% years) |> filter(month %in% months)
+  clim_dat2$date <- as.Date(paste0(clim_dat2$year, "-", clim_dat2$month, "-", 15), format = "%Y-%m-%d")
 
   clim_dat_long <-
-      clim_dat |> pivot_longer(cols = -c(SiteCode, SiteName, UnitCode, year, month, mon),
+      clim_dat2 |> pivot_longer(cols = -c(UnitCode, UnitName, year, month, date, lat, long),
                                names_to = "param", values_to = "value") |>
-                  arrange(SiteCode, month, param)
+                  arrange(UnitCode, month, param)
 
-  clim_dat_long$date <- as.Date(paste0(
-    clim_dat_long$year, "-", clim_dat_long$month, "-", 15), format = "%Y-%m-%d")
+  # Update clim data if requesting a year x month combination that is not currently in
+  # the saved NETN_clim_2006_2024.rda but only for complete months
+  date_range_data <- sort(unique(clim_dat_long$date))
+  date_range_fxn <- paste0(rep(years, length(months)),"-", rep(sprintf("%02d", months), length(years)), "-", 15)
+  new_dates1 <- date_range_fxn[!date_range_fxn %in% date_range_data]
+
+  # latest date of complete month
+  mon_curr <- as.numeric(format(Sys.Date(), "%m"))
+  mon_next_day <- as.numeric(format(Sys.Date() + 1, "%m"))
+  mon_comp <- ifelse(mon_next_day > mon_curr, sprintf("%02d", mon_curr), sprintf("%02d", mon_curr - 1))
+  latest_date_comp <- as.Date(paste0(format(Sys.Date(), "%Y"), "-", mon_comp, "-", 15))
+  latest_date_data <- as.Date(max(date_range_data), format = "%Y-%m-%d")
+
+  new_dates <- as.Date(new_dates1[new_dates1 <= latest_date_comp], format = "%Y-%m-%d")
+  #new_dates <- as.Date(c("2024-05-15", "2024-04-15"), format = "%Y-%m-%d")
+
+  clim_dat_final1 <-
+  if(length(new_dates) == 0){clim_dat_long
+  } else {
+     new_months <- as.numeric(format(new_dates, "%m"))
+     new_years <- as.numeric(format(new_dates, "%Y"))
+     new_clim <- purrr::map(new_years, function(y){
+       getClimNOAA(park = park, year = y, months = new_months)}
+       ) |> list_rbind()
+     new_clim_long <- new_clim |> pivot_longer(cols = -c(UnitCode, UnitName, long, lat, year, month),
+                                               names_to = "param", values_to = "value")
+     new_clim_long$date <- as.Date(paste0(
+       new_clim_long$year, "-", new_clim_long$month, "-", 15), format = "%Y-%m-%d")
+     comb_clim <- rbind(clim_dat_long, new_clim_long)
+    }
+
+  park_names <- unique(getSites(park = park)[,c("UnitCode", "UnitName")])
+  clim_dat_final2 <- left_join(clim_dat_final1, park_names, by = "UnitCode")
 
   # Clim data in decadal and 30-year norms
-  wstndat <- if(data_type == 'wstn') {TRUE} else {FALSE}
+  avg_dat <- NETN_clim_norms |> filter(UnitCode %in% park) #|> filter(month %in% months)
 
-  avg_dat <- sumClimAvgs(park = park, site = site, site_type = site_type,
-                         active = active, months = months, data_type = data_type, ...)
-
-  avg_dat_long <- avg_dat |> pivot_longer(ppt_mm_d1980:ncol(avg_dat), names_to = "param", values_to = "value") |>
-    arrange(SiteCode, param, month)
+  avg_dat_long <- avg_dat |> pivot_longer(cols = -c(UnitCode, UnitName, long, lat, month),
+                                                  names_to = "param_full", values_to = "value") |>
+    mutate(param = sub("_.*", "", param_full),
+           stat = ifelse(grepl("norm", param_full), "avg", "std"),
+           norm = ifelse(grepl(1901, param_full), "norm20cent", "norm1990")) |>
+    arrange(UnitCode, param, month)
 
   #-- Set up plotting features --
   color_dir <- ifelse(color_rev == FALSE, -1, 1)
 
   # annual params
   param_labels_annual <-
-    data.frame(param = c("dm_ppt_mm", "dm_tmax_C", "dm_tmin_C", "dm_tmean_C", "dm_BAL",
-                         "dm_SPEI01", "dm_SPEI03",
-                         "ws_ppt_mm", "ws_tmax_C", "ws_tmin_C", "ws_tmean_C"),
-               param_label = c("Total Precip. (mm)", "Max. Temp. (C)", "Min. Temp. (C)",
-                               "Avg. Temp. (C)", "Water Balance", "SPEI - 1 month", "SPEI - 3 month",
-                               "Total Precip. (mm)", "Max. Temp. (C)", "Min. Temp. (C)",
-                               "Avg. Temp. (C)"))
-  clim_dat_long2 <- left_join(clim_dat_long, param_labels_annual, by = 'param')
-  clim_dat_long2$mon <- factor(clim_dat_long2$month, levels = unique(clim_dat_long2$month),
-                               labels = unique(month.abb[clim_dat_long2$month]), ordered = T)
-  clim_dat_long2$param_label2 <- paste0(clim_dat_long2$param_label, " (", clim_dat_long2$year, ")")
+    data.frame(param = c("prcp", "tavg", "tmax", "tmin"),
+               param_label = c("Total Precip. (mm)", "Avg. Temp. (C)", "Max. Temp. (C)", "Min. Temp. (C)"))
 
-  # decadal params
-  norms <- data.frame(param = c("ppt_mm_d1980", "ppt_mm_d1990", "ppt_mm_d2000", "ppt_mm_d2010",
-                                "tmax_C_d1980", "tmax_C_d1990", "tmax_C_d2000", "tmax_C_d2010",
-                                "tmin_C_d1980", "tmin_C_d1990", "tmin_C_d2000", "tmin_C_d2010",
-                                "tmean_C_d1980", "tmean_C_d1990", "tmean_C_d2000", "tmean_C_d2010",
-                                "ppt_mm_30yr_80", "tmax_C_30yr_80", "tmin_C_30yr_80", "tmean_C_30yr_80",
-                                "ppt_mm_30yr_90",  "tmax_C_30yr_90",  "tmin_C_30yr_90", "tmean_C_30yr_90"),
-                      param_label = c(rep(c("years 1980-1989", "years 1990-1999",
-                                            "years 2000-2009", "years 2010-2019"), 4),
-                                            "years 1980-2009", "years 1980-2009",
-                                            "years 1980-2009", "years 1980-2009",
-                                            "years 1990-2019", "years 1990-2019",
-                                            "years 1990-2019", "years 1990-2019"))
+  clim_dat_final <- left_join(clim_dat_final2, param_labels_annual, by = 'param')
 
-  avg_dat_long2 <- left_join(avg_dat_long, norms, by = "param")
+  clim_dat_final$mon <- factor(clim_dat_final$month, levels = unique(clim_dat_final$month),
+                               labels = unique(month.abb[clim_dat_final$month]), ordered = T)
+  clim_dat_final$param_label2 <- paste0(clim_dat_final$param_label, " (", clim_dat_final$year, ")")
 
-  avg_dat_long2$mon <- factor(avg_dat_long2$month,
-                              levels = unique(avg_dat_long2$month),
-                              labels = unique(month.abb[avg_dat_long2$month]), ordered = T)
+  # norm params
+  norms <- data.frame(norm = c("norm20cent", "norm1990"),
+                      param_label = c("years 1901-2000", "years 1991-2020"))
+
+  avg_dat_final <- left_join(avg_dat_long, norms, by = "norm")
+
+  avg_dat_final$mon <- factor(avg_dat_final$month,
+                              levels = unique(avg_dat_final$month),
+                              labels = unique(month.abb[avg_dat_final$month]), ordered = T)
 
   # set up filter and labelling on parameter
   if(parameter == "tmean"){
-    ann_filt = c("dm_tmean_C", "ws_tmean_C")
-    dec_filt = c("tmean_C_d1980", "tmean_C_d1990", "tmean_C_d2000", "tmean_C_d2010")
-    norm_filt <- if(!averages %in% 'decades'){if(averages == "norm80"){"tmean_C_30yr_80"} else {"tmean_C_30yr_90"}}
+    ann_filt = c("tavg")
+    norm_filt <- if(averages == "norm20cent"){"tavg_norm_1901_2000"} else {"tavg_norm_1991_2020"}
     y_label = "Avg. Monthly Temp. (C)"
   } else if(parameter == "tmin"){
-    ann_filt = c("dm_tmin_C", "ws_tmin_C")
-    dec_filt = c("tmin_C_d1980", "tmin_C_d1990", "tmin_C_d2000", "tmin_C_d2010")
-    norm_filt <- if(!averages %in% 'decades'){if(averages == "norm80"){"tmin_C_30yr_80"} else {"tmin_C_30yr_90"}}
+    ann_filt = c("tmin")
+    norm_filt <- if(averages == "norm20cent"){"tmin_norm_1901_2000"} else {"tmin_norm_1991_2020"}
     y_label = "Avg. Minimum Monthly Temp. (C)"
   } else if(parameter == "tmax"){
-    ann_filt = c("dm_tmax_C", "ws_tmax_C")
-    dec_filt = c("tmax_C_d1980", "tmax_C_d1990", "tmax_C_d2000", "tmax_C_d2010")
-    norm_filt <- if(!averages %in% 'decades'){if(averages == "norm80"){"tmax_C_30yr_80"} else {"tmax_C_30yr_90"}}
+    ann_filt = c("tmax")
+    norm_filt <- if(averages == "norm20cent"){"tmax_norm_1901_2000"} else {"tmax_norm_1991_2020"}
     y_label = "Avg. Maximum Monthly Temp. (C)"
   } else if(parameter == "ppt"){
-    ann_filt = c("dm_ppt_mm", "ws_ppt_mm")
-    dec_filt = c("ppt_mm_d1980", "ppt_mm_d1990", "ppt_mm_d2000", "ppt_mm_d2010")
-    norm_filt <- if(!averages %in% 'decades'){if(averages == "norm80"){"ppt_mm_30yr_80"} else {"ppt_mm_30yr_90"}}
+    ann_filt = c("prcp")
+    norm_filt <- if(averages == "norm20cent"){"precip_norm_1901_2000"} else {"precip_norm_1991_2020"}
     y_label = "Total Monthly Precip. (mm)"
   }
 
-  year_breaks <-
-    if(length(years) <= 5){years
-    } else {c(quantile(clim_dat_long2$year, probs = c(0, 0.25, 0.5, 0.75, 1), names = FALSE))}
+  year_breaks <- as.integer(years)
+    # if(length(years) <= 5){years
+    # } else {as.integer(c(quantile(clim_dat_final$year, probs = c(0, 0.25, 0.5, 0.75, 1), names = FALSE)))}
 
   pal <-
     if(!any(palette %in% "viridis")){
     if(length(palette) > 1){
-    colorRampPalette(palette)(length(unique(clim_dat_long2$year)))
+    colorRampPalette(palette)(length(unique(clim_dat_final$year)))
   } else { # hack to allow gradient to work with 1 color
-    colorRampPalette(c(palette, palette))(length(unique(clim_dat_long2$year)))
+    colorRampPalette(c(palette, palette))(length(unique(clim_dat_final$year)))
   }
   }
 
-  leg_guide <- if(length(years) > 5){"colourbar"} else{"legend"}
+  #leg_guide <- if(length(years) > 5){"colourbar"} else{"legend"}
+  ptitle <- if(length(unique(clim_dat_final$UnitCode)) == 1 & plot_title == TRUE){
+    unique(clim_dat_final$UnitCode)} else {NULL}
 
-  ptitle <- if(length(unique(clim_dat_long2$SiteCode)) == 1 & plot_title == TRUE){
-    unique(clim_dat_long2$SiteName)} else {NULL}
-
-  avg_name <- ifelse(averages == "decadal", "Decadal Averages", "30 year Normals")
+  avg_name <- ifelse(averages == "norm20cent", "20th Century Normal", "30 year Normal")
 
   clim_plot <-
   ggplot() + theme_WQ() +
-  # layers for decadal data
-  {if(averages == "decades"){
-  geom_line(data = avg_dat_long2 |> filter(param %in% dec_filt),
-            aes(x = mon, y = value, group = param_label, linetype = param_label), linewidth = 0.8)}} +
-  # line type for decadal data
-  {if(averages == "decades"){
-  scale_linetype_manual(values = c("dotted", "dashed", "longdash", "solid"), name = "Decadal Averages")}} +
-  # layers for 30-year normals
-  {if(averages %in% c("norm80", "norm90")){
-  geom_line(data = avg_dat_long2 |> filter(param %in% norm_filt),
+  geom_line(data = avg_dat_final |> filter(param_full %in% norm_filt),
             aes(x = mon, y = value, group = param_label, linetype = param_label),
-            linewidth = 0.8)}} +
-  # line type for 30-year normals
-  {if(averages %in% c("norm80", "norm90")){
-  scale_linetype_manual(values = c("longdash"), name = "30 year Normals")}} +
+            linewidth = 0.8) + #} +
+  # line type for normal
+  scale_linetype_manual(values = c("longdash"), name = avg_name) + #}} +
   # layers for annual data
   {if(any(layers %in% "lines"))
-      geom_line(data = clim_dat_long2 |> filter(param %in% ann_filt),
+      geom_line(data = clim_dat_final |> filter(param %in% ann_filt),
                 aes(x = mon, y = value, group = as.integer(year), color = as.integer(year)))} +
   {if(any(layers %in% "points"))
-      geom_point(data = clim_dat_long2 |> filter(param %in% ann_filt),
+      geom_point(data = clim_dat_final |> filter(param %in% ann_filt),
                  aes(x = mon, y = value, group = as.integer(year),
                      color = as.integer(year), fill = as.integer(year)))} +
   # color palettes for annual data
-  {if(any(palette == 'viridis')) scale_fill_viridis_c(direction = color_dir, guide = leg_guide,
-                                                     name = 'Annual Averages', breaks = year_breaks)} +
-  {if(any(palette == 'viridis')) scale_color_viridis_c(direction = color_dir, guide = leg_guide,
-                                                      name = 'Annual Averages', breaks = year_breaks)} +
-  {if(!any(palette %in% 'viridis')) scale_fill_gradientn(colors = pal, guide = leg_guide,
-                                                    name = 'Annual Averages',
-                                                    breaks = year_breaks)} +
-  {if(!any(palette %in% 'viridis')) scale_color_gradientn(colors = pal, guide = leg_guide,
-                                                     name = 'Annual Averages',
-                                                     breaks = year_breaks)} +
-  # facets for multiple years
-  {if(length(unique(clim_dat_long$SiteCode)) > 1) facet_wrap(~SiteName)} +
+  {if(any(palette == 'viridis')) scale_fill_viridis_c(direction = color_dir, guide = "legend",
+                                                       name = 'Annual Values', breaks = year_breaks)} +
+  {if(any(palette == 'viridis')) scale_color_viridis_c(direction = color_dir, guide = "legend",
+                                                        name = 'Annual Values', breaks = year_breaks)} +
+  {if(!any(palette %in% 'viridis')) scale_fill_gradientn(colors = pal, guide = "legend",
+                                                         name = 'Annual Values', breaks = year_breaks)} +
+  {if(!any(palette %in% 'viridis')) scale_color_gradientn(colors = pal, guide = "legend",
+                                                          name = 'Annual Values', breaks = year_breaks)} +
+  # # facets for multiple years
+  # {if(length(unique(clim_dat_long$UnitCode)) > 1) facet_wrap(~UnitName)} +
 
   # labels/themes
   labs(x = NULL, y = y_label, title = ptitle,
-       color = "Annual Averages", linetype = avg_name, linewidth = avg_name) +
+       color = "Annual Values", linetype = avg_name, linewidth = avg_name) +
   theme(legend.position = legend_position)
 
  return(#suppressWarnings(
