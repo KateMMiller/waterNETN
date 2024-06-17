@@ -80,7 +80,15 @@ typically available within a few weeks of the month end.
 \examples{
 \dontrun{
 
-#++++ ADD EXAMPLES ++++
+# Plot all temperature variables on 1 graph for MABI in 2024.
+plotClimRel(park = "MABI", years = 2024, parameter = "temp", palette = c("#EEE55A", "#D56062", "#067BC2"))
+
+# Plot precip for SARA 2023 compared to 1990 - 2019 normals.
+plotClimRel(park = "SARA", years = 2023, parameter = "ppt", palette = "grey", averages = "norm1990")
+
+Plot precip for Kroma Kill in SARA 2023 and 2024 compared to 1990 - 2019 normals.
+plotClimRel(park = "SARA", years = 2023:2024, parameter = "ppt",
+            palette = "grey", averages = "norm1990")
 
 }
 

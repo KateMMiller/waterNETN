@@ -66,7 +66,15 @@
 #' @examples
 #' \dontrun{
 #'
-#' #++++ ADD EXAMPLES ++++
+#' # Plot all temperature variables on 1 graph for MABI in 2024.
+#' plotClimRel(park = "MABI", years = 2024, parameter = "temp", palette = c("#EEE55A", "#D56062", "#067BC2"))
+#'
+#' # Plot precip for SARA 2023 compared to 1990 - 2019 normals.
+#' plotClimRel(park = "SARA", years = 2023, parameter = "ppt", palette = "grey", averages = "norm1990")
+#'
+#' Plot precip for Kroma Kill in SARA 2023 and 2024 compared to 1990 - 2019 normals.
+#' plotClimRel(park = "SARA", years = 2023:2024, parameter = "ppt",
+#'             palette = "grey", averages = "norm1990")
 #'
 #'}
 #'
@@ -176,7 +184,7 @@ plotClimRel <- function(park = "all",
   clim_dat_long$param <- gsub("prcp", "ppt", clim_dat_long$param)
   clim_dat_long$param <- gsub("tavg", "tmean", clim_dat_long$param)
 
-  avg_dat_long2$param <- gsub("prcp", "ppt", avg_dat_long2$param)
+  avg_dat_long2$param <- gsub("precip", "ppt", avg_dat_long2$param)
   avg_dat_long2$param <- gsub("tavg", "tmean", avg_dat_long2$param)
 
   clim_comb <- left_join(clim_dat_long, avg_dat_long2,
@@ -201,9 +209,9 @@ plotClimRel <- function(park = "all",
   pal <-
     if(!any(palette %in% "viridis")){
       if(length(palette) > 1){
-        colorRampPalette(palette)(length(unique(clim_comb$param_ws)))
+        colorRampPalette(palette)(length(unique(clim_comb$param)))
       } else { # hack to allow gradient to work with 1 color
-        colorRampPalette(c(palette, palette))(length(unique(clim_comb$param_ws)))
+        colorRampPalette(c(palette, palette))(length(unique(clim_comb$param)))
       }
     }
 
