@@ -7,7 +7,7 @@
 getClimNOAA(
   park = "all",
   year = as.integer(format(Sys.Date(), "\%Y")),
-  months = 4
+  months = 5
 )
 }
 \arguments{

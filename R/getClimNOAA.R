@@ -52,7 +52,7 @@
 #'
 #' @export
 
-getClimNOAA <- function(park = 'all', year = as.integer(format(Sys.Date(), "%Y")), months = 4){
+getClimNOAA <- function(park = 'all', year = as.integer(format(Sys.Date(), "%Y")), months = 5){
   #--- error handling ---
   park <- match.arg(park, several.ok = TRUE,
                     c("all", "LNETN", "ACAD", "MABI", "MIMA", "MORR",
