@@ -98,7 +98,7 @@ plotClimDrought <- function(park = "all",
   ddata_long$year <- format(as.Date(ddata_long$Date, format = "%Y-%m-%d"), "%Y")
   ddata_long$month <- as.numeric(format(as.Date(ddata_long$Date, format = "%Y-%m-%d"), "%m"))
 
-  ddata3 <- left_join(ddata_long, sites, by = "UnitCode") |>
+  ddata3 <- ddata_long |>
     filter(month %in% months) |>
     mutate(drought_legend = case_when(Drought_Level == "D0pct" ~ "D0: Abnormally Dry",
                                       Drought_Level == "D1pct" ~ "D1: Moderate Drought",
@@ -120,7 +120,7 @@ plotClimDrought <- function(park = "all",
   date_format <- ifelse(break_len %in% c("1 year", "2 years"), "%Y", "%m/%d/%y")
   datebreaks <- seq(min(ddata3$Date), max(ddata3$Date) + 30, by = break_len)
 
-  num_parks <- length(unique(sites$UnitCode))
+  num_parks <- length(unique(ddata3$UnitCode))
   num_county <- length(unique(ddata3$County))
 
   facet_park <- if(num_parks > 1 & num_parks == num_county){TRUE} else {FALSE}
