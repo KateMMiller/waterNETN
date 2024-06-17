@@ -11,13 +11,12 @@ plotClimRel(
   years = 2006:format(Sys.Date(), "\%Y"),
   months = 1:12,
   active = TRUE,
-  averages = "norm80",
+  averages = "norm20cent",
   parameter = "tmean",
   plot_title = TRUE,
   palette = "viridis",
   color_rev = FALSE,
-  legend_position = "right",
-  ...
+  legend_position = "right"
 )
 }
 \arguments{
@@ -35,17 +34,6 @@ plotClimRel(
 \item{"SARA"}{Saratoga NHP only}
 \item{"WEFA"}{Weir Farm NHP only}}}
 
-\item{site}{Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site.
-Defaults to "all". If multiple sites sites selected, will facet on site. Currently can only plot one
-site at a time.}
-
-\item{site_type}{Combine all site types, lakes or streams. Not needed if specifying particular sites.
-\describe{
-\item{"all"}{Default. Includes all site types, unless site or site_name select specific site types.}
-\item{"lake"}{Include only lakes.}
-\item{"stream"}{Include streams only.}
-}}
-
 \item{years}{Numeric. Years to plot separately. Accepted values start at 2006.If multiple years
 specified, will facet results on year. Note that selecting many years and/or many sites
 may be slow to return results.}
@@ -53,11 +41,11 @@ may be slow to return results.}
 \item{active}{Logical. If TRUE (Default) only queries actively monitored sites.
 If FALSE, returns all sites that have been monitored.}
 
-\item{averages}{Specify averages to plot. By default, the 30-year normal from 1980-2009 plots. Options include
-one of the following:
+\item{averages}{Specify averages to plot. By default, the 20th century normal (1901-2000) plots.
+Other options include:
 \describe{
-\item{"norm80"}{Plots the 30-year norm from 1980 - 2009}
-\item{"norm90"}{Plots the 30-year norm from 1990 - 2019}
+\item{"norm20cent"}{Plots the 20th century normal (1901 - 2000)}
+\item{"norm1990"}{Plots the 30-year norm from 1991 - 2020}
 }}
 
 \item{parameter}{Specify the monthly averaged parameter to plot. Acceptable values are
@@ -89,9 +77,10 @@ specify 1 color}
 Returns a ggplot object of specified climate trends
 }
 \description{
-This function plots a given year compared against either the 1980 - 2009
-normal or the 1990 - 2019 normal. The 30-year normals are derived from Daymet data. The
-annual comparisons are derived from the nearest weather station to each park.
+This function plots a given year compared against either the 19th century
+normal (1901 - 2000) or the latest 30-year normal (1991 - 2020) using gridded NOAA NClim data
+for both the normals and the latest data. Works only at the park level. Previous months are
+typically available within a few weeks of the month end.
 }
 \examples{
 \dontrun{
