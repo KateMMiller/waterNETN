@@ -38,6 +38,7 @@ Collate:
     'plotLakeProfile.R'
     'plotPrecipDischarge.R'
     'plotTrend.R'
+    'plotWaterBands.R'
 Imports: 
     dplyr,
     ggplot2,
