@@ -1,6 +1,6 @@
 #' @include getSites.R
 #' @include theme_WQ.R
-#' @include getClimNOAA
+#' @include getClimNOAA.R
 #'
 #' @title plotClimRel: Plot climate data relative to average value
 #'
@@ -60,8 +60,14 @@
 #' @param plot_title Logical. If TRUE (default) prints site name at top of figure. If FALSE,
 #' does not print site name. Only enabled when one site is selected.
 #'
+#' @param title_type Specify whether to label facets with 4-letter UnitCode (default) or full UnitName.
+#' Options are c("UnitCode", "UnitName").
+#'
 #' @param legend_position Specify location of legend. To turn legend off, use legend_position =
 #' "none" (Default). Other options are "top", "bottom", "left", "right".
+#'
+#' @param numcol Specify number of columns in the facet wrap, which is only enabled when either multiple years
+#' are specified or multiple parks. Default is 3.
 #'
 #' @examples
 #' \dontrun{
@@ -87,13 +93,15 @@ plotClimRel <- function(park = "all",
                         months = 1:12, active = TRUE,
                         averages = "norm20cent",
                         parameter = 'tmean', plot_title = TRUE,
+                        title_type = "UnitCode",
                         palette = "viridis", color_rev = FALSE,
-                        legend_position = 'right'){
+                        legend_position = 'right', numcol = 3){
 
   #-- Error handling --
   park <- match.arg(park, several.ok = TRUE,
                     c("all", "LNETN", "ACAD", "MABI", "MIMA", "MORR",
                       "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
+  if(any(park == "all")){park = c("ACAD", "MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
   if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   parameter <- match.arg(parameter, c("temp", "tminmax", "tmean", "tmax", "tmin", "ppt"))
@@ -102,6 +110,8 @@ plotClimRel <- function(park = "all",
   #if(all(!palette %in% c("viridis")) & length(years) > 1){stopifnot(length(palette) > 1)}
   stopifnot(class(plot_title) == "logical")
   averages <- match.arg(averages, c("norm20cent", "norm1990"))
+  stopifnot(class(numcol) %in% c("numeric", "integer"))
+  title_type <- match.arg(title_type, c("UnitCode", "UnitName"))
 
   #-- Compile data for plotting --
   # Clim data as annual monthly averages
@@ -220,11 +230,16 @@ plotClimRel <- function(park = "all",
     data.frame(param = c("tmax", "tmean", "tmin", "ppt"),
                param_label = c("Max. Temp. (C)", "Avg. Temp. (C)",
                                "Min. Temp. (C)", "Total Precip. (mm)"))
+
   clim_comb2 <- left_join(clim_comb, param_labels, by = "param") |> droplevels()
 
   clim_comb2$mon <- factor(clim_comb2$month,
                           levels = unique(clim_comb2$month),
                           labels = unique(month.abb[clim_comb2$month]), ordered = T)
+
+  clim_comb2$park_facet <- if(title_type == "UnitCode"){clim_comb2$UnitCode} else {clim_comb2$UnitName}
+  facet_park <- ifelse(length(park) > 1, TRUE, FALSE)
+  facet_year <- ifelse(length(years) > 1, TRUE, FALSE)
 
   barplot <-
     if(parameter %in% "ppt"){
@@ -237,14 +252,17 @@ plotClimRel <- function(park = "all",
         geom_hline(aes(yintercept = 0), linetype = "dashed", color = 'black', linewidth = 0.8) +
         # formatting
         labs(x = NULL, y = ylabel, group = NULL, color = NULL, fill = NULL) +
-        #ylim(ylimits) +
+        theme(legend.position = legend_position,
+              axis.text.x = element_text(angle = 90)) +
+        # facetting
+        {if(facet_park == TRUE & facet_year == FALSE){facet_wrap(~park_facet, ncol = numcol)}} +
+        {if(facet_park == FALSE & facet_year == TRUE){facet_wrap(~year, ncol = numcol)}} +
+        {if(facet_park == TRUE & facet_year == TRUE){facet_wrap(~park_facet + year, ncol = numcol)}} +
         # palettes
         {if(any(palette == 'viridis')) scale_fill_viridis_d(direction = color_dir, name = 'Parameter')} +
         {if(any(palette == 'viridis')) scale_color_viridis_d(direction = color_dir, name = 'Parameter')} +
         {if(!any(palette %in% 'viridis')) scale_fill_manual(values = pal, name = 'Parameter')} +
-        {if(!any(palette %in% 'viridis')) scale_color_manual(values = pal, name = 'Parameter')} +
-        # facets for multiple years
-        {if(length(unique(clim_comb$year)) > 1) facet_wrap(~year)}
+        {if(!any(palette %in% 'viridis')) scale_color_manual(values = pal, name = 'Parameter')}
 
     } else {
       ggplot(clim_comb2,
@@ -256,14 +274,18 @@ plotClimRel <- function(park = "all",
         geom_hline(aes(yintercept = 0), linetype = "dashed", color = 'black', linewidth = 0.8) +
         # formatting
         labs(x = NULL, y = ylabel, group = NULL, color = NULL, fill = NULL) +
+        theme(legend.position = legend_position,
+              axis.text.x = element_text(angle = 90)) +
         ylim(ylimits) +
+        # facetting
+        {if(facet_park == TRUE & facet_year == FALSE){facet_wrap(~park_facet, ncol = numcol)}} +
+        {if(facet_park == FALSE & facet_year == TRUE){facet_wrap(~year, ncol = numcol)}} +
+        {if(facet_park == TRUE & facet_year == TRUE){facet_wrap(~park_facet + year, ncol = numcol)}} +
         # palettes
         {if(any(palette == 'viridis')) scale_fill_viridis_d(direction = color_dir, name = 'Parameter')} +
         {if(any(palette == 'viridis')) scale_color_viridis_d(direction = color_dir, name = 'Parameter')} +
         {if(!any(palette %in% 'viridis')) scale_fill_manual(values = pal, name = 'Parameter')} +
-        {if(!any(palette %in% 'viridis')) scale_color_manual(values = pal, name = 'Parameter')} +
-        # facets for multiple years
-        {if(length(unique(clim_comb$year)) > 1) facet_wrap(~year)}
+        {if(!any(palette %in% 'viridis')) scale_color_manual(values = pal, name = 'Parameter')}
     }
 
  return(#suppressWarnings(
