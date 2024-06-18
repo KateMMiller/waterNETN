@@ -397,5 +397,5 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
                        fill = guide_legend(order = 1), linetype = guide_legend(order = 3))
             #)
 
-
+        return(monthly_plot)
         }

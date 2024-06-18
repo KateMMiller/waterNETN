@@ -501,6 +501,35 @@ print_head(weir)
 ```
 
 ### Plotting Functions {.tabset}
+#### plotWaterBands()
+This function produces a plot that summarizes the range of historic data compared with current measurements. The function can handle chemistry, Sonde in situ, Secchi depth, Light Penetration, and Discharge data, although it functions best with sonde and chemistry data. Historic measurements are displayed as min-max values ever previously recorded (outermost band), upper and lower 95% distribution and middle 50% distribution (inner quartiles) of values previously recorded (inner bands). The line represents the median value.
+
+Currently you can only specify one site and parameter at a time. Values that exceed water quality thresholds (where they exist) are plotted as orange and will show an orange point in the legend. Values within WQ thresholds or for paramaters without set thresholds are black. You can include threshold lines (default), or remove them, where they make the y axis range too big, via `threshold = FALSE`. 
+
+<p class = 'fxn'>Plot pH in Jordan Pond for 2023</p>
+```{r}
+plotWaterBands(site = "ACJORD", year_curr = 2023, years_historic = 2006:2022, 
+  parameter = "pH", legend_position = 'right')
+```
+
+<p class = 'fxn'>Plot TN in Jordan Pond for 2023, including censored</p>
+```{r}
+plotWaterBands(site = "ACJORD", year_curr = 2023, years_historic = 2006:2022,
+  parameter = "TN_mgL", legend_position = 'right', include_censored = T)
+```
+
+<p class = 'fxn'>Same as above, but drop threshold lines</p>
+```{r}
+plotWaterBands(site = "ACJORD", year_curr = 2023, years_historic = 2006:2022,
+  parameter = "TN_mgL", legend_position = 'right', include_censored = T, threshold = F)
+```
+
+<p class = 'fxn'>Plot TN in Kroma Kill in SARA in 2023</p>
+```{r}
+plotWaterBands(site = "SARASA", year_curr = 2023, years_historic = 2006:2022, parameter = "TN",
+  legend_position = 'right')
+```
+
 #### plotTrend()
 This function produces a smoothed trend plot filtered on park, site, year, month, and parameter.
 It works with chemistry, Sonde in situ, Secchi depth, Light Penetration, and Discharge data. If multiple sites are specified, they will be plotted on the same figure. If multiple parameters are specified, they will be plotted on separate figures. 
@@ -613,11 +642,11 @@ plotTrend(park = "MORR", parameter = c("TN_mgL", "TP_ugL", "SO4_ueqL"),
 </details>
 
 #### plotLakeProfile()
-This function produces a heatmap in 1-m bins filtered on park (mostly for ACAD), site, year, month, Sonde in situ parameter and either sample relative to the surface or relative to surface elevation. Can only specify one parameter at a time. If multiple sites or years are selected, plots will be faceted on those factors. Keep options limited for best plotting. 
+This function produces a heatmap in 1-m bins for ACAD and 0.25m bins for LNETN. You can filter on park, site, year, month, Sonde in situ parameter and either sample relative to the surface or relative to surface elevation. You can only specify one parameter at a time. If multiple sites or years are selected, plots will be faceted on those factors. Keep options limited for best plotting. Note also that you can either select ACAD or LNETN parks, because of the differences in binning.
 
 The option to plot relative to surface elevation (eg depth_type = 'elev') corrects sample depth for elevation using water level data and datum elevation for that sampling event. The elevation-corrected option allows you to see how the water column is shifting over time, but currently only works for years >= 2013 in ACAD, as water levels prior to that are not in the current data package. Default setting is raw, where the raw sample depths are plotted instead of elevation.
 
-Note that occasionally profiles skip a 1-m bin, which show up as white sections in the plots. Incomplete sampling in 2020 and 2021 also shows up as white sections. If you specify a lake x year x parameter combination that doesn't exist (e.g., a year a lake isn't sampled), the function will return an error message instead of an empty plot.
+Note that occasionally profiles skip a bin, which show up as white sections in the plots. Incomplete sampling in 2020 and 2021 also shows up as white sections. If you specify a lake x year x parameter combination that doesn't exist (e.g., a year a lake isn't sampled), the function will return an error message instead of an empty plot.
 
 The width of the profiles take into account the number of days between sampling events. For the first and last months (typically May and October), the left/right side of the profiles are padded by 14 days. Otherwise, profile widths are centered on the sample day with the left side representing half the number of days between that visit and the previous visit and the right side representing half the number of days between that visit and the following visit. Black lines are the thermocline, as calculated by rLakeAnalyzer.  
 
@@ -639,10 +668,16 @@ RColorBrewer::display.brewer.all(type = 'seq')
 </details><br>
 
 <details open><summary class='drop'>Simple plots</summary>
-<p class = 'fxn'>Plot temperature for Upper Hadlock for years 2013 - 2023 corrected by elevation with thermocline plotted as black circles. </p>
+<p class = 'fxn'>Plot temperature for Upper Hadlock for years 2013 - 2023 corrected by elevation with thermocline plotted as black lines. </p>
 ```{r message = FALSE, warning = FALSE}
 plotLakeProfile(site = "ACUHAD", parameter = "Temp_C", depth_type = 'elev', 
                 years = 2013:2023)
+
+```
+
+<p class = 'fxn'>Plot temp using raw sample depth (default) for all LNETN lakes sampled in 2023.</p>
+```{r message = FALSE, warning = FALSE}
+plotLakeProfile(park = "LNETN", parameter = "Temp_C", years = 2023, palette = "Spectral")
 
 ```
 
@@ -659,7 +694,6 @@ plotLakeProfile(site = "ACEAGL", parameter = "Temp_C", depth_type = 'raw',
                 years = 2006:2023, plot_title = FALSE, plot_thermocline = F)
 
 ```
-
 
 <p class = 'fxn'>Plot temperature for all ACAD lakes sampled in 2023 and raw sample depth. </p>
 ```{r message = FALSE, warning = FALSE}
@@ -926,6 +960,16 @@ plotClimRel(park = "SARA", years = 2023, parameter = "ppt", palette = "grey", av
 ```{r message = F, warning = FALSE}
 plotClimRel(park = "SARA", years = 2023:2024, parameter = "ppt", 
             palette = "grey", averages = "norm1990")
+```
+
+<p class = 'fxn'>Plot precip for LNETN parks in 2023 without a legend and with 4 columns instead of 3. </p> 
+```{r message = F, warning = FALSE}
+plotClimRel(park = "LNETN", years = 2023, parameter = "ppt", palette = "grey", legend_position = 'none', numcol = 4)
+```
+
+<p class = 'fxn'>Same as above, but with full park names as facet titles. </p> 
+```{r message = F, warning = FALSE}
+plotClimRel(park = "LNETN", years = 2023, parameter = "ppt", palette = "grey", legend_position = 'none', numcol = 4, title_type = "UnitName")
 ```
 
 #### plotClimDrought()
