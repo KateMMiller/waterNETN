@@ -507,25 +507,25 @@ This function produces a plot that summarizes the range of historic data compare
 Currently you can only specify one site and parameter at a time. Values that exceed water quality thresholds (where they exist) are plotted as orange and will show an orange point in the legend. Values within WQ thresholds or for paramaters without set thresholds are black. You can include threshold lines (default), or remove them, where they make the y axis range too big, via `threshold = FALSE`. 
 
 <p class = 'fxn'>Plot pH in Jordan Pond for 2023</p>
-```{r}
+```{r message = FALSE, warning = FALSE}
 plotWaterBands(site = "ACJORD", year_curr = 2023, years_historic = 2006:2022, 
   parameter = "pH", legend_position = 'right')
 ```
 
 <p class = 'fxn'>Plot TN in Jordan Pond for 2023, including censored</p>
-```{r}
+```{r message = FALSE, warning = FALSE}
 plotWaterBands(site = "ACJORD", year_curr = 2023, years_historic = 2006:2022,
   parameter = "TN_mgL", legend_position = 'right', include_censored = T)
 ```
 
 <p class = 'fxn'>Same as above, but drop threshold lines</p>
-```{r}
+```{r message = FALSE, warning = FALSE}
 plotWaterBands(site = "ACJORD", year_curr = 2023, years_historic = 2006:2022,
   parameter = "TN_mgL", legend_position = 'right', include_censored = T, threshold = F)
 ```
 
 <p class = 'fxn'>Plot TN in Kroma Kill in SARA in 2023</p>
-```{r}
+```{r message = FALSE, warning = FALSE}
 plotWaterBands(site = "SARASA", year_curr = 2023, years_historic = 2006:2022, parameter = "TN",
   legend_position = 'right')
 ```
