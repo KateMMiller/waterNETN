@@ -5,7 +5,7 @@
 \title{plotLakeProfile: Plots smoothed trend}
 \usage{
 plotLakeProfile(
-  park = "all",
+  park = "ACAD",
   site = "all",
   years = 2006:format(Sys.Date(), "\%Y"),
   months = 5:10,
@@ -21,9 +21,10 @@ plotLakeProfile(
 )
 }
 \arguments{
-\item{park}{Combine data from all parks or one or more parks at a time. Valid inputs:
+\item{park}{Combine data from all parks or one or more parks at a time. Because ACAD lakes are binned by 1m intervals,
+and LNETN are binned by 0.25m intervals, 'all' is not an option. You either must specify "ACAD" (default), "LNETN" or a LNETN park
+with profile data. Valid inputs:
 \describe{
-\item{"all"}{Includes all parks in the network}
 \item{"LNETN"}{Includes all parks but ACAD}
 \item{"ACAD"}{Acadia NP only}
 \item{"MABI"}{Marsh-Billings-Rockefeller NHP only}
@@ -66,11 +67,13 @@ to blue - yellow -red.}
 \item{plot_title}{Logical. If TRUE (default) prints site name at top of figure. If FALSE,
 does not print site name. Only enabled when one site is selected.}
 
-\item{plot_thermocline}{Logical. If TRUE (default) plots the depth of the thermocline, calculated by rLakeAnalyzer as the depth/elevation
-within the water column where the temperature gradient is the steepest and indicates where the upper waters are typically not mixing with
-deeper waters. Only plots where at least 5 depth measurements for temperature have been collected (may want to increase this threshold).
-Note that in the rare cases that multiple sampling events occur within a month, only the first is plotted. If no thermocline is detected,
-as defined by \code{rLakeAnalyzer::thermo.depth()}, no points are plotted.}
+\item{plot_thermocline}{Logical. If TRUE (default) plots the depth of the thermocline, calculated by
+rLakeAnalyzer as the depth/elevation within the water column where the temperature gradient is the steepest
+and indicates where the upper waters are typically not mixing with deeper waters. Only plots where at least
+5 depth measurements for temperature have been collected (may want to increase this threshold). Note that in
+the rare cases that multiple sampling events occur within a month, both are plotted, but will have a thinner
+column than other samples that are more spread out. If no thermocline is detected, as defined by
+\code{rLakeAnalyzer::thermo.depth()}, no points are plotted.}
 
 \item{legend_position}{Specify location of legend (default is 'right'). To turn legend off, use legend_position = "none". Other
 options are "top", "bottom", "left", "right".}
@@ -83,14 +86,15 @@ in the data frame.
 }
 \description{
 This function produces a heatmap filtered on park (mostly for ACAD), site, year, month, Sonde in situ
-parameter and either sample relative to the surface or relative to surface elevation. The y-axis is 1m bins. If multiple
-samples are taken within the same 1-m bin, the median value is used. The width of the profile columns reflects the
-number of days between sample events, centered on the day sampled. Shorter intervals between events result in a narrower bar.
-You can only specify one parameter at a time. If multiple sites or years are selected, plots will be faceted on those factors.
-Keep options limited for best plotting. The option to plot relative to surface elevation uses the water level data and
-datum elevation to convert sample depth to 1-m binned elevations. This allows you to see how the water column is shifting over time.
-If you specify a lake x year x parameter combination that doesn't exist (e.g., a year a lake isn't sampled), the
-function will return an error message instead of an empty plot.
+parameter and either sample relative to the surface or relative to surface elevation. The y-axis is 1m bins for ACAD
+and 0.25m bins for LNETN. If multiple samples are taken within the same bin, the median value is used. The width of
+the profile columns reflects the number of days between sample events, centered on the day sampled. Shorter intervals
+between events result in a narrower bar. You can only specify one parameter at a time. If multiple sites or years are
+selected, plots will be faceted on those factors. Keep options limited for best plotting. The option to plot relative
+to surface elevation uses the water level data and datum elevation to convert sample depth to 1-m or 0.25m binned elevations.
+This allows you to see how the water column is shifting over time. If you specify a lake x year x parameter combination
+that doesn't exist (e.g., a year a lake isn't sampled), the function will return an error message instead of an empty
+plot.
 }
 \examples{
 \dontrun{

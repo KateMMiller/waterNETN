@@ -9,18 +9,20 @@
 #' @import ggplot2
 #'
 #' @description This function produces a heatmap filtered on park (mostly for ACAD), site, year, month, Sonde in situ
-#' parameter and either sample relative to the surface or relative to surface elevation. The y-axis is 1m bins. If multiple
-#' samples are taken within the same 1-m bin, the median value is used. The width of the profile columns reflects the
-#' number of days between sample events, centered on the day sampled. Shorter intervals between events result in a narrower bar.
-#' You can only specify one parameter at a time. If multiple sites or years are selected, plots will be faceted on those factors.
-#' Keep options limited for best plotting. The option to plot relative to surface elevation uses the water level data and
-#' datum elevation to convert sample depth to 1-m binned elevations. This allows you to see how the water column is shifting over time.
-#' If you specify a lake x year x parameter combination that doesn't exist (e.g., a year a lake isn't sampled), the
-#' function will return an error message instead of an empty plot.
+#' parameter and either sample relative to the surface or relative to surface elevation. The y-axis is 1m bins for ACAD
+#' and 0.25m bins for LNETN. If multiple samples are taken within the same bin, the median value is used. The width of
+#' the profile columns reflects the number of days between sample events, centered on the day sampled. Shorter intervals
+#' between events result in a narrower bar. You can only specify one parameter at a time. If multiple sites or years are
+#' selected, plots will be faceted on those factors. Keep options limited for best plotting. The option to plot relative
+#' to surface elevation uses the water level data and datum elevation to convert sample depth to 1-m or 0.25m binned elevations.
+#' This allows you to see how the water column is shifting over time. If you specify a lake x year x parameter combination
+#' that doesn't exist (e.g., a year a lake isn't sampled), the function will return an error message instead of an empty
+#' plot.
 #'
-#' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
+#' @param park Combine data from all parks or one or more parks at a time. Because ACAD lakes are binned by 1m intervals,
+#' and LNETN are binned by 0.25m intervals, 'all' is not an option. You either must specify "ACAD" (default), "LNETN" or a LNETN park
+#' with profile data. Valid inputs:
 #' \describe{
-#' \item{"all"}{Includes all parks in the network}
 #' \item{"LNETN"}{Includes all parks but ACAD}
 #' \item{"ACAD"}{Acadia NP only}
 #' \item{"MABI"}{Marsh-Billings-Rockefeller NHP only}
@@ -63,11 +65,13 @@
 #' @param plot_title Logical. If TRUE (default) prints site name at top of figure. If FALSE,
 #' does not print site name. Only enabled when one site is selected.
 #'
-#' @param plot_thermocline Logical. If TRUE (default) plots the depth of the thermocline, calculated by rLakeAnalyzer as the depth/elevation
-#' within the water column where the temperature gradient is the steepest and indicates where the upper waters are typically not mixing with
-#' deeper waters. Only plots where at least 5 depth measurements for temperature have been collected (may want to increase this threshold).
-#' Note that in the rare cases that multiple sampling events occur within a month, only the first is plotted. If no thermocline is detected,
-#' as defined by `rLakeAnalyzer::thermo.depth()`, no points are plotted.
+#' @param plot_thermocline Logical. If TRUE (default) plots the depth of the thermocline, calculated by
+#' rLakeAnalyzer as the depth/elevation within the water column where the temperature gradient is the steepest
+#' and indicates where the upper waters are typically not mixing with deeper waters. Only plots where at least
+#' 5 depth measurements for temperature have been collected (may want to increase this threshold). Note that in
+#' the rare cases that multiple sampling events occur within a month, both are plotted, but will have a thinner
+#' column than other samples that are more spread out. If no thermocline is detected, as defined by
+#' `rLakeAnalyzer::thermo.depth()`, no points are plotted.
 #'
 #' @param legend_position Specify location of legend (default is 'right'). To turn legend off, use legend_position = "none". Other
 #' options are "top", "bottom", "left", "right".
@@ -108,7 +112,7 @@
 #'
 #' @export
 #'
-plotLakeProfile <- function(park = "all", site = "all",
+plotLakeProfile <- function(park = "ACAD", site = "all",
                       years = 2006:format(Sys.Date(), "%Y"),
                       months = 5:10, active = TRUE,
                       parameter = NA,
@@ -123,7 +127,7 @@ plotLakeProfile <- function(park = "all", site = "all",
 
   #-- Error handling --
   park <- match.arg(park, several.ok = TRUE,
-                    c("all", "LNETN", "ACAD", "MABI", "MIMA", "MORR",
+                    c("LNETN", "ACAD", "MABI", "MIMA", "MORR",
                       "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
   if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
@@ -144,7 +148,7 @@ plotLakeProfile <- function(park = "all", site = "all",
     }}
 
   #-- Compile data for plotting --
-  # combine sonde and water level data and group depths by 1 m bins
+  # combine sonde and water level data and group depths by 1m or 0.25m bins
   wdat <- force(getSondeInSitu(park = park, site = site, site_type = "lake",
                          years = years, months = months, parameter = parameter, sample_depth = 'all', ...)) |>
           select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, SampleDepth_m, Parameter, Value)
@@ -155,12 +159,17 @@ plotLakeProfile <- function(park = "all", site = "all",
   wcomb <- left_join(wdat, lev,
                      by = c("SiteCode", "SiteName", "UnitCode", "EventDate", "year", "month", "doy"))
 
-  wcomb$depth_1m_bin <- ifelse(wcomb$SampleDepth_m < 1, 0, round(wcomb$SampleDepth_m, 0))
+  # Binning by ACAD or LNETN
+  wcomb$depth_bin <-
+    if(any(park == "ACAD")){
+      ifelse(wcomb$SampleDepth_m < 1, 0, round(wcomb$SampleDepth_m, 0))
+    } else {
+      ifelse(wcomb$SampleDepth_m < 0.25, 0, floor(wcomb$SampleDepth_m/0.25) * 0.25)}
 
   wcomb2 <- wcomb |> group_by(SiteCode, SiteName, EventDate, year, month, doy, WaterLevel_m,
-                              depth_1m_bin, Parameter) |>
+                              depth_bin, Parameter) |>
                      summarize(Value = median(Value), .groups = 'drop') |>
-                     mutate(sample_elev = WaterLevel_m - depth_1m_bin) |>
+                     mutate(sample_elev = WaterLevel_m - depth_bin) |>
                      arrange(SiteCode, month, year, doy)
 
   if(nrow(wcomb2) == 0){stop("Combination of sites, years and parameters returned a data frame with no records.")}
@@ -214,7 +223,11 @@ plotLakeProfile <- function(park = "all", site = "all",
                                years = years, months = months, parameter = "Temp_C", sample_depth = 'all', ...)) |>
     select(SiteCode, SiteName, UnitCode, EventDate, datetime, year, month, doy, SampleDepth_m, Parameter, Value)
 
-  temp$depth_1m_bin <- ifelse(temp$SampleDepth_m < 1, 0, round(temp$SampleDepth_m, 0))
+  temp$depth_bin <-
+    if(any(park == "ACAD")){
+      ifelse(temp$SampleDepth_m < 1, 0, round(temp$SampleDepth_m, 0))
+    } else {
+      ifelse(temp$SampleDepth_m < 0.25, 0, floor(temp$SampleDepth_m/0.25) * 0.25)}
 
   # Check number of depths measured. If < 5 will be dropped from thermocline calculation
   num_depths <- temp |> group_by(SiteCode, year, month, doy) |>
@@ -233,7 +246,7 @@ plotLakeProfile <- function(park = "all", site = "all",
 
   temp2 <- temp1b |>
     group_by(SiteCode, SiteName, EventDate, datetime, year, month, doy,
-             depth_1m_bin, Parameter) |>
+             depth_bin, Parameter) |>
     summarize(Value = median(Value), .groups = 'drop')
 
   site_list <- sort(unique(temp2$SiteCode))
@@ -248,7 +261,7 @@ plotLakeProfile <- function(park = "all", site = "all",
     pmap_dfr(param_list, function(site, yr, day){
       df <- temp2 |> filter(SiteCode == site) |> filter(year == yr) |> filter(doy == day)
       dfmonth <- unique(temp2$month)
-      tc <- rLakeAnalyzer::thermo.depth(wtr = df$Value, depths = df$depth_1m_bin)
+      tc <- rLakeAnalyzer::thermo.depth(wtr = df$Value, depths = df$depth_bin)
       tcdf <- data.frame(SiteCode = site, year = yr, month = dfmonth, doy = day, Value = tc)
       return(tcdf)
     })
@@ -307,7 +320,7 @@ plotLakeProfile <- function(park = "all", site = "all",
                          labels = c("May-1", "Jun-1", "Jul-1", "Aug-1", "Sep-1", "Oct-1", "Nov-1"))
 
     } else if(depth_type == "raw"){
-      ggplot(wcomb3 |> droplevels(), aes(x = doy_plot, y = -depth_1m_bin)) +
+      ggplot(wcomb3 |> droplevels(), aes(x = doy_plot, y = -depth_bin)) +
         geom_tile(aes(width = col_width, height = 1, color = Value, fill = Value)) +
         theme(legend.position = legend_position, axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
         theme_WQ() +
