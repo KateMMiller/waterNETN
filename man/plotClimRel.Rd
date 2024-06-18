@@ -12,9 +12,11 @@ plotClimRel(
   averages = "norm20cent",
   parameter = "tmean",
   plot_title = TRUE,
+  title_type = "UnitCode",
   palette = "viridis",
   color_rev = FALSE,
-  legend_position = "right"
+  legend_position = "right",
+  numcol = 3
 )
 }
 \arguments{
@@ -58,6 +60,9 @@ Other options include:
 \item{plot_title}{Logical. If TRUE (default) prints site name at top of figure. If FALSE,
 does not print site name. Only enabled when one site is selected.}
 
+\item{title_type}{Specify whether to label facets with 4-letter UnitCode (default) or full UnitName.
+Options are c("UnitCode", "UnitName").}
+
 \item{palette}{Color palette for plots. Options currently are 'viridis' (yellow - green - blue),
 or create your own by specifying 2 or more colors in quotes, like palette = c("red", "yellow", "blue"),
 or palette = c("yellow", "blue"). Hexcodes work too. If only 1 year is specified, only need to
@@ -67,6 +72,9 @@ specify 1 color}
 
 \item{legend_position}{Specify location of legend. To turn legend off, use legend_position =
 "none" (Default). Other options are "top", "bottom", "left", "right".}
+
+\item{numcol}{Specify number of columns in the facet wrap, which is only enabled when either multiple years
+are specified or multiple parks. Default is 3.}
 }
 \value{
 Returns a ggplot object of specified climate trends
