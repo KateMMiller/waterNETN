@@ -10,8 +10,9 @@
 #'
 #' @description This function plots a given year compared against either the 19th century
 #' normal (1901 - 2000) or the latest 30-year normal (1991 - 2020) using gridded NOAA NClim data
-#' for both the normals and the latest data. Works only at the park level. Previous months are
-#' typically available within a few weeks of the month end.
+#' for both the normals and the latest data. Works only at the park level. If a year x month
+#' combination is specified that doesn't occur yet in NETN_clim_annual dataset, it will be
+#' downloaded if available. New months are typically available within a few weeks of the month end.
 #'
 #' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
 #' \describe{
