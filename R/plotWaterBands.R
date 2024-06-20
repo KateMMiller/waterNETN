@@ -75,12 +75,6 @@
 #'
 #' @param ... Additional arguments relevant to \code{getChemistry()} or \code{getSondeInSitu()}
 #'
-#' @param param_name Text, defaults to \code{NA}. Used for plotly tooltips
-#' @param unit Text, defaults to \code{NA}. Note that the function currently can't handle special characters. Used for plotly tooltips
-#' @param yname Text, defaults to \code{NA}. Used for y axis title
-#' @param legend  a vector indicating where the legend position. Can be: "none","left","right","top","bottom" or a two element
-#' numeric vector.
-#'
 #' @return Returns a ggplot object of specified current vs historic values
 #'
 #' @examples

@@ -79,15 +79,6 @@ parameter and site. If FALSE, no threshold line will be plotted.}
 options are "top", "bottom", "left", "right".}
 
 \item{...}{Additional arguments relevant to \code{getChemistry()} or \code{getSondeInSitu()}}
-
-\item{param_name}{Text, defaults to \code{NA}. Used for plotly tooltips}
-
-\item{unit}{Text, defaults to \code{NA}. Note that the function currently can't handle special characters. Used for plotly tooltips}
-
-\item{yname}{Text, defaults to \code{NA}. Used for y axis title}
-
-\item{legend}{a vector indicating where the legend position. Can be: "none","left","right","top","bottom" or a two element
-numeric vector.}
 }
 \value{
 Returns a ggplot object of specified current vs historic values
