@@ -228,8 +228,8 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
                          by = c("SiteCode", "Parameter" = "parameter"))
 
       wdat2$mon <- factor(wdat2$month,
-                          levels = unique(wdat2$month),
-                          labels = unique(month.abb[wdat2$month]), ordered = T)
+                          levels = months,
+                          labels = xaxis_breaks, ordered = T)
 
       if(nrow(wdat2) == 0){stop("Combination of sites and parameters returned a data frame with no records.")}
 
@@ -251,12 +251,12 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
                     median_val = median(Value, na.rm = TRUE),
                     min_val = min(Value, na.rm = TRUE),
                     max_val = max(Value, na.rm = TRUE),
-                    lower_100 = ifelse(num_samps >= 4, min(Value, na.rm = T), NA),
-                    upper_100 = ifelse(num_samps >= 4, max(Value, na.rm = T), NA),
-                    lower_95 = ifelse(num_samps >= 4, quantile(Value, 0.025, na.rm = T), NA),
-                    upper_95 = ifelse(num_samps >= 4, quantile(Value, 0.975, na.rm = T), NA),
-                    lower_50 = ifelse(num_samps >= 4, quantile(Value, 0.25, na.rm = T), NA),
-                    upper_50 = ifelse(num_samps >= 4, quantile(Value, 0.75, na.rm = T), NA),
+                    lower_100 = ifelse(num_samps >= 3, min(Value, na.rm = T), NA),
+                    upper_100 = ifelse(num_samps >= 3, max(Value, na.rm = T), NA),
+                    lower_95 = ifelse(num_samps >= 3, quantile(Value, 0.025, na.rm = T), NA),
+                    upper_95 = ifelse(num_samps >= 3, quantile(Value, 0.975, na.rm = T), NA),
+                    lower_50 = ifelse(num_samps >= 3, quantile(Value, 0.25, na.rm = T), NA),
+                    upper_50 = ifelse(num_samps >= 3, quantile(Value, 0.75, na.rm = T), NA),
                     .groups = "drop") |>
           filter(!is.na(lower_50))
 
@@ -280,7 +280,7 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
 
       wdat_hist2$metric_type <- factor(wdat_hist2$metric_type, levels = c("d100", "d95", "d50"))
 
-      xaxis_breaks <- sort(unique(wdat_curr$mon))
+      xaxis_breaks <- month.abb[months]
         # xaxis_labels <- lapply(xaxis_breaks, function(x){as.character(lubridate::month(x, label = T))})
 
       thresh <- ifelse(!all(is.na(wdat_curr$UpperThreshold)) & threshold == TRUE, TRUE, FALSE)
@@ -337,25 +337,33 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
       ylab <- unique(wdat_curr$param_label)
 
       wdat_hist2$mon <- factor(wdat_hist2$month,
-                          levels = unique(wdat_hist2$month),
-                          labels = unique(month.abb[wdat_hist2$month]), ordered = T)
+                          levels = months,
+                          labels = xaxis_breaks, ordered = T)
+
+      wdat_curr$mon <- factor(wdat_curr$month,
+                              levels = months,
+                              labels = xaxis_breaks, ordered = T)
+
+      wdat_med$mon <- factor(wdat_med$month,
+                         levels = months,
+                         labels = xaxis_breaks, ordered = T)
+
 
       facetsite <- ifelse(length(unique(wdat_curr$SiteCode)) > 1, TRUE, FALSE)
 
-      monthly_plot <- #suppressWarnings(
-              ggplot(data = wdat_hist2, aes(x = mon)) + theme_WQ() +
-                scale_x_discrete(breaks = xaxis_breaks) +
+    monthly_plot <- #suppressWarnings(
+              ggplot() + theme_WQ() +
+                scale_x_discrete(breaks = xaxis_breaks, drop = F) +
                 geom_ribbon(data = wdat_hist2,
-                            aes(ymin = lower, ymax = upper,
+                            aes(ymin = lower, ymax = upper, x = mon,
                                 fill = metric_type,
                                 #color = metric_type,
                                 group = metric_type))+
                 # geom_line(data = wdat_hist2, aes(y = lower, color = metric_type, group = metric_type)) +
                 # geom_line(data = wdat_hist2, aes(y = upper, color = metric_type, group = metric_type)) +
                 geom_line(data = wdat_med,
-                          aes(y = median_val, color = metric_type, group = metric_type), lwd = 0.7) +
-
-                geom_point(data = wdat_curr, aes(y = Value, color = metric_type, group = metric_type)) +
+                          aes(y = median_val, x = mon, color = metric_type, group = metric_type), lwd = 0.7) +
+                geom_point(data = wdat_curr, aes(y = Value, x = mon, color = metric_type, group = metric_type)) +
                 scale_color_manual(values = plot_values,
                                    breaks = plot_breaks,
                                    labels = plot_labels,
@@ -372,12 +380,14 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
                 # Facets
                 {if(facetsite == TRUE){facet_wrap(~SiteName)}} +
                 # Upper and lower points
-                {if(thresh == TRUE){geom_hline(aes(yintercept = UpperThreshold,
-                                                      group = "Upper WQ Threshold",
-                                                      linetype = "Upper WQ Threshold"))}} +
-                {if(thresh == TRUE){geom_hline(aes(yintercept = LowerThreshold,
-                                                      group = "Lower WQ Threshold",
-                                                      linetype = "Lower WQ Threshold"))}} +
+                {if(thresh == TRUE){geom_hline(data = wdat_curr,
+                                               aes(yintercept = UpperThreshold,
+                                                   group = "Upper WQ Threshold",
+                                                  linetype = "Upper WQ Threshold"))}} +
+                {if(thresh == TRUE){geom_hline(data = wdat_curr,
+                                               aes(yintercept = LowerThreshold,
+                                               group = "Lower WQ Threshold",
+                                               linetype = "Lower WQ Threshold"))}} +
                 # Labels/Themes
                 labs(y = ylab, x = NULL, title = NULL) +
                 theme(axis.title.y = element_text(size = 10),
