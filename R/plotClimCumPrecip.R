@@ -77,7 +77,6 @@ plotClimCumPrecip <- function(park = "all",
   if(any(park == "all")){park = c("ACAD", "MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
   if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
-  parameter <- match.arg(parameter, c("temp", "tminmax", "tmean", "tmax", "tmin", "ppt"))
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
   #if(all(!palette %in% c("viridis")) & length(years) > 1){stopifnot(length(palette) > 1)}
