@@ -25,7 +25,7 @@ getClimNOAA(
 \item{"SARA"}{Saratoga NHP only}
 \item{"WEFA"}{Weir Farm NHP only}}}
 
-\item{year}{4-digit year to query. Earliest available year is 1951, and latest is 2024. Currently can only
+\item{year}{4-digit year to query. Earliest available year is 1895, and latest is 2024. Currently can only
 handle 1 year at a time.}
 
 \item{months}{Vector of numeric months to query. Typically there's about a 6 week delay in monthly data availability.}

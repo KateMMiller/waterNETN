@@ -26,7 +26,7 @@
 #' \item{"SARA"}{Saratoga NHP only}
 #' \item{"WEFA"}{Weir Farm NHP only}}
 #'
-#' @param year 4-digit year to query. Earliest available year is 1951, and latest is 2024. Currently can only
+#' @param year 4-digit year to query. Earliest available year is 1895, and latest is 2024. Currently can only
 #' handle 1 year at a time.
 #'
 #' @param months Vector of numeric months to query. Typically there's about a 6 week delay in monthly data availability.
@@ -58,7 +58,7 @@ getClimNOAA <- function(park = 'all', year = as.integer(format(Sys.Date(), "%Y")
                     c("all", "LNETN", "ACAD", "MABI", "MIMA", "MORR",
                       "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
   if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
-  stopifnot(class(year) %in% c("numeric", "integer"), year >= 1951)
+  stopifnot(class(year) %in% c("numeric", "integer"), year >= 1895)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
 
   if(!requireNamespace("raster", quietly = TRUE)){
