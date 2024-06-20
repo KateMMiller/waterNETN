@@ -181,7 +181,7 @@ plotClimRel <- function(park = "all",
                   tmin = c("tmin_norm_1901_2000", "tmin_norm_1991_2020"),
                   ppt = c("precip_norm_1901_2000", "precip_norm_1991_2020"))
 
-  # select the 80 or 90 norm specified in averages
+  # select the norm specified in averages
   cols <- cols1[grepl(as.numeric(substr(averages, 5, 6)), cols1)]
 
   avg_dat_long2 <- avg_dat_long |> filter(param_full %in% cols) |>

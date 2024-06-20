@@ -6,9 +6,8 @@
 #' @include getWaterLevel.R
 #' @include theme_WQ.R
 #'
-#' @importFrom dplyr filter full_join group_by last left_join mutate select summarize
-#' @importFrom tidyr pivot_longer
-#' @importFrom plotly ggplotly
+#' @importFrom dplyr filter group_by left_join mutate select summarize
+#' @importFrom tidyr pivot_longer pivot_wider
 #' @import ggplot2
 #'
 #' @title plotWaterBands: compare current vs. historic values
