@@ -340,6 +340,8 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
                           levels = unique(wdat_hist2$month),
                           labels = unique(month.abb[wdat_hist2$month]), ordered = T)
 
+      facetsite <- ifelse(length(unique(wdat_curr$SiteCode)) > 1, TRUE, FALSE)
+
       monthly_plot <- #suppressWarnings(
               ggplot(data = wdat_hist2, aes(x = mon)) + theme_WQ() +
                 scale_x_discrete(breaks = xaxis_breaks) +
@@ -367,6 +369,8 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
                                       breaks = line_breaks,
                                       labels = line_labels,
                                       name = NULL) +
+                # Facets
+                {if(facetsite == TRUE){facet_wrap(~SiteName)}} +
                 # Upper and lower points
                 {if(thresh == TRUE){geom_hline(aes(yintercept = UpperThreshold,
                                                       group = "Upper WQ Threshold",
@@ -374,10 +378,8 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
                 {if(thresh == TRUE){geom_hline(aes(yintercept = LowerThreshold,
                                                       group = "Lower WQ Threshold",
                                                       linetype = "Lower WQ Threshold"))}} +
-                # Labels
+                # Labels/Themes
                 labs(y = ylab, x = NULL, title = NULL) +
-
-                # Themes
                 theme(axis.title.y = element_text(size = 10),
                       panel.background = element_rect(color = '#696969', fill = 'white', linewidth = 0.4),
                       axis.line.x = element_line(color = "#696969", linewidth = 0.4),
