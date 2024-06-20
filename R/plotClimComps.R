@@ -164,7 +164,7 @@ plotClimComps <- function(park = "ACAD",
   park_names <- unique(getSites(park = park)[,c("UnitCode", "UnitName")])
   clim_dat_final2 <- left_join(clim_dat_final1, park_names, by = "UnitCode")
 
-  # Clim data in decadal and 30-year norms
+  # Clim data in century or 30-year norms
   avg_dat <- NETN_clim_norms |> filter(UnitCode %in% park) #|> filter(month %in% months)
 
   avg_dat_long <- avg_dat |> pivot_longer(cols = -c(UnitCode, UnitName, long, lat, month),
