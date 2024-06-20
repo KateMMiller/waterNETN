@@ -504,7 +504,7 @@ print_head(weir)
 #### plotWaterBands()
 This function produces a plot that summarizes the range of historic data compared with current measurements. The function can handle chemistry, Sonde in situ, Secchi depth, Light Penetration, and Discharge data, although it functions best with sonde and chemistry data. Historic measurements are displayed as min-max values ever previously recorded (outermost band), upper and lower 95% distribution and middle 50% distribution (inner quartiles) of values previously recorded (inner bands). The line represents the median value.
 
-Currently you can only specify one site and parameter at a time. Values that exceed water quality thresholds (where they exist) are plotted as orange and will show an orange point in the legend. Values within WQ thresholds or for paramaters without set thresholds are black. You can include threshold lines (default), or remove them, where they make the y axis range too big, via `threshold = FALSE`. 
+Currently you can only specify one parameter at a time.Values that exceed water quality thresholds (where they exist) are plotted as orange and will show an orange point in the legend. Values within WQ thresholds or for parameters without set thresholds are black. You can include threshold lines (default), or remove them, where they make the y axis range too big, via `threshold = FALSE`. If multiple sites are specified, they will be faceted.
 
 <p class = 'fxn'>Plot pH in Jordan Pond for 2023</p>
 ```{r message = FALSE, warning = FALSE}
@@ -524,9 +524,9 @@ plotWaterBands(site = "ACJORD", year_curr = 2023, years_historic = 2006:2022,
   parameter = "TN_mgL", legend_position = 'right', include_censored = T, threshold = F)
 ```
 
-<p class = 'fxn'>Plot TN in Kroma Kill in SARA in 2023</p>
+<p class = 'fxn'>Plot TN in SARA sites in 2023</p>
 ```{r message = FALSE, warning = FALSE}
-plotWaterBands(site = "SARASA", year_curr = 2023, years_historic = 2006:2022, parameter = "TN",
+plotWaterBands(park = "SARA", year_curr = 2023, years_historic = 2006:2022, parameter = "TN_mgL",
   legend_position = 'right')
 ```
 
@@ -984,6 +984,34 @@ grid2 <- cowplot::plot_grid(grid1, NULL, leg, ncol = 3, nrow = 1, rel_widths = c
 grid2
 ```
 </details>
+
+#### plotClimCumPrecip()
+This function plots cumulative monthly precipitation for a given year compared to either the 19th century or 30-year normal. If multiple parks or years are specified, resulting plots will be faceted on those variables.
+
+<p class='fxn'>Plot ACAD cumulative precipitation for 2020 through 2023
+```{r}
+plotClimCumPrecip(park = "ACAD", years = 2020:2023, legend_position = 'bottom')
+
+```
+
+<p class='fxn'>Plot ACAD cumulative precipitation for 2013 through 2023 for April - October only
+```{r}
+plotClimCumPrecip(park = "ACAD", years = 2014:2024, legend_position = 'bottom', months = 4:10)
+
+```
+
+<p class='fxn'>Plot all but SAIR cumulative precipitation for 2023 with 4 columns
+```{r}
+parks <- c("ACAD", "MABI", "MIMA", "MORR", "ROVA", "SAGA", "SARA", "WEFA")
+plotClimCumPrecip(park = parks, years = 2023, legend_position = 'bottom', numcol = 4)
+
+```
+
+<p class='fxn'>Plot cumulative precipitation for 2019 - 2023
+```{r}
+plotClimCumPrecip(park = "ACAD", years = 2019:2023, legend_position = 'bottom', numcol = 5)
+
+```
 
 #### plotClimRel()
 This function plots a given year compared against either the 19th century normal (1901 - 2000) or the 1991 - 2020 normal. Both normals and annual comparisons are derived from NOAA gridded climate data. You can either plot all temp variables, min/max temp, mean temp or precipitation. If multiple years are specified, resulting plots will facet on year. You can make your own palette by specifying colors, or by default use viridis. Currently can only plot one park at a time. 
