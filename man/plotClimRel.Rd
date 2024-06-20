@@ -8,7 +8,6 @@ plotClimRel(
   park = "all",
   years = 2006:format(Sys.Date(), "\%Y"),
   months = 1:12,
-  active = TRUE,
   averages = "norm20cent",
   parameter = "tmean",
   plot_title = TRUE,
@@ -36,9 +35,6 @@ plotClimRel(
 
 \item{years}{Numeric. Years to plot separately. Accepted values start at 2006.If multiple years
 specified, will facet results on year.}
-
-\item{active}{Logical. If TRUE (Default) only queries actively monitored sites.
-If FALSE, returns all sites that have been monitored.}
 
 \item{averages}{Specify averages to plot. By default, the 20th century normal (1901-2000) plots.
 Other options include:

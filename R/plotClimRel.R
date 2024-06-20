@@ -30,9 +30,6 @@
 #' @param years Numeric. Years to plot separately. Accepted values start at 2006.If multiple years
 #' specified, will facet results on year.
 #'
-#' @param active Logical. If TRUE (Default) only queries actively monitored sites.
-#' If FALSE, returns all sites that have been monitored.
-#'
 #' @param parameter Specify the monthly averaged parameter to plot. Acceptable values are
 #' \describe{
 #'\item{"temp"}{Plot all temperature comparisons (in C).}
@@ -90,7 +87,7 @@
 #'
 plotClimRel <- function(park = "all",
                         years = 2006:format(Sys.Date(), "%Y"),
-                        months = 1:12, active = TRUE,
+                        months = 1:12,
                         averages = "norm20cent",
                         parameter = 'tmean', plot_title = TRUE,
                         title_type = "UnitCode",
