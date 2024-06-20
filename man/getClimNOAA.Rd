@@ -39,7 +39,10 @@ for Environmental Information (www.ncei.noaa.gov) for the centroid of each park 
 data frame includes total precipitation (prcp in mm/day), Maximum air temperature (tmax in C) averaged
 over the month, minimum air temperature (tmin in C) averaged over the month, and average temperature
 (tavg in C). Note that occasionally you're unable to connect to the server, and will receive an error message
-when that happens.
+when that happens. This function was used to compile historic weather data for each park from 1895 up
+through May 2024, which is stored as a package dataset called NETN_clim_annual (accessed via
+\code{data("NETN_clim_annual")}). You should only need this function to download newer months of data
+as they become available.
 }
 \examples{
 \dontrun{
