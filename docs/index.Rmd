@@ -799,7 +799,21 @@ plotPrecipDischarge(site = c("ACABIN", "ACKEBO"), years = 2022, colors = c("corn
 ```
 
 #### plotClimTrend()
-This function produces a line or smoothed trend plot filtered on park, year, month, and climate parameter. If multiple sites are specified, they can either be plotted on the same figure or separate figures. If multiple parameters are specified, they will be plotted on separate figures. For multiple sites to plot on the same figure, use facet_site = FALSE. For multiple parameters on the same figure, facet_param = FALSE. Note that all months (1:12) are default. If you only want sample months, specify months = 5:10.
+This function produces a line or smoothed trend plot filtered on park, year, month, and climate parameter. If multiple parks are specified, they can either be plotted on the same figure or separate figures. If multiple parameters are specified, they will be plotted on separate figures. For multiple parks to plot on the same figure, use facet_site = FALSE. For multiple parameters on the same figure, facet_param = FALSE. Note that all months (1:12) are default. If you only want sample months, specify months = 5:10.
+
+<b style="color:red;">NEW: I updated the compiled climate data to cover 1895 up through May 2024, so you can plot historic trends beyond just the 2006-2024 monitoring period. </b>
+
+<p class = 'fxn'>Plot avg temp for LNETN from 1895:2024, without points and with smoothed line and span 0.1.</p>
+```{r}
+plotClimTrend(park = "LNETN", years = 1895:2024, layers = 'lines', 
+              parameter = "tmean", span = 0.1, palette = "Dark2", legend_position = 'right')
+```
+
+<p class = 'fxn'>Plot monthly precip for MORR, ROVA and WEFA from 1895:2024, without points and with smoothed line and span 0.1.</p>
+```{r}
+plotClimTrend(park = c("MORR", "ROVA", "WEFA"), years = 1895:2024, layers = 'lines', 
+              parameter = "tmean", span = 0.1, palette = "Dark2", legend_position = 'right')
+```
 
 
 <p class = 'fxn'>Plot monthly climate data for MABI from 2006:2023 (all months is default), without a smoothed line.</p>

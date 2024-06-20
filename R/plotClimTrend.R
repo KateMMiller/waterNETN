@@ -27,10 +27,10 @@
 #' \item{"SARA"}{Saratoga NHP only}
 #' \item{"WEFA"}{Weir Farm NHP only}}
 #'
-#' @param years Numeric. Years to query. Accepted values start at 2006.
+#' @param years Numeric. Years to query. Accepted values start at 1895.
 #'
 #' @param months Numeric. Months to query by number. Accepted values range from 1:12.
-#' If specifying new months not yet included in NETN_clim_2006_2024 dataset, will
+#' If specifying new months not yet included in NETN_clim_annual dataset, will
 #' download months that are available from NOAA.
 #'
 #' @param parameter Specify the parameter(s) to plot. Acceptable values are
@@ -69,13 +69,13 @@
 #' # Plot total monthly precip for 2006:2023 and all months, without smoothing
 #' plotClimTrend(park = "MABI", years = 2006:2023, parameter = "ppt", smooth = F)
 #'
-#' # Plot total monthly precip in MABI from 2006:2023, with smoothed line and span 0.7.
-#' plotClimTrend(park = "MABI", years = 2006:2024, parameter = "ppt", span = 0.7)
+#' # Plot avg temp in MABI from 1895:2024, without points and with smoothed line and span 0.1.
+#' plotClimTrend(park = "MABI", years = 1895:2024, layers = 'lines', parameter = "tmean", span = 0.1)
 #'
 #' # Plot monthly mean temperature for MABI and SARA from 2006:2024, with smoothed line, span 0.7,
 #' and only sample months using the Dark2 color palette.
 #' plotClimTrend(park = c("MABI", "SARA"), years = 2006:2024,
-#'               parameter = "tmean", span = 0.7, months = 5:10, paletted = "Dark2")
+#'               parameter = "tmean", span = 0.7, months = 5:10, palette = "Dark2")
 #'
 #'}
 #'
@@ -101,7 +101,7 @@ plotClimTrend <- function(park = "all",
   if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
   if(any(park == "all")){park = c("ACAD", "MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
     } else {park}
-  stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
+  stopifnot(class(years) %in% c("numeric", "integer"), years >= 1895)
 
   parameter <- match.arg(parameter, c("all", "tmean", "tmin", "tmax", "ppt"), several.ok = TRUE)
   facet_y <- if(any(parameter == "all")){"free_y"} else {"fixed"}
@@ -194,12 +194,12 @@ plotClimTrend <- function(park = "all",
   } else if(year_len == 2 & mon_len > 6){"4 months"
     #} else if(year_len > 4 & mon_len <= 6){"6 months"
   } else if(year_len %in% c(4, 5, 6)){"1 year"
-  } else if(year_len > 6){"2 years"
+  } else if(year_len > 6 & year_len < 15){"2 years"
+  } else if(year_len >= 15){"5 years"
   } else {"6 months"}
 
-  date_format <- ifelse(break_len %in% c("1 year", "2 years"), "%Y", "%m/%d/%Y")
+  date_format <- ifelse(break_len %in% c("1 year", "2 years", "5 years"), "%Y", "%m/%d/%Y")
   datebreaks <- seq(min(clim_dat_final$date2), max(clim_dat_final$date2) + 30, by = break_len)
-
 
 
   #-- Create plot --

@@ -33,10 +33,10 @@ plotClimTrend(
 \item{"SARA"}{Saratoga NHP only}
 \item{"WEFA"}{Weir Farm NHP only}}}
 
-\item{years}{Numeric. Years to query. Accepted values start at 2006.}
+\item{years}{Numeric. Years to query. Accepted values start at 1895.}
 
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12.
-If specifying new months not yet included in NETN_clim_2006_2024 dataset, will
+If specifying new months not yet included in NETN_clim_annual dataset, will
 download months that are available from NOAA.}
 
 \item{layers}{Options are "points" and "lines". By default, both will plot.}
@@ -82,13 +82,13 @@ figures. If multiple parameters are specified, they will be plotted on separate 
 # Plot total monthly precip for 2006:2023 and all months, without smoothing
 plotClimTrend(park = "MABI", years = 2006:2023, parameter = "ppt", smooth = F)
 
-# Plot total monthly precip in MABI from 2006:2023, with smoothed line and span 0.7.
-plotClimTrend(park = "MABI", years = 2006:2024, parameter = "ppt", span = 0.7)
+# Plot avg temp in MABI from 1895:2024, without points and with smoothed line and span 0.1.
+plotClimTrend(park = "MABI", years = 1895:2024, layers = 'lines', parameter = "tmean", span = 0.1)
 
 # Plot monthly mean temperature for MABI and SARA from 2006:2024, with smoothed line, span 0.7,
 and only sample months using the Dark2 color palette.
 plotClimTrend(park = c("MABI", "SARA"), years = 2006:2024,
-              parameter = "tmean", span = 0.7, months = 5:10, paletted = "Dark2")
+              parameter = "tmean", span = 0.7, months = 5:10, palette = "Dark2")
 
 }
 
