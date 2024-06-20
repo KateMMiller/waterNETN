@@ -32,7 +32,8 @@
 #' @param year 4-digit year to query. Earliest available year is 1895, and latest is 2024. Currently can only
 #' handle 1 year at a time.
 #'
-#' @param months Vector of numeric months to query. Typically there's about a 6 week delay in monthly data availability.
+#' @param months Vector of numeric months to query. Typically there's about a 6 week delay in monthly data
+#' availability.
 #'
 #' @return Data frame of Daymet daily climate data for each specified site.
 #'
