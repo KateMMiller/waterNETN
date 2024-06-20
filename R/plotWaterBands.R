@@ -225,7 +225,7 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
       wdat2 <- left_join(wdat,
                          NETN_WQ_thresh[,c("SiteCode", "parameter", "UpperThreshold", "LowerThreshold")],
                          by = c("SiteCode", "Parameter" = "parameter"))
-
+      xaxis_breaks <- month.abb[months]
       wdat2$mon <- factor(wdat2$month,
                           levels = months,
                           labels = xaxis_breaks, ordered = T)
@@ -279,7 +279,7 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
 
       wdat_hist2$metric_type <- factor(wdat_hist2$metric_type, levels = c("d100", "d95", "d50"))
 
-      xaxis_breaks <- month.abb[months]
+
         # xaxis_labels <- lapply(xaxis_breaks, function(x){as.character(lubridate::month(x, label = T))})
 
       thresh <- ifelse(!all(is.na(wdat_curr$UpperThreshold)) & threshold == TRUE, TRUE, FALSE)
