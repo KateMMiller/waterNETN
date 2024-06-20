@@ -815,6 +815,10 @@ plotClimTrend(park = c("MORR", "ROVA", "WEFA"), years = 1895:2024, layers = 'lin
               parameter = "tmean", span = 0.1, palette = "Dark2", legend_position = 'right')
 ```
 
+<p class = 'fxn'>Plot temp stats from 1895-2024 for ACAD on the same figure. 
+```{r}
+plotClimTrend(park = "ACAD", years = 1895:2024, parameter = c("tmin", "tmean", "tmax"), span = 0.1, layers = 'lines', facet_param = F, legend_position = 'right', palette = "Set2")
+```
 
 <p class = 'fxn'>Plot monthly climate data for MABI from 2006:2023 (all months is default), without a smoothed line.</p>
 ```{r}
@@ -832,6 +836,30 @@ plotClimTrend(park = c("MABI", "SARA"), years = 2006:2023,
               span = 0.7, facet_park = TRUE, facet_param = FALSE,
               legend_position = "bottom")
 ```
+
+#### plotClimAnom()
+This function produces a trend plot filtered on park, year, month, and climate parameter and shows anomalies from chosen baseline (1901 - 2000 or 1991 - 2020) as red for above and blue for below average using gridded NOAA NClim data. If a year x month combination is specified that doesn't occur yet in NETN_clim_annual dataset, it will be downloaded if available. New months are typically available within a few weeks of the month end. If multiple parks are specified, they can either be plotted on the same figure or separate figures. If multiple parameters are specified, they will be plotted on separate figures.
+
+<p class = 'fxn'>Plot ACAD average temperature anomalies from 1895 to 2024 compared with 20th century normals.</p>
+```{r}
+plotClimAnom(park = "ACAD", years = 1895:2024, parameter = "tmean", legend_position = 'right')
+```
+
+<p class = 'fxn'>Plot MABI and SAGA average temperature anomalies from 2006 to 2024 compared with 20th century normals.</p>
+```{r}
+plotClimAnom(park = c("MABI", "SAGA"), years = 2006:2024, parameter = "tmean", legend_position = 'right')
+```
+<p class = 'fxn'>Plot MABI and SAGA precip. anomalies from 2023 compared with 20th century normals.</p>
+```{r}
+plotClimAnom(park = c("MABI", "SAGA"), years = 2023, parameter = "ppt", legend_position = 'right')
+```
+
+<p class = 'fxn'>Plot ACAD avg temp and precip anomalies from last 20 years compared with 30-year normals.</p>
+```{r}
+plotClimAnom(park = c("ACAD"), years = 2004:2024, parameter = c("tmean", "ppt"), 
+             legend_position = 'right', averages = "norm1990")
+```
+
 
 #### plotClimComps()
 This function compares either the 20th century normals (1901 - 2000), or the most recent 30-year normal (1991 - 2020) average monthly climate variables with user-specified years to provide an idea of how extreme or normal a given month in a year is. 
