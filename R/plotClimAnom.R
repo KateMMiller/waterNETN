@@ -230,7 +230,8 @@ anomplot <-
     # labels/themes
     labs(x = xlabel, y = ylabel) +
     scale_x_date(breaks = datebreaks, labels = scales::label_date(date_format)) +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+          legend.position = legend_position) +
     guides(linetype = guide_legend(order = 2),
            fill = guide_legend(order = 1),
            color = guide_legend(order = 1))
