@@ -15,7 +15,7 @@
 #' the previous level (e.g. D0) is listed as 100. The columns with pct (e.g. D0pct) correct for that, so that
 #' D0 + ... + D05 + None = 100.
 #'
-#' @importFrom dplyr case_when filter select
+#' @importFrom dplyr case_when filter mutate select
 #' @importFrom purrr list_rbind map
 #'
 #' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
@@ -84,6 +84,11 @@ getClimDrought <- function(park = "all",
     stop("Package 'httr' needed to download weather station data. Please install it.", call. = FALSE)
   }
 
+  # Check that suggested package required for this function are installed
+  if(!requireNamespace("jsonlite", quietly = TRUE)){
+    stop("Package 'jsonlite' needed to download weather station data. Please install it.", call. = FALSE)
+  }
+
   data("closest_WS")
 
   # Set up start and end dates and FIPS based on specified arguments
@@ -135,8 +140,8 @@ getClimDrought <- function(park = "all",
 
     dsci1 <- httr::GET(url_dsci)
     dsci2 <- httr::content(dsci1, as = "text")
-    dsci <- read.table(textConnection(dsci2), sep = ",", header = T)
-#    dsci <- jsonlite::fromJSON(url_dsci) # DSCI ranges from 0 to 500 with 500 being most extreme drought
+    #dsci <- read.table(textConnection(dsci2), sep = ",", header = T)
+    dsci <- jsonlite::fromJSON(dsci2) # DSCI ranges from 0 to 500 with 500 being most extreme drought
     dsci$UnitCode <- park
     return(dsci)
   }
@@ -150,7 +155,8 @@ getClimDrought <- function(park = "all",
 
     drgt1 <- httr::GET(url_drght)
     drgt2 <- httr::content(drgt1, as = "text")
-    drgt <- read.table(textConnection(drgt2), sep = ",", header = T)
+    drgt <- jsonlite::fromJSON(drgt2)
+    #drgt <- read.table(textConnection(drgt2), sep = ",", header = T)
     drgt$UnitCode <- park
     return(drgt)
   }
