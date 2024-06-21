@@ -300,7 +300,7 @@ plotTrend <- function(park = "all", site = "all",
         {if(any(layers %in% "points")) geom_point(alpha = 0.6)} +
         {if(threshold == TRUE){geom_hline(aes(yintercept = UpperThreshold, linetype = "Upper WQ Threshold"))}} +
         {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold, linetype = "Lower WQ Threshold"))}} +
-        {if(threshold == TRUE){scale_linetype_manual(values = c("dotted", "dashed"))}} +
+        {if(threshold == TRUE){scale_linetype_manual(values = c("dashed", "solid"))}} +
         # facets
         {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free')} +
         # themes
