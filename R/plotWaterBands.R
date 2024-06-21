@@ -319,7 +319,7 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
         if(thresh == TRUE){
             c(#"median" = "solid",
               "Upper WQ Threshold" = "dashed",
-              "Lower WQ Threshold" = "dotted")
+              "Lower WQ Threshold" = "solid")
         } else {NULL}#c("median" = "solid")}
 
       line_breaks <-
