@@ -20,6 +20,7 @@ plotTrend(
   smooth = TRUE,
   span = 0.3,
   legend_position = "none",
+  gridlines = "none",
   ...
 )
 }
@@ -88,6 +89,8 @@ cause more smoothing. Span can range from 0 to 1.}
 
 \item{legend_position}{Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
 options are "top", "bottom", "left", "right".}
+
+\item{gridlines}{Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")}
 
 \item{...}{Additional arguments relevant to \code{getChemistry()} or \code{getSondeInSitu()}}
 }

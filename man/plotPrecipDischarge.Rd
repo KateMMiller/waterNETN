@@ -12,6 +12,7 @@ plotPrecipDischarge(
   active = TRUE,
   colors = c("#257EF6", "black"),
   legend_position = "none",
+  gridlines = "none",
   ...
 )
 }
@@ -44,6 +45,8 @@ and black for discharge. Y axes are color coded the same.}
 
 \item{legend_position}{Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
 options are "top", "bottom", "left", "right".}
+
+\item{gridlines}{Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")}
 
 \item{...}{Additional arguments relevant to \code{getChemistry()} or \code{getSondeInSitu()}}
 }

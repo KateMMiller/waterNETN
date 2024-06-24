@@ -76,6 +76,8 @@
 #' @param legend_position Specify location of legend (default is 'right'). To turn legend off, use legend_position = "none". Other
 #' options are "top", "bottom", "left", "right".
 #'
+#' @param gridlines Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")
+#'
 #' @param ... Additional arguments relevant to \code{getSondeInSitu()} or \code{getWaterLevel()}
 #'
 #' @examples
@@ -120,7 +122,8 @@ plotLakeProfile <- function(park = "ACAD", site = "all",
                       palette = "Spectral", color_rev = FALSE,
                       plot_title = TRUE,
                       plot_thermocline = TRUE,
-                      legend_position = 'right', ...){
+                      legend_position = 'right',
+                      gridlines = "none", ...){
 
   # park = 'all'; site = 'all'; site_type = 'all'; years = 2013:2023;
   # parameter = c("ANC", "pH_Lab", "pH", "Temp_C"); ... = NULL
@@ -313,8 +316,17 @@ plotLakeProfile <- function(park = "ACAD", site = "all",
       {if(palette == 'viridis') scale_color_viridis_c(direction = color_dir)} +
       {if(!palette %in% 'viridis') scale_fill_distiller(palette = palette, direction = color_dir)} +
       {if(!palette %in% 'viridis') scale_color_distiller(palette = palette, direction = color_dir)} +
-      # labels
+      # labels, themes
       labs(x = NULL, y = ylab, color = param_label, fill = param_label, title = ptitle) +
+      {if(any(gridlines %in% c("grid_y", "both"))){
+          theme(
+            panel.grid.major.y = element_line(color = 'grey'),
+            panel.grid.minor.y = element_line(color = 'grey'))}} +
+      {if(any(gridlines %in% c("grid_x", "both"))){
+          theme(
+            panel.grid.major.x = element_line(color = 'grey'),
+            panel.grid.minor.x = element_line(color = 'grey'))}} +
+      scale_y_continuous(breaks = pretty(wcomb3$sample_elev, n = 8)) +
       scale_x_continuous(limits = c(115, 320),
                          breaks = c(121, 152, 182, 213, 244, 274, 305),
                          labels = c("May-1", "Jun-1", "Jul-1", "Aug-1", "Sep-1", "Oct-1", "Nov-1"))
@@ -337,8 +349,17 @@ plotLakeProfile <- function(park = "ACAD", site = "all",
         {if(palette == 'viridis') scale_color_viridis_c(direction = color_dir)} +
         {if(!palette %in% 'viridis') scale_fill_distiller(palette = palette, direction = color_dir)} +
         {if(!palette %in% 'viridis') scale_color_distiller(palette = palette, direction = color_dir)} +
-        # labels
+        # labels, themes
         labs(x = NULL, y = ylab, color = param_label, fill = param_label, title = ptitle) +
+        {if(any(gridlines %in% c("grid_y", "both"))){
+          theme(
+            panel.grid.major.y = element_line(color = 'grey'),
+            panel.grid.minor.y = element_line(color = 'grey'))}} +
+        {if(any(gridlines %in% c("grid_x", "both"))){
+          theme(
+            panel.grid.major.x = element_line(color = 'grey'),
+            panel.grid.minor.x = element_line(color = 'grey'))}} +
+        scale_y_continuous(breaks = pretty(-wcomb3$depth_bin, n = 8)) +
         scale_x_continuous(limits = c(115, 320),
                            breaks = c(121, 152, 182, 213, 244, 274, 305),
                            labels = c("May-1", "Jun-1", "Jul-1", "Aug-1", "Sep-1", "Oct-1", "Nov-1"))

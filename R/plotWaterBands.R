@@ -72,6 +72,8 @@
 #' @param legend_position Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
 #' options are "top", "bottom", "left", "right".
 #'
+#' @param gridlines Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")
+#'
 #' @param ... Additional arguments relevant to \code{getChemistry()} or \code{getSondeInSitu()}
 #'
 #' @return Returns a ggplot object of specified current vs historic values
@@ -98,6 +100,7 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
                            parameter = NA, include_censored = FALSE,
                            sample_depth = c("surface", "all"),
                            threshold = TRUE, legend_position = 'none',
+                           gridlines = "none",
                            #plotly = FALSE,
                            ...){
   #-- Error handling --
@@ -115,6 +118,7 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
     sample_depth <- match.arg(sample_depth)
     stopifnot(class(threshold) == "logical")
     legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
+    gridlines <- match.arg(gridlines, c("none", "grid_y", "grid_x", "both"))
 #    stopifnot(class(plotly) == "logical")
 
     # if(!requireNamespace("plotly", quietly = TRUE) & plotly == TRUE){
@@ -279,8 +283,7 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
 
       wdat_hist2$metric_type <- factor(wdat_hist2$metric_type, levels = c("d100", "d95", "d50"))
 
-
-        # xaxis_labels <- lapply(xaxis_breaks, function(x){as.character(lubridate::month(x, label = T))})
+      # xaxis_labels <- lapply(xaxis_breaks, function(x){as.character(lubridate::month(x, label = T))})
 
       thresh <- ifelse(!all(is.na(wdat_curr$UpperThreshold)) & threshold == TRUE, TRUE, FALSE)
 
@@ -318,8 +321,8 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
       line_values <-
         if(thresh == TRUE){
             c(#"median" = "solid",
-              "Upper WQ Threshold" = "dashed",
-              "Lower WQ Threshold" = "solid")
+              "Upper WQ Threshold" = "solid",
+              "Lower WQ Threshold" = "dashed")
         } else {NULL}#c("median" = "solid")}
 
       line_breaks <-
@@ -352,7 +355,6 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
 
     monthly_plot <- #suppressWarnings(
               ggplot() + theme_WQ() +
-                scale_x_discrete(breaks = xaxis_breaks, drop = F) +
                 geom_ribbon(data = wdat_hist2,
                             aes(ymin = lower, ymax = upper, x = mon,
                                 fill = metric_type,
@@ -382,12 +384,14 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
                 {if(thresh == TRUE){geom_hline(data = wdat_curr,
                                                aes(yintercept = UpperThreshold,
                                                    group = "Upper WQ Threshold",
-                                                  linetype = "Upper WQ Threshold"))}} +
+                                                  linetype = "Upper WQ Threshold"), lwd = 0.7)}} +
                 {if(thresh == TRUE){geom_hline(data = wdat_curr,
                                                aes(yintercept = LowerThreshold,
                                                group = "Lower WQ Threshold",
-                                               linetype = "Lower WQ Threshold"))}} +
-                # Labels/Themes
+                                               linetype = "Lower WQ Threshold"), lwd = 0.7)}} +
+                # Labels/Themes/axes
+                scale_x_discrete(breaks = xaxis_breaks, drop = F, expand = c(0.04,0.04)) +
+                scale_y_continuous(breaks = pretty(wdat$Value, n = 8)) +
                 labs(y = ylab, x = NULL, title = NULL) +
                 theme(axis.title.y = element_text(size = 10),
                       panel.background = element_rect(color = '#696969', fill = 'white', linewidth = 0.4),
@@ -397,8 +401,15 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
                       legend.key = element_blank(),
                       legend.spacing.y = unit(-0.2, "cm"),
                       legend.position = legend_position) +
-                guides(
-                       color = guide_legend(order = 2),
+              {if(any(gridlines %in% c("grid_y", "both"))){
+                theme(
+                      panel.grid.major.y = element_line(color = 'grey'),
+                      panel.grid.minor.y = element_line(color = 'grey'))}} +
+              {if(any(gridlines %in% c("grid_x", "both"))){
+                theme(
+                      panel.grid.major.x = element_line(color = 'grey'),
+                      panel.grid.minor.x = element_line(color = 'grey'))}} +
+                guides(color = guide_legend(order = 2),
                        fill = guide_legend(order = 1), linetype = guide_legend(order = 3))
             #)
 

@@ -82,6 +82,8 @@
 #' @param legend_position Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
 #' options are "top", "bottom", "left", "right".
 #'
+#' @param gridlines Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")
+#'
 #' @param ... Additional arguments relevant to \code{getChemistry()} or \code{getSondeInSitu()}
 #'
 #' @examples
@@ -125,7 +127,8 @@ plotTrend <- function(park = "all", site = "all",
                       palette = "viridis",
                       threshold = TRUE,
                       smooth = TRUE,
-                      span = 0.3, legend_position = 'none', ...){
+                      span = 0.3, legend_position = 'none',
+                      gridlines = "none", ...){
 
   # park = 'all'; site = 'all'; site_type = 'all'; years = 2013:2023;
   # parameter = c("ANC", "pH_Lab", "pH", "Temp_C"); ... = NULL
@@ -146,6 +149,7 @@ plotTrend <- function(park = "all", site = "all",
   layers <- match.arg(layers, several.ok = TRUE)
   stopifnot(class(threshold) == "logical")
   legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
+  gridlines <- match.arg(gridlines, c("none", "grid_y", "grid_x", "both"))
 
   #-- Compile data for plotting --
 
@@ -270,8 +274,8 @@ plotTrend <- function(park = "all", site = "all",
       {if(any(layers %in% "points")) geom_point(aes(shape = censored, size = censored), alpha = 0.6)} +
       {if(any(layers %in% "points")) scale_shape_manual(values = c(19, 18), labels = c("Real", "Censored"))} +
       {if(any(layers %in% "points")) scale_size_manual(values = c(3,3.5), labels = c("Real", "Censored"))} +
-      {if(threshold == TRUE){geom_hline(aes(yintercept = UpperThreshold, linetype = "Upper WQ Threshold"))}} +
-      {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold, linetype = "Lower WQ Threshold"))}} +
+      {if(threshold == TRUE){geom_hline(aes(yintercept = UpperThreshold, linetype = "Upper WQ Threshold"), lwd = 0.7)}} +
+      {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold, linetype = "Lower WQ Threshold"), lwd = 0.7)}} +
       {if(threshold == TRUE){scale_linetype_manual(values = c("dotted", "dashed"))}} +
       # facets
       {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free')} +
@@ -279,6 +283,14 @@ plotTrend <- function(park = "all", site = "all",
       theme_WQ() + theme(legend.position = legend_position,
                          legend.title = element_blank(),
                          axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
+        {if(any(gridlines %in% c("grid_y", "both"))){
+          theme(
+            panel.grid.major.y = element_line(color = 'grey'),
+            panel.grid.minor.y = element_line(color = 'grey'))}}+
+        {if(any(gridlines %in% c("grid_x", "both"))){
+          theme(
+            panel.grid.major.x = element_line(color = 'grey'),
+            panel.grid.minor.x = element_line(color = 'grey'))}}+
       # palettes
       {if(palette == "viridis") scale_color_viridis_d()} +
       {if(palette == "viridis") scale_fill_viridis_d()} +
@@ -286,6 +298,7 @@ plotTrend <- function(park = "all", site = "all",
       {if(!palette == "viridis") scale_fill_brewer(palette = palette)} +
       #axis format
       scale_x_date(breaks = datebreaks, labels = scales::label_date(date_format)) +
+      scale_y_continuous(breaks = pretty(wdat2$Value, n = 8))+
       # labels
       labs(x = "Year", y = ylab) +
       guides(fill = guide_legend(order = 1),
@@ -298,8 +311,8 @@ plotTrend <- function(park = "all", site = "all",
         {if(smooth == TRUE) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +
         {if(smooth == FALSE & any(layers %in% "lines")) geom_line()} +
         {if(any(layers %in% "points")) geom_point(alpha = 0.6)} +
-        {if(threshold == TRUE){geom_hline(aes(yintercept = UpperThreshold, linetype = "Upper WQ Threshold"))}} +
-        {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold, linetype = "Lower WQ Threshold"))}} +
+        {if(threshold == TRUE){geom_hline(aes(yintercept = UpperThreshold, linetype = "Upper WQ Threshold"), lwd = 0.7)}} +
+        {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold, linetype = "Lower WQ Threshold"), lwd = 0.7)}} +
         {if(threshold == TRUE){scale_linetype_manual(values = c("dashed", "solid"))}} +
         # facets
         {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free')} +
@@ -307,6 +320,14 @@ plotTrend <- function(park = "all", site = "all",
         theme_WQ() + theme(legend.position = legend_position,
                            legend.title = element_blank(),
                            axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
+        {if(any(gridlines %in% c("grid_y", "both"))){
+          theme(
+            panel.grid.major.y = element_line(color = 'grey'),
+            panel.grid.minor.y = element_line(color = 'grey'))}}+
+        {if(any(gridlines %in% c("grid_x", "both"))){
+          theme(
+            panel.grid.major.x = element_line(color = 'grey'),
+            panel.grid.minor.x = element_line(color = 'grey'))}}+
         # color palettes
         {if(palette == "viridis") scale_color_viridis_d()} +
         {if(palette == "set1") scale_color_brewer(palette = "Set1")} +
@@ -318,6 +339,7 @@ plotTrend <- function(park = "all", site = "all",
         {if(palette == "accent") scale_fill_brewer(palette = "Accent")} +
         #axis format
         scale_x_date(breaks = datebreaks, labels = scales::label_date(date_format)) +
+        scale_y_continuous(breaks = pretty(wdat2$Value, n = 8))+
         # labels
         labs(x = "Year", y = ylab) +
         guides(fill = guide_legend(order = 1),

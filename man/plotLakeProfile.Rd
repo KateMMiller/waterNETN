@@ -17,6 +17,7 @@ plotLakeProfile(
   plot_title = TRUE,
   plot_thermocline = TRUE,
   legend_position = "right",
+  gridlines = "none",
   ...
 )
 }
@@ -77,6 +78,8 @@ column than other samples that are more spread out. If no thermocline is detecte
 
 \item{legend_position}{Specify location of legend (default is 'right'). To turn legend off, use legend_position = "none". Other
 options are "top", "bottom", "left", "right".}
+
+\item{gridlines}{Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")}
 
 \item{...}{Additional arguments relevant to \code{getSondeInSitu()} or \code{getWaterLevel()}}
 }

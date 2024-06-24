@@ -51,6 +51,7 @@
 #' @param numcol Specify number of columns in the facet wrap, which is only enabled when either multiple years
 #' are specified or multiple parks. Default is 3.
 #'
+#' @param gridlines Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")
 #'
 #' @examples
 #' \dontrun{
@@ -68,7 +69,8 @@ plotClimCumPrecip <- function(park = "all",
                         averages = "norm20cent",
                         plot_title = TRUE,
                         title_type = "UnitCode",
-                        legend_position = 'right', numcol = 3){
+                        legend_position = 'right', numcol = 3,
+                        gridlines = 'none'){
 
   #-- Error handling --
   park <- match.arg(park, several.ok = TRUE,
@@ -84,6 +86,7 @@ plotClimCumPrecip <- function(park = "all",
   averages <- match.arg(averages, c("norm20cent", "norm1990"))
   stopifnot(class(numcol) %in% c("numeric", "integer"))
   title_type <- match.arg(title_type, c("UnitCode", "UnitName"))
+  gridlines <- match.arg(gridlines, c("none", "grid_y", "grid_x", "both"))
 
   #-- Compile data for plotting --
   # Clim data as annual monthly averages
@@ -182,7 +185,7 @@ plotClimCumPrecip <- function(park = "all",
 
   pptplot <-
     ggplot(clim_comb, aes(x = mon)) + theme_WQ() +
-      geom_bar(stat = 'identity', aes(y = cum_ppt_curr, fill = "Curr", color = "Curr")) +
+      geom_bar(stat = 'identity', aes(y = cum_ppt_curr, fill = "Curr", color = "Curr"), alpha = 0.8) +
       geom_line(aes(y = cum_ppt_hist, group = stat, color = "Hist"), lwd = 2) +
       scale_color_manual(
         values = c("Curr" = "#7FC2F2", "Hist" = "#565656"),
@@ -195,6 +198,15 @@ plotClimCumPrecip <- function(park = "all",
       # labels/themes
       labs(x = NULL, y = ylabel, group = NULL, color = NULL, fill = NULL) +
       scale_x_discrete(breaks = xaxis_breaks, drop = F) +
+      scale_y_continuous(n.breaks = 8) +
+      {if(any(gridlines %in% c("grid_y", "both"))){
+        theme(
+          panel.grid.major.y = element_line(color = 'grey'),
+          panel.grid.minor.y = element_line(color = 'grey'))}} +
+      {if(any(gridlines %in% c("grid_x", "both"))){
+        theme(
+          panel.grid.major.x = element_line(color = 'grey'),
+          panel.grid.minor.x = element_line(color = 'grey'))}} +
       theme(legend.position = legend_position,
             axis.text.x = element_text(angle = 90))
 

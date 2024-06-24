@@ -10,7 +10,8 @@ plotClimDrought(
   months = 1:12,
   dom_county = TRUE,
   legend_position = "right",
-  plot_title = TRUE
+  plot_title = TRUE,
+  gridlines = "none"
 )
 }
 \arguments{
@@ -41,6 +42,8 @@ options are "top", "bottom", "left", "right" (default).}
 
 \item{plot_title}{Logical. If TRUE (default) prints site name at top of figure. If FALSE,
 does not print site name. Only enabled when one site is selected.}
+
+\item{gridlines}{Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")}
 }
 \value{
 Returns a ggplot object of specified drought trends

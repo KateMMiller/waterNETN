@@ -502,29 +502,31 @@ print_head(weir)
 
 ### Plotting Functions {.tabset}
 #### plotWaterBands()
-This function produces a plot that summarizes the range of historic data compared with current measurements. The function can handle chemistry, Sonde in situ, Secchi depth, Light Penetration, and Discharge data, although it functions best with sonde and chemistry data. Historic measurements are displayed as min-max values ever previously recorded (outermost band), upper and lower 95% distribution and middle 50% distribution (inner quartiles) of values previously recorded (inner bands). The line represents the median value.
+This function produces a plot that summarizes the range of historic data compared with current measurements. The function can handle chemistry, Sonde in situ, Secchi depth, Light Penetration, and Discharge data, although it functions best with sonde and chemistry data. Historic measurements are displayed as the min-max values ever previously recorded (outermost band), upper and lower 95% distribution and middle 50% distribution (inner quartiles) of values previously recorded (inner bands). The line represents the median value.
 
-Currently you can only specify one parameter at a time.Values that exceed water quality thresholds (where they exist) are plotted as orange and will show an orange point in the legend. Values within WQ thresholds or for parameters without set thresholds are black. You can include threshold lines (default), or remove them, where they make the y axis range too big, via `threshold = FALSE`. If multiple sites are specified, they will be faceted.
+Currently you can only specify one parameter at a time. Values that exceed water quality thresholds (where they exist) are plotted as orange and will show an orange point in the legend. Values within WQ thresholds or for parameters without set thresholds are black. You can include threshold lines (default), or remove them, where they make the y axis range too big, via `threshold = FALSE`. If multiple sites are specified, they will be faceted.
 
-<p class = 'fxn'>Plot pH in Jordan Pond for 2023</p>
+You can now add gridlines to the plot via the gridlines argument. 
+
+<p class = 'fxn'>Plot pH in Jordan Pond for 2023 with gridlines on the y-axis</p>
 ```{r message = FALSE, warning = FALSE}
 plotWaterBands(site = "ACJORD", year_curr = 2023, years_historic = 2006:2022, 
-  parameter = "pH", legend_position = 'right')
+  parameter = "pH", legend_position = 'right', gridlines = 'grid_y')
 ```
 
-<p class = 'fxn'>Plot TN in Jordan Pond for 2023, including censored</p>
+<p class = 'fxn'>Plot TN in Jordan Pond for 2023, including censored and gridlines on both x and y axes</p>
 ```{r message = FALSE, warning = FALSE}
 plotWaterBands(site = "ACJORD", year_curr = 2023, years_historic = 2006:2022,
-  parameter = "TN_mgL", legend_position = 'right', include_censored = T)
+  parameter = "TN_mgL", legend_position = 'right', include_censored = T, gridlines = "both")
 ```
 
-<p class = 'fxn'>Same as above, but drop threshold lines</p>
+<p class = 'fxn'>Same as above, but drop threshold lines and add gridlines on x-axis</p>
 ```{r message = FALSE, warning = FALSE}
 plotWaterBands(site = "ACJORD", year_curr = 2023, years_historic = 2006:2022,
-  parameter = "TN_mgL", legend_position = 'right', include_censored = T, threshold = F)
+  parameter = "TN_mgL", legend_position = 'right', include_censored = T, threshold = F, gridlines = "grid_x")
 ```
 
-<p class = 'fxn'>Plot TN in SARA sites in 2023</p>
+<p class = 'fxn'>Plot TN in SARA sites in 2023 without gridlines (default)</p>
 ```{r message = FALSE, warning = FALSE}
 plotWaterBands(park = "SARA", year_curr = 2023, years_historic = 2006:2022, parameter = "TN_mgL",
   legend_position = 'right')
@@ -540,6 +542,7 @@ There are several arguments to customize plots.
 <li> Choose whether to add points, lines, or both (default) via `layers` argument. </li>
 <li> If lines are chosen as a layer, choose whether to plot a loess smoothed line (default) or a line that connects the sample points via `smooth`. </li>
 <li> Choose whether to plot any water quality thresholds that exist via `threshold`. Upper limits are dashed. Lower limits are dotted. </li>
+<li> Choose whether to add gridlines, either both, grid_y or grid_x. Default is none. </li>
 <li> Choose whether to plot surface (default) or all depth measurements via `sample_depth`. </li>
 <li> Choose whether to include censored values or not via `include_censored`. </li>
 <li> Choose color palette via `palette`. Default is 'viridis', but other options are discrete palettes in RColorBrewer, including 'Set1', 'Dark2', and 'Accent'. </li>
@@ -554,9 +557,9 @@ RColorBrewer::display.brewer.all(type = 'qual')
 </details><br>
 
 <details open><summary class='drop'>Single site; single parameter</summary>
-<p class = 'fxn'>Plot non-smoothed surface pH for Eagle Lake for all years. </p>
+<p class = 'fxn'>Plot non-smoothed surface pH for Eagle Lake for all years with gridlines on y-axis. </p>
 ```{r message = FALSE, warning = FALSE}
-plotTrend(site = "ACEAGL", parameter = "pH", smooth = FALSE)
+plotTrend(site = "ACEAGL", parameter = "pH", smooth = FALSE, gridlines = 'grid_y')
 
 ```
 
@@ -653,10 +656,11 @@ The width of the profiles take into account the number of days between sampling 
 There are several arguments to customize plots. 
 <ul>
 <li>Choose whether to plot the theromocline as points on each profile via `plot_thermocline = TRUE` (default). The thermocline is calculated by rLakeAnalyzer, and is the depth/elevation at which the largest change in temperature occurs in the sampled water column. If no thermocline is detected, as defined by `rLakeAnalyzer::thermo.depth()`, nothing is plotted.</li>
-<li> Choose whether to include only active sites (default) or all sites that have been monitored via `active`. </li>
-<li> Choose palette. Current enabled themes are 'viridis' (yellow - green - blue), and built in continuous color patterns in RColorBrewer. If you prefer other palettes, I can add those too. The only thing I'm trying to avoid is creating the palette manually, since number 1-m bins varies by site and across years. More info on built in ggplot scales can be found here: <a href="https://ggplot2-book.org/scales-colour">https://ggplot2-book.org/scales-colour</a>. </li>
-<li> Choose position of legend via `legend_position`. If you don't want to show the legend, `legend_position = 'none'`.
-<li> Include site name as plot title (title = TRUE). Only enabled when 1 site is selected. Otherwise site names will be in the facets.
+<li>Choose whether to include only active sites (default) or all sites that have been monitored via `active`. </li>
+<li>Add gridlines on the y, x or both axes.</li>
+<li>Choose palette. Current enabled themes are 'viridis' (yellow - green - blue), and built in continuous color patterns in RColorBrewer. If you prefer other palettes, I can add those too. The only thing I'm trying to avoid is creating the palette manually, since number 1-m bins varies by site and across years. More info on built in ggplot scales can be found here: <a href="https://ggplot2-book.org/scales-colour">https://ggplot2-book.org/scales-colour</a>. </li>
+<li>Choose position of legend via `legend_position`. If you don't want to show the legend, `legend_position = 'none'`.
+<li>Include site name as plot title (title = TRUE). Only enabled when 1 site is selected. Otherwise site names will be in the facets.
 </ul>
 
 <details><summary = 'drop'>Continuous RColorBrewer palettes are below:</summary>
@@ -668,10 +672,10 @@ RColorBrewer::display.brewer.all(type = 'seq')
 </details><br>
 
 <details open><summary class='drop'>Simple plots</summary>
-<p class = 'fxn'>Plot temperature for Upper Hadlock for years 2013 - 2023 corrected by elevation with thermocline plotted as black lines. </p>
+<p class = 'fxn'>Plot temperature for Upper Hadlock for years 2013 - 2023 corrected by elevation with thermocline plotted as black lines, with gridlines on y. </p>
 ```{r message = FALSE, warning = FALSE}
 plotLakeProfile(site = "ACUHAD", parameter = "Temp_C", depth_type = 'elev', 
-                years = 2013:2023)
+                years = 2013:2023, gridlines = "grid_y")
 
 ```
 
@@ -787,9 +791,9 @@ plot_grid(title, pgrid, ncol = 1, rel_heights = c(0.1, 1))
 #### plotPrecipDischarge()
 This function produces a plot with dual y-axes, one for precipitation and one for discharge. The x-axis is date. This function only works for one stream monitoring site at a time. Note that ggplot tends to have a lot of warnings that are hard to suppress, particularly for this plot, which has a daily value for precipitation and only monthly values for discharge. You're always going to get a message about that by using this function. Function currently only plots years where discharge is collected. Discharge is plotted as points and not lines, because discharge can change a lot between sampling events.
 
-<p class = 'fxn'>Plot Discharge for Mill Brook in MIMA for past 5 years using default colors. </p>
+<p class = 'fxn'>Plot Discharge for Mill Brook in MIMA for past 5 years using default colors and gridlines on the y-axis. </p>
 ```{r message=FALSE, warning=FALSE}
-plotPrecipDischarge(site = c("MIMASA"), years = 2019:2023)
+plotPrecipDischarge(site = c("MIMASA"), years = 2019:2023, gridlines = "grid_y")
 
 ```
 <p class = 'fxn'>Plot Discharge for Aunt Betty Inlet and Kebo Stream for 2022 using different colors. Note that this can be slow because has to download precip. data from NADP. LNETN parks download from a faster web service. </p>
@@ -803,10 +807,11 @@ This function produces a line or smoothed trend plot filtered on park, year, mon
 
 <b style="color:red;">NEW: I updated the compiled climate data to cover 1895 up through May 2024, so you can plot historic trends beyond just the 2006-2024 monitoring period. </b>
 
-<p class = 'fxn'>Plot avg temp for LNETN from 1895:2024, without points and with smoothed line and span 0.1.</p>
+<p class = 'fxn'>Plot avg temp for LNETN from 1895:2024, without points and with smoothed line and span 0.1 and gridline on y-axis.</p>
 ```{r}
 plotClimTrend(park = "LNETN", years = 1895:2024, layers = 'lines', 
-              parameter = "tmean", span = 0.1, palette = "Dark2", legend_position = 'right')
+              parameter = "tmean", span = 0.1, palette = "Dark2", 
+              legend_position = 'right', gridlines = "grid_y")
 ```
 
 <p class = 'fxn'>Plot monthly precip for MORR, ROVA and WEFA from 1895:2024, without points and with smoothed line and span 0.1.</p>
@@ -822,7 +827,7 @@ plotClimTrend(park = "ACAD", years = 1895:2024, parameter = c("tmin", "tmean", "
 
 <p class = 'fxn'>Plot monthly climate data for MABI from 2006:2023 (all months is default), without a smoothed line.</p>
 ```{r}
-plotClimTrend(park = "MABI", years = 2006:2023, parameter = "all", smooth = F, facet_param = T)
+plotClimTrend(park = "MABI", years = 2006:2023, parameter = "all", smooth = F, facet_param = T, gridlines = "grid_y")
 ```
 <p class = 'fxn'>Plot same monthly NOAA data for MABI from 2006:2023, with smoothed line and span 0.7, and using the Dark2 color palette.</p>
 ```{r}
@@ -838,11 +843,11 @@ plotClimTrend(park = c("MABI", "SARA"), years = 2006:2023,
 ```
 
 #### plotClimAnom()
-This function produces a trend plot filtered on park, year, month, and climate parameter and shows anomalies from chosen baseline (1901 - 2000 or 1991 - 2020) as red for above and blue for below average using gridded NOAA NClim data. If a year x month combination is specified that doesn't occur yet in NETN_clim_annual dataset, it will be downloaded if available. New months are typically available within a few weeks of the month end. If multiple parks are specified, they can either be plotted on the same figure or separate figures. If multiple parameters are specified, they will be plotted on separate figures.
+This function produces a trend plot filtered on park, year, month, and climate parameter and shows anomalies from chosen baseline (1901 - 2000 or 1991 - 2020) as red for above and blue for below average using gridded NOAA NClim data. If a year x month combination is specified that doesn't occur yet in NETN_clim_annual dataset, it will be downloaded if available. New months are typically available within a few weeks of the month end. If multiple parks are specified, they can either be plotted on the same figure or separate figures. If multiple parameters are specified, they will be plotted on separate figures. 
 
-<p class = 'fxn'>Plot ACAD average temperature anomalies from 1895 to 2024 compared with 20th century normals.</p>
+<p class = 'fxn'>Plot ACAD average temperature anomalies from 1895 to 2024 compared with 20th century normals wiht gridlines on y axis.</p>
 ```{r}
-plotClimAnom(park = "ACAD", years = 1895:2024, parameter = "tmean", legend_position = 'right')
+plotClimAnom(park = "ACAD", years = 1895:2024, parameter = "tmean", legend_position = 'right', gridlines = "grid_y")
 ```
 
 <p class = 'fxn'>Plot MABI and SAGA average temperature anomalies from 2006 to 2024 compared with 20th century normals.</p>
@@ -866,11 +871,14 @@ This function compares either the 20th century normals (1901 - 2000), or the mos
 
 <b style="color:red;">This function has been overhauled to work with NOAA gridded climate data for both the normals and the current data.</b> The same algorithms are used to generate historic and current data, which minimizes the bias introduced by weather station vs. Daymet data (Prism had similar issues). Using the NOAA dataset is slower to process, so I went with park-level centroids to extract climate data instead of extracting at the site level. I also compiled all of the NOAA data from 1895 through May 2024. I have a webalert that tells me when a new month is available, so I can keep the compiled data up to date (see `data("NETN_clim_annual")`). However, if I get behind, this function will download the missing months of data that are available online. 
 
+You can now add gridlines to x, y, or both axes.
+
 <details open><summary class='drop'>Single parameter</summary>
-<p class = 'fxn'>Plot mean monthly temp for MABI for 2019:2023 and all months with red-blue color palette and the 4 decadal averages.</p>
+<p class = 'fxn'>Plot mean monthly temp for MABI for 2019:2023 and all months with red-blue color palette and the 4 decadal averages with gridlines on y.</p>
 ```{r}
 plotClimComps(park = "MABI", years = 2019:2023, parameter = "tmean", 
-              palette = c("red", "blue"), averages = "norm20cent")
+              palette = c("red", "blue"), averages = "norm20cent",
+              gridlines = 'grid_y')
 ```
 <p class = 'fxn'>Same as above, but with points and 30-year normal starting at 1991.</p>
 ```{r}
@@ -986,11 +994,12 @@ grid2
 </details>
 
 #### plotClimCumPrecip()
-This function plots cumulative monthly precipitation for a given year compared to either the 19th century or 30-year normal. If multiple parks or years are specified, resulting plots will be faceted on those variables.
+This function plots cumulative monthly precipitation for a given year compared to either the 19th century or 30-year normal. If multiple parks or years are specified, resulting plots will be faceted on those variables.You can add gridlines to the x, y or both axes.
 
-<p class='fxn'>Plot ACAD cumulative precipitation for 2020 through 2023
+<p class='fxn'>Plot ACAD cumulative precipitation for 2020 through 2023 with gridlines on y axis.
 ```{r}
-plotClimCumPrecip(park = "ACAD", years = 2020:2023, legend_position = 'bottom')
+plotClimCumPrecip(park = "ACAD", years = 2020:2023, legend_position = 'bottom',
+                  gridlines = "grid_y")
 
 ```
 
@@ -1014,11 +1023,11 @@ plotClimCumPrecip(park = "ACAD", years = 2019:2023, legend_position = 'bottom', 
 ```
 
 #### plotClimRel()
-This function plots a given year compared against either the 19th century normal (1901 - 2000) or the 1991 - 2020 normal. Both normals and annual comparisons are derived from NOAA gridded climate data. You can either plot all temp variables, min/max temp, mean temp or precipitation. If multiple years are specified, resulting plots will facet on year. You can make your own palette by specifying colors, or by default use viridis. Currently can only plot one park at a time. 
+This function plots a given year compared against either the 19th century normal (1901 - 2000) or the 1991 - 2020 normal. Both normals and annual comparisons are derived from NOAA gridded climate data. You can either plot all temp variables, min/max temp, mean temp or precipitation. If multiple years are specified, resulting plots will facet on year. You can make your own palette by specifying colors, or by default use viridis. Currently can only plot one park at a time. Can also add gridlines to x, y or both axes. 
 
-<p class = 'fxn'>Plot all temperature variables on 1 graph for MABI in 2024.</p>
+<p class = 'fxn'>Plot all temperature variables on 1 graph for MABI in 2024 with gridlines on y axis.</p>
 ```{r message = F, warning = FALSE}
-plotClimRel(park = "MABI", years = 2024, parameter = "temp", palette = c("#EEE55A", "#D56062", "#067BC2"))
+plotClimRel(park = "MABI", years = 2024, parameter = "temp", palette = c("#EEE55A", "#D56062", "#067BC2"), gridlines = 'grid_y')
 ```
 
 <p class = 'fxn'>Plot precip for SARA 2023 compared to 1990 - 2019 normals.</p>
@@ -1045,16 +1054,16 @@ plotClimRel(park = "LNETN", years = 2023, parameter = "ppt", palette = "grey", l
 #### plotClimDrought()
 This function plots weekly drought index at the county level for each specified park or weather station nearest to a specified park. Resulting plot shows the percent of county area in 5 levels of drought, with D0 = Abnormally Dry, D1 = Moderate Drought, D2 = Severe Drought, D3 = Extreme Drought, and D4 = Exceptional Drought. Drought designations come from the U.S. Drought Monitor. If multiple parks are specified, results will be faceted with a separate plot for each park. Where multiple counties occur in a park, data can be faceted by county if `dom_county = FALSE`. To only plot predominant county, specify `dom_county = TRUE` (default).
 
-I tweaked the x-axis formatting a bit based on whether 1 year or many years are plotted. Let me know if you'd like further tweaks. 
+I tweaked the x-axis formatting a bit based on whether 1 year or many years are plotted. Let me know if you'd like further tweaks. You can also now add gridlines.
 
-<p class='fxn'>Plot drought info for ACAD in 2023</p>
+<p class='fxn'>Plot drought info for ACAD in 2023 wiht gridlines on y axis</p>
 ```{r}
-plotClimDrought(park = c("ACAD"), years = 2023)
+plotClimDrought(park = c("ACAD"), years = 2023, gridlines = "grid_y")
 ```
 
-<p class='fxn'>Plot drought info for MABI and SAGA for 2020 to 2024</p>
+<p class='fxn'>Plot drought info for MABI and SAGA for 2020 to 2024 with gridlines on x axis.</p>
 ```{r}
-plotClimDrought(park = c("MABI", "SAGA"), years = 2020:2024)
+plotClimDrought(park = c("MABI", "SAGA"), years = 2020:2024, gridlines = "grid_x")
 ```
 
 <p class='fxn'>Plot drought info for both MORR counties for 2023</p>

@@ -54,6 +54,8 @@
 #' @param legend_position Specify location of legend. To turn legend off, use legend_position = "none" (Default).
 #' Other options are "top", "bottom", "left", "right".
 #'
+#'#' @param gridlines Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")
+#'
 #' @param title_type Specify whether to label facets with 4-letter UnitCode (default) or full UnitName.
 #' Options are c("UnitCode", "UnitName").
 #'
@@ -73,7 +75,8 @@ plotClimAnom <- function(park = "all",
                           parameter = 'tmean',
                           averages = "norm20cent",
                           legend_position = 'none',
-                          title_type = "UnitCode"){
+                          title_type = "UnitCode",
+                          gridlines = 'none'){
 
   #-- Error handling --
   park <- match.arg(park, several.ok = TRUE,
@@ -89,6 +92,7 @@ plotClimAnom <- function(park = "all",
   if(any(parameter == "all")){parameter = c("tmean", "tmin", "tmax", "ppt")}
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
+  gridlines <- match.arg(gridlines, c("none", "grid_y", "grid_x", "both"))
 
   #-- Compile data for plotting --
   # Clim data as annual monthly averages
@@ -204,7 +208,8 @@ plotClimAnom <- function(park = "all",
   datebreaks <- seq(min(clim_comb2$date2), max(clim_comb2$date2) + 30, by = break_len)
 
   ylabel <- ifelse(parameter == "ppt", "Precipitation Anomaly (mm)", "Temperature Anomaly (C)")
-  xlabel <- if(year_len == 1){paste0("Year: ", years)} else {NULL}
+  above_label <- if(year_len == 1){paste0("Above baseline for ", years)} else {"Above baseline"}
+  below_label <- if(year_len == 1){paste0("Below baseline for ", years)} else {"Below baseline"}
   avglabel <- ifelse(averages == "norm19cent", "Baseline: 1901 - 2000", "Baseline: 1991 - 2020")
 
 anomplot <-
@@ -215,8 +220,8 @@ anomplot <-
     # geom_area(stat = 'identity', alpha = 0.5) +
     geom_bar(stat = 'identity', alpha = 0.4, lwd = 0.05) +
     scale_color_manual(values = c("above" = "red", "below" =  "blue"),
-                      labels = c("above" = "Above baseline",
-                                 "below" = "Below baseline"),
+                      labels = c("above" = above_label,
+                                 "below" = below_label),
                       aesthetics = c("color", "fill"),
                       name = NULL) +
     geom_hline(aes(yintercept = 0, linetype = "Baseline")) +
@@ -228,8 +233,17 @@ anomplot <-
     {if(facetparam == TRUE & facetpark == FALSE){facet_wrap(~param_label, scales = facet_y)}} +
     {if(facetparam == TRUE & facetpark == TRUE){facet_wrap(~park_facet + param_label)}} +
     # labels/themes
-    labs(x = xlabel, y = ylabel) +
+    labs(x = NULL, y = ylabel) +
+    {if(any(gridlines %in% c("grid_y", "both"))){
+      theme(
+        panel.grid.major.y = element_line(color = 'grey'),
+        panel.grid.minor.y = element_line(color = 'grey'))}} +
+    {if(any(gridlines %in% c("grid_x", "both"))){
+      theme(
+        panel.grid.major.x = element_line(color = 'grey'),
+        panel.grid.minor.x = element_line(color = 'grey'))}} +
     scale_x_date(breaks = datebreaks, labels = scales::label_date(date_format)) +
+    scale_y_continuous(n.breaks = 8) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
           legend.position = legend_position) +
     guides(linetype = guide_legend(order = 2),

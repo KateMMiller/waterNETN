@@ -15,7 +15,8 @@ plotClimTrend(
   palette = "viridis",
   smooth = TRUE,
   span = 0.3,
-  legend_position = "none"
+  legend_position = "none",
+  gridlines = "none"
 )
 }
 \arguments{
@@ -67,6 +68,8 @@ cause more smoothing (straighter lines). Smaller spans are wavier. Span can rang
 
 \item{legend_position}{Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
 options are "top", "bottom", "left", "right".}
+
+\item{gridlines}{Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")}
 }
 \value{
 Returns a ggplot object of specified climate trends

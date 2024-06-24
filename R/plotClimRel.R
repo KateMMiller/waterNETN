@@ -64,6 +64,8 @@
 #' @param legend_position Specify location of legend. To turn legend off, use legend_position =
 #' "none" (Default). Other options are "top", "bottom", "left", "right".
 #'
+#' @param gridlines Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")
+#'
 #' @param numcol Specify number of columns in the facet wrap, which is only enabled when either multiple years
 #' are specified or multiple parks. Default is 3.
 #'
@@ -93,7 +95,7 @@ plotClimRel <- function(park = "all",
                         parameter = 'tmean', plot_title = TRUE,
                         title_type = "UnitCode",
                         palette = "viridis", color_rev = FALSE,
-                        legend_position = 'right', numcol = 3){
+                        legend_position = 'right', numcol = 3, gridlines = "none"){
 
   #-- Error handling --
   park <- match.arg(park, several.ok = TRUE,
@@ -110,6 +112,7 @@ plotClimRel <- function(park = "all",
   averages <- match.arg(averages, c("norm20cent", "norm1990"))
   stopifnot(class(numcol) %in% c("numeric", "integer"))
   title_type <- match.arg(title_type, c("UnitCode", "UnitName"))
+  gridlines <- match.arg(gridlines, c("none", "grid_y", "grid_x", "both"))
 
   #-- Compile data for plotting --
   # Clim data as annual monthly averages
@@ -251,7 +254,16 @@ plotClimRel <- function(park = "all",
         # formatting
         labs(x = NULL, y = ylabel, group = NULL, color = NULL, fill = NULL) +
         theme(legend.position = legend_position,
-              axis.text.x = element_text(angle = 90)) +
+              axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+        scale_y_continuous(n.breaks = 8) +
+        {if(any(gridlines %in% c("grid_y", "both"))){
+          theme(
+            panel.grid.major.y = element_line(color = 'grey'),
+            panel.grid.minor.y = element_line(color = 'grey'))}} +
+        {if(any(gridlines %in% c("grid_x", "both"))){
+          theme(
+            panel.grid.major.x = element_line(color = 'grey'),
+            panel.grid.minor.x = element_line(color = 'grey'))}} +
         # facetting
         {if(facet_park == TRUE & facet_year == FALSE){facet_wrap(~park_facet, ncol = numcol)}} +
         {if(facet_park == FALSE & facet_year == TRUE){facet_wrap(~year, ncol = numcol)}} +
@@ -273,8 +285,17 @@ plotClimRel <- function(park = "all",
         # formatting
         labs(x = NULL, y = ylabel, group = NULL, color = NULL, fill = NULL) +
         theme(legend.position = legend_position,
-              axis.text.x = element_text(angle = 90)) +
-        ylim(ylimits) +
+              axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+        scale_y_continuous(n.breaks = 8, limits = ylimits) +
+        #ylim(ylimits) +
+        {if(any(gridlines %in% c("grid_y", "both"))){
+          theme(
+            panel.grid.major.y = element_line(color = 'grey'),
+            panel.grid.minor.y = element_line(color = 'grey'))}} +
+        {if(any(gridlines %in% c("grid_x", "both"))){
+          theme(
+            panel.grid.major.x = element_line(color = 'grey'),
+            panel.grid.minor.x = element_line(color = 'grey'))}} +
         # facetting
         {if(facet_park == TRUE & facet_year == FALSE){facet_wrap(~park_facet, ncol = numcol)}} +
         {if(facet_park == FALSE & facet_year == TRUE){facet_wrap(~year, ncol = numcol)}} +

@@ -40,6 +40,8 @@
 #' @param legend_position Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
 #' options are "top", "bottom", "left", "right".
 #'
+#' @param gridlines Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")
+#'
 #' @param ... Additional arguments relevant to \code{getChemistry()} or \code{getSondeInSitu()}
 #'
 #' @examples
@@ -64,7 +66,8 @@ plotPrecipDischarge <- function(park = "all", site = "all",
                                 #layers = c("points", "lines"),
                                 months = 5:10, active = TRUE,
                                 colors = c("#257EF6", "black"),
-                                legend_position = 'none', ...){
+                                legend_position = 'none',
+                                gridlines = "none", ...){
 
   #-- Error handling --
   # check for required packages for certain arguments
@@ -120,8 +123,9 @@ dp_plot <-
       #   geom_line(data = disch, aes(x = Date2, y = Discharge_cfs * scale),
       #             color = colors[2], linewidth = 0.7)} +
       # create 2nd axis
-      scale_y_continuous(name = "Daily Precip. (mm)",
-                         sec.axis = sec_axis(~./scale, name = "Discharge (cfs)")) +
+      scale_y_continuous(name = "Daily Precip. (mm)", breaks = pretty(comb$ws_pcpmm, n = 8),
+                         sec.axis = sec_axis(~./scale, name = "Discharge (cfs)",
+                                             breaks = pretty(disch$Discharge_cfs, n = 8))) +
       # facets
       {if(facet_site == TRUE & facet_year == TRUE) facet_wrap(~SiteName + year, drop = T, scales = "free_x")} +
       {if(facet_site == TRUE & facet_year == FALSE) facet_wrap(~SiteName, drop = T)} +
@@ -132,6 +136,14 @@ dp_plot <-
             axis.text.y.right = element_text(color = colors[2]),
             axis.title.y.right = element_text(color = colors[2]),
             axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
+      {if(any(gridlines %in% c("grid_y", "both"))){
+        theme(
+          panel.grid.major.y = element_line(color = 'grey'),
+          panel.grid.minor.y = element_line(color = 'grey'))}}+
+      {if(any(gridlines %in% c("grid_x", "both"))){
+        theme(
+          panel.grid.major.x = element_line(color = 'grey'),
+          panel.grid.minor.x = element_line(color = 'grey'))}}+
       scale_x_date(breaks = datebreaks, labels = scales::label_date("%m/%d/%y")) +
       theme(legend.position = legend_position, legend.title = element_blank()) +
       labs(x = NULL)

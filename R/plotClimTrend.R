@@ -63,6 +63,8 @@
 #' @param legend_position Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
 #' options are "top", "bottom", "left", "right".
 #'
+#' @param gridlines Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")
+#'
 #' @examples
 #' \dontrun{
 #'
@@ -92,7 +94,7 @@ plotClimTrend <- function(park = "all",
                           facet_param = TRUE,
                           palette = "viridis", smooth = TRUE,
                           span = 0.3,
-                          legend_position = 'none'){
+                          legend_position = 'none', gridlines = 'none'){
 
   #-- Error handling --
   park <- match.arg(park, several.ok = TRUE,
@@ -112,6 +114,7 @@ plotClimTrend <- function(park = "all",
   stopifnot(class(span) %in% "numeric")
   layers <- match.arg(layers, c("points", "lines"), several.ok = TRUE)
   legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
+  gridlines <- match.arg(gridlines, c("none", "grid_y", "grid_x", "both"))
 
   #-- Compile data for plotting --
   # Clim data as annual monthly averages
@@ -203,7 +206,11 @@ plotClimTrend <- function(park = "all",
                                "%b"))
   datebreaks <- seq(min(clim_dat_final$date2), max(clim_dat_final$date2) + 30, by = break_len)
 
+  seq_int <- if(any(parameter == "ppt")){20} else {2}
 
+  ybreaks <- seq(floor(min(clim_dat_final$value)), ceiling(max(clim_dat_final$value)), seq_int)
+
+  summary(clim_dat_final$value)
   #-- Create plot --
   climtrendplot <-
     ggplot(clim_dat_final, aes(x = date2, y = value,
@@ -227,6 +234,14 @@ plotClimTrend <- function(park = "all",
       theme_WQ() + theme(legend.position = legend_position,
                          legend.title = element_blank(),
                          axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
+      {if(any(gridlines %in% c("grid_y", "both"))){
+        theme(
+          panel.grid.major.y = element_line(color = 'grey'),
+          panel.grid.minor.y = element_line(color = 'grey'))}} +
+      {if(any(gridlines %in% c("grid_x", "both"))){
+        theme(
+          panel.grid.major.x = element_line(color = 'grey'),
+          panel.grid.minor.x = element_line(color = 'grey'))}} +
       # facets
       {if(facetparam == FALSE & facetpark == TRUE){facet_wrap(~UnitName)}}+
       {if(facetparam == TRUE & facetpark == FALSE){facet_wrap(~param_label, scales = facet_y)}}+
@@ -238,6 +253,7 @@ plotClimTrend <- function(park = "all",
       {if(!palette == "viridis") scale_fill_brewer(palette = palette)} +
       # axis format
       scale_x_date(breaks = datebreaks, labels = scales::label_date(date_format)) +
+      scale_y_continuous(n.breaks = 8) +
       # labels/themes
       labs(x = NULL, y = ylab)
 

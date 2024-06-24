@@ -15,7 +15,8 @@ plotClimRel(
   palette = "viridis",
   color_rev = FALSE,
   legend_position = "right",
-  numcol = 3
+  numcol = 3,
+  gridlines = "none"
 )
 }
 \arguments{
@@ -71,6 +72,8 @@ specify 1 color}
 
 \item{numcol}{Specify number of columns in the facet wrap, which is only enabled when either multiple years
 are specified or multiple parks. Default is 3.}
+
+\item{gridlines}{Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")}
 }
 \value{
 Returns a ggplot object of specified climate trends

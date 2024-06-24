@@ -11,7 +11,8 @@ plotClimAnom(
   parameter = "tmean",
   averages = "norm20cent",
   legend_position = "none",
-  title_type = "UnitCode"
+  title_type = "UnitCode",
+  gridlines = "none"
 )
 }
 \arguments{
@@ -51,7 +52,9 @@ Other options include:
 }}
 
 \item{legend_position}{Specify location of legend. To turn legend off, use legend_position = "none" (Default).
-Other options are "top", "bottom", "left", "right".}
+Other options are "top", "bottom", "left", "right".
+
+#' @param gridlines Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")}
 
 \item{title_type}{Specify whether to label facets with 4-letter UnitCode (default) or full UnitName.
 Options are c("UnitCode", "UnitName").}

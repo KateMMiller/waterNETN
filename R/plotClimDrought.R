@@ -40,6 +40,8 @@
 #' @param legend_position Specify location of legend. To turn legend off, use legend_position = "none". Other
 #' options are "top", "bottom", "left", "right" (default).
 #'
+#' @param gridlines Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")
+#'
 #' @param plot_title Logical. If TRUE (default) prints site name at top of figure. If FALSE,
 #' does not print site name. Only enabled when one site is selected.
 #'
@@ -66,7 +68,8 @@
 plotClimDrought <- function(park = "all",
                             years = format(Sys.Date(), format = "%Y"),
                             months = 1:12, dom_county = TRUE,
-                            legend_position = 'right', plot_title = TRUE){
+                            legend_position = 'right', plot_title = TRUE,
+                            gridlines = 'none'){
 
   #--- error handling ---
   park <- match.arg(park, several.ok = TRUE,
@@ -78,6 +81,7 @@ plotClimDrought <- function(park = "all",
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   stopifnot(class(plot_title) == "logical")
   stopifnot(class(dom_county) == "logical")
+  gridlines <- match.arg(gridlines, c("none", "grid_y", "grid_x", "both"))
 
   # Need to include park to get fips code
   ddata <- getClimDrought(park = park, years = years, dom_county = dom_county) |>
@@ -152,8 +156,17 @@ plotClimDrought <- function(park = "all",
     theme_WQ() +
     theme(legend.position = legend_position,
           axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5)) +
+    {if(any(gridlines %in% c("grid_y", "both"))){
+      theme(
+        panel.grid.major.y = element_line(color = 'grey'),
+        panel.grid.minor.y = element_line(color = 'grey'))}} +
+    {if(any(gridlines %in% c("grid_x", "both"))){
+      theme(
+        panel.grid.major.x = element_line(color = 'grey'),
+        panel.grid.minor.x = element_line(color = 'grey'))}} +
     labs(y = "% of County in Drought", x = x_lab) +
-    # facets
+    scale_y_continuous(breaks = pretty(ddata3$Pct_Area, n = 8)) +
+     # facets
     {if(facet_park){facet_wrap(~UnitCode)}} + #change to county
     {if(facet_county){facet_wrap(~County)}} +
     {if(facet_park_county){facet_wrap(~UnitCode + County)}}

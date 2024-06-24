@@ -63,6 +63,8 @@
 #' @param legend_position Specify location of legend. To turn legend off, use legend_position =
 #' "none" (Default). Other options are "top", "bottom", "left", "right".
 #'
+#' @param gridlines Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")
+#'
 #' @param ... Additional arguments relevant to \code{sumClimAvgs()} or \code{sumClimMonthly()}
 #'
 #' @examples
@@ -99,7 +101,8 @@ plotClimComps <- function(park = "ACAD",
                           averages = "norm20cent",
                           parameter = 'tmean', plot_title = TRUE,
                           palette = "viridis", color_rev = FALSE,
-                          legend_position = 'right', ...){
+                          legend_position = 'right',
+                          gridlines = 'none', ...){
 
   #-- Error handling --
   park <- match.arg(park, several.ok = FALSE,
@@ -115,6 +118,7 @@ plotClimComps <- function(park = "ACAD",
   if(all(!palette %in% c("viridis")) & length(years) > 1){stopifnot(length(palette) > 1)}
   stopifnot(class(plot_title) == "logical")
   averages <- match.arg(averages, c("norm20cent", "norm1990"))
+  gridlines <- match.arg(gridlines, c("none", "grid_y", "grid_x", "both"))
 
   #-- Compile data for plotting --
   # Clim data as annual monthly averages
@@ -266,6 +270,15 @@ plotClimComps <- function(park = "ACAD",
   # labels/themes
   labs(x = NULL, y = y_label, title = ptitle,
        color = "Annual Values", linetype = avg_name, linewidth = avg_name) +
+    scale_y_continuous(n.breaks = 8) +
+  {if(any(gridlines %in% c("grid_y", "both"))){
+    theme(
+      panel.grid.major.y = element_line(color = 'grey'),
+      panel.grid.minor.y = element_line(color = 'grey'))}} +
+  {if(any(gridlines %in% c("grid_x", "both"))){
+    theme(
+      panel.grid.major.x = element_line(color = 'grey'),
+      panel.grid.minor.x = element_line(color = 'grey'))}} +
   theme(legend.position = legend_position)
 
  return(#suppressWarnings(
