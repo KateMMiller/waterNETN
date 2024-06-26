@@ -236,8 +236,20 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
 
       if(nrow(wdat2) == 0){stop("Combination of sites and parameters returned a data frame with no records.")}
 
-      wdat_hist <- wdat2[wdat$year %in% years_historic, ]
-      wdat_curr <- wdat2[wdat2$year == year_current, ]
+      # If threshold is >10% higher than max or 10% lower than min in full dataset, don't plot
+      wdat_thresh <- wdat2 |> group_by(SiteCode, SiteName, UnitCode) |>
+        summarize(max_value = max(Value, na.rm = T),
+                  min_value = min(Value, na.rm = T),
+                  .groups = 'drop') |> ungroup()
+
+      wdat3 <- left_join(wdat2, wdat_thresh, by = c("SiteCode", "SiteName", "UnitCode")) |>
+        mutate(UpperThreshold_corr =
+                   ifelse(!is.na(UpperThreshold) & UpperThreshold > 1.1*max_value, NA_real_, UpperThreshold),
+               LowerThreshold_corr =
+                   ifelse(!is.na(LowerThreshold) & LowerThreshold < 1.1*min_value, NA_real_, LowerThreshold))
+
+      wdat_hist <- wdat3[wdat3$year %in% years_historic, ]
+      wdat_curr <- wdat3[wdat3$year == year_current, ]
 
       if(nrow(wdat_curr) == 0){
               stop(paste0("There are no data available to plot for year_current: ", year_current, "."))}
@@ -249,7 +261,7 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
       # Calc min/max 95% stats
       wdat_sum <- wdat_hist |>
           group_by(SiteCode, SiteName, UnitCode, month, mon,
-                   Parameter, param_label, unit, UpperThreshold, LowerThreshold) |>
+                   Parameter, param_label, unit, UpperThreshold_corr, LowerThreshold_corr) |>
           summarize(num_samps = sum(!is.na(Value)),
                     median_val = median(Value, na.rm = TRUE),
                     min_val = min(Value, na.rm = TRUE),
@@ -268,11 +280,11 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
                             ifelse(!is.na(LowerThreshold) & Value < LowerThreshold, "poor value",
                               "value")))
 
-      wdat_med <- wdat_sum |> select(SiteCode:LowerThreshold, median_val) |>
+      wdat_med <- wdat_sum |> select(SiteCode:LowerThreshold_corr, median_val) |>
           mutate(metric_type = "median")
 
       wdat_hist2 <- wdat_sum |>
-          select(SiteCode:LowerThreshold, lower_100, upper_100, lower_95, upper_95, lower_50, upper_50) |>
+          select(SiteCode:LowerThreshold_corr, lower_100, upper_100, lower_95, upper_95, lower_50, upper_50) |>
           pivot_longer(cols = c(lower_100, upper_100, lower_95, upper_95, lower_50, upper_50),
                        names_to = "metric", values_to = "value") |>
           mutate(metric_type = ifelse(grepl("lower", metric), "lower", "upper"),
@@ -285,8 +297,8 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
 
       # xaxis_labels <- lapply(xaxis_breaks, function(x){as.character(lubridate::month(x, label = T))})
 
-      thresh <- ifelse((!all(is.na(wdat_curr$UpperThreshold)) & threshold == TRUE) |
-                         (!all(is.na(wdat_curr$LowerThreshold)) & threshold == TRUE),
+      thresh <- ifelse((!all(is.na(wdat_curr$UpperThreshold_corr)) & threshold == TRUE) |
+                         (!all(is.na(wdat_curr$LowerThreshold_corr)) & threshold == TRUE),
                        TRUE, FALSE)
 
       plot_values <-
@@ -384,11 +396,11 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
                 {if(facetsite == TRUE){facet_wrap(~SiteName)}} +
                 # Upper and lower points
                 {if(thresh == TRUE){geom_hline(data = wdat_curr,
-                                               aes(yintercept = UpperThreshold,
+                                               aes(yintercept = UpperThreshold_corr,
                                                    group = "Upper WQ Threshold",
                                                   linetype = "Upper WQ Threshold"), lwd = 0.7)}} +
                 {if(thresh == TRUE){geom_hline(data = wdat_curr,
-                                               aes(yintercept = LowerThreshold,
+                                               aes(yintercept = LowerThreshold_corr,
                                                group = "Lower WQ Threshold",
                                                linetype = "Lower WQ Threshold"), lwd = 0.7)}} +
                 # Labels/Themes/axes
