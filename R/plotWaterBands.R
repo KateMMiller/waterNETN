@@ -285,7 +285,9 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
 
       # xaxis_labels <- lapply(xaxis_breaks, function(x){as.character(lubridate::month(x, label = T))})
 
-      thresh <- ifelse(!all(is.na(wdat_curr$UpperThreshold)) & threshold == TRUE, TRUE, FALSE)
+      thresh <- ifelse((!all(is.na(wdat_curr$UpperThreshold)) & threshold == TRUE) |
+                         (!all(is.na(wdat_curr$LowerThreshold)) & threshold == TRUE),
+                       TRUE, FALSE)
 
       plot_values <-
         if(thresh == TRUE){

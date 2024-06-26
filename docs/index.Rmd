@@ -809,38 +809,48 @@ This function produces a line or smoothed trend plot filtered on park, year, mon
 
 <p class = 'fxn'>Plot avg temp for LNETN from 1895:2024, without points and with smoothed line and span 0.1 and gridline on y-axis.</p>
 ```{r}
-plotClimTrend(park = "LNETN", years = 1895:2024, layers = 'lines', 
+plotClimTrend(park = "LNETN", years = 1895:2024, layers = 'smooth', 
               parameter = "tmean", span = 0.1, palette = "Dark2", 
               legend_position = 'right', gridlines = "grid_y")
 ```
 
 <p class = 'fxn'>Plot monthly precip for MORR, ROVA and WEFA from 1895:2024, without points and with smoothed line and span 0.1.</p>
 ```{r}
-plotClimTrend(park = c("MORR", "ROVA", "WEFA"), years = 1895:2024, layers = 'lines', 
+plotClimTrend(park = c("MORR", "ROVA", "WEFA"), years = 1895:2024, layers = 'smooth', 
               parameter = "tmean", span = 0.1, palette = "Dark2", legend_position = 'right')
 ```
 
 <p class = 'fxn'>Plot temp stats from 1895-2024 for ACAD on the same figure. 
 ```{r}
-plotClimTrend(park = "ACAD", years = 1895:2024, parameter = c("tmin", "tmean", "tmax"), span = 0.1, layers = 'lines', facet_param = F, legend_position = 'right', palette = "Set2")
+plotClimTrend(park = "ACAD", years = 1895:2024, parameter = c("tmin", "tmean", "tmax"), span = 0.1, layers = 'smooth', facet_param = F, legend_position = 'right', palette = "Set2")
 ```
 
 <p class = 'fxn'>Plot monthly climate data for MABI from 2006:2023 (all months is default), without a smoothed line.</p>
 ```{r}
-plotClimTrend(park = "MABI", years = 2006:2023, parameter = "all", smooth = F, facet_param = T, gridlines = "grid_y")
+plotClimTrend(park = "MABI", years = 2006:2023, parameter = "all", layers = c("points", "lines"), facet_param = T, gridlines = "grid_y")
 ```
 <p class = 'fxn'>Plot same monthly NOAA data for MABI from 2006:2023, with smoothed line and span 0.7, and using the Dark2 color palette.</p>
 ```{r}
-plotClimTrend(park = "MABI", years = 2006:2023, parameter = "all", span = 0.7, palette = "Dark2")
+plotClimTrend(park = "MABI", years = 2006:2023, parameter = "all", layers = 'smooth', span = 0.7, palette = "Dark2")
 ```
 
-<p class = 'fxn'>Plot monthly NOAA min, max and mean temperature for MABI and SARA from 2006:2024 (May), with smoothed line, span 0.7, and parks on separate plots, but parameters on the same plots. </p>
+<p class = 'fxn'>Plot monthly NOAA min, max and mean temperature for MABI and SARA from 2006:2024, with smoothed line, span 0.7, and parks on separate plots, but parameters on the same plots. </p>
 ```{r}
 plotClimTrend(park = c("MABI", "SARA"), years = 2006:2023, 
               parameter = c("tmean", "tmax", "tmin"), 
+              layers = 'smooth',
               span = 0.7, facet_park = TRUE, facet_param = FALSE,
               legend_position = "bottom")
 ```
+
+<p class = 'fxn'>Plot monthly NOAA min, max and mean temperature for MABI 2006:2024, with points and smoothed line, span 0.7 with parameters on the same plots. </p>
+```{r}
+plotClimTrend(park = "MABI", years = 2006:2023, 
+              parameter = c("tmean", "tmax", "tmin"),
+              layers = c("points", "smooth"),
+              span = 0.7, facet_param = F, legend_position = 'bottom')
+```
+
 
 #### plotClimAnom()
 This function produces a trend plot filtered on park, year, month, and climate parameter and shows anomalies from chosen baseline (1901 - 2000 or 1991 - 2020) as red for above and blue for below average using gridded NOAA NClim data. If a year x month combination is specified that doesn't occur yet in NETN_clim_annual dataset, it will be downloaded if available. New months are typically available within a few weeks of the month end. If multiple parks are specified, they can either be plotted on the same figure or separate figures. If multiple parameters are specified, they will be plotted on separate figures. 

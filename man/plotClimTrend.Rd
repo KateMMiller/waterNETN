@@ -13,7 +13,6 @@ plotClimTrend(
   facet_park = FALSE,
   facet_param = TRUE,
   palette = "viridis",
-  smooth = TRUE,
   span = 0.3,
   legend_position = "none",
   gridlines = "none"
@@ -40,7 +39,8 @@ plotClimTrend(
 If specifying new months not yet included in NETN_clim_annual dataset, will
 download months that are available from NOAA.}
 
-\item{layers}{Options are "points" and "lines". By default, both will plot.}
+\item{layers}{Options are "points", "lines", and "smooth". By default, both points and lines will plot. The lines option connects
+each monthly value with a linear line. If you include lines and smooth, the loess-smoothed line will also plot.}
 
 \item{parameter}{Specify the parameter(s) to plot. Acceptable values are
 \describe{
@@ -60,10 +60,7 @@ all parameters on the same figure. Note that results will be funky if selected p
 \item{palette}{Theme to plot points and lines. Options currently are 'viridis' (Default- ranges of blue, green and yellow), or discrete palettes from RColorBrewer. Common options are "Set1", "Set2", "Dark2", "Accent".
 Run RColorBrewer::display.brewer.all(type = 'qual') to see full set of options.}
 
-\item{smooth}{Logical. If TRUE (Default), will plot a loess smoothed line. If FALSE, will plot actual line. Only
-plots if layers argument includes 'lines'.}
-
-\item{span}{Numeric. Determines how smoothed the line will be for smooth = TRUE. Default is 0.3. Higher spans (up to 1)
+\item{span}{Numeric. Determines how smoothed the line will be for layers = 'smooth'. Default is 0.3. Higher spans (up to 1)
 cause more smoothing (straighter lines). Smaller spans are wavier. Span can range from 0 to 1. Span of 1 is linear.}
 
 \item{legend_position}{Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other

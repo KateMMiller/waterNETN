@@ -48,16 +48,13 @@
 #' @param facet_param Logical. If TRUE (Default), plots parameters on separate facets. If FALSE, plots
 #' all parameters on the same figure. Note that results will be funky if selected parameters have different units (e.g., temp and precip).
 #'
-#' @param layers Options are "points" and "lines". By default, both will plot.
+#' @param layers Options are "points", "lines", and "smooth". By default, both points and lines will plot. The lines option connects
+#' each monthly value with a linear line. If you include lines and smooth, the loess-smoothed line will also plot.
 #'
 #' @param palette Theme to plot points and lines. Options currently are 'viridis' (Default- ranges of blue, green and yellow), or discrete palettes from RColorBrewer. Common options are "Set1", "Set2", "Dark2", "Accent".
 #' Run RColorBrewer::display.brewer.all(type = 'qual') to see full set of options.
 #'
-#'
-#' @param smooth Logical. If TRUE (Default), will plot a loess smoothed line. If FALSE, will plot actual line. Only
-#' plots if layers argument includes 'lines'.
-#'
-#' @param span Numeric. Determines how smoothed the line will be for smooth = TRUE. Default is 0.3. Higher spans (up to 1)
+#' @param span Numeric. Determines how smoothed the line will be for layers = 'smooth'. Default is 0.3. Higher spans (up to 1)
 #' cause more smoothing (straighter lines). Smaller spans are wavier. Span can range from 0 to 1. Span of 1 is linear.
 #'
 #' @param legend_position Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
@@ -92,7 +89,7 @@ plotClimTrend <- function(park = "all",
                           parameter = NA,
                           facet_park = FALSE,
                           facet_param = TRUE,
-                          palette = "viridis", smooth = TRUE,
+                          palette = "viridis",
                           span = 0.3,
                           legend_position = 'none', gridlines = 'none'){
 
@@ -110,9 +107,8 @@ plotClimTrend <- function(park = "all",
 
   if(any(parameter == "all")){parameter = c("tmean", "tmin", "tmax", "ppt")}
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
-    stopifnot(class(smooth) == "logical")
   stopifnot(class(span) %in% "numeric")
-  layers <- match.arg(layers, c("points", "lines"), several.ok = TRUE)
+  layers <- match.arg(layers, c("points", "lines", "smooth"), several.ok = TRUE)
   legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
   gridlines <- match.arg(gridlines, c("none", "grid_y", "grid_x", "both"))
 
@@ -227,8 +223,8 @@ plotClimTrend <- function(park = "all",
                                } else if(facetpark == TRUE & facetparam == TRUE){interaction(param_label, UnitCode)
                                } else {param_label})) +
       # layers
-      {if(smooth == TRUE) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +
-      {if(smooth == FALSE & any(layers %in% "lines")) geom_line()} +
+      {if(any(layers %in% "smooth")) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +
+      {if(any(layers %in% "lines")) geom_line()} +
       {if(any(layers %in% "points")) geom_point(alpha = 0.6)} +
       # themes
       theme_WQ() + theme(legend.position = legend_position,
