@@ -238,7 +238,7 @@ plotClimComps <- function(park = "ACAD",
   ptitle <- if(length(unique(clim_dat_final$UnitCode)) == 1 & plot_title == TRUE){
     unique(clim_dat_final$UnitCode)} else {NULL}
 
-  avg_name <- ifelse(averages == "norm20cent", "20th Century Normal", "30 year Normal")
+  avg_name <- ifelse(averages == "norm20cent", "20th Century Baseline", "30 year Baseline")
 
   clim_plot <-
   ggplot() + theme_WQ() +
@@ -279,7 +279,9 @@ plotClimComps <- function(park = "ACAD",
     theme(
       panel.grid.major.x = element_line(color = 'grey'),
       panel.grid.minor.x = element_line(color = 'grey'))}} +
-  theme(legend.position = legend_position)
+  theme(legend.position = legend_position,
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 10))
 
  return(#suppressWarnings(
    clim_plot
