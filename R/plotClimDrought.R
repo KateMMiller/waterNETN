@@ -156,6 +156,8 @@ plotClimDrought <- function(park = "all",
     theme_WQ() +
     theme(legend.position = legend_position,
           axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5)) +
+    {if(legend_position == "bottom"){guides(fill = guide_legend(nrow = 2, byrow = T),
+                                            color = guide_legend(nrow = 2, byrow = T))}} +
     {if(any(gridlines %in% c("grid_y", "both"))){
       theme(
         panel.grid.major.y = element_line(color = 'grey'),

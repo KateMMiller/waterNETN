@@ -183,13 +183,16 @@ plotClimCumPrecip <- function(park = "all",
 
   xaxis_breaks <- month.abb[months]
 
+  avg_name <- ifelse(averages == "norm20cent", "20th Century Baseline", "30 year Baseline")
+
+
   pptplot <-
     ggplot(clim_comb, aes(x = mon)) + theme_WQ() +
       geom_bar(stat = 'identity', aes(y = cum_ppt_curr, fill = "Curr", color = "Curr"), alpha = 0.8) +
       geom_line(aes(y = cum_ppt_hist, group = stat, color = "Hist"), lwd = 2) +
       scale_color_manual(
         values = c("Curr" = "#7FC2F2", "Hist" = "#565656"),
-        labels = c("Curr" = "Current", "Hist" = "Historic Average"),
+        labels = c("Curr" = "Current", "Hist" = avg_name),
         aesthetics = c("color", "fill")) +
       # facets
       {if(facet_year == FALSE & facet_park == TRUE){facet_wrap(~park_facet, ncol = numcol)}} +
@@ -208,7 +211,9 @@ plotClimCumPrecip <- function(park = "all",
           panel.grid.major.x = element_line(color = 'grey'),
           panel.grid.minor.x = element_line(color = 'grey'))}} +
       theme(legend.position = legend_position,
-            axis.text.x = element_text(angle = 90))
+            axis.text.x = element_text(angle = 90),
+            legend.text = element_text(size = 10),
+            legend.title = element_text(size = 10))
 
   return(#suppressWarnings(
     pptplot

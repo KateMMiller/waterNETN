@@ -203,7 +203,7 @@ plotClimAnom <- function(park = "all",
   } else {"6 months"}
 
   date_format <- ifelse(break_len %in% c("1 year", "2 years", "5 years"), "%Y",
-                        ifelse(break_len %in% c("2 months", "4 months", "6 months"), "%b/%Y",
+                        ifelse(break_len %in% c("2 months", "4 months", "6 months"), "%b-%Y",
                                                 "%b"))
   datebreaks <- seq(min(clim_comb2$date2), max(clim_comb2$date2) + 30, by = break_len)
 
@@ -247,7 +247,7 @@ anomplot <-
     theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
           legend.position = legend_position,
           legend.text = element_text(size = 10),
-          legend.text = element_text(size = 10)) +
+          legend.title = element_text(size = 10)) +
     guides(linetype = guide_legend(order = 2),
            fill = guide_legend(order = 1),
            color = guide_legend(order = 1))
