@@ -237,16 +237,16 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
       if(nrow(wdat2) == 0){stop("Combination of sites and parameters returned a data frame with no records.")}
 
       # If threshold is >10% higher than max or 10% lower than min in full dataset, don't plot
-      wdat_thresh <- wdat2 |> group_by(SiteCode, SiteName, UnitCode) |>
+      wdat_thresh <- wdat2 |> group_by(SiteCode, SiteName, UnitCode, Parameter) |>
         summarize(max_value = max(Value, na.rm = T),
                   min_value = min(Value, na.rm = T),
                   .groups = 'drop') |> ungroup()
 
-      wdat3 <- left_join(wdat2, wdat_thresh, by = c("SiteCode", "SiteName", "UnitCode")) |>
+      wdat3 <- left_join(wdat2, wdat_thresh, by = c("SiteCode", "SiteName", "UnitCode", "Parameter")) |>
         mutate(UpperThreshold_corr =
                    ifelse(!is.na(UpperThreshold) & UpperThreshold > 1.1*max_value, NA_real_, UpperThreshold),
                LowerThreshold_corr =
-                   ifelse(!is.na(LowerThreshold) & LowerThreshold < 1.1*min_value, NA_real_, LowerThreshold))
+                   ifelse(!is.na(LowerThreshold) & LowerThreshold < min_value - 0.1*min_value, NA_real_, LowerThreshold))
 
       wdat_hist <- wdat3[wdat3$year %in% years_historic, ]
       wdat_curr <- wdat3[wdat3$year == year_current, ]
@@ -261,7 +261,8 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
       # Calc min/max 95% stats
       wdat_sum <- wdat_hist |>
           group_by(SiteCode, SiteName, UnitCode, month, mon,
-                   Parameter, param_label, unit, UpperThreshold_corr, LowerThreshold_corr) |>
+                   Parameter, param_label, unit, UpperThreshold, LowerThreshold,
+                   UpperThreshold_corr, LowerThreshold_corr) |>
           summarize(num_samps = sum(!is.na(Value)),
                     median_val = median(Value, na.rm = TRUE),
                     min_val = min(Value, na.rm = TRUE),
@@ -276,8 +277,8 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
           filter(!is.na(lower_50))
 
       wdat_curr <- wdat_curr |>
-          mutate(metric_type = ifelse(!is.na(UpperThreshold) & Value > UpperThreshold, "poor value",
-                            ifelse(!is.na(LowerThreshold) & Value < LowerThreshold, "poor value",
+          mutate(metric_type = ifelse(!is.na(UpperThreshold_corr) & Value > UpperThreshold_corr, "poor value",
+                            ifelse(!is.na(LowerThreshold_corr) & Value < LowerThreshold_corr, "poor value",
                               "value")))
 
       wdat_med <- wdat_sum |> select(SiteCode:LowerThreshold_corr, median_val) |>
@@ -405,7 +406,7 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
                                                linetype = "Lower WQ Threshold"), lwd = 0.7)}} +
                 # Labels/Themes/axes
                 scale_x_discrete(breaks = xaxis_breaks, drop = F, expand = c(0.04,0.04)) +
-                scale_y_continuous(breaks = pretty(wdat$Value, n = 8)) +
+                scale_y_continuous(n.breaks = 8) +
                 labs(y = ylab, x = NULL, title = NULL) +
                 theme(axis.title.y = element_text(size = 10),
                       panel.background = element_rect(color = '#696969', fill = 'white', linewidth = 0.4),
