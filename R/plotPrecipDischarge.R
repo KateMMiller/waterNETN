@@ -144,7 +144,7 @@ dp_plot <-
         theme(
           panel.grid.major.x = element_line(color = 'grey'),
           panel.grid.minor.x = element_line(color = 'grey'))}}+
-      scale_x_date(breaks = datebreaks, labels = scales::label_date("%m/%d/%y")) +
+      scale_x_date(breaks = datebreaks, labels = scales::label_date("%b")) +
       theme(legend.position = legend_position, legend.title = element_blank()) +
       labs(x = NULL)
 

@@ -62,7 +62,7 @@ chemistry: c("ANC_ueqL", "AppColor", "AppColor_PCU", "ChlA_ugL", "Cl_ueqL",
 "TN_mgL", "TotDissN_mgL", "TotDissP_ugL", "TP_ugL")
 sonde: c("Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
 "Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg").
-other: c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevelFeet", "WaterLevel_m").
+other: c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevel_Feet", "WaterLevel_m").
 Note that "all" is not an accepted value, because there are too many to plot.}
 
 \item{include_censored}{Logical. If TRUE, the value column includes non-censored and censored values

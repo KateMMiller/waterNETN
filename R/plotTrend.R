@@ -53,7 +53,7 @@
 #' "TN_mgL", "TotDissN_mgL", "TotDissP_ugL", "TP_ugL")
 #' sonde: c("Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
 #' "Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg").
-#' other: c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevelFeet", "WaterLevel_m").
+#' other: c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevel_Feet", "WaterLevel_m").
 #' Note that "all" is not an accepted value, because there are too many to plot.
 #'
 #' @param include_censored Logical. If TRUE, the value column includes non-censored and censored values
@@ -165,7 +165,7 @@ plotTrend <- function(park = "all", site = "all",
   sonde <- c("Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
              "Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg")
 
-  other <- c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevelFeet", "WaterLevel_m")
+  other <- c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevel_Feet", "WaterLevel_m")
 
   all_params <- c(chem, sonde, other)
 
@@ -247,7 +247,7 @@ plotTrend <- function(park = "all", site = "all",
   if(nrow(wdat2) == 0){stop("Combination of sites and parameters returned a data frame with no records.")}
 
   #-- Set up plotting features --
-  #ylab <- ifelse(length(unique(wdat2$param_label)) == 1, unique(wdat2$param_label), "Value")
+  ylabel <- ifelse(length(unique(wdat2$param_label)) == 1, unique(wdat2$param_label), "Value")
   wdat_cens <- wdat2 |> filter(censored == TRUE)
 
   wdat2$date2 <- as.Date(wdat2$EventDate, format = c("%Y-%m-%d"))
@@ -306,7 +306,7 @@ plotTrend <- function(park = "all", site = "all",
       scale_y_continuous(n.breaks = 8)+
       # labels
       #labs(x = "Year", y = ylab) +
-      labs(x = NULL) +
+      labs(x = NULL, y = ylabel) +
       guides(fill = guide_legend(order = 1),
              color = guide_legend(order = 1),
              shape = guide_legend(order = 1))

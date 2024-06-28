@@ -138,12 +138,14 @@ getWaterLevel <- function(park = "all", site = "all",
   wl3 <- wl2 |> filter(year %in% years) |> filter(month %in% months)
   wl3$WaterLevel_m <- wl3$WaterLevelFeet * 0.3048
 
+  names(wl3)[names(wl3) == "WaterLevelFeet"] <- "WaterLevel_Feet"
+
   wl4 <-
   if(output == "short"){wl3[,c("SiteCode", "SiteName", "UnitCode", "SubUnitCode", "EventDate", "EventCode",
                                 "year", "month", "doy", "DatumName", "DatumType", "DatumFunction",
                                 "Active", "TU-TD", "StageMethod", "DatumLatitude", "DatumLongitude",
                                 "DatumElevation_ft", "DatumElevationFeet",
-                                "GageReadingFeet", "WaterLevelFeet", "WaterLevel_m")]
+                                "GageReadingFeet", "WaterLevel_Feet", "WaterLevel_m")]
     } else {wl3}
 
   if(nrow(wl4) == 0){
