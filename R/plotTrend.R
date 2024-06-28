@@ -280,9 +280,10 @@ plotTrend <- function(park = "all", site = "all",
       # facets
       {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free_y')} +
       # themes
-      theme_WQ() + theme(legend.position = legend_position,
-                         legend.title = element_blank(),
-                         axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
+      theme_WQ() +
+        theme(legend.position = legend_position,
+              legend.title = element_blank(),
+              axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
         {if(any(gridlines %in% c("grid_y", "both"))){
           theme(
             panel.grid.major.y = element_line(color = 'grey'),
@@ -318,9 +319,10 @@ plotTrend <- function(park = "all", site = "all",
         # facets
         {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free_y')} +
         # themes
-        theme_WQ() + theme(legend.position = legend_position,
-                           legend.title = element_blank(),
-                           axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
+        theme_WQ() +
+        theme(legend.position = legend_position,
+              legend.title = element_blank(),
+              axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
         {if(any(gridlines %in% c("grid_y", "both"))){
           theme(
             panel.grid.major.y = element_line(color = 'grey'),
