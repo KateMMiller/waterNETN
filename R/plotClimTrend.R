@@ -48,8 +48,9 @@
 #' @param facet_param Logical. If TRUE (Default), plots parameters on separate facets. If FALSE, plots
 #' all parameters on the same figure. Note that results will be funky if selected parameters have different units (e.g., temp and precip).
 #'
-#' @param layers Options are "points", "lines", and "smooth". By default, both points and lines will plot. The lines option connects
+#' @param layers Options are "points", "lines", "smooth", and "bar". By default, both points and lines will plot. The lines option connects
 #' each monthly value with a linear line. If you include lines and smooth, the loess-smoothed line will also plot.
+#' The bar argument plots a bar chart.
 #'
 #' @param palette Theme to plot points and lines. Options currently are 'viridis' (Default- ranges of blue, green and yellow), or discrete palettes from RColorBrewer. Common options are "Set1", "Set2", "Dark2", "Accent".
 #' Run RColorBrewer::display.brewer.all(type = 'qual') to see full set of options.
@@ -112,7 +113,7 @@ plotClimTrend <- function(park = "all",
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   stopifnot(class(span) %in% "numeric")
   stopifnot(class(plot_se) %in% "logical")
-  layers <- match.arg(layers, c("points", "lines", "smooth"), several.ok = TRUE)
+  layers <- match.arg(layers, c("points", "lines", "smooth", "bar"), several.ok = TRUE)
   legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
   gridlines <- match.arg(gridlines, c("none", "grid_y", "grid_x", "both"))
 
@@ -197,21 +198,21 @@ plotClimTrend <- function(park = "all",
   } else if(year_len  %in% c(2, 3, 4) & mon_len <= 6){"2 months"
   } else if(year_len == 2 & mon_len > 6){"4 months"
     #} else if(year_len > 4 & mon_len <= 6){"6 months"
-  } else if(year_len %in% c(4, 5, 6)){"1 year"
-  } else if(year_len > 6 & year_len < 20){"2 years"
-  } else if(year_len >= 20){"5 years"
+  } else if(year_len %in% c(4:19)){"1 year"
+  } else if(year_len %in% c(20:40)){"2 years"
+  } else if(year_len > 40){"5 years"
   } else {"6 months"}
 
   date_format <- ifelse(break_len %in% c("1 year", "2 years", "5 years"), "%Y",
                         ifelse(break_len %in% c("2 months", "4 months"), "%b/%Y",
                                "%b"))
-  datebreaks <- seq(min(clim_dat_final$date2), max(clim_dat_final$date2) + 30, by = break_len)
+  datebreaks <- seq(min(clim_dat_final$date2, na.rm = T), max(clim_dat_final$date2, na.rm = T) + 30, by = break_len)
 
   seq_int <- if(any(parameter == "ppt")){20} else {2}
 
-  ybreaks <- seq(floor(min(clim_dat_final$value)), ceiling(max(clim_dat_final$value)), seq_int)
+  #ybreaks <- seq(floor(min(clim_dat_final$value)), ceiling(max(clim_dat_final$value)), seq_int)
 
-  summary(clim_dat_final$value)
+  #summary(clim_dat_final$value)
   #-- Create plot --
   climtrendplot <-
     ggplot(clim_dat_final, aes(x = date2, y = value,
@@ -232,6 +233,7 @@ plotClimTrend <- function(park = "all",
         geom_smooth(method = 'loess', formula = 'y ~ x', se = plot_se, span = span, alpha = 0.2) } +
       {if(any(layers %in% "lines")) geom_line()} +
       {if(any(layers %in% "points")) geom_point(alpha = 0.6)} +
+      {if(any(layers %in% "bar")) geom_bar(stat = 'identity')} +
       # themes
       theme_WQ() + theme(legend.position = legend_position,
                          legend.title = element_blank(),

@@ -40,8 +40,9 @@ plotClimTrend(
 If specifying new months not yet included in NETN_clim_annual dataset, will
 download months that are available from NOAA.}
 
-\item{layers}{Options are "points", "lines", and "smooth". By default, both points and lines will plot. The lines option connects
-each monthly value with a linear line. If you include lines and smooth, the loess-smoothed line will also plot.}
+\item{layers}{Options are "points", "lines", "smooth", and "bar". By default, both points and lines will plot. The lines option connects
+each monthly value with a linear line. If you include lines and smooth, the loess-smoothed line will also plot.
+The bar argument plots a bar chart.}
 
 \item{parameter}{Specify the parameter(s) to plot. Acceptable values are
 \describe{

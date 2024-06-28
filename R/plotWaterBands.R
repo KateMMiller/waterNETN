@@ -53,7 +53,7 @@
 #' "TN_mgL", "TotDissN_mgL", "TotDissP_ugL", "TP_ugL")
 #' sonde: c("Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
 #' "Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg").
-#' other: c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevelFeet", "WaterLevel_m").
+#' other: c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevel_Feet", "WaterLevel_m").
 #' Note that "all" is not an accepted value, because there are too many to plot.
 #'
 #' @param include_censored Logical. If TRUE, the value column includes non-censored and censored values
@@ -133,7 +133,7 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
     sonde <- c("Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
                "Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg")
 
-    other <- c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevelFeet", "WaterLevel_m")
+    other <- c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevel_Feet", "WaterLevel_m")
 
     all_params <- c(chem, sonde, other)
 
@@ -147,7 +147,7 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
     par_sec <- parameter[parameter %in% "SDepth_m"]
     par_dis <- parameter[parameter %in% "Discharge_cfs"]
     par_pen <- parameter[parameter %in% "PenetrationRatio"]
-    par_wl <- parameter[parameter %in% "WaterLevelFeet"]
+    par_wl <- parameter[parameter %in% "WaterLevel_Feet"]
     par_wlm <- parameter[parameter %in% "WaterLevel_m"]
 
     wdat <-
@@ -196,7 +196,7 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
         if(length(par_wl) > 0){
           force(getWaterLevel(park = park, site = site,
                               years = c(years_historic, year_current), months = months)) |>
-            mutate(Parameter = "WaterLevelFeet", Value = WaterLevelFeet) |>
+            mutate(Parameter = "WaterLevel_Feet", Value = WaterLevel_Feet) |>
             select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy,
                    Parameter, Value) |>
             mutate(censored = FALSE)

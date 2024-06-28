@@ -177,7 +177,7 @@ plotTrend <- function(park = "all", site = "all",
   par_sec <- parameter[parameter %in% "SDepth_m"]
   par_dis <- parameter[parameter %in% "Discharge_cfs"]
   par_pen <- parameter[parameter %in% "PenetrationRatio"]
-  par_wl <- parameter[parameter %in% "WaterLevelFeet"]
+  par_wl <- parameter[parameter %in% "WaterLevel_Feet"]
   par_wlm <- parameter[parameter %in% "WaterLevel_m"]
 
   wdat <-
@@ -217,7 +217,7 @@ plotTrend <- function(park = "all", site = "all",
     if(length(par_wl) > 0){
       force(getWaterLevel(park = park, site = site,
                     years = years, months = months)) |>
-        mutate(Parameter = "WaterLevelFeet", Value = WaterLevelFeet) |>
+        mutate(Parameter = "WaterLevel_Feet", Value = WaterLevel_Feet) |>
         select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
         mutate(censored = FALSE)
     } else {NULL},
@@ -240,9 +240,10 @@ plotTrend <- function(park = "all", site = "all",
 
   # join wdat with WQ thresholds, stored as a dataset in the package
   data("NETN_WQ_thresh")
-  wdat2 <- left_join(wdat,
+  wdat2 <- tryCatch(left_join(wdat,
                      NETN_WQ_thresh[,c("SiteCode", "parameter", "UpperThreshold", "LowerThreshold")],
-                     by = c("SiteCode", "Parameter" = "parameter"))
+                     by = c("SiteCode", "Parameter" = "parameter")),
+                    error = function(e){wdat})
 
   if(nrow(wdat2) == 0){stop("Combination of sites and parameters returned a data frame with no records.")}
 
@@ -258,13 +259,15 @@ plotTrend <- function(park = "all", site = "all",
   break_len <- if(year_len == 1){"1 month"
   } else if(year_len  %in% c(2, 3, 4) & mon_len <= 6){"2 months"
   } else if(year_len == 2 & mon_len > 6){"4 months"
-  #} else if(year_len > 4 & mon_len <= 6){"6 months"
-  } else if(year_len %in% c(4, 5, 6)){"1 year"
-  } else if(year_len > 6){"2 years"
+    #} else if(year_len > 4 & mon_len <= 6){"6 months"
+  } else if(year_len %in% c(4:19)){"1 year"
+  } else if(year_len > 19){"2 years"
   } else {"6 months"}
 
-  date_format <- ifelse(break_len %in% c("1 year", "2 years"), "%Y", "%m/%d/%Y")
-  datebreaks <- seq(min(wdat2$date2), max(wdat2$date2) + 30, by = break_len)
+  date_format <- ifelse(break_len %in% c("1 year", "2 years", "5 years"), "%Y",
+                        ifelse(break_len %in% c("2 months", "4 months"), "%b/%Y",
+                               "%b"))
+  datebreaks <- seq(min(wdat2$date2, na.rm = T), max(wdat2$date2, na.rm = T) + 30, by = break_len)
 
   #-- Create plot --
   trendplot <-
@@ -290,12 +293,12 @@ plotTrend <- function(park = "all", site = "all",
               axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
         {if(any(gridlines %in% c("grid_y", "both"))){
           theme(
-            panel.grid.major.y = element_line(color = 'grey'),
-            panel.grid.minor.y = element_line(color = 'grey'))}}+
+            panel.grid.major.y = element_line(color = 'grey'))}} + #,
+            #panel.grid.minor.y = element_line(color = 'grey'))}}+
         {if(any(gridlines %in% c("grid_x", "both"))){
           theme(
-            panel.grid.major.x = element_line(color = 'grey'),
-            panel.grid.minor.x = element_line(color = 'grey'))}}+
+            panel.grid.major.x = element_line(color = 'grey'))}} + #,
+            #panel.grid.minor.x = element_line(color = 'grey'))}}+
       # palettes
       {if(palette == "viridis") scale_color_viridis_d()} +
       {if(palette == "viridis") scale_fill_viridis_d()} +
@@ -329,12 +332,12 @@ plotTrend <- function(park = "all", site = "all",
               axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
         {if(any(gridlines %in% c("grid_y", "both"))){
           theme(
-            panel.grid.major.y = element_line(color = 'grey'),
-            panel.grid.minor.y = element_line(color = 'grey'))}}+
+            panel.grid.major.y = element_line(color = 'grey'))}} + #,
+        #panel.grid.minor.y = element_line(color = 'grey'))}}+
         {if(any(gridlines %in% c("grid_x", "both"))){
           theme(
-            panel.grid.major.x = element_line(color = 'grey'),
-            panel.grid.minor.x = element_line(color = 'grey'))}}+
+            panel.grid.major.x = element_line(color = 'grey'))}} + #,
+        #panel.grid.minor.x = element_line(color = 'grey'))}}+
         # color palettes
         {if(palette == "viridis") scale_color_viridis_d()} +
         {if(palette == "set1") scale_color_brewer(palette = "Set1")} +
@@ -349,7 +352,7 @@ plotTrend <- function(park = "all", site = "all",
         scale_y_continuous(n.breaks = 8)+
         # labels
         #labs(x = "Year", y = ylab) +
-        labs(x = NULL) +
+        labs(x = NULL, y = ylabel) +
         guides(fill = guide_legend(order = 1),
                color = guide_legend(order = 1),
                shape = guide_legend(order = 1))
