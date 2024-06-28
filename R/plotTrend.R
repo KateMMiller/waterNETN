@@ -82,6 +82,9 @@
 #' @param legend_position Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
 #' options are "top", "bottom", "left", "right".
 #'
+#' @param numcol Specify number of columns in the facet wrap, which is only enabled when either multiple years
+#' are specified or multiple parks. Default is 2.
+#'
 #' @param gridlines Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")
 #'
 #' @param ... Additional arguments relevant to \code{getChemistry()} or \code{getSondeInSitu()}
@@ -126,7 +129,7 @@ plotTrend <- function(park = "all", site = "all",
                       layers = c("points", "lines"),
                       palette = "viridis",
                       threshold = TRUE,
-                      smooth = TRUE,
+                      smooth = TRUE, numcol = 2,
                       span = 0.3, legend_position = 'none',
                       gridlines = "none", ...){
 
@@ -148,6 +151,7 @@ plotTrend <- function(park = "all", site = "all",
   stopifnot(class(span) %in% "numeric")
   layers <- match.arg(layers, several.ok = TRUE)
   stopifnot(class(threshold) == "logical")
+  stopifnot(class(numcol) %in% c("numeric", "integer"))
   legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
   gridlines <- match.arg(gridlines, c("none", "grid_y", "grid_x", "both"))
 
@@ -278,7 +282,7 @@ plotTrend <- function(park = "all", site = "all",
       {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold, linetype = "Lower WQ Threshold"), lwd = 0.7)}} +
       {if(threshold == TRUE){scale_linetype_manual(values = c("dotted", "dashed"))}} +
       # facets
-      {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free_y')} +
+      {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free_y', ncol = numcol)} +
       # themes
       theme_WQ() +
         theme(legend.position = legend_position,
@@ -317,7 +321,7 @@ plotTrend <- function(park = "all", site = "all",
         {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold, linetype = "Lower WQ Threshold"), lwd = 0.7)}} +
         {if(threshold == TRUE){scale_linetype_manual(values = c("dashed", "solid"))}} +
         # facets
-        {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free_y')} +
+        {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free_y', ncol = numcol)} +
         # themes
         theme_WQ() +
         theme(legend.position = legend_position,
@@ -345,7 +349,7 @@ plotTrend <- function(park = "all", site = "all",
         scale_y_continuous(n.breaks = 8)+
         # labels
         #labs(x = "Year", y = ylab) +
-        labs(x = "NULL") +
+        labs(x = NULL) +
         guides(fill = guide_legend(order = 1),
                color = guide_legend(order = 1),
                shape = guide_legend(order = 1))

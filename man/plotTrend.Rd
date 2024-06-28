@@ -18,6 +18,7 @@ plotTrend(
   palette = "viridis",
   threshold = TRUE,
   smooth = TRUE,
+  numcol = 2,
   span = 0.3,
   legend_position = "none",
   gridlines = "none",
@@ -83,6 +84,9 @@ parameter and site. If FALSE, no threshold line will be plotted.}
 
 \item{smooth}{Logical. If TRUE (Default), will plot a loess smoothed line. If FALSE, will plot actual line. Only
 plots if layers argument includes 'lines'.}
+
+\item{numcol}{Specify number of columns in the facet wrap, which is only enabled when either multiple years
+are specified or multiple parks. Default is 2.}
 
 \item{span}{Numeric. Determines how smoothed the line will be for smooth = TRUE. Default is 0.3. Higher spans (up to 1)
 cause more smoothing. Span can range from 0 to 1.}
