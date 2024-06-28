@@ -211,7 +211,7 @@ plotClimCumPrecip <- function(park = "all",
           panel.grid.major.x = element_line(color = 'grey'),
           panel.grid.minor.x = element_line(color = 'grey'))}} +
       theme(legend.position = legend_position,
-            axis.text.x = element_text(angle = 90),
+            axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
             legend.text = element_text(size = 10),
             legend.title = element_text(size = 10))
 

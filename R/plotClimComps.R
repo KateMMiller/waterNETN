@@ -281,7 +281,8 @@ plotClimComps <- function(park = "ACAD",
       panel.grid.minor.x = element_line(color = 'grey'))}} +
   theme(legend.position = legend_position,
         legend.text = element_text(size = 10),
-        legend.title = element_text(size = 10))
+        legend.title = element_text(size = 10),
+        axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
 
  return(#suppressWarnings(
    clim_plot

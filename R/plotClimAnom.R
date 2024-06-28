@@ -195,15 +195,15 @@ plotClimAnom <- function(park = "all",
 
   break_len <- if(year_len == 1){"1 month"
   } else if(year_len  %in% c(2, 3, 4) & mon_len <= 6){"2 months"
-  } else if(year_len == 2 & mon_len > 6){"4 months"
+  } else if(year_len == 2 & mon_len > 6){"3 months"
     #} else if(year_len > 4 & mon_len <= 6){"6 months"
-  } else if(year_len %in% c(4, 5, 6)){"6 months"
-  } else if(year_len > 6 & year_len < 20){"2 years"
+  } else if(year_len %in% c(4, 5, 6)){"4 months"
+  } else if(year_len >= 6 & year_len < 20){"2 years"
   } else if(year_len >= 20){"5 years"
   } else {"6 months"}
 
   date_format <- ifelse(break_len %in% c("1 year", "2 years", "5 years"), "%Y",
-                        ifelse(break_len %in% c("2 months", "4 months", "6 months"), "%b-%Y",
+                        ifelse(break_len %in% c("2 months", "3 months", "4 months"), "%b-%Y",
                                                 "%b"))
   datebreaks <- seq(min(clim_comb2$date2), max(clim_comb2$date2) + 30, by = break_len)
 
