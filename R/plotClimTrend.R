@@ -57,6 +57,9 @@
 #' @param span Numeric. Determines how smoothed the line will be for layers = 'smooth'. Default is 0.3. Higher spans (up to 1)
 #' cause more smoothing (straighter lines). Smaller spans are wavier. Span can range from 0 to 1. Span of 1 is linear.
 #'
+#' @param plot_se Logical. If TRUE, will plot a standard error ribbon. If FALSE (Default), will not plot a ribbon.
+#' Only enabled if layers = "smooth" is specified.
+#'
 #' @param legend_position Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
 #' options are "top", "bottom", "left", "right".
 #'
@@ -90,7 +93,7 @@ plotClimTrend <- function(park = "all",
                           facet_park = FALSE,
                           facet_param = TRUE,
                           palette = "viridis",
-                          span = 0.3,
+                          span = 0.3, plot_se = FALSE,
                           legend_position = 'none', gridlines = 'none'){
 
   #-- Error handling --
@@ -108,6 +111,7 @@ plotClimTrend <- function(park = "all",
   if(any(parameter == "all")){parameter = c("tmean", "tmin", "tmax", "ppt")}
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   stopifnot(class(span) %in% "numeric")
+  stopifnot(class(plot_se) %in% "logical")
   layers <- match.arg(layers, c("points", "lines", "smooth"), several.ok = TRUE)
   legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
   gridlines <- match.arg(gridlines, c("none", "grid_y", "grid_x", "both"))
@@ -179,7 +183,8 @@ plotClimTrend <- function(park = "all",
 
   clim_dat1 <- left_join(clim_dat, param_labels, by = 'param')
 
-  ylab <- ifelse(length(parameter) > 1, "Monthly Value", param_labels$param_label[param_labels$param == parameter])
+  ylab <- ifelse(length(parameter) > 1, "Monthly Value",
+                 param_labels$param_label[param_labels$param == parameter])
 
   clim_dat1$date2 <- as.Date(clim_dat1$date, format = c("%Y-%m-%d"))
 
@@ -223,21 +228,22 @@ plotClimTrend <- function(park = "all",
                                } else if(facetpark == TRUE & facetparam == TRUE){interaction(param_label, UnitCode)
                                } else {param_label})) +
       # layers
-      {if(any(layers %in% "smooth")) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +
+      {if(any(layers %in% "smooth"))
+        geom_smooth(method = 'loess', formula = 'y ~ x', se = plot_se, span = span, alpha = 0.2) } +
       {if(any(layers %in% "lines")) geom_line()} +
       {if(any(layers %in% "points")) geom_point(alpha = 0.6)} +
       # themes
       theme_WQ() + theme(legend.position = legend_position,
                          legend.title = element_blank(),
                          axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
-      {if(any(gridlines %in% c("grid_y", "both"))){
-        theme(
-          panel.grid.major.y = element_line(color = 'grey'),
-          panel.grid.minor.y = element_line(color = 'grey'))}} +
-      {if(any(gridlines %in% c("grid_x", "both"))){
-        theme(
-          panel.grid.major.x = element_line(color = 'grey'),
-          panel.grid.minor.x = element_line(color = 'grey'))}} +
+    {if(any(gridlines %in% c("grid_y", "both"))){
+      theme(
+        panel.grid.major.y = element_line(color = 'grey'))}} + #,
+    #panel.grid.minor.y = element_line(color = 'grey'))}} +
+    {if(any(gridlines %in% c("grid_x", "both"))){
+      theme(
+        panel.grid.major.x = element_line(color = 'grey'))}} +#,
+    #panel.grid.minor.x = element_line(color = 'grey'))}} +
       # facets
       {if(facetparam == FALSE & facetpark == TRUE){facet_wrap(~UnitName)}}+
       {if(facetparam == TRUE & facetpark == FALSE){facet_wrap(~param_label, scales = facet_y)}}+

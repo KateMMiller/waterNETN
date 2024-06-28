@@ -273,12 +273,12 @@ plotClimComps <- function(park = "ACAD",
     scale_y_continuous(n.breaks = 8) +
   {if(any(gridlines %in% c("grid_y", "both"))){
     theme(
-      panel.grid.major.y = element_line(color = 'grey'),
-      panel.grid.minor.y = element_line(color = 'grey'))}} +
+      panel.grid.major.y = element_line(color = 'grey'))}} + #,
+      #panel.grid.minor.y = element_line(color = 'grey'))}} +
   {if(any(gridlines %in% c("grid_x", "both"))){
     theme(
-      panel.grid.major.x = element_line(color = 'grey'),
-      panel.grid.minor.x = element_line(color = 'grey'))}} +
+      panel.grid.major.x = element_line(color = 'grey'))}} +#,
+      #panel.grid.minor.x = element_line(color = 'grey'))}} +
   theme(legend.position = legend_position,
         legend.text = element_text(size = 10),
         legend.title = element_text(size = 10),

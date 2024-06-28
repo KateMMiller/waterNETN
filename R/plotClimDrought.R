@@ -108,10 +108,10 @@ plotClimDrought <- function(park = "all",
   ddata3 <- ddata_long |>
     filter(month %in% months) |>
     mutate(drought_legend = case_when(Drought_Level == "D0pct" ~ "D0: Abnormally Dry",
-                                      Drought_Level == "D1pct" ~ "D1: Moderate Drought",
-                                      Drought_Level == "D2pct" ~ "D2: Severe Drought",
-                                      Drought_Level == "D3pct" ~ "D3: Extreme Drought",
-                                      Drought_Level == "D4pct" ~ "D4: Exceptional Drought"))
+                                      Drought_Level == "D1pct" ~ "D1: Moderate",
+                                      Drought_Level == "D2pct" ~ "D2: Severe",
+                                      Drought_Level == "D3pct" ~ "D3: Extreme",
+                                      Drought_Level == "D4pct" ~ "D4: Exceptional"))
 
   year_len <- length(unique(ddata3$year))
   mon_len <- length(unique(ddata3$month))
@@ -122,10 +122,10 @@ plotClimDrought <- function(park = "all",
     #} else if(year_len > 4 & mon_len <= 6){"6 months"
   } else if(year_len %in% c(4, 5, 6)){"4 months"
   } else if(year_len >= 6 & year_len < 20){"2 years"
-  } else if(year_len >= 20){"5 years"
+  } else if(year_len >= 20){"4 years"
   } else {"6 months"}
 
-  date_format <- ifelse(break_len %in% c("1 year", "2 years", "5 years"), "%Y",
+  date_format <- ifelse(break_len %in% c("1 year", "2 years", "4 years"), "%Y",
                         ifelse(break_len %in% c("2 months", "3 months", "4 months"), "%b-%Y",
                                "%b"))
 
@@ -138,7 +138,7 @@ plotClimDrought <- function(park = "all",
   facet_county <- if(num_parks == 1 & num_parks < num_county){TRUE} else {FALSE}
   facet_park_county <- if(num_parks > 1 & num_county > num_parks){TRUE} else {FALSE}
 
-  x_lab <- ifelse(year_len == 1, paste0("Year: ", years), "Date")
+  x_lab <- NULL #ifelse(year_len == 1, paste0("Year: ", years), "Date")
 
   dplot <-
     ggplot(ddata3, aes(x = Date, y = Pct_Area, fill = drought_legend, color = drought_legend)) +
@@ -154,16 +154,19 @@ plotClimDrought <- function(park = "all",
     theme(legend.position = legend_position,
           axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
           #axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5)) +
-    {if(legend_position == "bottom"){guides(fill = guide_legend(nrow = 2, byrow = T),
-                                            color = guide_legend(nrow = 2, byrow = T))}} +
+    {if(legend_position == "bottom"){guides(fill = guide_legend(nrow = 1, byrow = T),
+                                            color = guide_legend(nrow = 1, byrow = T))}} +
     {if(any(gridlines %in% c("grid_y", "both"))){
       theme(
-        panel.grid.major.y = element_line(color = 'grey'),
-        panel.grid.minor.y = element_line(color = 'grey'))}} +
+        panel.grid.major.y = element_line(color = 'grey'))}} + #,
+    {if(break_len == "4 years" & gridlines %in% c("grid_y", "both")){
+      theme(panel.grid.minor.y = element_line(color = 'grey'))}} +
     {if(any(gridlines %in% c("grid_x", "both"))){
       theme(
-        panel.grid.major.x = element_line(color = 'grey'),
-        panel.grid.minor.x = element_line(color = 'grey'))}} +
+        panel.grid.major.x = element_line(color = 'grey'))}} +#,
+    {if(break_len == "4 years" & gridlines %in% c("grid_x", "both")){
+      theme(panel.grid.minor.x = element_line(color = 'grey'))}} +
+    #panel.grid.minor.x = element_line(color = 'grey'))}} +
     labs(y = "% of County in Drought", x = x_lab) +
     scale_y_continuous(breaks = pretty(ddata3$Pct_Area, n = 8)) +
      # facets

@@ -14,6 +14,7 @@ plotClimTrend(
   facet_param = TRUE,
   palette = "viridis",
   span = 0.3,
+  plot_se = FALSE,
   legend_position = "none",
   gridlines = "none"
 )
@@ -62,6 +63,9 @@ Run RColorBrewer::display.brewer.all(type = 'qual') to see full set of options.}
 
 \item{span}{Numeric. Determines how smoothed the line will be for layers = 'smooth'. Default is 0.3. Higher spans (up to 1)
 cause more smoothing (straighter lines). Smaller spans are wavier. Span can range from 0 to 1. Span of 1 is linear.}
+
+\item{plot_se}{Logical. If TRUE, will plot a standard error ribbon. If FALSE (Default), will not plot a ribbon.
+Only enabled if layers = "smooth" is specified.}
 
 \item{legend_position}{Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
 options are "top", "bottom", "left", "right".}

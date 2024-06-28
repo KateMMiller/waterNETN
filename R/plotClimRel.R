@@ -258,12 +258,12 @@ plotClimRel <- function(park = "all",
         scale_y_continuous(n.breaks = 8) +
         {if(any(gridlines %in% c("grid_y", "both"))){
           theme(
-            panel.grid.major.y = element_line(color = 'grey'),
-            panel.grid.minor.y = element_line(color = 'grey'))}} +
+            panel.grid.major.y = element_line(color = 'grey'))}} + #,
+        #panel.grid.minor.y = element_line(color = 'grey'))}} +
         {if(any(gridlines %in% c("grid_x", "both"))){
           theme(
-            panel.grid.major.x = element_line(color = 'grey'),
-            panel.grid.minor.x = element_line(color = 'grey'))}} +
+            panel.grid.major.x = element_line(color = 'grey'))}} +#,
+        #panel.grid.minor.x = element_line(color = 'grey'))}} +
         # facetting
         {if(facet_park == TRUE & facet_year == FALSE){facet_wrap(~park_facet, ncol = numcol)}} +
         {if(facet_park == FALSE & facet_year == TRUE){facet_wrap(~year, ncol = numcol)}} +

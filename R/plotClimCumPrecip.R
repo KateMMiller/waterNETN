@@ -202,14 +202,14 @@ plotClimCumPrecip <- function(park = "all",
       labs(x = NULL, y = ylabel, group = NULL, color = NULL, fill = NULL) +
       scale_x_discrete(breaks = xaxis_breaks, drop = F) +
       scale_y_continuous(n.breaks = 8) +
-      {if(any(gridlines %in% c("grid_y", "both"))){
-        theme(
-          panel.grid.major.y = element_line(color = 'grey'),
-          panel.grid.minor.y = element_line(color = 'grey'))}} +
-      {if(any(gridlines %in% c("grid_x", "both"))){
-        theme(
-          panel.grid.major.x = element_line(color = 'grey'),
-          panel.grid.minor.x = element_line(color = 'grey'))}} +
+    {if(any(gridlines %in% c("grid_y", "both"))){
+      theme(
+        panel.grid.major.y = element_line(color = 'grey'))}} + #,
+    #panel.grid.minor.y = element_line(color = 'grey'))}} +
+    {if(any(gridlines %in% c("grid_x", "both"))){
+      theme(
+        panel.grid.major.x = element_line(color = 'grey'))}} +#,
+    #panel.grid.minor.x = element_line(color = 'grey'))}} +
       theme(legend.position = legend_position,
             axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
             legend.text = element_text(size = 10),

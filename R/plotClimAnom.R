@@ -236,12 +236,12 @@ anomplot <-
     labs(x = NULL, y = ylabel) +
     {if(any(gridlines %in% c("grid_y", "both"))){
       theme(
-        panel.grid.major.y = element_line(color = 'grey'),
-        panel.grid.minor.y = element_line(color = 'grey'))}} +
+        panel.grid.major.y = element_line(color = 'grey'))}} +#,
+        #panel.grid.minor.y = element_line(color = 'grey'))}} +
     {if(any(gridlines %in% c("grid_x", "both"))){
       theme(
-        panel.grid.major.x = element_line(color = 'grey'),
-        panel.grid.minor.x = element_line(color = 'grey'))}} +
+        panel.grid.major.x = element_line(color = 'grey'))}} +#,
+        #panel.grid.minor.x = element_line(color = 'grey'))}} +
     scale_x_date(breaks = datebreaks, labels = scales::label_date(date_format)) +
     scale_y_continuous(n.breaks = 8) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),

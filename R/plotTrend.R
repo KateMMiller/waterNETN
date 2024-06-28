@@ -243,7 +243,7 @@ plotTrend <- function(park = "all", site = "all",
   if(nrow(wdat2) == 0){stop("Combination of sites and parameters returned a data frame with no records.")}
 
   #-- Set up plotting features --
-  ylab <- ifelse(length(unique(wdat2$param_label)) == 1, unique(wdat2$param_label), "Value")
+  #ylab <- ifelse(length(unique(wdat2$param_label)) == 1, unique(wdat2$param_label), "Value")
   wdat_cens <- wdat2 |> filter(censored == TRUE)
 
   wdat2$date2 <- as.Date(wdat2$EventDate, format = c("%Y-%m-%d"))
@@ -278,7 +278,7 @@ plotTrend <- function(park = "all", site = "all",
       {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold, linetype = "Lower WQ Threshold"), lwd = 0.7)}} +
       {if(threshold == TRUE){scale_linetype_manual(values = c("dotted", "dashed"))}} +
       # facets
-      {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free')} +
+      {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free_y')} +
       # themes
       theme_WQ() + theme(legend.position = legend_position,
                          legend.title = element_blank(),
@@ -298,9 +298,10 @@ plotTrend <- function(park = "all", site = "all",
       {if(!palette == "viridis") scale_fill_brewer(palette = palette)} +
       #axis format
       scale_x_date(breaks = datebreaks, labels = scales::label_date(date_format)) +
-      scale_y_continuous(breaks = pretty(wdat2$Value, n = 8))+
+      scale_y_continuous(n.breaks = 8)+
       # labels
-      labs(x = "Year", y = ylab) +
+      #labs(x = "Year", y = ylab) +
+      labs(x = NULL) +
       guides(fill = guide_legend(order = 1),
              color = guide_legend(order = 1),
              shape = guide_legend(order = 1))
@@ -315,7 +316,7 @@ plotTrend <- function(park = "all", site = "all",
         {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold, linetype = "Lower WQ Threshold"), lwd = 0.7)}} +
         {if(threshold == TRUE){scale_linetype_manual(values = c("dashed", "solid"))}} +
         # facets
-        {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free')} +
+        {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free_y')} +
         # themes
         theme_WQ() + theme(legend.position = legend_position,
                            legend.title = element_blank(),
@@ -339,9 +340,10 @@ plotTrend <- function(park = "all", site = "all",
         {if(palette == "accent") scale_fill_brewer(palette = "Accent")} +
         #axis format
         scale_x_date(breaks = datebreaks, labels = scales::label_date(date_format)) +
-        scale_y_continuous(breaks = pretty(wdat2$Value, n = 8))+
+        scale_y_continuous(n.breaks = 8)+
         # labels
-        labs(x = "Year", y = ylab) +
+        #labs(x = "Year", y = ylab) +
+        labs(x = "NULL") +
         guides(fill = guide_legend(order = 1),
                color = guide_legend(order = 1),
                shape = guide_legend(order = 1))
