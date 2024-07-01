@@ -10,8 +10,7 @@ sumEvents(
   site_type = c("all", "lake", "stream"),
   years = 2006:format(Sys.Date(), "\%Y"),
   active = TRUE,
-  months = 5:10,
-  include_censored = TRUE
+  months = 5:10
 )
 }
 \arguments{
@@ -46,10 +45,6 @@ that have been monitored.}
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 events are between months 5 and 10, and these are set as the defaults.}
 
-\item{include_censored}{Logical. If TRUE, the value column includes non-censored and censored values
-using the MDL/MRL/UQL values in the parameter flags. If the Flag column is not NA, that indicates
-the value is a censored value. If FALSE (Default), only non-censored values are returned in the value column.}
-
 \item{parameter}{Specify the parameter(s) to return. Current accepted values are:.
 chemistry: c("ANC_ueqL", "AppColor", "AppColor_PCU", "ChlA_ugL", "Cl_ueqL",
 "DOC_mgL", "NH3_mgL", "NO2_mgL", "NO2+NO3_mgL", "NO3_ueqL", "pH_Lab", "PO4_ugL", "SO4_ueqL",
@@ -63,13 +58,21 @@ Note that "all" is the default value.}
 Data frame of summarize event info
 }
 \description{
-Summarize the number of samples collected at each site by year, month, and parameter.
+Summarize the number of samples collected at each site by year, month, parameter, and
+whether measurment was real or censored.
 }
 \examples{
 \dontrun{
 importData()
 
-#+++++ ADD EXAMPLES ++++
+# get all events for ACAD for all years and active sites
+acad_ev <- sumEvents(park = "ACAD")
+
+# get only lake events for ACAD for all years
+acad_lk <- sumEvents(park = "ACAD", site_type = "lake")
+
+# get LNETN events only
+lnetn <- sumEvents(park = "LNETN")
 
 }
 }

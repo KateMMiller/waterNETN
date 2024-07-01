@@ -8,7 +8,8 @@
 #'
 #' @title sumEvents: summarize events by site, year, and parameter
 #'
-#' @description Summarize the number of samples collected at each site by year, month, and parameter.
+#' @description Summarize the number of samples collected at each site by year, month, parameter, and
+#' whether measurment was real or censored.
 #'
 #' @importFrom dplyr arrange filter first group_by last mutate select summarize
 #' @importFrom tidyr pivot_wider
@@ -53,17 +54,20 @@
 #' other: c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevel_Feet", "WaterLevel_m").
 #' Note that "all" is the default value.
 #'
-#' @param include_censored Logical. If TRUE, the value column includes non-censored and censored values
-#' using the MDL/MRL/UQL values in the parameter flags. If the Flag column is not NA, that indicates
-#' the value is a censored value. If FALSE (Default), only non-censored values are returned in the value column.
-#'
 #' @return Data frame of summarize event info
 #'
 #'@examples
 #' \dontrun{
 #' importData()
 #'
-#' #+++++ ADD EXAMPLES ++++
+#' # get all events for ACAD for all years and active sites
+#' acad_ev <- sumEvents(park = "ACAD")
+#'
+#' # get only lake events for ACAD for all years
+#' acad_lk <- sumEvents(park = "ACAD", site_type = "lake")
+#'
+#' # get LNETN events only
+#' lnetn <- sumEvents(park = "LNETN")
 #'
 #' }
 #' @export
@@ -71,7 +75,7 @@
 sumEvents <- function(park = "all", site = "all",
                       site_type = c("all", "lake", "stream"),
                       years = 2006:format(Sys.Date(), "%Y"), active = TRUE,
-                      months = 5:10, include_censored = TRUE){
+                      months = 5:10){
 
   #-- Error handling --
   park <- match.arg(park, several.ok = TRUE,
@@ -94,7 +98,7 @@ sumEvents <- function(park = "all", site = "all",
 
   wdat <-
     rbind(
-        force(getChemistry(park = park, site = site, site_type = site_type, include_censored = include_censored,
+        force(getChemistry(park = park, site = site, site_type = site_type, include_censored = TRUE,
                            years = years, months = months, parameter = "all", ...)) |>
           select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value, censored) |>
           mutate(param_type = "Lab chemistry"),
@@ -154,6 +158,16 @@ active_LNETN <- c("ANC_ueqL", "Discharge_cfs", "DO_mgL", "PenetrationRatio",
 
 samp_tab2 <- samp_tab |> filter(UnitCode == "ACAD" & Parameter %in% c(active_ACAD) |
                                   UnitCode != "ACAD" & Parameter %in% c(active_LNETN))
+
+# Add month columns that could be missing (mostly cens)
+all_cols <- c("UnitCode", "SiteCode", "SiteName", "SiteType", "param_type", "Parameter",
+              "year_start", "year_latest", "num_years",
+              "May_real", "May_cens", "Jun_real", "Jun_cens", "Jul_real", "Jul_cens",
+              "Aug_real", "Aug_cens", "Sep_real", "Sep_cens", "Oct_real", "Oct_cens")
+
+missing <- setdiff(all_cols, names(samp_tab2))
+
+samp_tab2[missing] <- 0
 
 samp_tab_final <- samp_tab2 |>
   mutate(year_range = paste0(year_start, " \U2013 ", year_latest)) |>
