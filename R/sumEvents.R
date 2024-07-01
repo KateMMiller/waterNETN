@@ -99,11 +99,11 @@ sumEvents <- function(park = "all", site = "all",
   wdat <-
     rbind(
         force(getChemistry(park = park, site = site, site_type = site_type, include_censored = TRUE,
-                           years = years, months = months, parameter = "all", ...)) |>
+                           years = years, months = months, parameter = "all")) |>
           select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value, censored) |>
           mutate(param_type = "Lab chemistry"),
         force(getSondeInSitu(park = park, site = site, site_type = site_type,
-                             years = years, months = months, parameter = "all", ...)) |>
+                             years = years, months = months, parameter = "all")) |>
           select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
           mutate(censored = FALSE,
                  param_type = "Sonde field meas."),
