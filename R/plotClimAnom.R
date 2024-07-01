@@ -38,11 +38,15 @@
 #'
 #' @param parameter Specify the monthly averaged parameter to plot. Acceptable values are
 #' \describe{
-#' \item{"tmean"}{Plot mean temperature comparisons (in C).}
-#' \item{"tmax"}{Plot max temperature comparisons (in C).}
-#' \item{"tmin"}{Plot min temperature comparisons (in C).}
-#' \item{"ppt"}{Plot precipitation comparisons (in mm).}
+#' \item{"tmean"}{Plot mean temperature comparisons.}
+#' \item{"tmax"}{Plot max temperature comparisons.}
+#' \item{"tmin"}{Plot min temperature comparisons.}
+#' \item{"ppt"}{Plot precipitation comparisons.}
 #' }
+#'
+#' @param units Specify if you want Scientific or English units. Acceptable values are "sci" (default) and "eng".
+#' If "sci", temperature units are in C and precipitation units are in mm. If "eng", temperature units are in F,
+#' and precipitation units are in inches.
 #'
 #' @param averages Specify averages to plot. By default, the 20th century normal (1901-2000) plots.
 #' Other options include:
@@ -61,7 +65,12 @@
 #'
 #' @examples
 #' \dontrun{
+#' # Plot ACAD average temperature anomalies from 1895 to 2024 compared with 20th century normals with gridlines on y axis.
+#' plotClimAnom(park = "ACAD", years = 1895:2024, parameter = "tmean", legend_position = 'right',
+#' gridlines = "grid_y")
 #'
+#' # Plot MABI and SAGA average temperature anomalies from 2006 to 2024 compared with 20th century normals and english units.
+#' plotClimAnom(park = c("MABI", "SAGA"), years = 2006:2024, parameter = "tmean", units = "eng", legend_position = 'right')
 #'
 #'}
 #'
@@ -72,7 +81,7 @@
 plotClimAnom <- function(park = "all",
                           years = 1895:format(Sys.Date(), "%Y"),
                           months = 1:12,
-                          parameter = 'tmean',
+                          parameter = 'tmean', units = "sci",
                           averages = "norm20cent",
                           legend_position = 'none',
                           title_type = "UnitCode",
@@ -93,6 +102,7 @@ plotClimAnom <- function(park = "all",
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
   gridlines <- match.arg(gridlines, c("none", "grid_y", "grid_x", "both"))
+  units <- match.arg(units, c("sci", "eng"))
 
   #-- Compile data for plotting --
   # Clim data as annual monthly averages
@@ -104,13 +114,18 @@ plotClimAnom <- function(park = "all",
   clim_dat2$date <- as.Date(paste0(clim_dat2$year, "-", clim_dat2$month, "-", 15), format = "%Y-%m-%d")
 
   clim_dat_long <-
-    clim_dat2 |> pivot_longer(cols = -c(UnitCode, UnitName, year, month, date, lat, long),
-                              names_to = "param", values_to = "value") |>
+    clim_dat2 |>
+      select(UnitCode:month, date) |>
+      pivot_longer(cols = -c(UnitCode, UnitName, year, month, date, lat, long),
+                   names_to = "param", values_to = "value") |>
     arrange(UnitCode, month, param)
 
   avg_dat <- NETN_clim_norms |> filter(UnitCode %in% park) #|> filter(month %in% months)
-  avg_dat_long <- avg_dat |> pivot_longer(cols = -c(UnitCode, UnitName, long, lat, month),
-                                          names_to = "param_full", values_to = "value") |>
+
+  avg_dat_long <- avg_dat |>
+    select(UnitCode:tavg_std_1991_2020) |>
+    pivot_longer(cols = -c(UnitCode, UnitName, long, lat, month),
+                names_to = "param_full", values_to = "value") |>
     mutate(param = sub("_.*", "", param_full),
            stat = ifelse(grepl("norm", param_full), "avg", "std"),
            norm = ifelse(grepl(1901, param_full), "norm20cent", "norm1990")) |>
@@ -164,36 +179,50 @@ plotClimAnom <- function(park = "all",
                          by = c("UnitCode", "UnitName", "month", "param"))
 
   clim_comb$anom <- clim_comb$value - clim_comb$avg
-  clim_comb$anom_type <- ifelse(clim_comb$anom >0, "above", "below")
+  clim_comb$anom_type <- ifelse(clim_comb$anom > 0, "above", "below")
+
+  clim_comb1 <-
+    if(units == "sci"){clim_comb
+    } else if(units == "eng"){
+        clim_comb |> mutate(value = ifelse(param == "ppt", value/25.4, (value * 9/5) + 32),
+                            avg = ifelse(param == "ppt", avg/25.4, (avg * 9/5) + 32),
+                            std = ifelse(param == "ppt", std/25.4, (std * 9/5) + 32),
+                            anom = value - avg)
+      }
 
   param <- if(any(parameter == "all")){c("ppt", "tmean", "tmax", "tmin")} else {parameter}
 
   #-- Set up plotting features --
-  ylab <- ifelse(length(unique(clim_comb$param)) == 1, unique(clim_comb$param), "Monthly Value")
+  ylab <- ifelse(length(unique(clim_comb1$param)) == 1, unique(clim_comb1$param), "Monthly Value")
 
-  facetpark <- ifelse(length(unique(clim_comb$UnitCode)) > 1, TRUE, FALSE)
-  facetparam <- ifelse(length(unique(clim_comb$param)) > 1, TRUE, FALSE)
+  facetpark <- ifelse(length(unique(clim_comb1$UnitCode)) > 1, TRUE, FALSE)
+  facetparam <- ifelse(length(unique(clim_comb1$param)) > 1, TRUE, FALSE)
   facet_y <- if(any(parameter == "all") | length(parameter) > 1 & any(parameter %in% "ppt" )){"free_y"} else {"fixed"}
 
-  clim_comb$park_facet <- if(title_type == "UnitCode"){clim_comb$UnitCode} else {clim_comb$UnitName}
+  clim_comb1$park_facet <- if(title_type == "UnitCode"){clim_comb1$UnitCode} else {clim_comb1$UnitName}
 
   pars <- c("ppt", "tmax", "tmin", "tmean")
 
-  plabs <- c("Total Precip. (mm)", "Avg. Max. Temp. (C)", "Avg. Min. Temp. (C)",
-             "Average Temp. (C)")
+  units_temp <- if(units == "sci"){"C"} else {"F"}
+  units_ppt <- if(units == "sci"){"mm"} else {"in"}
+
+  plabs <- c(paste0("Total Precip. (", units_ppt, ")"),
+             paste0("Avg. Max. Temp. (", units_temp, ")"),
+             paste0("Avg. Min. Temp. (", units_temp, ")"),
+             paste0("Average Temp. (", units_temp, ")"))
 
   param_labels <- data.frame(param = pars, param_label = plabs)
 
-  clim_comb1 <- left_join(clim_comb, param_labels, by = 'param')
+  clim_comb2 <- left_join(clim_comb1, param_labels, by = 'param')
 
   ylab <- ifelse(length(parameter) > 1, "Monthly Value", param_labels$param_label[param_labels$param == parameter])
 
-  clim_comb1$date2 <- as.Date(clim_comb1$date, format = c("%Y-%m-%d"))
+  clim_comb2$date2 <- as.Date(clim_comb2$date, format = c("%Y-%m-%d"))
 
-  clim_comb2 <- clim_comb1 |> filter(param %in% parameter) |> filter(year %in% years)
+  clim_comb3<- clim_comb2 |> filter(param %in% parameter) |> filter(year %in% years)
 
-  year_len <- length(unique(clim_comb2$year))
-  mon_len <- length(unique(clim_comb2$month))
+  year_len <- length(unique(clim_comb3$year))
+  mon_len <- length(unique(clim_comb3$month))
 
   break_len <- if(year_len == 1){"1 month"
   } else if(year_len  %in% c(2, 3, 4) & mon_len <= 6){"2 months"
@@ -207,15 +236,17 @@ plotClimAnom <- function(park = "all",
   date_format <- ifelse(break_len %in% c("1 year", "2 years", "5 years"), "%Y",
                         ifelse(break_len %in% c("2 months", "3 months", "4 months"), "%b-%Y",
                                                 "%b"))
-  datebreaks <- seq(min(clim_comb2$date2), max(clim_comb2$date2) + 30, by = break_len)
+  datebreaks <- seq(min(clim_comb3$date2), max(clim_comb3$date2) + 30, by = break_len)
 
-  ylabel <- ifelse(parameter == "ppt", "Precipitation Anomaly (mm)", "Temperature Anomaly (C)")
+  ylabel <- ifelse(parameter == "ppt",
+                   paste0("Precipitation Anomaly (", units_ppt, ")"),
+                   paste0("Temperature Anomaly (", units_temp, ")"))
   above_label <- if(year_len == 1){paste0("Above baseline for ", years)} else {"Above baseline"}
   below_label <- if(year_len == 1){paste0("Below baseline for ", years)} else {"Below baseline"}
   avglabel <- ifelse(averages == "norm19cent", "Baseline: 1901 - 2000", "Baseline: 1991 - 2020")
 
 anomplot <-
-  ggplot(clim_comb2, aes(x = date2, y = anom,
+  ggplot(clim_comb3, aes(x = date2, y = anom,
                          fill = factor(anom_type),
                          color = factor(anom_type),
                          group = factor(anom_type))) + theme_WQ() +

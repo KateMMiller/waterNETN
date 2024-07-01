@@ -35,11 +35,15 @@
 #'
 #' @param parameter Specify the monthly averaged parameter to plot. Acceptable values are
 #' \describe{
-#' \item{"tmean"}{Plot mean temperature comparisons (in C).}
-#' \item{"tmax"}{Plot max temperature comparisons (in C).}
-#' \item{"tmin"}{Plot min temperature comparisons (in C).}
-#' \item{"ppt"}{Plot precipitation comparisons (in mm).}
+#' \item{"tmean"}{Plot mean temperature comparisons.}
+#' \item{"tmax"}{Plot max temperature comparisons.}
+#' \item{"tmin"}{Plot min temperature comparisons.}
+#' \item{"ppt"}{Plot precipitation comparisons.}
 #' }
+#'
+#' @param units Specify if you want Scientific or English units. Acceptable values are "sci" (default) and "eng".
+#' If "sci", temperature units are in C and precipitation units are in mm. If "eng", temperature units are in F,
+#' and precipitation units are in inches.
 #'
 #' @param averages Specify averages to plot. By default, the 20th century normal (1901-2000) plots.
 #' Other options include:
@@ -71,22 +75,22 @@
 #' \dontrun{
 #'
 #' # Plot mean monthly temp for MABI for 2019:2023 and all months with red-blue color palette
-#' plotClimComps(park = "MABI", years = 2019:2023, parameter = "temp_mean", palette = c('red', 'blue'))
+#' plotClimComps(park = "MABI", years = 2019:2023, parameter = "tmean", palette = c('red', 'blue'))
 #'
 #' # Same as above, but with points too
-#' plotClimComps(park = "MABI", years = 2019:2023, parameter = "temp_mean", palette = c('red', 'blue'),
+#' plotClimComps(park = "MABI", years = 2019:2023, parameter = "tmean", palette = c('red', 'blue'),
 #'   layers = c('points', 'lines'))
 #'
-#' # Plot max monthly temp ACAD for 2019:2023 and all months with 1991- 2020 normals
-#' plotClimComps(park = "ACAD", years = 2019:2023, parameter = "temp_max", averages = "norm1990",
-#'   palette = c('red', 'blue'), layers = 'lines')
+#' # Plot max monthly temp ACAD for 2019:2023 and all months with 1991- 2020 normals with english units
+#' plotClimComps(park = "ACAD", years = 2019:2023, parameter = "tmax", averages = "norm1990",
+#'   palette = c('red', 'blue'), layers = 'lines', units= 'eng')
 #'
 #' # Plot total monthly precip for ACAD for past 10 years using a blue color scheme
-#' plotClimComps(park = "ACAD", years = 2013:2023, parameter = 'precip',
+#' plotClimComps(park = "ACAD", years = 2013:2023, parameter = 'ppt',
 #'   palette = c("#75C5FF", "#3563DD", "#323969"))
 #'
 #' # Plot total monthly precip for latest year in ACAD
-#' plotClimComps(park = "ACAD", years = 2024, parameter = "precip", months = 1:5)
+#' plotClimComps(park = "ACAD", years = 2024, parameter = "ppt", months = 1:5)
 #'
 #'}
 #'
@@ -99,7 +103,8 @@ plotClimComps <- function(park = "ACAD",
                           months = 1:12,
                           layers = "lines",
                           averages = "norm20cent",
-                          parameter = 'tmean', plot_title = TRUE,
+                          parameter = 'tmean', units = "sci",
+                          plot_title = TRUE,
                           palette = "viridis", color_rev = FALSE,
                           legend_position = 'right',
                           gridlines = 'none', ...){
@@ -119,6 +124,7 @@ plotClimComps <- function(park = "ACAD",
   stopifnot(class(plot_title) == "logical")
   averages <- match.arg(averages, c("norm20cent", "norm1990"))
   gridlines <- match.arg(gridlines, c("none", "grid_y", "grid_x", "both"))
+  units <- match.arg(units, c("sci", "eng"))
 
   #-- Compile data for plotting --
   # Clim data as annual monthly averages
@@ -130,7 +136,9 @@ plotClimComps <- function(park = "ACAD",
   clim_dat2$date <- as.Date(paste0(clim_dat2$year, "-", clim_dat2$month, "-", 15), format = "%Y-%m-%d")
 
   clim_dat_long <-
-      clim_dat2 |> pivot_longer(cols = -c(UnitCode, UnitName, year, month, date, lat, long),
+      clim_dat2 |>
+        select(UnitCode:month, date) |>
+        pivot_longer(cols = -c(UnitCode, UnitName, year, month, date, lat, long),
                                names_to = "param", values_to = "value") |>
                   arrange(UnitCode, month, param)
 
@@ -168,7 +176,7 @@ plotClimComps <- function(park = "ACAD",
     }
 
   park_names <- unique(getSites(park = park)[,c("UnitCode", "UnitName")])
-  clim_dat_final2 <- left_join(clim_dat_final1, park_names, by = "UnitCode")
+  clim_dat_final2 <- left_join(clim_dat_final1, park_names, by = c("UnitCode", "UnitName"))
 
   # Clim data in century or 30-year norms
   avg_dat <- NETN_clim_norms |> filter(UnitCode %in% park) #|> filter(month %in% months)
@@ -184,15 +192,27 @@ plotClimComps <- function(park = "ACAD",
   color_dir <- ifelse(color_rev == FALSE, -1, 1)
 
   # annual params
+  units_temp <- if(units == "sci"){"C"} else {"F"}
+  units_ppt <- if(units == "sci"){"mm"} else {"in"}
+
   param_labels_annual <-
     data.frame(param = c("prcp", "tavg", "tmax", "tmin"),
-               param_label = c("Total Precip. (mm)", "Avg. Temp. (C)", "Max. Temp. (C)", "Min. Temp. (C)"))
+               param_label = c(paste0("Total Precip. (", units_ppt, ")"),
+                               paste0("Avg. Temp. (", units_temp, ")"),
+                               paste0("Max. Temp. (", units_temp, ")"),
+                               paste0("Min. Temp. (", units_temp, ")")))
 
   clim_dat_final <- left_join(clim_dat_final2, param_labels_annual, by = 'param')
 
   clim_dat_final$mon <- factor(clim_dat_final$month, levels = unique(clim_dat_final$month),
                                labels = unique(month.abb[clim_dat_final$month]), ordered = T)
   clim_dat_final$param_label2 <- paste0(clim_dat_final$param_label, " (", clim_dat_final$year, ")")
+
+  clim_dat_final <-
+    if(units == "sci"){clim_dat_final
+    } else if(units == "eng"){
+      clim_dat_final |> mutate(value = ifelse(param == "prcp", value/25.4, (value * 9/5) + 32))
+    }
 
   # norm params
   norms <- data.frame(norm = c("norm20cent", "norm1990"),
@@ -204,23 +224,30 @@ plotClimComps <- function(park = "ACAD",
                               levels = unique(avg_dat_final$month),
                               labels = unique(month.abb[avg_dat_final$month]), ordered = T)
 
+  avg_dat_final <-
+    if(units == "sci"){avg_dat_final
+    } else if(units == "eng"){
+      avg_dat_final |> mutate(value = ifelse(param == "precip", value/25.4, (value * 9/5) + 32))
+    }
+
+
   # set up filter and labelling on parameter
   if(parameter == "tmean"){
     ann_filt = c("tavg")
     norm_filt <- if(averages == "norm20cent"){"tavg_norm_1901_2000"} else {"tavg_norm_1991_2020"}
-    y_label = "Avg. Monthly Temp. (C)"
+    y_label = paste0("Avg. Monthly Temp. (", units_temp, ")")
   } else if(parameter == "tmin"){
     ann_filt = c("tmin")
     norm_filt <- if(averages == "norm20cent"){"tmin_norm_1901_2000"} else {"tmin_norm_1991_2020"}
-    y_label = "Avg. Minimum Monthly Temp. (C)"
+    y_label = paste0("Avg. Minimum Monthly Temp. (", units_temp, ")")
   } else if(parameter == "tmax"){
     ann_filt = c("tmax")
     norm_filt <- if(averages == "norm20cent"){"tmax_norm_1901_2000"} else {"tmax_norm_1991_2020"}
-    y_label = "Avg. Maximum Monthly Temp. (C)"
+    y_label = paste0("Avg. Maximum Monthly Temp. (", units_temp, ")")
   } else if(parameter == "ppt"){
     ann_filt = c("prcp")
     norm_filt <- if(averages == "norm20cent"){"precip_norm_1901_2000"} else {"precip_norm_1991_2020"}
-    y_label = "Total Monthly Precip. (mm)"
+    y_label = paste0("Total Monthly Precip. (", units_ppt, ")")
   }
 
   year_breaks <- as.integer(years)
