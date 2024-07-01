@@ -171,62 +171,22 @@ NETN_clim_norms <- left_join(netn_cent, comb_norms, by = "UnitCode")
 write.csv(NETN_clim_norms, "../data/NETN_clim_norms.csv")
 usethis::use_data(NETN_clim_norms, overwrite = T)
 
-head(NETN_clim_norms)
+# Add temps as F and precip as "in"
+data("NETN_clim_norms")
+c_to_f <- function(x){
+  (x * 9/5) + 32
+}
 
-#-------------------------------------------
-# See compile_NOAA_2006_2023.R instead
-#-------------------------------------------
-# Monthly current gridded data from NCEI
-library(tidyverse)
-library(sf)
-library(terra)
-library(waterNETN)
-importData()
+mm_to_in <- function(x){
+  (x / 25.4)
+}
 
-#netn_cent_final <- read.csv(paste0(path, "NETN_park_centroids.csv"))
-NETN_bbox <- data.frame(lat = c(47.38, 44.80, 38.71, 43.40, 39.994187),
-                        long = c(-68.71, -66.67, -74.84, -75.54, -80.521832)) |>
-  st_as_sf(coords = c("long", "lat"), crs = 4326) |> st_bbox()
+NETN_clim_norms <- NETN_clim_norms |> mutate(across(.cols = starts_with("t"),
+                                                    .fns = ~c_to_f(.x),
+                                                    .names = "{.col}_F"))
 
-year <- 2024
-month <- "04"
+NETN_clim_norms <- NETN_clim_norms |> mutate(across(.cols = starts_with("precip"),
+                                                    .fns = ~mm_to_in(.x),
+                                                    .names = "{.col}_in"))
 
-mly_url <- paste0("https://www.ncei.noaa.gov/thredds/dodsC/nclimgrid-daily/", year,
-                  "/ncdd-", year, month, "-grd-scaled.nc")
-
-prcp <- raster::raster(mly_url, varname = "prcp")
-prcp_crop <- crop(prcp, NETN_bbox)
-plot(prcp_crop)
-
-tmax <- raster::raster(mly_url, varname = "tmax")
-tmax_crop <- crop(tmax, NETN_bbox)
-plot(tmax_crop)
-
-tmin <- raster::raster(mly_url, varname = "tmin")
-tmin_crop <- crop(tmin, NETN_bbox)
-plot(tmin_crop)
-
-tavg <- raster::raster(mly_url, varname = "tavg")
-tavg_crop <- crop(tavg, NETN_bbox)
-plot(tavg_crop)
-
-netn_prcp <- cbind(netn_cent_final, prcp = raster::extract(prcp, netn_cent_final[,c("long", "lat")]))
-netn_tmax <- cbind(netn_cent_final, tmax = raster::extract(tmax, netn_cent_final[,c("long", "lat")]))
-netn_tmin <- cbind(netn_cent_final, tmin = raster::extract(tmin, netn_cent_final[,c("long", "lat")]))
-netn_tavg <- cbind(netn_cent_final, tavg = raster::extract(tavg, netn_cent_final[,c("long", "lat")]))
-
-clim_list <- list(netn_prcp, netn_tmax, netn_tmin, netn_tavg)
-netn_comb <- reduce(clim_list, full_join, by = c("UnitCode", "long", "lat"),)
-
-colnames(netn_comb) <- c("UnitCode", "long", "lat",
-                         paste0("prcp_", year, month),
-                         paste0("tmax_", year, month),
-                         paste0("tmin_", year, month),
-                         paste0("tavg_", year, month))
-head(netn_comb)
-# microbenchmark::microbenchmark(
-#   terra::extract(prcp, netn_cent_final[,c("long", "lat")]),
-#   raster::extract(prcp, netn_cent_final[,c("long", "lat")])
-# )
-
-# raster is slightly slower, but currently more stable than terra
+usethis::use_data(NETN_clim_norms, overwrite = T)

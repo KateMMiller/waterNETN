@@ -59,3 +59,22 @@ netn_final <- rbind(netn_hist, netn_2024)
 
 NETN_clim_annual <- netn_final
 usethis::use_data(NETN_clim_annual, overwrite = T)
+
+# Add temps as F and precip as "in"
+data("NETN_clim_annual")
+c_to_f <- function(x){
+  (x * 9/5) + 32
+}
+
+mm_to_in <- function(x){
+  (x / 25.4)
+}
+NETN_clim_annual <- NETN_clim_annual |> mutate(across(.cols = starts_with("t"),
+                                                    .fns = ~c_to_f(.x),
+                                                    .names = "{.col}_F"))
+
+NETN_clim_annual <- NETN_clim_annual |> mutate(across(.cols = starts_with("prcp"),
+                                                      .fns = ~mm_to_in(.x),
+                                                      .names = "{.col}_in"))
+usethis::use_data(NETN_clim_annual, overwrite = T)
+
