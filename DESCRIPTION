@@ -41,6 +41,7 @@ Collate:
     'plotPrecipDischarge.R'
     'plotTrend.R'
     'plotWaterBands.R'
+    'sumEvents.R'
 Imports: 
     dplyr,
     ggplot2,
