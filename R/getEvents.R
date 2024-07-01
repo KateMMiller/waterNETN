@@ -127,7 +127,7 @@ getEvents <- function(park = "all", site = "all",
 
   # finalize output
   evs_final <- if(output == "short"){
-    evs3[,c("UnitCode", "SiteCode", "SiteName", "SiteType",
+    evs3[,c("UnitCode", "UnitName", "SiteCode", "SiteName", "SiteType",
             "SiteLatitude", "SiteLongitude",
             "EventDate", "EventCode", "year", "month", "doy")]
     } else {evs3}
