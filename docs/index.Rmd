@@ -622,9 +622,9 @@ plotTrend(park = "MIMA", site_type = "stream",
 
 ```
 
-<p class = 'fxn'>Plot smoothed surface Secchi Depth, Penetration Ratio, pH, and DOC in Jordan Pond for all years, including the legend, different color palette, and using span of 0.75. </p>
+<p class = 'fxn'>Plot smoothed surface Secchi Depth, Specific Conductance, pH, and DOC in Jordan Pond for all years, including the legend, different color palette, and using span of 0.75. </p>
 ```{r message = FALSE, warning = FALSE}
-plotTrend(site = "ACJORD", parameter = c("SDepth_m", "PenetrationRatio", "pH", "DOC_mgL"), 
+plotTrend(site = "ACJORD", parameter = c("SDepth_m", "SpCond_uScm", "pH", "DOC_mgL"), 
           span = 0.75, palette = 'Set1')
 
 ```
@@ -1093,6 +1093,28 @@ plotClimDrought(park = "LNETN", years = 2023, legend_position = 'bottom')
 
 
 ### Summary Functions {.tabset}
+#### sumEvents()
+Summarize number of samples collected per park, site, month, and parameter. Resulting data frame show number of samples collected for each month, and whether the value is real (month) or censored (month_cens).
+
+<p class = 'fxn'>Summarize all events for ACAD for all years and active sites</p>
+```{r}
+acad_ev <- sumEvents(park = "ACAD")
+print_head(acad_ev)
+
+```
+
+<p class = 'fxn'>Summarize only lake events for ACAD for all years</p>
+```{r}
+acad_lk <- sumEvents(park = "ACAD", site_type = "lake")
+print_head(acad_lk)
+```
+
+<p class = 'fxn'>Summarize LNETN events only</p>
+```{r}
+lnetn <- sumEvents(park = "LNETN")
+print_head(lnetn)
+```
+
 #### sumClimAvgs()
 Now that we're using NOAA gridded climate data, we no longer need this function. It's been removed from the package. 
 
