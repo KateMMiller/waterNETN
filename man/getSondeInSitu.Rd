@@ -50,7 +50,7 @@ events are between months 5 and 10, and these are set as the defaults.}
 
 \item{parameter}{Specify the chemical parameter(s) to return. Note if additional parameters are added to the Chemistry view, there will be additional
 to the views, they will be added as accepted values in this function. Current accepted values are:.
-c("Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
+c("Temp_C", "Temp_F", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
 "Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg")}
 
 \item{QC_type}{Specify QC type to return. Must be quoted.

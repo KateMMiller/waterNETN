@@ -42,7 +42,7 @@
 #'
 #' @param parameter Specify the chemical parameter(s) to return. Note if additional parameters are added to the Chemistry view, there will be additional
 #' to the views, they will be added as accepted values in this function. Current accepted values are:.
-#' c("Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
+#' c("Temp_C", "Temp_F", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
 #' "Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg")
 #'
 #' @param QC_type Specify QC type to return. Must be quoted.
@@ -104,7 +104,7 @@ getSondeInSitu <- function(park = "all", site = "all",
   sample_depth <- match.arg(sample_depth, c("surface", "all"))
 
   parameter <- match.arg(parameter,
-                         c("all", "Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct",
+                         c("all", "Temp_C", "Temp_F", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct",
                            "DO_mgL", "pH", "pHmV", "Turbidity_FNU", "ChlA_RFU",
                            "ChlA_ugL", "BP_mmHg"), several.ok = TRUE)
 
@@ -140,41 +140,21 @@ getSondeInSitu <- function(park = "all", site = "all",
   sonde$month <- as.numeric(substr(sonde$EventDate, 6, 7))
   sonde$doy <- as.numeric(strftime(sonde$EventDate, format = "%j"))
 
-  # Make parameters long, so more efficient and easier to filter.
-  # Need to end up with a column for each: parameter, value, flag, Method,
-  # I don't want to hard code the pivot, in case a new parameter is ever added, so
-  # selecting the columns based on what I don't want to include in the pivot.
-  # keep_cols <- c("GroupCode", "GroupName", "UnitCode", "UnitName", "SubUnitCode",
-  #                "SubUnitName", "SiteCode", "SiteName", "SiteType", "EventDate", "EventCode",
-  #                "year", "month", "doy", "MeasurementTime", "SondeLatitude", "SondeLongitude",
-  #                "Datum", "XYAccuracy", "QCType_Code", "QCType_Value", "Rep",
-  #                "SondeType", "WQInSitu_Flag", "WQFlag_Comments", "IsEventCUI", "Depth_m")
-  #
-  # param_cols <- setdiff(names(sonde), keep_cols)
-  # # Pivoting numeric and character fields in one step, so converting all non-keep to character.
-  # sonde[,param_cols] <- apply(sonde[,param_cols], 2, as.character)
+  # Add Temp_F
+  tempf <- sonde |> filter(Parameter == "Temp_C") |>
+    mutate(Parameter = "Temp_F",
+           Value = (Value * 9/5) + 32)
 
-  #sort(unique(getSites()$SiteCode))
+  sonde1 <- rbind(sonde, tempf)
+
   # Filter by site, years, and months to make data set small
   sites <- force(getSites(park = park, site = site, site_type = site_type, active = active))$SiteCode
   evs <- force(getEvents(park = park, site = site, site_type = site_type,
                          years = years, months = months, active = active, output = 'verbose')) |>
     select(SiteCode, SiteType, EventDate, EventCode)
 
-  sonde2 <- sonde |> filter(SiteCode %in% sites)
+  sonde2 <- sonde1 |> filter(SiteCode %in% sites)
   sonde3 <- inner_join(evs, sonde2, by = c("SiteCode", "EventDate", "EventCode"))
-  #head(sonde3)
-
-  # sonde_long <- sonde3 |> pivot_longer(cols = !all_of(keep_cols),
-  #                                   names_to = 'param', values_to = 'value') |>
-  #   filter(value != "NA")
-
-  # find special characters forcing chr instead of num
-  # values = sort(unique(sonde_long$value))
-  # values[which(!grepl('^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$',values))]
-
-  # sonde_long$value <- gsub(",", "", sonde_long$value)
-  # sonde_long$value <- as.numeric(gsub("NA", NA_real_, sonde_long$value))
 
   # filters for params, sampletype, qctype
   sonde4 <-
