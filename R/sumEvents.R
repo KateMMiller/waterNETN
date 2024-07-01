@@ -107,23 +107,27 @@ sumEvents <- function(park = "all", site = "all",
           select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
           mutate(censored = FALSE,
                  param_type = "Sonde field meas."),
+        tryCatch(
         force(getSecchi(park = park, site = site,
                         years = years, months = months, observer_type = 'first')) |>
           select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
           mutate(censored = FALSE,
                  param_type = "Light penetration"),
+        error = function(e){NULL}),
         force(getDischarge(park = park, site = site,
                            years = years, months = months)) |>
           mutate(Parameter = "Discharge_cfs", Value = Discharge_cfs) |>
           select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
           mutate(censored = FALSE,
                  param_type = "Water quantity"),
+        tryCatch(
         force(getLightPen(park = park, site = site,
                           years = years, months = months)) |>
           mutate(Parameter = "PenetrationRatio", Value = PenetrationRatio) |>
           select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
           mutate(censored = FALSE,
                  param_type = "Light penetration"),
+        error = function(e){NULL}),
         force(getWaterLevel(park = park, site = site,
                             years = years, months = months)) |>
           mutate(Parameter = "WaterLevel_Feet", Value = WaterLevel_Feet) |>
