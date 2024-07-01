@@ -51,7 +51,7 @@
 #' chemistry: c("ANC_ueqL", "AppColor", "AppColor_PCU", "ChlA_ugL", "Cl_ueqL",
 #' "DOC_mgL", "NH3_mgL", "NO2_mgL", "NO2+NO3_mgL", "NO3_ueqL", "pH_Lab", "PO4_ugL", "SO4_ueqL",
 #' "TN_mgL", "TotDissN_mgL", "TotDissP_ugL", "TP_ugL")
-#' sonde: c("Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
+#' sonde: c("Temp_C", "Temp_F", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
 #' "Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg").
 #' other: c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevel_Feet", "WaterLevel_m").
 #' Note that "all" is not an accepted value, because there are too many to plot.
@@ -110,7 +110,7 @@
 #'           parameter = "SO4_ueqL", legend_position = "right", span = 0.6)
 #'
 #' # Plot non-smoothed surface of multiple Sonde parameters for all MIMA streams over all years with 0.6 span.
-#' params <- c("Temp_C", "SpCond_uScm", "DOsat_pct", "pH")
+#' params <- c("Temp_F", "SpCond_uScm", "DOsat_pct", "pH")
 #' plotTrend(park = "MIMA", site_type = "stream",
 #'           parameter = params, legend_position = "right", span = 0.6)
 #'
@@ -162,7 +162,7 @@ plotTrend <- function(park = "all", site = "all",
             "NO3_ueqL", "pH_Lab", "PO4_ugL", "SO4_ueqL", "TN_mgL",
             "TotDissN", "TotDissN_mgL", "TotDissP", "TotDissP_ugL", "TP_ugL")
 
-  sonde <- c("Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
+  sonde <- c("Temp_C", "Temp_F", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
              "Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg")
 
   other <- c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevel_Feet", "WaterLevel_m")
