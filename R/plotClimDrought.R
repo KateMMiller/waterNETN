@@ -121,8 +121,8 @@ plotClimDrought <- function(park = "all",
   } else if(year_len == 2 & mon_len > 6){"3 months"
     #} else if(year_len > 4 & mon_len <= 6){"6 months"
   } else if(year_len %in% c(4, 5, 6)){"4 months"
-  } else if(year_len >= 6 & year_len < 20){"2 years"
-  } else if(year_len >= 20){"4 years"
+  } else if(year_len >= 6 & year_len < 30){"1 year"
+  } else if(year_len >= 30){"4 years"
   } else {"6 months"}
 
   date_format <- ifelse(break_len %in% c("1 year", "2 years", "4 years"), "%Y",
