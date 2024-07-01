@@ -142,11 +142,13 @@ plotClimAnom <- function(park = "all",
       new_clim <- purrr::map(new_years, function(y){
         getClimNOAA(park = park, year = y, months = new_months)}
       ) |> list_rbind()
-      new_clim_long <- new_clim |> pivot_longer(cols = -c(UnitCode, UnitName, long, lat, year, month),
-                                                names_to = "param", values_to = "value")
-      new_clim_long$date <- as.Date(paste0(
-        new_clim_long$year, "-", new_clim_long$month, "-", 15), format = "%Y-%m-%d")
-      comb_clim <- rbind(clim_dat_long, new_clim_long)
+      if(nrow(new_clim) > 0){
+        new_clim_long <- new_clim |> pivot_longer(cols = -c(UnitCode, UnitName, long, lat, year, month),
+                                                  names_to = "param", values_to = "value")
+        new_clim_long$date <- as.Date(paste0(
+          new_clim_long$year, "-", new_clim_long$month, "-", 15), format = "%Y-%m-%d")
+        comb_clim <- rbind(clim_dat_long, new_clim_long)
+      } else {clim_dat_long}
     }
 
   if(nrow(clim_dat) == 0){stop("Specified arguments returned a data frame with 0 records.")}
