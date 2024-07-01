@@ -11,6 +11,7 @@ plotClimComps(
   layers = "lines",
   averages = "norm20cent",
   parameter = "tmean",
+  units = "sci",
   plot_title = TRUE,
   palette = "viridis",
   color_rev = FALSE,
@@ -48,11 +49,15 @@ Other options include:
 
 \item{parameter}{Specify the monthly averaged parameter to plot. Acceptable values are
 \describe{
-\item{"tmean"}{Plot mean temperature comparisons (in C).}
-\item{"tmax"}{Plot max temperature comparisons (in C).}
-\item{"tmin"}{Plot min temperature comparisons (in C).}
-\item{"ppt"}{Plot precipitation comparisons (in mm).}
+\item{"tmean"}{Plot mean temperature comparisons.}
+\item{"tmax"}{Plot max temperature comparisons.}
+\item{"tmin"}{Plot min temperature comparisons.}
+\item{"ppt"}{Plot precipitation comparisons.}
 }}
+
+\item{units}{Specify if you want Scientific or English units. Acceptable values are "sci" (default) and "eng".
+If "sci", temperature units are in C and precipitation units are in mm. If "eng", temperature units are in F,
+and precipitation units are in inches.}
 
 \item{plot_title}{Logical. If TRUE (default) prints site name at top of figure. If FALSE,
 does not print site name. Only enabled when one site is selected.}
@@ -86,22 +91,22 @@ monthly climate data from January 2006 through May 2024.
 \dontrun{
 
 # Plot mean monthly temp for MABI for 2019:2023 and all months with red-blue color palette
-plotClimComps(park = "MABI", years = 2019:2023, parameter = "temp_mean", palette = c('red', 'blue'))
+plotClimComps(park = "MABI", years = 2019:2023, parameter = "tmean", palette = c('red', 'blue'))
 
 # Same as above, but with points too
-plotClimComps(park = "MABI", years = 2019:2023, parameter = "temp_mean", palette = c('red', 'blue'),
+plotClimComps(park = "MABI", years = 2019:2023, parameter = "tmean", palette = c('red', 'blue'),
   layers = c('points', 'lines'))
 
-# Plot max monthly temp ACAD for 2019:2023 and all months with 1991- 2020 normals
-plotClimComps(park = "ACAD", years = 2019:2023, parameter = "temp_max", averages = "norm1990",
-  palette = c('red', 'blue'), layers = 'lines')
+# Plot max monthly temp ACAD for 2019:2023 and all months with 1991- 2020 normals with english units
+plotClimComps(park = "ACAD", years = 2019:2023, parameter = "tmax", averages = "norm1990",
+  palette = c('red', 'blue'), layers = 'lines', units= 'eng')
 
 # Plot total monthly precip for ACAD for past 10 years using a blue color scheme
-plotClimComps(park = "ACAD", years = 2013:2023, parameter = 'precip',
+plotClimComps(park = "ACAD", years = 2013:2023, parameter = 'ppt',
   palette = c("#75C5FF", "#3563DD", "#323969"))
 
 # Plot total monthly precip for latest year in ACAD
-plotClimComps(park = "ACAD", years = 2024, parameter = "precip", months = 1:5)
+plotClimComps(park = "ACAD", years = 2024, parameter = "ppt", months = 1:5)
 
 }
 

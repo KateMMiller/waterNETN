@@ -9,6 +9,7 @@ plotClimAnom(
   years = 1895:format(Sys.Date(), "\%Y"),
   months = 1:12,
   parameter = "tmean",
+  units = "sci",
   averages = "norm20cent",
   legend_position = "none",
   title_type = "UnitCode",
@@ -38,11 +39,15 @@ download months that are available from NOAA.}
 
 \item{parameter}{Specify the monthly averaged parameter to plot. Acceptable values are
 \describe{
-\item{"tmean"}{Plot mean temperature comparisons (in C).}
-\item{"tmax"}{Plot max temperature comparisons (in C).}
-\item{"tmin"}{Plot min temperature comparisons (in C).}
-\item{"ppt"}{Plot precipitation comparisons (in mm).}
+\item{"tmean"}{Plot mean temperature comparisons.}
+\item{"tmax"}{Plot max temperature comparisons.}
+\item{"tmin"}{Plot min temperature comparisons.}
+\item{"ppt"}{Plot precipitation comparisons.}
 }}
+
+\item{units}{Specify if you want Scientific or English units. Acceptable values are "sci" (default) and "eng".
+If "sci", temperature units are in C and precipitation units are in mm. If "eng", temperature units are in F,
+and precipitation units are in inches.}
 
 \item{averages}{Specify averages to plot. By default, the 20th century normal (1901-2000) plots.
 Other options include:
@@ -73,7 +78,12 @@ figures. If multiple parameters are specified, they will be plotted on separate 
 }
 \examples{
 \dontrun{
+# Plot ACAD average temperature anomalies from 1895 to 2024 compared with 20th century normals with gridlines on y axis.
+plotClimAnom(park = "ACAD", years = 1895:2024, parameter = "tmean", legend_position = 'right',
+gridlines = "grid_y")
 
+# Plot MABI and SAGA average temperature anomalies from 2006 to 2024 compared with 20th century normals and english units.
+plotClimAnom(park = c("MABI", "SAGA"), years = 2006:2024, parameter = "tmean", units = "eng", legend_position = 'right')
 
 }
 
