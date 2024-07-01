@@ -227,7 +227,7 @@ print_head(NETN_clim_annual)
 ```
 
 #### getClimDaymet()
-<b style="color:red;">NOTE THAT THIS IS NO LONGER THE PRIMARY FUNCTION TO USE FOR WORKING WITH CLIMATE DATA. </b>. I'm leaving it in the package just in case there's a reason to use it in the future. If I create a new climateNETN package, I'll remove this function from the waterNETN package.
+<b style="color:red;">NOTE THAT THIS IS NO LONGER THE PRIMARY FUNCTION TO USE FOR WORKING WITH CLIMATE DATA. I turned evaluation of code chunks off because they were slow.</b>. I'm leaving it in the package just in case there's a reason to use it in the future. If I create a new climateNETN package, I'll remove this function from the waterNETN package.
 
 Daymet data are 1km gridded daily climate data, similar to PRISM data, but with more daily data associated with each location and more efficient downloading process (extract data from lat/long points, rather than download nationwide raster files and extract manually). Daymet data go back to 1980. See <a href="https://daymet.ornl.gov/">https://daymet.ornl.gov/</a> for more information. Another benefit of Daymet over PRISM is the data can be used to calculate drought indices, like Standardized Precipitation-Evapotranspiration Index (SPEI). Note: I'll eventually add SPEI metrics to the output of this function. 
 
@@ -242,14 +242,14 @@ print_head(prim) # table of first 6 rows- this is a custom function I wrote to s
 ```
 
 <p class = 'fxn'>The following code downloads Daymet data for all sites in MABI for 2023. Results are assigned to R session environment and not exported to data folder in the working directory.</p>
-```{r}
+```{r, eval = F}
 # Daymet data for the Pogue and Pogue stream for 2023, but not exporting to disk.
 mabi_dm <- getClimDaymet(park = "MABI", years = 2023)
 print_head(mabi_dm)
 ```
 
 #### getClimWStat()
-<b style="color:red;">NOTE THAT THIS IS NO LONGER THE PRIMARY FUNCTION TO USE FOR WORKING WITH CLIMATE DATA. </b>. I'm leaving it in the package just in case there's a reason to use it in the future. If I create a new climateNETN package, I'll remove this function from the waterNETN package.
+<b style="color:red;">NOTE THAT THIS IS NO LONGER THE PRIMARY FUNCTION TO USE FOR WORKING WITH CLIMATE DATA. I turned evaluation of code chunks off because they were slow.</b>. I'm leaving it in the package just in case there's a reason to use it in the future. If I create a new climateNETN package, I'll remove this function from the waterNETN package.
 
 For each NETN monitoring site, I used the `rnoaa` package to find all weather stations within 20km radius of each site's lat/long coordinates. I then checked the period of record for each of these sites. I selected the closest weather station with the longest period of record that included 2023 and 2024. This assessment was done at the park level, so the data for each site within a park is the same. The API used to download weather station data is <a href="data.rcc-acis.org">data.rcc-acis.org</a>. Unfortunately only temperature data are available for ACAD's McFarland Hill weather station (AKA MARS). ACAD's hourly precipitation data were downloaded separately from the NADP website <a href="http://nadp2.slh.wisc.edu/siteOps/ppt/">http://nadp2.slh.wisc.edu/siteOps/ppt/</a>. These data only go back to 2008 and were aggregated to daily total precipitation. This function is slower for ACAD as a result. Though note that data are downloaded at the park level, then joined with site-specific data. In other words, data are downloaded for a park x combination of years once, then joined to site-level data. Weather stations used and their distance from each site are included in the output.
 
@@ -266,11 +266,11 @@ rova_ws <- getClimWStat(park = "ROVA", years = 2013:2023, export = T,
 print_head(rova_ws)
 ```
 
-```{r echo = F, include = F}
+```{r echo = F, include = F, eval = F}
 file.remove("../data/Weather_station_data_2013-2023.csv")
 ```
 <p class = 'fxn'>The following code downloads weather station data for all lakes in ACAD in 2023, but doesn't export to disk.</p>
-```{r}
+```{r eval = F}
 acad_ws <- getClimWStat(park = "ACAD", site_type = "lake", years = 2023)
 print_head(acad_ws)
 ```
@@ -631,7 +631,7 @@ plotTrend(site = "ACJORD", parameter = c("SDepth_m", "SpCond_uScm", "pH", "DOC_m
 
 <p class = 'fxn'>Plot smoothed surface water depth in the Pogue for all years, including a different color palette, and using span of 0.75. </p>
 ```{r message = FALSE, warning = FALSE}
-plotTrend(site = "MABIPA", parameter = "WaterLevelFeet", span = 0.75, 
+plotTrend(site = "MABIPA", parameter = "WaterLevel_Feet", span = 0.75, 
           palette = 'Set1')
 
 ```
