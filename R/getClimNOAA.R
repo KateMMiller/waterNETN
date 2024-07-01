@@ -128,10 +128,12 @@ getClimNOAA <- function(park = 'all', year = as.integer(format(Sys.Date(), "%Y")
     data.frame(netn_comb)
     }
 
-  netn_final <- if(length(months) > 1){
+  netn_final <- #if(length(months) > 1){
     purrr::map(months, function(x){
-      getnoaa(yr = year, mon = x)}) |> list_rbind()
-    } else {getnoaa(yr = year, mon = months)}
+      tryCatch(getnoaa(yr = year, mon = x),
+               error = function(e){NULL})}) |> list_rbind()
+  # } else {tryCatch(getnoaa(yr = year, mon = months),
+  #                    error = function(e){NULL})}
 
-  return(netn_final)
+  if(nrow(netn_final) > 0){return(netn_final)} else {return(NULL)}
 }
