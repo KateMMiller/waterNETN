@@ -78,6 +78,8 @@
 #'
 #' @param gridlines Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")
 #'
+#' @param facet_scales Specify whether facet axes should be fixed (all the same) or "free_y", "free_x" or "free" (both).
+#'
 #' @param ... Additional arguments relevant to \code{getSondeInSitu()} or \code{getWaterLevel()}
 #'
 #' @examples
@@ -122,7 +124,7 @@ plotLakeProfile <- function(park = "ACAD", site = "all",
                       palette = "Spectral", color_rev = FALSE,
                       plot_title = TRUE,
                       plot_thermocline = TRUE,
-                      legend_position = 'right',
+                      legend_position = 'right', facet_scales = 'fixed',
                       gridlines = "none", ...){
 
   # park = 'all'; site = 'all'; site_type = 'all'; years = 2013:2023;
@@ -141,6 +143,7 @@ plotLakeProfile <- function(park = "ACAD", site = "all",
   stopifnot(class(color_rev) == "logical")
   stopifnot(class(plot_title) == "logical")
   depth_type <- match.arg(depth_type, c("elev", "raw"))
+  facet_scales <- match.arg(facet_scales, c("fixed", "free", "free_y", "free_x"))
   legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
   if(length(parameter) > 1){stop("Can only use 1 parameter at a time.")}
 
@@ -308,9 +311,9 @@ plotLakeProfile <- function(park = "ACAD", site = "all",
                          y = Value, yend = Value), size = 0.7) }}+
         #geom_point(data = tcline, aes(x = mon, y = value), color = 'black', show.legend = F)}} +
       # facets if more than 1 year or site
-      {if(facet_site == TRUE & facet_year == TRUE) facet_wrap(~SiteName + year, drop = T)} +
-      {if(facet_site == TRUE & facet_year == FALSE) facet_wrap(~SiteName, drop = T)} +
-      {if(facet_site == FALSE & facet_year == TRUE) facet_wrap(~year, drop = T)} +
+      {if(facet_site == TRUE & facet_year == TRUE) facet_wrap(~SiteName + year, drop = T, scales = facet_scales)} +
+      {if(facet_site == TRUE & facet_year == FALSE) facet_wrap(~SiteName, drop = T, scales = facet_scales)} +
+      {if(facet_site == FALSE & facet_year == TRUE) facet_wrap(~year, drop = T, scales = facet_scales)} +
       # color palettes
       {if(palette == 'viridis') scale_fill_viridis_c(direction = color_dir)} +
       {if(palette == 'viridis') scale_color_viridis_c(direction = color_dir)} +
@@ -341,9 +344,9 @@ plotLakeProfile <- function(park = "ACAD", site = "all",
                        aes(x = doy_plot - (col_width/2), xend = doy_plot + (col_width/2),
                            y = -Value, yend = -Value), size = 0.7) }} +
         # facets if more than 1 year or site
-        {if(facet_site == TRUE & facet_year == TRUE) facet_wrap(~SiteName + year, drop = T)} +
-        {if(facet_site == TRUE & facet_year == FALSE) facet_wrap(~SiteName, drop = T)} +
-        {if(facet_site == FALSE & facet_year == TRUE) facet_wrap(~year, drop = T)} +
+        {if(facet_site == TRUE & facet_year == TRUE) facet_wrap(~SiteName + year, drop = T, scales = facet_scales)} +
+        {if(facet_site == TRUE & facet_year == FALSE) facet_wrap(~SiteName, drop = T, scales = facet_scales)} +
+        {if(facet_site == FALSE & facet_year == TRUE) facet_wrap(~year, drop = T, scales = facet_scales)} +
         # color palettes
         {if(palette == 'viridis') scale_fill_viridis_c(direction = color_dir)} +
         {if(palette == 'viridis') scale_color_viridis_c(direction = color_dir)} +

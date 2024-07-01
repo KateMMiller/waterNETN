@@ -74,6 +74,8 @@
 #'
 #' @param gridlines Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")
 #'
+#' @param facet_scales Specify whether facet axes should be fixed (all the same) or "free_y", "free_x" or "free" (both).
+#'
 #' @param ... Additional arguments relevant to \code{getChemistry()} or \code{getSondeInSitu()}
 #'
 #' @return Returns a ggplot object of specified current vs historic values
@@ -100,7 +102,7 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
                            parameter = NA, include_censored = FALSE,
                            sample_depth = c("surface", "all"),
                            threshold = TRUE, legend_position = 'none',
-                           gridlines = "none",
+                           gridlines = "none", facet_scales = 'fixed',
                            #plotly = FALSE,
                            ...){
   #-- Error handling --
@@ -119,6 +121,7 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
     stopifnot(class(threshold) == "logical")
     legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
     gridlines <- match.arg(gridlines, c("none", "grid_y", "grid_x", "both"))
+    facet_scales <- match.arg(facet_scales, c("fixed", "free", "free_y", "free_x"))
 #    stopifnot(class(plotly) == "logical")
 
     # if(!requireNamespace("plotly", quietly = TRUE) & plotly == TRUE){
@@ -394,7 +397,7 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
                                       labels = line_labels,
                                       name = NULL) +
                 # Facets
-                {if(facetsite == TRUE){facet_wrap(~SiteName)}} +
+                {if(facetsite == TRUE){facet_wrap(~SiteName, scales = facet_scales)}} +
                 # Upper and lower points
                 {if(thresh == TRUE){geom_hline(data = wdat_curr,
                                                aes(yintercept = UpperThreshold_corr,
