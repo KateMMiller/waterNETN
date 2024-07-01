@@ -50,7 +50,7 @@ anything but 5:10 for months.}
 
 \item{parameter}{Specify the parameter to return (can only choose 1 per function call). Current
 accepted values are:
-c("Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
+c("Temp_C", "Temp_F", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
 "Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg").}
 
 \item{depth_type}{Specify whether to plot sample depth relative to elevation of surface water
