@@ -879,7 +879,7 @@ plotClimAnom(park = c("MABI", "SAGA"), years = 2023, parameter = "ppt", legend_p
 <p class = 'fxn'>Plot ACAD avg temp and precip anomalies from last 20 years compared with 30-year normals.</p>
 ```{r}
 plotClimAnom(park = c("ACAD"), years = 2004:2024, parameter = c("tmean", "ppt"), 
-             legend_position = 'right', averages = "norm1990")
+             legend_position = 'bottom', averages = "norm1990")
 ```
 
 

@@ -201,7 +201,7 @@ plotClimAnom <- function(park = "all",
 
   facetpark <- ifelse(length(unique(clim_comb1$UnitCode)) > 1, TRUE, FALSE)
   facetparam <- ifelse(length(parameter) > 1, TRUE, FALSE)
-  facet_y <- if(length(parameter) > 1 & any(parameter %in% "ppt" )){"free_y"} else {"fixed"}
+  facet_y <- if(length(parameter) > 1 & any(parameter %in% c("ppt", "ppt_pct"))){"free_y"} else {"fixed"}
 
   clim_comb1$park_facet <- if(title_type == "UnitCode"){clim_comb1$UnitCode} else {clim_comb1$UnitName}
 
@@ -249,12 +249,15 @@ plotClimAnom <- function(park = "all",
                                                 "%b"))
   datebreaks <- seq(min(clim_comb4$date2, na.rm = T), max(clim_comb4$date2, na.rm = T) + 30, by = break_len)
 
-  ylabel <- switch(parameter,
+  ylabel <- if(length(parameter) > 1){"Deviation from Baseline"
+    } else {
+            switch(parameter,
                    "ppt" = paste0("Precipitation Anomaly (", units_ppt, ")"),
                    "tmin" = paste0("Temperature Anomaly (", units_temp, ")"),
                    "tmax" = paste0("Temperature Anomaly (", units_temp, ")"),
                    "tmean" = paste0("Temperature Anomaly (", units_temp, ")"),
                    "ppt_pct" = paste0("+/- % of Precipitation Anomaly"))
+    }
 
   above_label <- if(year_len == 1){paste0("Above baseline for ", years)} else {"Above baseline"}
   below_label <- if(year_len == 1){paste0("Below baseline for ", years)} else {"Below baseline"}
