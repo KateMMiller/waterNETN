@@ -506,7 +506,7 @@ This function produces a plot that summarizes the range of historic data compare
 
 Currently you can only specify one parameter at a time. Values that exceed water quality thresholds (where they exist) are plotted as orange and will show an orange point in the legend. Values within WQ thresholds or for parameters without set thresholds are black. You can include threshold lines (default), or remove them, where they make the y axis range too big, via `threshold = FALSE`. If multiple sites are specified, they will be faceted.
 
-You can now add gridlines to the plot via the gridlines argument. 
+You can now add gridlines to the plot via the gridlines argument, and Temp in F via "Temp_F" argument. 
 
 <p class = 'fxn'>Plot pH in Jordan Pond for 2023 with gridlines on the y-axis</p>
 ```{r message = FALSE, warning = FALSE}
@@ -526,9 +526,9 @@ plotWaterBands(site = "ACJORD", year_curr = 2023, years_historic = 2006:2022,
   parameter = "TN_mgL", legend_position = 'right', include_censored = T, threshold = F, gridlines = "grid_x")
 ```
 
-<p class = 'fxn'>Plot TN in SARA sites in 2023 without gridlines (default)</p>
+<p class = 'fxn'>Plot Temp in F in SARA sites in 2023 without gridlines (default)</p>
 ```{r message = FALSE, warning = FALSE}
-plotWaterBands(park = "SARA", year_curr = 2023, years_historic = 2006:2022, parameter = "TN_mgL",
+plotWaterBands(park = "SARA", year_curr = 2023, years_historic = 2006:2022, parameter = "Temp_F",
   legend_position = 'right')
 ```
 
@@ -546,7 +546,8 @@ There are several arguments to customize plots.
 <li> Choose whether to plot surface (default) or all depth measurements via `sample_depth`. </li>
 <li> Choose whether to include censored values or not via `include_censored`. </li>
 <li> Choose color palette via `palette`. Default is 'viridis', but other options are discrete palettes in RColorBrewer, including 'Set1', 'Dark2', and 'Accent'. </li>
-<li> Choose position of legend via `legend_position`. If you don't want to show the legend, `legend_position = 'none'`.
+<li> Choose position of legend via `legend_position`. If you don't want to show the legend, `legend_position = 'none'`.</li>
+<li> Plot temperature in F via `parameter = "Temp_F"`.</li>
 </ul>
 
 
@@ -614,9 +615,9 @@ plotTrend(park = "MIMA", site_type = "stream",
 
 ```
 
-<p class = 'fxn'>Plot non-smoothed surface of multiple Sonde parameters for all MIMA streams over all years with 0.6 span. </p>
+<p class = 'fxn'>Plot non-smoothed surface of multiple Sonde parameters for all MIMA streams over all years with 0.6 span. Note that here I used Temp_F. </p>
 ```{r message = FALSE, warning = FALSE}
-params <- c("Temp_C", "SpCond_uScm", "DOsat_pct", "pH")
+params <- c("Temp_F", "SpCond_uScm", "DOsat_pct", "pH")
 plotTrend(park = "MIMA", site_type = "stream", 
           parameter = params, legend_position = "right", span = 0.6)
 
@@ -661,10 +662,11 @@ There are several arguments to customize plots.
 <li>Choose palette. Current enabled themes are 'viridis' (yellow - green - blue), and built in continuous color patterns in RColorBrewer. If you prefer other palettes, I can add those too. The only thing I'm trying to avoid is creating the palette manually, since number 1-m bins varies by site and across years. More info on built in ggplot scales can be found here: <a href="https://ggplot2-book.org/scales-colour">https://ggplot2-book.org/scales-colour</a>. </li>
 <li>Choose position of legend via `legend_position`. If you don't want to show the legend, `legend_position = 'none'`.
 <li>Include site name as plot title (title = TRUE). Only enabled when 1 site is selected. Otherwise site names will be in the facets.
+<li> Plot temperature in F via `parameter = "Temp_F"`.</li>
 </ul>
 
-<details><summary = 'drop'>Continuous RColorBrewer palettes are below:</summary>
-```{r}
+<details><summary = 'drop'>Continuous RColorBrewer palettes are below. Note that there are only as many colors as shown. </summary>
+```{r }
 RColorBrewer::display.brewer.all(type = 'div')
 RColorBrewer::display.brewer.all(type = 'seq')
 
@@ -672,14 +674,14 @@ RColorBrewer::display.brewer.all(type = 'seq')
 </details><br>
 
 <details open><summary class='drop'>Simple plots</summary>
-<p class = 'fxn'>Plot temperature for Upper Hadlock for years 2013 - 2023 corrected by elevation with thermocline plotted as black lines, with gridlines on y. </p>
+<p class = 'fxn'>Plot temperature (in F) for Upper Hadlock for years 2013 - 2023 corrected by elevation with thermocline plotted as black lines, with gridlines on y. </p>
 ```{r message = FALSE, warning = FALSE}
-plotLakeProfile(site = "ACUHAD", parameter = "Temp_C", depth_type = 'elev', 
+plotLakeProfile(site = "ACUHAD", parameter = "Temp_F", depth_type = 'elev', 
                 years = 2013:2023, gridlines = "grid_y")
 
 ```
 
-<p class = 'fxn'>Plot temp using raw sample depth (default) for all LNETN lakes sampled in 2023.</p>
+<p class = 'fxn'>Plot temp (in C) using raw sample depth (default) for all LNETN lakes sampled in 2023.</p>
 ```{r message = FALSE, warning = FALSE}
 plotLakeProfile(park = "LNETN", parameter = "Temp_C", years = 2023, palette = "Spectral")
 
@@ -805,9 +807,9 @@ plotPrecipDischarge(site = c("ACABIN", "ACKEBO"), years = 2022, colors = c("corn
 #### plotClimTrend()
 This function produces a line or smoothed trend plot filtered on park, year, month, and climate parameter. If multiple parks are specified, they can either be plotted on the same figure or separate figures. If multiple parameters are specified, they will be plotted on separate figures. For multiple parks to plot on the same figure, use facet_site = FALSE. For multiple parameters on the same figure, facet_param = FALSE. Note that all months (1:12) are default. If you only want sample months, specify months = 5:10.
 
-<b style="color:red;">NEW: I updated the compiled climate data to cover 1895 up through May 2024, so you can plot historic trends beyond just the 2006-2024 monitoring period. </b>
+<b style="color:red;">NEW: I updated the compiled climate data to cover 1895 up through May 2024, so you can plot historic trends beyond just the 2006-2024 monitoring period. You can also plot units in English.</b>
 
-<p class = 'fxn'>Plot avg temp for LNETN from 1895:2024, without points and with smoothed line and span 0.1 and gridline on y-axis, and in English units.</p>
+<p class = 'fxn'>Plot avg temp for LNETN from 1895:2024, without points and with smoothed line and span 0.1 and gridlines on y-axis, and in English units.</p>
 ```{r}
 plotClimTrend(park = "LNETN", years = 1895:2024, layers = 'smooth', 
               parameter = "tmean", span = 0.1, palette = "Dark2", 
@@ -825,9 +827,9 @@ plotClimTrend(park = c("MORR", "ROVA", "WEFA"), years = 1895:2024, layers = 'smo
 plotClimTrend(park = "ACAD", years = 1895:2024, parameter = c("tmin", "tmean", "tmax"), span = 0.1, layers = 'smooth', facet_param = F, legend_position = 'right', palette = "Set2")
 ```
 
-<p class = 'fxn'>Plot monthly climate data for MABI from 2006:2023 (all months is default), without a smoothed line.</p>
+<p class = 'fxn'>Plot monthly climate data in English units for MABI from 2006:2023 (all months is default), without a smoothed line.</p>
 ```{r}
-plotClimTrend(park = "MABI", years = 2006:2023, parameter = "all", layers = c("points", "lines"), facet_param = T, gridlines = "grid_y")
+plotClimTrend(park = "MABI", years = 2006:2023, parameter = "all", layers = c("points", "lines"), facet_param = T, gridlines = "grid_y", units = 'eng')
 ```
 <p class = 'fxn'>Plot same monthly NOAA data for MABI from 2006:2023, with smoothed line and span 0.7, and using the Dark2 color palette.</p>
 ```{r}
