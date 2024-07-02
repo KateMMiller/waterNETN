@@ -33,13 +33,17 @@
 #'
 #' @param parameter Specify the monthly averaged parameter to plot. Acceptable values are
 #' \describe{
-#'\item{"temp"}{Plot all temperature comparisons (in C).}
-#'\item{"tminmax}{Plot min and max temperature comparisons (in C).}
-#' \item{"tmean"}{Plot mean temperature comparisons (in C).}
-#' \item{"tmax"}{Plot max temperature comparisons (in C).}
-#' \item{"tmin"}{Plot min temperature comparisons (in C).}
-#' \item{"ppt"}{Plot precipitation comparisons (in mm).}
+#'\item{"temp"}{Plot all temperature comparisons.}
+#'\item{"tminmax}{Plot min and max temperature comparisons.}
+#' \item{"tmean"}{Plot mean temperature comparisons.}
+#' \item{"tmax"}{Plot max temperature comparisons.}
+#' \item{"tmin"}{Plot min temperature comparisons.}
+#' \item{"ppt"}{Plot precipitation comparisons.}
 #' }
+#'
+#' @param units Specify if you want Scientific or English units. Acceptable values are "sci" (default) and "eng".
+#' If "sci", temperature units are in C and precipitation units are in mm. If "eng", temperature units are in F,
+#' and precipitation units are in inches.
 #'
 #' @param averages Specify averages to plot. By default, the 20th century normal (1901-2000) plots.
 #' Other options include:
@@ -72,13 +76,14 @@
 #' @examples
 #' \dontrun{
 #'
-#' # Plot all temperature variables on 1 graph for MABI in 2024.
-#' plotClimRel(park = "MABI", years = 2024, parameter = "temp", palette = c("#EEE55A", "#D56062", "#067BC2"))
+#' # Plot all temperature variables on 1 graph for MABI in 2024 using English units.
+#' plotClimRel(park = "MABI", years = 2024, parameter = "temp", palette = c("#EEE55A", "#D56062", "#067BC2"),
+#'   units = 'eng')
 #'
 #' # Plot precip for SARA 2023 compared to 1990 - 2019 normals.
 #' plotClimRel(park = "SARA", years = 2023, parameter = "ppt", palette = "grey", averages = "norm1990")
 #'
-#' Plot precip for Kroma Kill in SARA 2023 and 2024 compared to 1990 - 2019 normals.
+#' # Plot precip for Kroma Kill in SARA 2023 and 2024 compared to 1990 - 2019 normals.
 #' plotClimRel(park = "SARA", years = 2023:2024, parameter = "ppt",
 #'             palette = "grey", averages = "norm1990")
 #'
@@ -92,7 +97,8 @@ plotClimRel <- function(park = "all",
                         years = 2006:format(Sys.Date(), "%Y"),
                         months = 1:12,
                         averages = "norm20cent",
-                        parameter = 'tmean', plot_title = TRUE,
+                        parameter = 'tmean', units = "sci",
+                        plot_title = TRUE,
                         title_type = "UnitCode",
                         palette = "viridis", color_rev = FALSE,
                         legend_position = 'right', numcol = 3, gridlines = "none"){
@@ -113,6 +119,7 @@ plotClimRel <- function(park = "all",
   stopifnot(class(numcol) %in% c("numeric", "integer"))
   title_type <- match.arg(title_type, c("UnitCode", "UnitName"))
   gridlines <- match.arg(gridlines, c("none", "grid_y", "grid_x", "both"))
+  units <- match.arg(units, c("sci", "eng"))
 
   #-- Compile data for plotting --
   # Clim data as annual monthly averages
@@ -215,7 +222,10 @@ plotClimRel <- function(park = "all",
 
   color_dir <- ifelse(color_rev == FALSE, -1, 1)
 
-  ylabel = if(parameter %in% "ppt"){"+/- % of Precipitation"} else {"+/- Degrees C"}
+  units_temp <- if(units == "sci"){"C"} else {"F"}
+  units_ppt <- if(units == "sci"){"mm"} else {"in"}
+
+  ylabel = if(parameter %in% "ppt"){"+/- % of Precipitation"} else {paste0("+/- Degrees ", units_temp)}
 
   ylimits <- c(-max(abs(range(clim_comb$rel_dif))), max(abs(range(clim_comb$rel_dif))))
 
@@ -231,8 +241,10 @@ plotClimRel <- function(park = "all",
   # set up legend labels
   param_labels <-
     data.frame(param = c("tmax", "tmean", "tmin", "ppt"),
-               param_label = c("Max. Temp. (C)", "Avg. Temp. (C)",
-                               "Min. Temp. (C)", "Total Precip. (mm)"))
+               param_label = c(paste0("Max. Temp. (", units_temp, ")"),
+                               paste0("Avg. Temp. (", units_temp, ")"),
+                               paste0("Min. Temp. (", units_temp, ")"),
+                               paste0("% of Total Precip. ")))
 
   clim_comb2 <- left_join(clim_comb, param_labels, by = "param") |> droplevels()
 
@@ -244,9 +256,15 @@ plotClimRel <- function(park = "all",
   facet_park <- ifelse(length(park) > 1, TRUE, FALSE)
   facet_year <- ifelse(length(years) > 1, TRUE, FALSE)
 
+  clim_comb3 <-
+  if(units == "sci"){clim_comb2
+  } else if(units == 'eng'){
+      clim_comb2 |> mutate(rel_dif == ifelse(param == "ppt", rel_dif/25.4, (rel_dif * 9/5) + 32))
+    }
+
   barplot <-
     if(parameter %in% "ppt"){
-      ggplot(clim_comb2,
+      ggplot(clim_comb3,
              aes(x = mon, y = pct_dif,
                  group = param_label,
                  color = param_label, fill = param_label)) +
@@ -277,7 +295,7 @@ plotClimRel <- function(park = "all",
         {if(!any(palette %in% 'viridis')) scale_color_manual(values = pal, name = 'Parameter')}
 
     } else {
-      ggplot(clim_comb2,
+      ggplot(clim_comb3,
         aes(x = mon, y = rel_dif,
              group = param_label,
              color = param_label, fill = param_label)) +

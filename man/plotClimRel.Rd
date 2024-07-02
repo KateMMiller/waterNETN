@@ -10,6 +10,7 @@ plotClimRel(
   months = 1:12,
   averages = "norm20cent",
   parameter = "tmean",
+  units = "sci",
   plot_title = TRUE,
   title_type = "UnitCode",
   palette = "viridis",
@@ -46,13 +47,17 @@ Other options include:
 
 \item{parameter}{Specify the monthly averaged parameter to plot. Acceptable values are
 \describe{
-\item{"temp"}{Plot all temperature comparisons (in C).}
-\item{"tminmax}{Plot min and max temperature comparisons (in C).}
-\item{"tmean"}{Plot mean temperature comparisons (in C).}
-\item{"tmax"}{Plot max temperature comparisons (in C).}
-\item{"tmin"}{Plot min temperature comparisons (in C).}
-\item{"ppt"}{Plot precipitation comparisons (in mm).}
+\item{"temp"}{Plot all temperature comparisons.}
+\item{"tminmax}{Plot min and max temperature comparisons.}
+\item{"tmean"}{Plot mean temperature comparisons.}
+\item{"tmax"}{Plot max temperature comparisons.}
+\item{"tmin"}{Plot min temperature comparisons.}
+\item{"ppt"}{Plot precipitation comparisons.}
 }}
+
+\item{units}{Specify if you want Scientific or English units. Acceptable values are "sci" (default) and "eng".
+If "sci", temperature units are in C and precipitation units are in mm. If "eng", temperature units are in F,
+and precipitation units are in inches.}
 
 \item{plot_title}{Logical. If TRUE (default) prints site name at top of figure. If FALSE,
 does not print site name. Only enabled when one site is selected.}
@@ -88,13 +93,14 @@ downloaded if available. New months are typically available within a few weeks o
 \examples{
 \dontrun{
 
-# Plot all temperature variables on 1 graph for MABI in 2024.
-plotClimRel(park = "MABI", years = 2024, parameter = "temp", palette = c("#EEE55A", "#D56062", "#067BC2"))
+# Plot all temperature variables on 1 graph for MABI in 2024 using English units.
+plotClimRel(park = "MABI", years = 2024, parameter = "temp", palette = c("#EEE55A", "#D56062", "#067BC2"),
+  units = 'eng')
 
 # Plot precip for SARA 2023 compared to 1990 - 2019 normals.
 plotClimRel(park = "SARA", years = 2023, parameter = "ppt", palette = "grey", averages = "norm1990")
 
-Plot precip for Kroma Kill in SARA 2023 and 2024 compared to 1990 - 2019 normals.
+# Plot precip for Kroma Kill in SARA 2023 and 2024 compared to 1990 - 2019 normals.
 plotClimRel(park = "SARA", years = 2023:2024, parameter = "ppt",
             palette = "grey", averages = "norm1990")
 

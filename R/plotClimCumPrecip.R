@@ -29,6 +29,9 @@
 #' @param years Numeric. Years to plot separately. Accepted values start at 2006.If multiple years
 #' specified, will facet results on year. Default is current year.
 #'
+#' @param units Specify if you want Scientific or English units. Acceptable values are "sci" (default) and "eng".
+#' If "sci" precipitation units are mm; if "eng", precipitation units are in inches.
+#'
 #' @param averages Specify averages to plot. By default, the 20th century normal (1901-2000) plots.
 #' Other options include:
 #' \describe{
@@ -56,6 +59,17 @@
 #' @examples
 #' \dontrun{
 #'
+#' # Plot ACAD cumulative precipitation for 2020 through 2023 with gridlines on y axis and precip in inches
+#' plotClimCumPrecip(park = "ACAD", years = 2020:2023, legend_position = 'bottom',
+#'                  gridlines = "grid_y", units = 'eng')
+#'
+#' # Plot ACAD cumulative precipitation for 2013 through 2023 for April - October only
+#' plotClimCumPrecip(park = "ACAD", years = 2014:2024, legend_position = 'bottom', months = 4:10)
+#'
+#' # Plot all but SAIR cumulative precipitation for 2023 with 4 columns
+#' parks <- c("ACAD", "MABI", "MIMA", "MORR", "ROVA", "SAGA", "SARA", "WEFA")
+#' plotClimCumPrecip(park = parks, years = 2023, legend_position = 'bottom', numcol = 4)
+#'
 #'
 #'}
 #'
@@ -67,6 +81,7 @@ plotClimCumPrecip <- function(park = "all",
                         years = format(Sys.Date(), "%Y"),
                         months = 1:12,
                         averages = "norm20cent",
+                        units = "sci",
                         plot_title = TRUE,
                         title_type = "UnitCode",
                         legend_position = 'right', numcol = 3,
@@ -87,14 +102,15 @@ plotClimCumPrecip <- function(park = "all",
   stopifnot(class(numcol) %in% c("numeric", "integer"))
   title_type <- match.arg(title_type, c("UnitCode", "UnitName"))
   gridlines <- match.arg(gridlines, c("none", "grid_y", "grid_x", "both"))
+  units <- match.arg(units, c("sci", "eng"))
 
   #-- Compile data for plotting --
   # Clim data as annual monthly averages
   data("NETN_clim_annual")
   data("NETN_clim_norms")
 
-  clim_dat <- NETN_clim_annual |> filter(UnitCode %in% park) |> select(UnitCode, UnitName, prcp, year, month)
-  clim_dat2 <- clim_dat |> filter(year %in% years) |> filter(month %in% months)
+  clim_dat1 <- NETN_clim_annual |> filter(UnitCode %in% park) |> select(UnitCode, UnitName, prcp, year, month)
+  clim_dat2 <- clim_dat1 |> filter(year %in% years) |> filter(month %in% months)
   clim_dat2$date <- as.Date(paste0(clim_dat2$year, "-", clim_dat2$month, "-", 15), format = "%Y-%m-%d")
 
   clim_dat_long <-
@@ -135,7 +151,6 @@ plotClimCumPrecip <- function(park = "all",
       } else {clim_dat_long}
     }
 
-
   park_names <- unique(getSites(park = park)[,c("UnitCode", "UnitName")])
   clim_dat_final2 <- left_join(clim_dat_final1, park_names, by = "UnitCode")
 
@@ -173,7 +188,8 @@ plotClimCumPrecip <- function(park = "all",
   ptitle <- if(length(unique(clim_comb$UnitCode)) == 1 & plot_title == TRUE){
     unique(clim_comb$UnitName)} else {NULL}
 
-  ylabel = "Cumulative Monthly Precip. (mm)"
+  units_ppt <- if(units == "sci"){"mm"} else {"in"}
+  ylabel = paste0("Cumulative Monthly Precip. (", units_ppt, ")")
 
   clim_comb$mon <- factor(clim_comb$month,
                           levels = unique(clim_comb$month),
@@ -188,9 +204,14 @@ plotClimCumPrecip <- function(park = "all",
 
   avg_name <- ifelse(averages == "norm20cent", "20th Century Baseline", "30 year Baseline")
 
+  clim_comb1 <- if(units == "sci"){clim_comb
+  } else {
+      clim_comb |> mutate(cum_ppt_curr = cum_ppt_curr/25.4,
+                          cum_ppt_hist = cum_ppt_hist/25.4)
+    }
 
   pptplot <-
-    ggplot(clim_comb, aes(x = mon)) + theme_WQ() +
+    ggplot(clim_comb1, aes(x = mon)) + theme_WQ() +
       geom_bar(stat = 'identity', aes(y = cum_ppt_curr, fill = "Curr", color = "Curr"), alpha = 0.8) +
       geom_line(aes(y = cum_ppt_hist, group = stat, color = "Hist"), lwd = 2) +
       scale_color_manual(

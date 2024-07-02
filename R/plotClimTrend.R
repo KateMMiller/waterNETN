@@ -36,11 +36,15 @@
 #' @param parameter Specify the parameter(s) to plot. Acceptable values are
 #' \describe{
 #' \item{"all"}{Plot all climate variables}
-#' \item{"ppt"}{Monthly total precipitation in mm.}
-#' \item{"tmax"}{Monthly average maximum temperature in C.}
-#' \item{"tmin}{Monthly average minimum temperature in C.}
-#' \item{"tmean}{Monthly average temperature in C.}
+#' \item{"ppt"}{Monthly total precipitation.}
+#' \item{"tmax"}{Monthly average maximum temperature.}
+#' \item{"tmin}{Monthly average minimum temperature.}
+#' \item{"tmean}{Monthly average temperature.}
 #' }
+#'
+#' @param units Specify if you want Scientific or English units. Acceptable values are "sci" (default) and "eng".
+#' If "sci", temperature units are in C and precipitation units are in mm. If "eng", temperature units are in F,
+#' and precipitation units are in inches.
 #'
 #' @param facet_park Logical. If TRUE, plots sites on separate facets (ie figures). If FALSE (Default),
 #' plots all sites on the same figure. This is only enabled if multiple sites are chosen.
@@ -69,8 +73,8 @@
 #' @examples
 #' \dontrun{
 #'
-#' # Plot total monthly precip for 2006:2023 and all months, without smoothing
-#' plotClimTrend(park = "MABI", years = 2006:2023, parameter = "ppt", smooth = F)
+#' # Plot total monthly precip for 2006:2023 and all months, without smoothing in English units
+#' plotClimTrend(park = "MABI", years = 2006:2023, parameter = "ppt", smooth = F, units = 'eng')
 #'
 #' # Plot avg temp in MABI from 1895:2024, without points and with smoothed line and span 0.1.
 #' plotClimTrend(park = "MABI", years = 1895:2024, layers = 'lines', parameter = "tmean", span = 0.1)
@@ -90,7 +94,7 @@ plotClimTrend <- function(park = "all",
                           years = 2006:format(Sys.Date(), "%Y"),
                           months = 1:12,
                           layers = c("points", "lines"),
-                          parameter = NA,
+                          parameter = NA, units = "sci",
                           facet_park = FALSE,
                           facet_param = TRUE,
                           palette = "viridis",
@@ -116,6 +120,7 @@ plotClimTrend <- function(park = "all",
   layers <- match.arg(layers, c("points", "lines", "smooth", "bar"), several.ok = TRUE)
   legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
   gridlines <- match.arg(gridlines, c("none", "grid_y", "grid_x", "both"))
+  units <- match.arg(units, c("sci", "eng"))
 
   #-- Compile data for plotting --
   # Clim data as annual monthly averages
@@ -177,10 +182,16 @@ plotClimTrend <- function(park = "all",
   facetpark <- ifelse(facet_park == TRUE & length(unique(clim_dat$UnitCode)) > 1, TRUE, FALSE)
   facetparam <- ifelse(facet_param == TRUE & length(unique(clim_dat$param)) > 1, TRUE, FALSE)
 
-  pars <- c("ppt", "tmax", "tmin", "tmean")
+  pars <- c("ppt", "tmax", "tmin", "tmean", "ppt_pct")
 
-  plabs <- c("Total Precip. (mm)", "Avg. Max. Temp. (C)", "Avg. Min. Temp. (C)",
-             "Average Temp. (C)")
+  units_temp <- if(units == "sci"){"C"} else {"F"}
+  units_ppt <- if(units == "sci"){"mm"} else {"in"}
+
+  plabs <- c(paste0("Total Precip. (", units_ppt, ")"),
+             paste0("Avg. Max. Temp. (", units_temp, ")"),
+             paste0("Avg. Min. Temp. (", units_temp, ")"),
+             paste0("Average Temp. (", units_temp, ")"),
+             paste0("% of Total Precip."))
 
   param_labels <- data.frame(param = pars, param_label = plabs)
 
@@ -191,10 +202,10 @@ plotClimTrend <- function(park = "all",
 
   clim_dat1$date2 <- as.Date(clim_dat1$date, format = c("%Y-%m-%d"))
 
-  clim_dat_final <- clim_dat1 |> filter(param %in% parameter)
+  clim_dat2 <- clim_dat1 |> filter(param %in% parameter)
 
-  year_len <- length(unique(clim_dat_final$year))
-  mon_len <- length(unique(clim_dat_final$month))
+  year_len <- length(unique(clim_dat2$year))
+  mon_len <- length(unique(clim_dat2$month))
 
   break_len <- if(year_len == 1){"1 month"
   } else if(year_len  %in% c(2, 3, 4) & mon_len <= 6){"2 months"
@@ -208,9 +219,14 @@ plotClimTrend <- function(park = "all",
   date_format <- ifelse(break_len %in% c("1 year", "2 years", "5 years"), "%Y",
                         ifelse(break_len %in% c("2 months", "4 months"), "%b/%Y",
                                "%b"))
-  datebreaks <- seq(min(clim_dat_final$date2, na.rm = T), max(clim_dat_final$date2, na.rm = T) + 30, by = break_len)
+  datebreaks <- seq(min(clim_dat2$date2, na.rm = T), max(clim_dat2$date2, na.rm = T) + 30, by = break_len)
 
   seq_int <- if(any(parameter == "ppt")){20} else {2}
+
+  clim_dat_final <- if(units == "sci"){clim_dat2
+  } else if(units == "eng"){
+      clim_dat2 |> mutate(value = ifelse(param == "ppt", value/25.4, (value * 9/5) + 32))
+    }
 
   #ybreaks <- seq(floor(min(clim_dat_final$value)), ceiling(max(clim_dat_final$value)), seq_int)
 
@@ -264,7 +280,8 @@ plotClimTrend <- function(park = "all",
       labs(x = NULL, y = ylab)
 
  return(#suppressWarnings(
-   climtrendplot)#)
+   climtrendplot
+   )#)
 }
 
 

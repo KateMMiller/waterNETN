@@ -260,7 +260,7 @@ rova_ws <- getClimWStat(park = "ROVA", years = 2013:2023, export = T,
 print_head(rova_ws)
 ```
 
-```{r echo = F}
+```{r echo = F, eval = F}
 rova_ws <- getClimWStat(park = "ROVA", years = 2013:2023, export = T, 
                         filepath = "../data")
 print_head(rova_ws)
@@ -764,11 +764,11 @@ doplot <- plotLakeProfile(site = sitecode, parameter = "DOsat_pct", depth_type =
                           years = year, months = mon, color_rev = T, plot_title = ptitle)
 
 pHplot <- plotLakeProfile(site = sitecode, parameter = "pH", depth_type = depth,
-                          years = year, months = mon, palette = "ryb", color_rev = T,
+                          years = year, months = mon, palette = "RdYlBu", color_rev = T,
                           plot_title = ptitle)
 
 cnplot <- plotLakeProfile(site = sitecode, parameter = "SpCond_uScm", depth_type = depth,
-                         years = year, months = mon, palette = 'rb',
+                         years = year, months = mon, palette = 'RdBu',
                          plot_title = ptitle)
 
 # Default settings
@@ -807,11 +807,11 @@ This function produces a line or smoothed trend plot filtered on park, year, mon
 
 <b style="color:red;">NEW: I updated the compiled climate data to cover 1895 up through May 2024, so you can plot historic trends beyond just the 2006-2024 monitoring period. </b>
 
-<p class = 'fxn'>Plot avg temp for LNETN from 1895:2024, without points and with smoothed line and span 0.1 and gridline on y-axis.</p>
+<p class = 'fxn'>Plot avg temp for LNETN from 1895:2024, without points and with smoothed line and span 0.1 and gridline on y-axis, and in English units.</p>
 ```{r}
 plotClimTrend(park = "LNETN", years = 1895:2024, layers = 'smooth', 
               parameter = "tmean", span = 0.1, palette = "Dark2", 
-              legend_position = 'right', gridlines = "grid_y")
+              legend_position = 'right', gridlines = "grid_y", units = "eng")
 ```
 
 <p class = 'fxn'>Plot monthly precip for MORR, ROVA and WEFA from 1895:2024, without points and with smoothed line and span 0.1.</p>
@@ -853,12 +853,19 @@ plotClimTrend(park = "MABI", years = 2006:2023,
 
 
 #### plotClimAnom()
-This function produces a trend plot filtered on park, year, month, and climate parameter and shows anomalies from chosen baseline (1901 - 2000 or 1991 - 2020) as red for above and blue for below average using gridded NOAA NClim data. If a year x month combination is specified that doesn't occur yet in NETN_clim_annual dataset, it will be downloaded if available. New months are typically available within a few weeks of the month end. If multiple parks are specified, they can either be plotted on the same figure or separate figures. If multiple parameters are specified, they will be plotted on separate figures. 
+This function produces a trend plot filtered on park, year, month, and climate parameter and shows anomalies from chosen baseline (1901 - 2000 or 1991 - 2020) as red for above and blue for below average using gridded NOAA NClim data. If a year x month combination is specified that doesn't occur yet in NETN_clim_annual dataset, it will be downloaded if available. New months are typically available within a few weeks of the month end. If multiple parks are specified, they can either be plotted on the same figure or separate figures. If multiple parameters are specified, they will be plotted on separate figures.You can also plot percent difference of precipitation, in addition to difference in raw units (i.e. mm). 
 
-<p class = 'fxn'>Plot ACAD average temperature anomalies from 1895 to 2024 compared with 20th century normals wiht gridlines on y axis.</p>
+<p class = 'fxn'>Plot ACAD average temperature anomalies from 1895 to 2024 compared with 20th century normals with gridlines on y axis and English units.</p>
 ```{r}
-plotClimAnom(park = "ACAD", years = 1895:2024, parameter = "tmean", legend_position = 'right', gridlines = "grid_y")
+plotClimAnom(park = "ACAD", years = 1895:2024, parameter = "tmean", 
+             legend_position = 'right', gridlines = "grid_y", units = "eng")
 ```
+
+<p class = 'fxn'>Plot WEFA percent precipitation anomalies in 2023 compared with 20th century normals.</p>
+```{r}
+plotClimAnom(park = "WEFA", years = 2023, parameter = "ppt_pct", legend_position = 'right')
+```
+
 
 <p class = 'fxn'>Plot MABI and SAGA average temperature anomalies from 2006 to 2024 compared with 20th century normals.</p>
 ```{r}
@@ -884,18 +891,18 @@ This function compares either the 20th century normals (1901 - 2000), or the mos
 You can now add gridlines to x, y, or both axes.
 
 <details open><summary class='drop'>Single parameter</summary>
-<p class = 'fxn'>Plot mean monthly temp for MABI for 2019:2023 and all months with red-blue color palette and the 4 decadal averages with gridlines on y.</p>
+<p class = 'fxn'>Plot mean monthly temp for MABI for 2019:2023 and all months with red-blue color palette and the 4 decadal averages with gridlines on y in english units.</p>
 ```{r}
 plotClimComps(park = "MABI", years = 2019:2023, parameter = "tmean", 
               palette = c("red", "blue"), averages = "norm20cent",
-              gridlines = 'grid_y')
+              gridlines = 'grid_y', units = "eng")
 ```
 <p class = 'fxn'>Same as above, but with points and 30-year normal starting at 1991.</p>
 ```{r}
 plotClimComps(park = "MABI", years = 2019:2023, parameter = "tmean", palette = c("red", "blue"), 
-              layers = c('points', 'lines'), averages = "norm1990")
+              layers = c('points', 'lines'), averages = "norm1990", units = 'eng')
 ```
-<p class = 'fxn'>Plot max monthly temp for ROVA for 2023 and 2024, with 'viridis' palette and 20th century norm (default).</p>
+<p class = 'fxn'>Plot max monthly temp for ROVA for 2023 and 2024, with 'viridis' palette and 20th century norm (default) using scientific units.</p>
 
 ```{r}
 plotClimComps(park = "ROVA", years = 2023:2024, parameter = "tmax", 
@@ -1006,10 +1013,10 @@ grid2
 #### plotClimCumPrecip()
 This function plots cumulative monthly precipitation for a given year compared to either the 19th century or 30-year normal. If multiple parks or years are specified, resulting plots will be faceted on those variables.You can add gridlines to the x, y or both axes.
 
-<p class='fxn'>Plot ACAD cumulative precipitation for 2020 through 2023 with gridlines on y axis.
+<p class='fxn'>Plot ACAD cumulative precipitation for 2020 through 2023 with gridlines on y axis and precip in inches.
 ```{r}
 plotClimCumPrecip(park = "ACAD", years = 2020:2023, legend_position = 'bottom',
-                  gridlines = "grid_y")
+                  gridlines = "grid_y", units = 'eng')
 
 ```
 
@@ -1035,9 +1042,10 @@ plotClimCumPrecip(park = "ACAD", years = 2019:2023, legend_position = 'bottom', 
 #### plotClimRel()
 This function plots a given year compared against either the 19th century normal (1901 - 2000) or the 1991 - 2020 normal. Both normals and annual comparisons are derived from NOAA gridded climate data. You can either plot all temp variables, min/max temp, mean temp or precipitation. If multiple years are specified, resulting plots will facet on year. You can make your own palette by specifying colors, or by default use viridis. Currently can only plot one park at a time. Can also add gridlines to x, y or both axes. 
 
-<p class = 'fxn'>Plot all temperature variables on 1 graph for MABI in 2024 with gridlines on y axis.</p>
+<p class = 'fxn'>Plot all temperature variables on 1 graph for MABI in 2024 with gridlines on y axis and english units.</p>
 ```{r message = F, warning = FALSE}
-plotClimRel(park = "MABI", years = 2024, parameter = "temp", palette = c("#EEE55A", "#D56062", "#067BC2"), gridlines = 'grid_y')
+plotClimRel(park = "MABI", years = 2024, parameter = "temp", units = "eng",
+            palette = c("#EEE55A", "#D56062", "#067BC2"), gridlines = 'grid_y')
 ```
 
 <p class = 'fxn'>Plot precip for SARA 2023 compared to 1990 - 2019 normals.</p>

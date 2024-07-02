@@ -10,6 +10,7 @@ plotClimTrend(
   months = 1:12,
   layers = c("points", "lines"),
   parameter = NA,
+  units = "sci",
   facet_park = FALSE,
   facet_param = TRUE,
   palette = "viridis",
@@ -47,11 +48,15 @@ The bar argument plots a bar chart.}
 \item{parameter}{Specify the parameter(s) to plot. Acceptable values are
 \describe{
 \item{"all"}{Plot all climate variables}
-\item{"ppt"}{Monthly total precipitation in mm.}
-\item{"tmax"}{Monthly average maximum temperature in C.}
-\item{"tmin}{Monthly average minimum temperature in C.}
-\item{"tmean}{Monthly average temperature in C.}
+\item{"ppt"}{Monthly total precipitation.}
+\item{"tmax"}{Monthly average maximum temperature.}
+\item{"tmin}{Monthly average minimum temperature.}
+\item{"tmean}{Monthly average temperature.}
 }}
+
+\item{units}{Specify if you want Scientific or English units. Acceptable values are "sci" (default) and "eng".
+If "sci", temperature units are in C and precipitation units are in mm. If "eng", temperature units are in F,
+and precipitation units are in inches.}
 
 \item{facet_park}{Logical. If TRUE, plots sites on separate facets (ie figures). If FALSE (Default),
 plots all sites on the same figure. This is only enabled if multiple sites are chosen.}
@@ -84,8 +89,8 @@ figures. If multiple parameters are specified, they will be plotted on separate 
 \examples{
 \dontrun{
 
-# Plot total monthly precip for 2006:2023 and all months, without smoothing
-plotClimTrend(park = "MABI", years = 2006:2023, parameter = "ppt", smooth = F)
+# Plot total monthly precip for 2006:2023 and all months, without smoothing in English units
+plotClimTrend(park = "MABI", years = 2006:2023, parameter = "ppt", smooth = F, units = 'eng')
 
 # Plot avg temp in MABI from 1895:2024, without points and with smoothed line and span 0.1.
 plotClimTrend(park = "MABI", years = 1895:2024, layers = 'lines', parameter = "tmean", span = 0.1)

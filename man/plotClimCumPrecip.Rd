@@ -9,6 +9,7 @@ plotClimCumPrecip(
   years = format(Sys.Date(), "\%Y"),
   months = 1:12,
   averages = "norm20cent",
+  units = "sci",
   plot_title = TRUE,
   title_type = "UnitCode",
   legend_position = "right",
@@ -41,6 +42,9 @@ Other options include:
 \item{"norm1990"}{Plots the 30-year norm from 1991 - 2020}
 }}
 
+\item{units}{Specify if you want Scientific or English units. Acceptable values are "sci" (default) and "eng".
+If "sci" precipitation units are mm; if "eng", precipitation units are in inches.}
+
 \item{plot_title}{Logical. If TRUE (default) prints park name at top of figure. If FALSE,
 does not print site name. Only enabled when one park is selected.}
 
@@ -65,6 +69,17 @@ plots will be faceted on those variables.
 }
 \examples{
 \dontrun{
+
+# Plot ACAD cumulative precipitation for 2020 through 2023 with gridlines on y axis and precip in inches
+plotClimCumPrecip(park = "ACAD", years = 2020:2023, legend_position = 'bottom',
+                 gridlines = "grid_y", units = 'eng')
+
+# Plot ACAD cumulative precipitation for 2013 through 2023 for April - October only
+plotClimCumPrecip(park = "ACAD", years = 2014:2024, legend_position = 'bottom', months = 4:10)
+
+# Plot all but SAIR cumulative precipitation for 2023 with 4 columns
+parks <- c("ACAD", "MABI", "MIMA", "MORR", "ROVA", "SAGA", "SARA", "WEFA")
+plotClimCumPrecip(park = parks, years = 2023, legend_position = 'bottom', numcol = 4)
 
 
 }

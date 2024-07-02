@@ -42,7 +42,8 @@ download months that are available from NOAA.}
 \item{"tmean"}{Plot mean temperature comparisons.}
 \item{"tmax"}{Plot max temperature comparisons.}
 \item{"tmin"}{Plot min temperature comparisons.}
-\item{"ppt"}{Plot precipitation comparisons.}
+\item{"ppt"}{Plot precipitation comparisons in raw units.}
+\item{"ppt_pct"}{Plot relative percent difference in precipitation.}
 }}
 
 \item{units}{Specify if you want Scientific or English units. Acceptable values are "sci" (default) and "eng".
@@ -57,12 +58,12 @@ Other options include:
 }}
 
 \item{legend_position}{Specify location of legend. To turn legend off, use legend_position = "none" (Default).
-Other options are "top", "bottom", "left", "right".
-
-#' @param gridlines Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")}
+Other options are "top", "bottom", "left", "right".}
 
 \item{title_type}{Specify whether to label facets with 4-letter UnitCode (default) or full UnitName.
 Options are c("UnitCode", "UnitName").}
+
+\item{gridlines}{Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")}
 }
 \value{
 Returns a ggplot object of specified climate trends
@@ -84,6 +85,9 @@ gridlines = "grid_y")
 
 # Plot MABI and SAGA average temperature anomalies from 2006 to 2024 compared with 20th century normals and english units.
 plotClimAnom(park = c("MABI", "SAGA"), years = 2006:2024, parameter = "tmean", units = "eng", legend_position = 'right')
+
+# Plot WEFA percent precipitation anomalies in 2023 compared with 20th century normals.
+plotClimAnom(park = "WEFA", years = 2023, parameter = "ppt_pct", legend_position = 'right')
 
 }
 
