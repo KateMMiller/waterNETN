@@ -1,2 +1,2 @@
-# waterNETN
+### waterNETN
 This package contains functions that import the water data package from the NETN water backend and or exported CSVs of the water data package, along with gridded climate and weather station data to perform basic queries, data summaries and visualizations. See https://katemmiller.github.io/waterNETN/ for user guide.
