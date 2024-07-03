@@ -16,7 +16,7 @@ default panel grids from ggplot2 figures.
 \examples{
 {
 
- # See plotSmoothTrend() function example
+ # See plotTrend() function example
 
 }
 }

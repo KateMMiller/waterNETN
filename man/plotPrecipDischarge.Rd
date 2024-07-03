@@ -10,10 +10,10 @@ plotPrecipDischarge(
   years = 2006:format(Sys.Date(), "\%Y"),
   months = 5:10,
   active = TRUE,
-  colors = c("#257EF6", "black"),
+  units = "sci",
+  palette = c("#257EF6", "black"),
   legend_position = "none",
-  gridlines = "none",
-  ...
+  gridlines = "none"
 )
 }
 \arguments{
@@ -40,15 +40,16 @@ events are between months 5 and 10, and these are set as the defaults.}
 
 \item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
 
-\item{colors}{Change colors of precipitation bar plot and discharge point and line plot. Default is c('#257EF6', 'black'), which are dark blue for precipitation,
+\item{units}{Specify if you want Scientific or English units. Acceptable values are "sci" (default) and "eng".
+If "sci" precipitation units are mm; if "eng", precipitation units are in inches.}
+
+\item{palette}{Change colors of precipitation bar plot and discharge point and line plot. Default is c('#257EF6', 'black'), which are dark blue for precipitation,
 and black for discharge. Y axes are color coded the same.}
 
 \item{legend_position}{Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
 options are "top", "bottom", "left", "right".}
 
 \item{gridlines}{Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")}
-
-\item{...}{Additional arguments relevant to \code{getChemistry()} or \code{getSondeInSitu()}}
 }
 \value{
 Returns a ggplot object of specified climate trends
@@ -67,7 +68,7 @@ plotPrecipDischarge(site = c("MIMASA"), years = 2019:2023)
 # Plot Discharge for Aunt Betty Inlet and Kebo Stream for 2022 using different colors.
 # Note that this can be slow because has to download precip. data from NADP.
 # LNETN parks download from a faster web service.
-plotPrecipDischarge(site = c("ACABIN", "ACKEBO"), years = 2022, colors = c("cornflowerblue", "orange"))
+plotPrecipDischarge(site = c("ACABIN", "ACKEBO"), years = 2022,palette = c("cornflowerblue", "orange"))
 
 }
 

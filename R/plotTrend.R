@@ -93,7 +93,7 @@
 #' \dontrun{
 #'
 #' # Plot smoothed surface pH for Eagle Lake for past 3 years using default span of 0.3 and by default not including the legend.
-#' plotTrend(site = "ACEAGL", parameter = "pH", palette = 'Dark2', years = 2021:2023)
+#' plotTrend(site = "ACEAGL", parameter = "pH", palette = 'Dark2', years = 2021:2023) + theme_WQ()
 #'
 #' # Plot smoothed surface pH for Eagle Lake for all years, removing the legend and using span of 0.75.
 #' plotTrend(site = "ACEAGL", parameter = "pH", span = 0.75)
