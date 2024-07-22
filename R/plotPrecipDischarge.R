@@ -33,6 +33,15 @@
 #'
 #' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
 #'
+#' @param rating Filter on measurement rating. Can choose multiple. Default is all.
+#' \describe{
+#' \item{"all"}{All measurements}
+#' \item{"E"}{Excellent}
+#' \item{"G"}{Good}
+#' \item{"F"}{Fair}
+#' \item{"P"}{Poor}
+#' }
+#'
 #' @param units Specify if you want Scientific or English units. Acceptable values are "sci" (default) and "eng".
 #' If "sci" precipitation units are mm; if "eng", precipitation units are in inches.
 #'
@@ -67,6 +76,7 @@ plotPrecipDischarge <- function(park = "all",
                                 #layers = c("points", "lines"),
                                 months = 5:10,
                                 active = TRUE,
+                                rating = 'all',
                                 units = 'sci',
                                 palette = c("#257EF6", "black"),
                                 legend_position = 'none',
@@ -89,12 +99,13 @@ plotPrecipDischarge <- function(park = "all",
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   stopifnot(class(active) == "logical")
+  rating <- match.arg(rating, several.ok = T, c("all", "E", "G", "F", "P"))
   stopifnot(length(palette) == 2)
   legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
   units <- match.arg(units, c("sci", "eng"))
 
   #-- Compile data for plotting --
-  disch <- getDischarge(park = park, site = site, active = active, years = years, months = months) |>
+  disch <- getDischarge(park = park, site = site, active = active, years = years, months = months, rating = rating) |>
     select(UnitCode, SiteCode, SiteName, EventDate, year, month, doy, Discharge_cfs)
 
   disch$Date2 <- as.Date(disch$EventDate, format = c("%Y-%m-%d"))

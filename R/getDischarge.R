@@ -23,6 +23,14 @@
 #'
 #' @param site Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".
 #'
+#' @param event_type Select the event type. Options available are below Can only choose one option.
+#' \describe{
+#' \item{"all"}{All possible sampling events.}
+#' \item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
+#' \item{"acid"}{Acidification monitoring events in Acadia.}
+#' \item{"misc"}{Miscellaneous sampling events.}
+#' }
+#'
 #' @param years Numeric. Years to query. Accepted values start at 2006.
 #'
 #' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
@@ -34,8 +42,9 @@
 #' "Flume", "No Measurement", "Rating curve estimate", "Timed float",
 #' "USGS Gage", "Visual estimate", "Volumetric")
 #'
-#' @param rating Filter on measurement rating.
+#' @param rating Filter on measurement rating. Can choose multiple. Default is all.
 #' \describe{
+#' \item{"all"}{All measurements}
 #' \item{"E"}{Excellent}
 #' \item{"G"}{Good}
 #' \item{"F"}{Fair}
@@ -64,12 +73,11 @@
 #'}
 #' @export
 
-getDischarge <- function(park = "all", site = "all",
-                     #site_type = c("all", "lake", "stream"),
-                     years = 2006:format(Sys.Date(), "%Y"),
-                     months = 5:10, active = TRUE, method = 'all',
-                     rating = c('all', "E", "G", "F", "P"),
-                     output = c("short", "verbose")){
+getDischarge <- function(park = "all", site = "all", event_type = "VS",
+                         years = 2006:format(Sys.Date(), "%Y"),
+                         months = 5:10, active = TRUE, method = 'all',
+                         rating = 'all',
+                         output = c("short", "verbose")){
 
   #-- Error handling --
   park <- match.arg(park, several.ok = TRUE,
@@ -77,6 +85,7 @@ getDischarge <- function(park = "all", site = "all",
                       "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
   if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
   #site_type <- match.arg(site_type)
+  event_type <- match.arg(event_type, c("all", "VS", "acid", "misc"))
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   stopifnot(class(active) == "logical")
@@ -84,7 +93,7 @@ getDischarge <- function(park = "all", site = "all",
                       c("all", "Flowtracker", "Pygmy", "Flume", "Flowtracker",
                         "Pygmy", "No Measurement", "Rating curve estimate", "Timed float",
                         "USGS Gage", "Visual estimate", "Volumetric"))
-  rating <- match.arg(rating, several.ok = T)
+  rating <- match.arg(rating, several.ok = T, c("all", "E", "G", "F", "P"))
   output <- match.arg(output)
 
   # Check if the views exist and stop if they don't
@@ -115,9 +124,9 @@ getDischarge <- function(park = "all", site = "all",
 
   # Filter by site, years, and months to make data set small
   sites <- force(getSites(park = park, site = site, site_type = 'stream', active = active))$SiteCode
-  evs <- force(getEvents(park = park, site = site, site_type = 'stream', active = active,
+  evs <- force(getEvents(park = park, site = site, site_type = 'stream', active = active, event_type = event_type,
                          years = years, months = months, output = 'verbose')) |>
-    select(SiteCode, SiteType, EventDate, EventCode)
+    select(SiteCode, SiteType, EventDate, EventCode, Project)
 
   dis2 <- dis |> filter(SiteCode %in% sites)
   dis3 <- left_join(evs, dis2, by = c("SiteCode", "EventDate", "EventCode"))
@@ -132,16 +141,15 @@ getDischarge <- function(park = "all", site = "all",
 
   dis5 <-
   if(output == "short"){dis4[,c("SiteCode", "SiteName", "UnitCode", "SubUnitCode",
-                                "EventDate","EventCode",
+                                "EventDate","EventCode", "Project",
                                 "year", "month", "doy", "ReachType", "FlowStatus",
                                 "DischargeMethod", "TotalArea_sqft", "AvgVel_fs",
                                 "VelocityFlag", "Discharge_cfs", "DischargeFlag",
                                 "MeasurementRating", "Comments")]
     } else {dis4}
 
-  dis6 <-
-    if(any(rating == "all")){dis5
-      } else {filter(dis5, MeasurementRating %in% rating)}
+  dis6 <- if(any(rating == "all")){dis5
+    } else {dis5 |> filter(MeasurementRating %in% rating)}
 
   if(nrow(dis6) == 0){
     stop("Returned data frame with no records. Check your park, site, and site_type arguments.")}

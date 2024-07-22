@@ -40,6 +40,14 @@
 #' \item{"stream"}{Include streams only.}
 #' }
 #'
+#' @param event_type Select the event type. Options available are below Can only choose one option.
+#' \describe{
+#' \item{"all"}{All possible sampling events.}
+#' \item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
+#' \item{"acid"}{Acidification monitoring events in Acadia.}
+#' \item{"misc"}{Miscellaneous sampling events.}
+#' }
+#'
 #' @param years Numeric. Years to query. Accepted values start at 2006.
 #'
 #' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
@@ -52,7 +60,7 @@
 #' "DOC_mgL", "NH3_mgL", "NO2_mgL", "NO2+NO3_mgL", "NO3_ueqL", "pH_Lab", "PO4_ugL", "SO4_ueqL",
 #' "TN_mgL", "TotDissN_mgL", "TotDissP_ugL", "TP_ugL")
 #' sonde: c("Temp_C", "Temp_F", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
-#' "Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg").
+#' "Turbidity_FNU", "ChlA_EXO_RFU", "ChlA_EXO_ugL", "BP_mmHg").
 #' other: c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevel_Feet", "WaterLevel_m").
 #' Note that "all" is not an accepted value, because there are too many to plot.
 #'
@@ -67,11 +75,14 @@
 #'
 #' @param layers Options are "points" and "lines". By default, both will plot.
 #'
-#' @param palette Theme to plot points and lines. Options currently are 'viridis' (Default- ranges of blue, green and yellow), or discrete palettes from RColorBrewer. Common options are "Set1", "Set2", "Dark2", "Accent".
-#' Run RColorBrewer::display.brewer.all(type = 'qual') to see full set of options.
+#' @param palette Theme to plot points and lines. Options currently are 'viridis' (Default- ranges of blue,
+#' green and yellow), magma (yellow, red, purple), plasma (brighter version of magma), turbo (rainbow),
+#' or discrete palettes from RColorBrewer. Common options are "Set1", "Set2", "Dark2", "Accent".
+#' Run RColorBrewer::display.brewer.all(type = 'qual') to see full set of options. Note that discrete
+#' palettes only have 9 colors, so can't be used if grouping variable (e.g. park) has > 9 levels.
 #'
-#' @param threshold Logical. If TRUE (Default), will plot a dashed (upper) or dotted (lower) line if a water quality threshold exists for that
-#' parameter and site. If FALSE, no threshold line will be plotted.
+#' @param threshold Logical. If TRUE (Default), will plot a dashed (upper) or dotted (lower) line if a water
+#' quality threshold exists for that parameter and site. If FALSE, no threshold line will be plotted.
 #'
 #' @param smooth Logical. If TRUE (Default), will plot a loess smoothed line. If FALSE, will plot actual line. Only
 #' plots if layers argument includes 'lines'.
@@ -122,6 +133,7 @@
 #'
 plotTrend <- function(park = "all", site = "all",
                       site_type = c("all", "lake", "stream"),
+                      event_type = "VS",
                       years = 2006:format(Sys.Date(), "%Y"),
                       months = 5:10, active = TRUE,
                       parameter = NA, include_censored = FALSE,
@@ -142,6 +154,7 @@ plotTrend <- function(park = "all", site = "all",
                       "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
   if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
   site_type <- match.arg(site_type)
+  event_type <- match.arg(event_type, c("all", "VS", "acid", "misc"))
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   stopifnot(class(active) == "logical")
@@ -184,31 +197,31 @@ plotTrend <- function(park = "all", site = "all",
     rbind(
     if(length(par_chem) > 0){
       force(getChemistry(park = park, site = site, site_type = site_type, include_censored = include_censored,
-                   years = years, months = months, parameter = par_chem, ...)) |>
+                   years = years, months = months, parameter = par_chem, event_type = event_type, ...)) |>
         select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value, censored)
         } else {NULL},
     if(length(par_sonde) > 0){
       force(getSondeInSitu(park = park, site = site, site_type = site_type,
-                     years = years, months = months, parameter = par_sonde, ...)) |>
+                     years = years, months = months, parameter = par_sonde, event_type = event_type, ...)) |>
         select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
         mutate(censored = FALSE)
         } else {NULL},
     if(length(par_sec) > 0){
-      force(getSecchi(park = park, site = site,
+      force(getSecchi(park = park, site = site, event_type = event_type,
                 years = years, months = months, observer_type = 'first')) |>
         #mutate(param = "SDepth_m", Value = SDepth_m) |>
         select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
         mutate(censored = FALSE)
         } else {NULL},
     if(length(par_dis) > 0){
-      force(getDischarge(park = park, site = site,
+      force(getDischarge(park = park, site = site, event_type = event_type,
                    years = years, months = months)) |>
         mutate(Parameter = "Discharge_cfs", Value = Discharge_cfs) |>
         select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
         mutate(censored = FALSE)
         } else {NULL},
     if(length(par_pen) > 0){
-      force(getLightPen(park = park, site = site,
+      force(getLightPen(park = park, site = site, event_type = event_type,
                   years = years, months = months)) |>
         mutate(Parameter = "PenetrationRatio", Value = PenetrationRatio) |>
         select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
@@ -269,6 +282,9 @@ plotTrend <- function(park = "all", site = "all",
                                "%b"))
   datebreaks <- seq(min(wdat2$date2, na.rm = T), max(wdat2$date2, na.rm = T) + 30, by = break_len)
 
+  vir_pal = ifelse(palette %in% c("viridis", "magma", "plasma", "turbo"), "viridis", "colbrew")
+
+
   #-- Create plot --
   trendplot <-
     if(include_censored == TRUE){
@@ -300,10 +316,10 @@ plotTrend <- function(park = "all", site = "all",
             panel.grid.major.x = element_line(color = 'grey'))}} + #,
             #panel.grid.minor.x = element_line(color = 'grey'))}}+
       # palettes
-      {if(palette == "viridis") scale_color_viridis_d()} +
-      {if(palette == "viridis") scale_fill_viridis_d()} +
-      {if(!palette == "viridis") scale_color_brewer(palette = palette)} +
-      {if(!palette == "viridis") scale_fill_brewer(palette = palette)} +
+        {if(any(vir_pal == "viridis")) scale_color_viridis_d(option = palette)} +
+        {if(any(vir_pal == "viridis")) scale_fill_viridis_d(option = palette)} +
+        {if(any(vir_pal == "colbrew")) scale_color_brewer(palette = palette)} +
+        {if(any(vir_pal == "colbrew")) scale_fill_brewer(palette = palette)} +
       #axis format
       scale_x_date(breaks = datebreaks, labels = scales::label_date(date_format)) +
       scale_y_continuous(n.breaks = 8)+

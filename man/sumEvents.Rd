@@ -8,6 +8,7 @@ sumEvents(
   park = "all",
   site = "all",
   site_type = c("all", "lake", "stream"),
+  event_type = "VS",
   years = 2006:format(Sys.Date(), "\%Y"),
   active = TRUE,
   months = 5:10
@@ -37,6 +38,14 @@ sumEvents(
 \item{"stream"}{Include streams only.}
 }}
 
+\item{event_type}{Select the event type. Options available are below Can only choose one option.
+\describe{
+\item{"all"}{All possible sampling events.}
+\item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
+\item{"acid"}{Acidification monitoring events in Acadia.}
+\item{"misc"}{Miscellaneous sampling events.}
+}}
+
 \item{years}{Numeric. Years to query. Accepted values start at 2006.}
 
 \item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites
@@ -50,7 +59,7 @@ chemistry: c("ANC_ueqL", "AppColor", "AppColor_PCU", "ChlA_ugL", "Cl_ueqL",
 "DOC_mgL", "NH3_mgL", "NO2_mgL", "NO2+NO3_mgL", "NO3_ueqL", "pH_Lab", "PO4_ugL", "SO4_ueqL",
 "TN_mgL", "TotDissN_mgL", "TotDissP_ugL", "TP_ugL")
 sonde: c("Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
-"Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg").
+"Turbidity_FNU", "ChlA_EXO_RFU", "ChlA_EXO_ugL", "BP_mmHg").
 other: c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevel_Feet", "WaterLevel_m").
 Note that "all" is the default value.}
 }

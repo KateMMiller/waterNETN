@@ -8,6 +8,7 @@ getSondeInSitu(
   park = "all",
   site = "all",
   site_type = c("all", "lake", "stream"),
+  event_type = "VS",
   years = 2006:format(Sys.Date(), "\%Y"),
   months = 5:10,
   active = TRUE,
@@ -41,6 +42,14 @@ getSondeInSitu(
 \item{"stream"}{Include streams only.}
 }}
 
+\item{event_type}{Select the event type. Options available are below Can only choose one option.
+\describe{
+\item{"all"}{All possible sampling events.}
+\item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
+\item{"acid"}{Acidification monitoring events in Acadia.}
+\item{"misc"}{Miscellaneous sampling events.}
+}}
+
 \item{years}{Numeric. Years to query. Accepted values start at 2006.}
 
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
@@ -51,7 +60,7 @@ events are between months 5 and 10, and these are set as the defaults.}
 \item{parameter}{Specify the chemical parameter(s) to return. Note if additional parameters are added to the Chemistry view, there will be additional
 to the views, they will be added as accepted values in this function. Current accepted values are:.
 c("Temp_C", "Temp_F", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
-"Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg")}
+"Turbidity_FNU", "ChlA_EXO_RFU", "ChlA_EXO_ugL", "BP_mmHg")}
 
 \item{QC_type}{Specify QC type to return. Must be quoted.
 \describe{

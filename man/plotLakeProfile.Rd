@@ -7,6 +7,7 @@
 plotLakeProfile(
   park = "ACAD",
   site = "all",
+  event_type = "VS",
   years = 2006:format(Sys.Date(), "\%Y"),
   months = 5:10,
   active = TRUE,
@@ -40,6 +41,14 @@ with profile data. Valid inputs:
 
 \item{site}{Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
 
+\item{event_type}{Select the event type. Options available are below Can only choose one option.
+\describe{
+\item{"all"}{All possible sampling events.}
+\item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
+\item{"acid"}{Acidification monitoring events in Acadia.}
+\item{"misc"}{Miscellaneous sampling events.}
+}}
+
 \item{years}{Numeric. Years to query. Accepted values start at 2006 for depth_type = "surface". For depth_type = "elev", accepted
 values start at 2013, as water level data prior to 2013 are not available in the data package.}
 
@@ -51,7 +60,7 @@ anything but 5:10 for months.}
 \item{parameter}{Specify the parameter to return (can only choose 1 per function call). Current
 accepted values are:
 c("Temp_C", "Temp_F", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
-"Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg").}
+"Turbidity_FNU", "ChlA_EXO_RFU", "ChlA_EXO_ugL", "BP_mmHg").}
 
 \item{depth_type}{Specify whether to plot sample depth relative to elevation of surface water
 (depth_type = "elev") or depth, with each sample starting at 0 regardless of level of the lake

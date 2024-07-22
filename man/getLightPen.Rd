@@ -7,6 +7,7 @@
 getLightPen(
   park = "all",
   site = "all",
+  event_type = "VS",
   years = 2006:format(Sys.Date(), "\%Y"),
   active = TRUE,
   months = 5:10,
@@ -29,6 +30,14 @@ getLightPen(
 \item{"WEFA"}{Weir Farm NHP only}}}
 
 \item{site}{Filter on 6-letter SiteCode (e.g., "ACANTB", "WEFAPA", etc.). Easiest way to pick a site. Defaults to "all".}
+
+\item{event_type}{Select the event type. Options available are below Can only choose one option.
+\describe{
+\item{"all"}{All possible sampling events.}
+\item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
+\item{"acid"}{Acidification monitoring events in Acadia.}
+\item{"misc"}{Miscellaneous sampling events.}
+}}
 
 \item{years}{Numeric. Years to query. Accepted values start at 2006.}
 

@@ -36,6 +36,14 @@
 #'
 #' @param site Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".
 #'
+#' @param event_type Select the event type. Options available are below Can only choose one option.
+#' \describe{
+#' \item{"all"}{All possible sampling events.}
+#' \item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
+#' \item{"acid"}{Acidification monitoring events in Acadia.}
+#' \item{"misc"}{Miscellaneous sampling events.}
+#' }
+#'
 #' @param years Numeric. Years to query. Accepted values start at 2006 for depth_type = "surface". For depth_type = "elev", accepted
 #' values start at 2013, as water level data prior to 2013 are not available in the data package.
 #'
@@ -47,7 +55,7 @@
 #' @param parameter Specify the parameter to return (can only choose 1 per function call). Current
 #' accepted values are:
 #' c("Temp_C", "Temp_F", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
-#'  "Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg").
+#'  "Turbidity_FNU", "ChlA_EXO_RFU", "ChlA_EXO_ugL", "BP_mmHg").
 #'
 #' @param depth_type Specify whether to plot sample depth relative to elevation of surface water
 #' (depth_type = "elev") or depth, with each sample starting at 0 regardless of level of the lake
@@ -116,25 +124,21 @@
 #'
 #' @export
 #'
-plotLakeProfile <- function(park = "ACAD", site = "all",
-                      years = 2006:format(Sys.Date(), "%Y"),
-                      months = 5:10, active = TRUE,
-                      parameter = NA,
-                      depth_type = 'raw',
-                      palette = "Spectral", color_rev = FALSE,
-                      plot_title = TRUE,
-                      plot_thermocline = TRUE,
-                      legend_position = 'right', facet_scales = 'fixed',
-                      gridlines = "none", ...){
-
-  # park = 'all'; site = 'all'; site_type = 'all'; years = 2013:2023;
-  # parameter = c("ANC", "pH_Lab", "pH", "Temp_C"); ... = NULL
+plotLakeProfile <- function(park = "ACAD", site = "all", event_type = "VS",
+                            years = 2006:format(Sys.Date(), "%Y"),
+                            months = 5:10, active = TRUE,
+                            parameter = NA, depth_type = 'raw',
+                            palette = "Spectral", color_rev = FALSE,
+                            plot_title = TRUE, plot_thermocline = TRUE,
+                            legend_position = 'right', facet_scales = 'fixed',
+                            gridlines = "none", ...){
 
   #-- Error handling --
   park <- match.arg(park, several.ok = TRUE,
                     c("LNETN", "ACAD", "MABI", "MIMA", "MORR",
                       "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
   if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
+  event_type <- match.arg(event_type, c("all", "VS", "acid", "misc"))
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   if(any(depth_type == 'elev' & years < 2013)){
     warning("Water level data not available before 2013. Select sample_depth = 'surface' to plot earlier data")}
@@ -155,9 +159,9 @@ plotLakeProfile <- function(park = "ACAD", site = "all",
 
   #-- Compile data for plotting --
   # combine sonde and water level data and group depths by 1m or 0.25m bins
-  wdat <- force(getSondeInSitu(park = park, site = site, site_type = "lake",
+  wdat <- force(getSondeInSitu(park = park, site = site, site_type = "lake", event_type = event_type,
                          years = years, months = months, parameter = parameter, sample_depth = 'all', ...)) |>
-          select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, SampleDepth_m, Parameter, Value)
+          select(SiteCode, SiteName, UnitCode, EventDate, Project, year, month, doy, SampleDepth_m, Parameter, Value)
 
   lev <- force(getWaterLevel(park = park, site = site, site_type = 'lake', years = years,
                        months = months, ...))

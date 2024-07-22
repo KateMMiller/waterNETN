@@ -808,39 +808,41 @@ plotPrecipDischarge(site = c("ACABIN", "ACKEBO"), years = 2022, palette = c("cor
 ```
 
 #### plotClimTrend()
-<b style="color:red;">Note that this function now lives in climateNETN package</b>. This function produces a line or smoothed trend plot filtered on park, year, month, and climate parameter. If multiple parks are specified, they can either be plotted on the same figure or separate figures. If multiple parameters are specified, they will be plotted on separate figures. For multiple parks to plot on the same figure, use facet_site = FALSE. For multiple parameters on the same figure, facet_param = FALSE. Note that all months (1:12) are default. If you only want sample months, specify months = 5:10.
+<b style="color:red;">Note that this function now lives in climateNETN package</b>. This function produces a line or a rolling average filtered on park, year, month, and climate parameter. The default rolling average is 5-years, but you can specify a different window with the avg_window argument. If multiple parks are specified, they can either be plotted on the same figure or separate figures. If multiple parameters are specified, they will be plotted on separate figures. For multiple parks to plot on the same figure, use facet_site = FALSE. For multiple parameters on the same figure, facet_param = FALSE. Note that all months (1:12) are default. If you only want sample months, specify months = 5:10.
 
-<b style="color:red;">NEW: I updated the compiled climate data to cover 1895 up through May 2024, so you can plot historic trends beyond just the 2006-2024 monitoring period. You can also plot units in English.</b>
+<b style="color:red;">NEW: I updated the compiled climate data to cover 1895 up through June 2024, so you can plot historic trends beyond just the 2006-2024 monitoring period. You can also plot units in English.</b>
 
-<p class = 'fxn'>Plot avg temp for LNETN from 1895:2024, without points and with smoothed line and span 0.1 and gridlines on y-axis, and in English units.</p>
-```{r}
-climateNETN::plotClimTrend(park = "LNETN", years = 1895:2024, layers = 'smooth', 
-              parameter = "tmean", span = 0.1, palette = "Dark2", 
-              legend_position = 'right', gridlines = "grid_y", units = "eng")
+<p class = 'fxn'>Plot avg temp for LNETN from 1895:2024, without points and with 5-year rolling average and gridlines on y-axis, and in English units. Note that avg_window = 5 isn't necessary, since it's the default.</p>
+```{r message = F, warning = F}
+climateNETN::plotClimTrend(park = "LNETN", years = 1895:2024, layers = 'rollavg',
+              parameter = "tmean", palette = c("viridis"), facet_park = T,
+              legend_position = 'bottom', gridlines = "grid_y", units = "eng")
 ```
 
 <p class = 'fxn'>Plot monthly precip for MORR, ROVA and WEFA from 1895:2024, without points and with smoothed line and span 0.1.</p>
-```{r}
+```{r message = F, warning = F}
 climateNETN::plotClimTrend(park = c("MORR", "ROVA", "WEFA"), years = 1895:2024, layers = 'smooth', 
               parameter = "tmean", span = 0.1, palette = "turbo", legend_position = 'right')
 ```
 
 <p class = 'fxn'>Plot temp stats from 1895-2024 for ACAD on the same figure. 
-```{r}
-climateNETN::plotClimTrend(park = "ACAD", years = 1895:2024, parameter = c("tmin", "tmean", "tmax"), span = 0.1, layers = 'smooth', facet_param = F, legend_position = 'right', palette = "Set2")
+```{r message = F, warning = F}
+climateNETN::plotClimTrend(park = "ACAD", years = 1895:2024, parameter = c("tmin", "tmean", "tmax"), span = 0.1, layers = 'smooth', facet_param = F, legend_position = 'right', palette = "viridis")
 ```
 
-<p class = 'fxn'>Plot monthly climate data in English units for MABI from 2006:2023 (all months is default), without a smoothed line.</p>
-```{r}
-climateNETN::plotClimTrend(park = "MABI", years = 2006:2023, parameter = "all", layers = c("points", "lines"), facet_param = T, gridlines = "grid_y", units = 'eng')
+<p class = 'fxn'>Plot monthly temperature data in English units for MABI from 2006:2023 (all months is default), with points and a 4-year rolling average.</p>
+```{r message = F, warning = F}
+climateNETN::plotClimTrend(park = "MABI", years = 2006:2023, parameter = c("tmin", "tmean", "tmax"), 
+                           layers = c("points", "rollavg"), 
+                           facet_param = T, gridlines = "grid_y", units = 'eng', avg_window = 4)
 ```
 <p class = 'fxn'>Plot same monthly NOAA data for MABI from 2006:2023, with smoothed line and span 0.7, and using the Dark2 color palette.</p>
-```{r}
-climateNETN::plotClimTrend(park = "MABI", years = 2006:2023, parameter = "all", layers = 'smooth', span = 0.7, palette = "Dark2")
+```{r message = F, warning = F}
+climateNETN::plotClimTrend(park = "MABI", years = 2006:2023, parameter = "all", layers = 'smooth', span = 0.7, palette = "magma")
 ```
 
 <p class = 'fxn'>Plot monthly NOAA min, max and mean temperature for MABI and SARA from 2006:2024, with smoothed line, span 0.7, and parks on separate plots, but parameters on the same plots. </p>
-```{r}
+```{r message = F, warning = F}
 climateNETN::plotClimTrend(park = c("MABI", "SARA"), years = 2006:2023, 
               parameter = c("tmean", "tmax", "tmin"), 
               layers = 'smooth',
@@ -849,7 +851,7 @@ climateNETN::plotClimTrend(park = c("MABI", "SARA"), years = 2006:2023,
 ```
 
 <p class = 'fxn'>Plot monthly NOAA min, max and mean temperature for MABI 2006:2024, with points and smoothed line, span 0.7 with parameters on the same plots. </p>
-```{r}
+```{r message = F, warning = F}
 climateNETN::plotClimTrend(park = "MABI", years = 2006:2023, 
               parameter = c("tmean", "tmax", "tmin"),
               layers = c("points", "smooth"),
@@ -861,29 +863,29 @@ climateNETN::plotClimTrend(park = "MABI", years = 2006:2023,
 <b style="color:red;">Note that this function now lives in climateNETN package</b>. This function produces a trend plot filtered on park, year, month, and climate parameter and shows anomalies from chosen baseline (1901 - 2000 or 1991 - 2020) as red for above and blue for below average using gridded NOAA NClim data. If a year x month combination is specified that doesn't occur yet in NETN_clim_annual dataset, it will be downloaded if available. New months are typically available within a few weeks of the month end. If multiple parks are specified, they can either be plotted on the same figure or separate figures. If multiple parameters are specified, they will be plotted on separate figures.You can also plot percent difference of precipitation, in addition to difference in raw units (i.e. mm). 
 
 <p class = 'fxn'>Plot ACAD average temperature anomalies from 1895 to 2024 compared with 20th century normals with gridlines on y axis and English units.</p>
-```{r}
+```{r message = F, warning = F}
 climateNETN::plotClimAnom(park = "ACAD", years = 1895:2024, parameter = "tmean", 
              legend_position = 'right', gridlines = "grid_y", units = "eng")
 ```
 
 <p class = 'fxn'>Plot WEFA percent precipitation anomalies in 2023 compared with 20th century normals.</p>
-```{r}
+```{r message = F, warning = F}
 climateNETN::plotClimAnom(park = "WEFA", years = 2023, parameter = "ppt_pct", legend_position = 'right')
 ```
 
 
 <p class = 'fxn'>Plot MABI and SAGA average temperature anomalies from 2006 to 2024 compared with 20th century normals.</p>
-```{r}
+```{r message = F, warning = F}
 climateNETN::plotClimAnom(park = c("MABI", "SAGA"), years = 2006:2024, parameter = "tmean", legend_position = 'right')
 ```
 <p class = 'fxn'>Plot MABI and SAGA precip. anomalies from 2023 compared with 20th century normals.</p>
-```{r}
+```{r message = F, warning = F}
 climateNETN::plotClimAnom(park = c("MABI", "SAGA"), years = 2023, parameter = "ppt", legend_position = 'right')
 ```
 
-<p class = 'fxn'>Plot ACAD avg temp and precip anomalies from last 20 years compared with 30-year normals.</p>
-```{r}
-climateNETN::plotClimAnom(park = c("ACAD"), years = 2004:2024, parameter = c("tmean", "ppt"), 
+<p class = 'fxn'>Plot ACAD avg temp anomalies from last 20 years compared with 30-year normals.</p>
+```{r message = F, warning = F}
+climateNETN::plotClimAnom(park = c("ACAD"), years = 2004:2024, parameter = "tmean", 
              legend_position = 'bottom', normal = "norm1990")
 ```
 
@@ -897,36 +899,36 @@ You can now add gridlines to x, y, or both axes.
 
 <details open><summary class='drop'>Single parameter</summary>
 <p class = 'fxn'>Plot mean monthly temp for MABI for 2019:2023 and all months with red-blue color palette and the 20th century normal with gridlines on y in english units.</p>
-```{r}
+```{r message = F, warning = F}
 climateNETN::plotClimComps(park = "MABI", years = 2019:2023, parameter = "tmean", 
               palette = c("red", "blue"), normal = "norm20cent",
               gridlines = 'grid_y', units = "eng")
 ```
 <p class = 'fxn'>Same as above, but with points and 30-year normal starting at 1991.</p>
-```{r}
+```{r message = F, warning = F}
 climateNETN::plotClimComps(park = "MABI", years = 2019:2023, parameter = "tmean", 
                            palette = c("red", "blue"), 
               layers = c('points', 'lines'), normal = "norm1990", units = 'eng')
 ```
-<p class = 'fxn'>Plot max monthly temp for ROVA for 2023 and 2024, with 'viridis' palette and 20th century norm (default) using scientific units.</p>
+<p class = 'fxn'>Plot max monthly temp for ROVA for 2023 and 2024, with orange-blue palette and 20th century norm (default) using scientific units.</p>
 
-```{r}
+```{r message = F, warning = F}
 climateNETN::plotClimComps(park = "ROVA", years = 2023:2024, parameter = "tmax", 
-              palette = "viridis", layers = 'lines')
+              palette = c("orange", "blue"), layers = 'lines')
 ```
 <p class = 'fxn'>Plot total monthly precip for Jordan Pond for past 5 years using orange-blue color palette, compared with the 30-year norm starting at 1990.</p>
-```{r}
+```{r message = F, warning = F}
 climateNETN::plotClimComps(park = "ACAD", years = 2018:2023, parameter = 'ppt', 
               palette = c("orange","blue"), normal = "norm1990")
 ```
 
 <p class = 'fxn'>Plot total monthly precip for ACAD for current year using red for 2023 and blue for 2024</p>
-```{r}
+```{r message = F, warning = F}
 climateNETN::plotClimComps(park = "ACAD", years = 2023:2024, parameter = 'ppt', palette = c("red", "blue"))
 ```
 
 <p class = 'fxn'>Plot total monthly max temp for ACAD for current year using red for current year color and 30-year normal.</p>
-```{r}
+```{r message = F, warning = F}
 climateNETN::plotClimComps(park = "ACAD", years = 2024, parameter = 'tmax', palette = c("red"), normal = "norm1990")
 ```
 
@@ -938,7 +940,7 @@ The code below would take a lot to program into waterNETN functions, so I'm inst
 
 <p class = 'fxn'>Generate grid of all parameters in ACAD from past 5 years</p> 
 Note that the code that names leg is extracting a legend from a copy of the figures to be plotted separately from the other figures. This allows you to control the sizing and alignment better. The NULLs also allow you to create white space between plots.
-```{r}
+```{r message = F, warning = F}
 tmax <- climateNETN::plotClimComps(
   park = "ACAD", years = 2019:2023, parameter = "tmax",
   layers = 'lines', legend_position = 'none', palette = c("red", "blue"))
@@ -974,7 +976,7 @@ grid2
 
 <p class = 'fxn'>Generate grid of all parameters in ACAD for 2024, Jan through May.</p>
 Because waterNETN plotting functions return ggplot objects, we can tweak the plots so that temp plots all have the same y axis (so you can see that max is higher than min). 
-```{r cache = T}
+```{r cache = T, message = F, warning = F}
 data("NETN_clim_annual") # compiled annual data
 data("NETN_clim_norms") # compiled normals
 head(NETN_clim_annual)
@@ -1024,27 +1026,27 @@ grid2
 <b style="color:red;">Note that this function now lives in climateNETN package</b>. This function plots cumulative monthly precipitation for a given year compared to either the 19th century or 30-year normal. If multiple parks or years are specified, resulting plots will be faceted on those variables.You can add gridlines to the x, y or both axes.
 
 <p class='fxn'>Plot ACAD cumulative precipitation for 2020 through 2023 with gridlines on y axis and precip in inches.
-```{r}
+```{r message = F, warning = F}
 climateNETN::plotClimCumPrecip(park = "ACAD", years = 2020:2023, legend_position = 'bottom',
                   gridlines = "grid_y", units = 'eng')
 
 ```
 
 <p class='fxn'>Plot ACAD cumulative precipitation for 2013 through 2023 for April - October only
-```{r}
-climateNETN::plotClimCumPrecip(park = "ACAD", years = 2014:2024, legend_position = 'bottom', months = 4:10)
+```{r message = F, warning = F}
+climateNETN::plotClimCumPrecip(park = "ACAD", years = 2014:2024, legend_position = 'bottom')
 
 ```
 
 <p class='fxn'>Plot all but SAIR cumulative precipitation for 2023 with 4 columns
-```{r}
+```{r message = F, warning = F}
 parks <- c("ACAD", "MABI", "MIMA", "MORR", "ROVA", "SAGA", "SARA", "WEFA")
 climateNETN::plotClimCumPrecip(park = parks, years = 2023, legend_position = 'bottom', numcol = 4)
 
 ```
 
 <p class='fxn'>Plot cumulative precipitation for 2019 - 2023
-```{r}
+```{r message = F, warning = F}
 climateNETN::plotClimCumPrecip(park = "ACAD", years = 2019:2023, legend_position = 'bottom', numcol = 5)
 
 ```

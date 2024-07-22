@@ -24,6 +24,14 @@
 #'
 #' @param site Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".
 #'
+#' @param event_type Select the event type. Options available are below Can only choose one option.
+#' \describe{
+#' \item{"all"}{All possible sampling events.}
+#' \item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
+#' \item{"acid"}{Acidification monitoring events in Acadia.}
+#' \item{"misc"}{Miscellaneous sampling events.}
+#' }
+#'
 #' @param years Numeric. Years to query. Accepted values start at 2006.
 #'
 #' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
@@ -52,18 +60,18 @@
 #' @export
 
 getSecchi <- function(park = "all", site = "all",
-                     #site_type = c("all", "lake", "stream"),
-                     years = 2006:format(Sys.Date(), "%Y"),
-                     months = 5:10, active = TRUE,
-                     observer_type = "first",
-                     output = c("short", "verbose")){
+                      event_type = "VS",
+                      years = 2006:format(Sys.Date(), "%Y"),
+                      months = 5:10, active = TRUE,
+                      observer_type = "first",
+                      output = c("short", "verbose")){
 
   #-- Error handling --
   park <- match.arg(park, several.ok = TRUE,
                     c("all", "LNETN", "ACAD", "MABI", "MIMA", "MORR",
                       "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
   if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
-  #site_type <- match.arg(site_type)
+  event_type <- match.arg(event_type, c("all", "VS", "acid", "misc"))
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   stopifnot(class(active) == "logical")
@@ -81,15 +89,6 @@ getSecchi <- function(park = "all", site = "all",
   start_cols <-  c("GroupCode", "GroupName", "UnitCode", "UnitName",
                    "SubUnitCode", "SubUnitName", "SiteCode", "SiteName",
                    "EventDate", "EventCode", "IsEventCUI")
-  # sec1 <- sec |> select(all_of(start_cols),
-  #                       SDepth_m = SDepth1_m, SecchiObs = SecchiObs1, Bot_SD = Bot_SD1) |>
-  #                mutate(Observer = 1)
-  # sec2 <- sec |> select(all_of(start_cols),
-  #                       SDepth_m = SDepth2_m, SecchiObs = SecchiObs2, Bot_SD = Bot_SD2) |>
-  #                mutate(Observer = 2)
-  #
-  # sec_long <- rbind(sec1, sec2)
-  # sec_long <- sec_long |> arrange(SiteCode, EventDate, Observer)
 
   # Add year, month and day of year column to dataset and fix data types
   sec$year <- as.numeric(substr(sec$EventDate, 1, 4))
@@ -104,9 +103,9 @@ getSecchi <- function(park = "all", site = "all",
 
   # Filter by site, years, and months to make data set small
   sites <- force(getSites(park = park, site = site, site_type = 'lake', active = active))$SiteCode
-  evs <- force(getEvents(park = park, site = site, site_type = 'lake', active = active,
+  evs <- force(getEvents(park = park, site = site, site_type = 'lake', active = active, event_type = event_type,
                          years = years, months = months, output = 'verbose')) |>
-    select(SiteCode, SiteType, EventDate, EventCode)
+    select(SiteCode, SiteType, EventDate, EventCode, Project)
 
   sec2 <- sec |> filter(SiteCode %in% sites)
   sec3 <- left_join(evs, sec2, by = c("SiteCode", "EventDate", "EventCode"))
@@ -118,8 +117,10 @@ getSecchi <- function(park = "all", site = "all",
   sec5 <- sec4 |> filter(!is.na(Value))
 
   sec6 <-
-  if(output == "short"){sec5[,c("SiteCode", "SiteName", "UnitCode", "SubUnitCode", "EventDate", "EventCode",
-                                "year", "month", "doy", "Parameter", "Value", "SD_HitBottom", "Observer")]
+  if(output == "short"){sec5[,c("SiteCode", "SiteName", "UnitCode", "SubUnitCode",
+                                "EventDate", "EventCode", "Project",
+                                "year", "month", "doy", "Parameter", "Value",
+                                "SD_HitBottom", "Observer")]
     } else {sec4}
 
   if(nrow(sec6) == 0){

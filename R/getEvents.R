@@ -30,6 +30,14 @@
 #' \item{"stream"}{Include streams only.}
 #' }
 #'
+#' @param event_type Select the event type. Options available are below Can only choose one option.
+#' \describe{
+#' \item{"all"}{All possible sampling events.}
+#' \item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
+#' \item{"acid"}{Acidification monitoring events in Acadia.}
+#' \item{"misc"}{Miscellaneous sampling events.}
+#' }
+#'
 #' @param years Numeric. Years to query. Accepted values start at 2006.
 #'
 #' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
@@ -63,7 +71,7 @@
 #' @export
 
 getEvents <- function(park = "all", site = "all",
-                      site_type = c("all", "lake", "stream"),
+                      site_type = c("all", "lake", "stream"), event_type = "VS",
                       years = 2006:format(Sys.Date(), "%Y"), active = TRUE,
                       months = 5:10, output = c("short", "verbose")){
 
@@ -73,6 +81,11 @@ getEvents <- function(park = "all", site = "all",
                       "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
   if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
   site_type <- match.arg(site_type)
+  event_type <- match.arg(event_type, c("all", "VS", "acid", "misc"))
+  if(all(event_type == "all")){event_type = c("ACAD_ACID", "ACAD_MISC", "NETN_LS", "NETN+ACID")
+    } else if(all(event_type == "VS")){event_type = c("NETN_LS", "NETN+ACID")
+    } else if(all(event_type == "acid")){event_type = c("ACAD_ACID", "NETN+ACID")
+    } else {event_type}
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   stopifnot(class(active) == "logical")
@@ -81,9 +94,11 @@ getEvents <- function(park = "all", site = "all",
   # Check if the views exist and stop if they don't
   env <- if(exists("VIEWS_WQ")){VIEWS_WQ} else {.GlobalEnv}
 
-  tryCatch({events <- get("Event_Info", envir = env)},
+  tryCatch({events1 <- get("Event_Info", envir = env)},
            error = function(e){stop("Water views not found. Please import data.")}
   )
+
+  events <- events1 |> filter(Project %in% c(event_type))
 
   # Fix data issues
   # char fixes
@@ -129,7 +144,7 @@ getEvents <- function(park = "all", site = "all",
   evs_final <- if(output == "short"){
     evs3[,c("UnitCode", "UnitName", "SiteCode", "SiteName", "SiteType",
             "SiteLatitude", "SiteLongitude",
-            "EventDate", "EventCode", "year", "month", "doy")]
+            "EventDate", "EventCode", "year", "month", "doy", "Project")]
     } else {evs3}
 
 

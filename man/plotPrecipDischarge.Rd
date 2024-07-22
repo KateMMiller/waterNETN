@@ -10,6 +10,7 @@ plotPrecipDischarge(
   years = 2006:format(Sys.Date(), "\%Y"),
   months = 5:10,
   active = TRUE,
+  rating = "all",
   units = "sci",
   palette = c("#257EF6", "black"),
   legend_position = "none",
@@ -39,6 +40,15 @@ plotPrecipDischarge(
 events are between months 5 and 10, and these are set as the defaults.}
 
 \item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
+
+\item{rating}{Filter on measurement rating. Can choose multiple. Default is all.
+\describe{
+\item{"all"}{All measurements}
+\item{"E"}{Excellent}
+\item{"G"}{Good}
+\item{"F"}{Fair}
+\item{"P"}{Poor}
+}}
 
 \item{units}{Specify if you want Scientific or English units. Acceptable values are "sci" (default) and "eng".
 If "sci" precipitation units are mm; if "eng", precipitation units are in inches.}

@@ -37,6 +37,14 @@
 #' \item{"stream"}{Include streams only.}
 #' }
 #'
+#' @param event_type Select the event type. Options available are below Can only choose one option.
+#' \describe{
+#' \item{"all"}{All possible sampling events.}
+#' \item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
+#' \item{"acid"}{Acidification monitoring events in Acadia.}
+#' \item{"misc"}{Miscellaneous sampling events.}
+#' }
+#'
 #' @param years Numeric. Years to query. Accepted values start at 2006.
 #'
 #' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
@@ -50,7 +58,7 @@
 #' "DOC_mgL", "NH3_mgL", "NO2_mgL", "NO2+NO3_mgL", "NO3_ueqL", "pH_Lab", "PO4_ugL", "SO4_ueqL",
 #' "TN_mgL", "TotDissN_mgL", "TotDissP_ugL", "TP_ugL")
 #' sonde: c("Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
-#' "Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg").
+#' "Turbidity_FNU", "ChlA_EXO_RFU", "ChlA_EXO_ugL", "BP_mmHg").
 #' other: c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevel_Feet", "WaterLevel_m").
 #' Note that "all" is the default value.
 #'
@@ -74,6 +82,7 @@
 
 sumEvents <- function(park = "all", site = "all",
                       site_type = c("all", "lake", "stream"),
+                      event_type = "VS",
                       years = 2006:format(Sys.Date(), "%Y"), active = TRUE,
                       months = 5:10){
 
@@ -83,11 +92,12 @@ sumEvents <- function(park = "all", site = "all",
                       "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
   if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
   site_type <- match.arg(site_type)
+  event_type <- match.arg(event_type, c("all", "VS", "acid", "misc"))
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   stopifnot(class(active) == "logical")
 
-  evs <- force(getEvents(park = park, site = site, site_type = site_type, years = years,
+  evs <- force(getEvents(park = park, site = site, site_type = site_type, years = years, event_type = event_type,
                          active = active, months = months)) |>
     select(UnitCode, SiteCode, SiteName, SiteType, year) |> unique() |>
     group_by(UnitCode, SiteCode, SiteName, SiteType) |>
@@ -98,30 +108,30 @@ sumEvents <- function(park = "all", site = "all",
 
   wdat <-
     rbind(
-        force(getChemistry(park = park, site = site, site_type = site_type, include_censored = TRUE,
-                           years = years, months = months, parameter = "all")) |>
+        force(getChemistry(park = park, site = site, site_type = site_type, event_type = event_type,
+                           include_censored = TRUE, years = years, months = months, parameter = "all")) |>
           select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value, censored) |>
           mutate(param_type = "Lab chemistry"),
-        force(getSondeInSitu(park = park, site = site, site_type = site_type,
+        force(getSondeInSitu(park = park, site = site, site_type = site_type, event_type = event_type,
                              years = years, months = months, parameter = "all")) |>
           select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
           mutate(censored = FALSE,
                  param_type = "Sonde field meas."),
         tryCatch(
-        force(getSecchi(park = park, site = site,
+        force(getSecchi(park = park, site = site, event_type = event_type,
                         years = years, months = months, observer_type = 'first')) |>
           select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
           mutate(censored = FALSE,
                  param_type = "Light penetration"),
         error = function(e){NULL}),
-        force(getDischarge(park = park, site = site,
+        force(getDischarge(park = park, site = site, event_type = event_type,
                            years = years, months = months)) |>
           mutate(Parameter = "Discharge_cfs", Value = Discharge_cfs) |>
           select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
           mutate(censored = FALSE,
                  param_type = "Water quantity"),
         tryCatch(
-        force(getLightPen(park = park, site = site,
+        force(getLightPen(park = park, site = site, event_type = event_type,
                           years = years, months = months)) |>
           mutate(Parameter = "PenetrationRatio", Value = PenetrationRatio) |>
           select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
@@ -152,7 +162,7 @@ samp_tab <- wdat2 |> group_by(UnitCode, SiteCode, SiteName, SiteType, mon,
             .groups = "drop") |>
   pivot_wider(names_from = c(mon, value_type), values_from = num_samples, values_fill = 0)
 
-active_ACAD <- c("ANC_ueqL", "ChlA_ugL", "Discharge_cfs", "DO_mgL", "DOC_mgL",
+active_ACAD <- c("ANC_ueqL", "ChlA_ugL", "ChlA_EXO_ugL", "Discharge_cfs", "DO_mgL", "DOC_mgL",
                  "PenetrationRatio", "pH", "SecchiDepth_m", "SpCond_uScm", "Temp_C",
                  "TN_mgL", "TP_ugL", "Turbidity_FNU", "WaterLevel_Feet")
 

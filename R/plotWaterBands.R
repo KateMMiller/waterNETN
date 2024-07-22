@@ -40,6 +40,14 @@
 #' \item{"stream"}{Include streams only.}
 #' }
 #'
+#' @param event_type Select the event type. Options available are below Can only choose one option.
+#' \describe{
+#' \item{"all"}{All possible sampling events.}
+#' \item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
+#' \item{"acid"}{Acidification monitoring events in Acadia.}
+#' \item{"misc"}{Miscellaneous sampling events.}
+#' }
+#'
 #' @param year_current Year that will be plotted separately. Must be numeric and 4 digits.
 #' @param years_historic Years to include in historic range calculations.
 #' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
@@ -95,7 +103,8 @@
 #'
 #' @export
 
-plotWaterBands <- function(park = "all", site = "all", site_type = "all",
+plotWaterBands <- function(park = "all", site = "all",
+                           site_type = "all", event_type = "VS",
                            year_current = format(Sys.Date(), "%Y"),
                            years_historic = seq(2006, as.numeric(format(Sys.Date(), "%Y")) - 1, 1),
                            months = 5:10, active = TRUE,
@@ -112,6 +121,7 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
 
     if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
     site_type <- match.arg(site_type, c("all", "lake", "stream"))
+    event_type <- match.arg(event_type, c("all", "VS", "acid", "misc"))
     stopifnot(class(years_historic) %in% c("numeric", "integer"), years_historic >= 2006)
     stopifnot(class(year_current) %in% c("numeric", "integer"), year_current >= 2007)
     stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
@@ -156,7 +166,7 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
     wdat <-
       rbind(
         if(length(par_chem) > 0){
-          force(getChemistry(park = park, site = site, site_type = site_type,
+          force(getChemistry(park = park, site = site, site_type = site_type, event_type = event_type,
                              include_censored = include_censored,
                              years = c(years_historic, year_current), months = months,
                              parameter = par_chem, ...)) |>
@@ -164,7 +174,7 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
                    Value, censored)
         } else {NULL},
         if(length(par_sonde) > 0){
-          force(getSondeInSitu(park = park, site = site, site_type = site_type,
+          force(getSondeInSitu(park = park, site = site, site_type = site_type, event_type = event_type,
                                years = c(years_historic, year_current), months = months,
                                parameter = par_sonde, ...)) |>
             select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter,
@@ -172,7 +182,7 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
             mutate(censored = FALSE)
         } else {NULL},
         if(length(par_sec) > 0){
-          force(getSecchi(park = park, site = site,
+          force(getSecchi(park = park, site = site, event_type = event_type,
                           years = c(years_historic, year_current), months = months,
                           observer_type = 'first')) |>
             #mutate(param = "SDepth_m", Value = SDepth_m) |>
@@ -181,7 +191,7 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
             mutate(censored = FALSE)
         } else {NULL},
         if(length(par_dis) > 0){
-          force(getDischarge(park = park, site = site,
+          force(getDischarge(park = park, site = site, event_type = event_type,
                              years = c(years_historic, year_current), months = months)) |>
             mutate(Parameter = "Discharge_cfs", Value = Discharge_cfs) |>
             select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy,
@@ -189,7 +199,7 @@ plotWaterBands <- function(park = "all", site = "all", site_type = "all",
             mutate(censored = FALSE)
         } else {NULL},
         if(length(par_pen) > 0){
-          force(getLightPen(park = park, site = site,
+          force(getLightPen(park = park, site = site, event_type = event_type,
                             years = c(years_historic, year_current), months = months)) |>
             mutate(Parameter = "PenetrationRatio", Value = PenetrationRatio) |>
             select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy,

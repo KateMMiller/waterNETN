@@ -8,6 +8,7 @@ plotTrend(
   park = "all",
   site = "all",
   site_type = c("all", "lake", "stream"),
+  event_type = "VS",
   years = 2006:format(Sys.Date(), "\%Y"),
   months = 5:10,
   active = TRUE,
@@ -49,6 +50,14 @@ plotTrend(
 \item{"stream"}{Include streams only.}
 }}
 
+\item{event_type}{Select the event type. Options available are below Can only choose one option.
+\describe{
+\item{"all"}{All possible sampling events.}
+\item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
+\item{"acid"}{Acidification monitoring events in Acadia.}
+\item{"misc"}{Miscellaneous sampling events.}
+}}
+
 \item{years}{Numeric. Years to query. Accepted values start at 2006.}
 
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
@@ -61,7 +70,7 @@ chemistry: c("ANC_ueqL", "AppColor", "AppColor_PCU", "ChlA_ugL", "Cl_ueqL",
 "DOC_mgL", "NH3_mgL", "NO2_mgL", "NO2+NO3_mgL", "NO3_ueqL", "pH_Lab", "PO4_ugL", "SO4_ueqL",
 "TN_mgL", "TotDissN_mgL", "TotDissP_ugL", "TP_ugL")
 sonde: c("Temp_C", "Temp_F", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
-"Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg").
+"Turbidity_FNU", "ChlA_EXO_RFU", "ChlA_EXO_ugL", "BP_mmHg").
 other: c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevel_Feet", "WaterLevel_m").
 Note that "all" is not an accepted value, because there are too many to plot.}
 
@@ -76,11 +85,14 @@ all sample depths are plotted. Plotting all depths may return a funky plot for o
 
 \item{layers}{Options are "points" and "lines". By default, both will plot.}
 
-\item{palette}{Theme to plot points and lines. Options currently are 'viridis' (Default- ranges of blue, green and yellow), or discrete palettes from RColorBrewer. Common options are "Set1", "Set2", "Dark2", "Accent".
-Run RColorBrewer::display.brewer.all(type = 'qual') to see full set of options.}
+\item{palette}{Theme to plot points and lines. Options currently are 'viridis' (Default- ranges of blue,
+green and yellow), magma (yellow, red, purple), plasma (brighter version of magma), turbo (rainbow),
+or discrete palettes from RColorBrewer. Common options are "Set1", "Set2", "Dark2", "Accent".
+Run RColorBrewer::display.brewer.all(type = 'qual') to see full set of options. Note that discrete
+palettes only have 9 colors, so can't be used if grouping variable (e.g. park) has > 9 levels.}
 
-\item{threshold}{Logical. If TRUE (Default), will plot a dashed (upper) or dotted (lower) line if a water quality threshold exists for that
-parameter and site. If FALSE, no threshold line will be plotted.}
+\item{threshold}{Logical. If TRUE (Default), will plot a dashed (upper) or dotted (lower) line if a water
+quality threshold exists for that parameter and site. If FALSE, no threshold line will be plotted.}
 
 \item{smooth}{Logical. If TRUE (Default), will plot a loess smoothed line. If FALSE, will plot actual line. Only
 plots if layers argument includes 'lines'.}

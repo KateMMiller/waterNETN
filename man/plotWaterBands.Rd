@@ -8,6 +8,7 @@ plotWaterBands(
   park = "all",
   site = "all",
   site_type = "all",
+  event_type = "VS",
   year_current = format(Sys.Date(), "\%Y"),
   years_historic = seq(2006, as.numeric(format(Sys.Date(), "\%Y")) - 1, 1),
   months = 5:10,
@@ -44,6 +45,14 @@ plotWaterBands(
 \item{"all"}{Default. Includes all site types, unless site or site_name select specific site types.}
 \item{"lake"}{Include only lakes.}
 \item{"stream"}{Include streams only.}
+}}
+
+\item{event_type}{Select the event type. Options available are below Can only choose one option.
+\describe{
+\item{"all"}{All possible sampling events.}
+\item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
+\item{"acid"}{Acidification monitoring events in Acadia.}
+\item{"misc"}{Miscellaneous sampling events.}
 }}
 
 \item{year_current}{Year that will be plotted separately. Must be numeric and 4 digits.}

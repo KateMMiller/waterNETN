@@ -33,6 +33,14 @@
 #' \item{"stream"}{Include streams only.}
 #' }
 #'
+#' @param event_type Select the event type. Options available are below Can only choose one option.
+#' \describe{
+#' \item{"all"}{All possible sampling events.}
+#' \item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
+#' \item{"acid"}{Acidification monitoring events in Acadia.}
+#' \item{"misc"}{Miscellaneous sampling events.}
+#' }
+#'
 #' @param years Numeric. Years to query. Accepted values start at 2006.
 #'
 #' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
@@ -43,7 +51,7 @@
 #' @param parameter Specify the chemical parameter(s) to return. Note if additional parameters are added to the Chemistry view, there will be additional
 #' to the views, they will be added as accepted values in this function. Current accepted values are:.
 #' c("Temp_C", "Temp_F", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
-#' "Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg")
+#' "Turbidity_FNU", "ChlA_EXO_RFU", "ChlA_EXO_ugL", "BP_mmHg")
 #'
 #' @param QC_type Specify QC type to return. Must be quoted.
 #' \describe{
@@ -81,13 +89,14 @@
 #' @export
 
 getSondeInSitu <- function(park = "all", site = "all",
-                     site_type = c("all", "lake", "stream"),
-                     years = 2006:format(Sys.Date(), "%Y"),
-                     months = 5:10, active = TRUE,
-                     parameter = "all",
-                     QC_type = "ENV",
-                     sample_depth = "surface",
-                     output = c("short", "verbose")){
+                           site_type = c("all", "lake", "stream"),
+                           event_type = "VS",
+                           years = 2006:format(Sys.Date(), "%Y"),
+                           months = 5:10, active = TRUE,
+                           parameter = "all",
+                           QC_type = "ENV",
+                           sample_depth = "surface",
+                           output = c("short", "verbose")){
 
   #-- Error handling --
   park <- match.arg(park, several.ok = TRUE,
@@ -95,6 +104,7 @@ getSondeInSitu <- function(park = "all", site = "all",
                       "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
   if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
   site_type <- match.arg(site_type)
+  event_type <- match.arg(event_type, c("all", "VS", "acid", "misc"))
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   stopifnot(class(active) == "logical")
@@ -105,8 +115,8 @@ getSondeInSitu <- function(park = "all", site = "all",
 
   parameter <- match.arg(parameter,
                          c("all", "Temp_C", "Temp_F", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct",
-                           "DO_mgL", "pH", "pHmV", "Turbidity_FNU", "ChlA_RFU",
-                           "ChlA_ugL", "BP_mmHg"), several.ok = TRUE)
+                           "DO_mgL", "pH", "pHmV", "Turbidity_FNU", "ChlA_EXO_RFU",
+                           "ChlA_EXO_ugL", "BP_mmHg"), several.ok = TRUE)
 
   qccode <- ifelse(unique(QC_type) == "all", c("ENV"),
                    unique(QC_type))
@@ -149,9 +159,9 @@ getSondeInSitu <- function(park = "all", site = "all",
 
   # Filter by site, years, and months to make data set small
   sites <- force(getSites(park = park, site = site, site_type = site_type, active = active))$SiteCode
-  evs <- force(getEvents(park = park, site = site, site_type = site_type,
+  evs <- force(getEvents(park = park, site = site, site_type = site_type, event_type = event_type,
                          years = years, months = months, active = active, output = 'verbose')) |>
-    select(SiteCode, SiteType, EventDate, EventCode)
+    select(SiteCode, SiteType, EventDate, EventCode, Project)
 
   sonde2 <- sonde1 |> filter(SiteCode %in% sites)
   sonde3 <- inner_join(evs, sonde2, by = c("SiteCode", "EventDate", "EventCode"))
@@ -167,7 +177,7 @@ getSondeInSitu <- function(park = "all", site = "all",
   # For depth = "all", include all measurements without aggregating.
   sonde6 <- if(sample_depth == 'surface'){
     sonde5 |> filter(SampleDepth_m <= 2) |>
-      group_by( SiteCode, SiteType, EventDate, EventCode, GroupCode, GroupName,
+      group_by( SiteCode, SiteType, EventDate, EventCode, GroupCode, GroupName, Project,
                 UnitCode, UnitName, SubUnitCode, SubUnitName, SiteName,
                 QCtype, InstrumentType, ValueFlag, FlagComments, IsEventCUI,
                 year, month, doy, Parameter) |>
@@ -184,7 +194,8 @@ getSondeInSitu <- function(park = "all", site = "all",
   sonde6$datetime <- as.POSIXct(paste(sonde6$EventDate, "12:00:00"),
                                 format = "%Y-%m-%d %H:%M:%S")
   sonde7 <-
-  if(output == "short"){sonde6[,c("SiteCode", "SiteName", "UnitCode", "SubUnitCode", "EventDate", "SiteType",
+  if(output == "short"){sonde6[,c("SiteCode", "SiteName", "UnitCode", "SubUnitCode",
+                                  "EventDate", "SiteType", "Project",
                                   "year", "month", "doy", "datetime", "QCtype", "SampleDepth_m",
                                   "Parameter", "Value", "ValueFlag", "FlagComments")]
   } else {sonde6}
