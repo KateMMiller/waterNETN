@@ -186,8 +186,8 @@ plotLakeProfile <- function(park = "ACAD", site = "all", event_type = "VS",
 
   #-- Set up plotting features --
   # create column of abbreviated months
-  wcomb2$mon <- factor(wcomb2$month, levels = sort(unique(wcomb2$month)),
-                       labels = unique(month.abb[wcomb2$month]))
+  wcomb2$mon <- factor(format(wcomb2$EventDate, "%b"), month.abb, ordered = TRUE)
+  wcomb2$mon <- wcomb2$mon[,drop = T]
 
   param_label <- unique(ifelse(grepl("_", wcomb2$Parameter),
                         paste0(gsub("_", " (", wcomb2$Parameter), ")"),
@@ -312,7 +312,7 @@ plotLakeProfile <- function(park = "ACAD", site = "all", event_type = "VS",
       {if(plot_thermocline == TRUE){
         geom_segment(data = tcline_final,
                      aes(x = doy_plot - (col_width/2), xend = doy_plot + (col_width/2),
-                         y = Value, yend = Value), size = 0.7) }}+
+                         y = Value, yend = Value), linewidth = 0.7) }}+
         #geom_point(data = tcline, aes(x = mon, y = value), color = 'black', show.legend = F)}} +
       # facets if more than 1 year or site
       {if(facet_site == TRUE & facet_year == TRUE) facet_wrap(~SiteName + year, drop = T, scales = facet_scales)} +

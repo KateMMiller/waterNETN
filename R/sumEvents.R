@@ -152,8 +152,8 @@ wdat2 <- left_join(unique(evs[,c("UnitCode", "SiteCode", "SiteName", "SiteType",
                                  "year_start", "year_latest", "num_years")]),
                    wdat, by = c("UnitCode", "SiteCode", "SiteName"))
 
-wdat2$mon <- factor(wdat2$month, levels = unique(wdat2$month),
-                        labels = unique(month.abb[wdat2$month]))
+wdat2$mon <- factor(format(wdat2$date2, "%b"), month.abb, ordered = TRUE)
+wdat2$mon <- wdat2$mon[,drop = T]
 
 samp_tab <- wdat2 |> group_by(UnitCode, SiteCode, SiteName, SiteType, mon,
                               param_type, value_type, Parameter,
