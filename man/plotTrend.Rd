@@ -86,11 +86,10 @@ all sample depths are plotted. Plotting all depths may return a funky plot for o
 
 \item{layers}{Options are "points" and "lines". By default, both will plot.}
 
-\item{palette}{Theme to plot points and lines. Options currently are 'viridis' (Default- ranges of blue,
+\item{palette}{Theme to plot points and lines. Options include 'viridis' (Default- ranges of blue,
 green and yellow), magma (yellow, red, purple), plasma (brighter version of magma), turbo (rainbow),
-or discrete palettes from RColorBrewer. Common options are "Set1", "Set2", "Dark2", "Accent".
-Run RColorBrewer::display.brewer.all(type = 'qual') to see full set of options. Note that discrete
-palettes only have 9 colors, so can't be used if grouping variable (e.g. park) has > 9 levels.}
+or specify a vector of colors manually. If fewer colors than parameters are specified, they will be
+ramped to generate enough colors.}
 
 \item{threshold}{Logical. If TRUE (Default), will plot a dashed (upper) or dotted (lower) line if a water
 quality threshold exists for that parameter and site. If FALSE, no threshold line will be plotted.}
