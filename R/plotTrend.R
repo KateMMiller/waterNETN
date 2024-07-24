@@ -76,11 +76,10 @@
 #'
 #' @param layers Options are "points" and "lines". By default, both will plot.
 #'
-#' @param palette Theme to plot points and lines. Options currently are 'viridis' (Default- ranges of blue,
+#' @param palette Theme to plot points and lines. Options include 'viridis' (Default- ranges of blue,
 #' green and yellow), magma (yellow, red, purple), plasma (brighter version of magma), turbo (rainbow),
-#' or discrete palettes from RColorBrewer. Common options are "Set1", "Set2", "Dark2", "Accent".
-#' Run RColorBrewer::display.brewer.all(type = 'qual') to see full set of options. Note that discrete
-#' palettes only have 9 colors, so can't be used if grouping variable (e.g. park) has > 9 levels.
+#' or specify a vector of colors manually. If fewer colors than parameters are specified, they will be
+#' ramped to generate enough colors.
 #'
 #' @param threshold Logical. If TRUE (Default), will plot a dashed (upper) or dotted (lower) line if a water
 #' quality threshold exists for that parameter and site. If FALSE, no threshold line will be plotted.
@@ -279,8 +278,8 @@ plotTrend <- function(park = "all", site = "all",
   wdat2$doy_norm <- (wdat2$doy - 122)/(305-122)
   wdat2$x_axis <- wdat2$year - years[1] + wdat2$doy_norm
 
-  year_len <- length(unique(wdat2$year))
-  mon_len <- length(unique(wdat2$month))
+  year_len <- length(unique(years))
+  mon_len <- length(unique(months))
 
   wdat2$mon <- factor(format(wdat2$date2, "%b"), month.abb, ordered = TRUE)
   wdat2$mon <- wdat2$mon[,drop = T]
@@ -308,7 +307,18 @@ plotTrend <- function(park = "all", site = "all",
   xbreaks <- time_mat$x_axis[x_row_breaks]
   xlabs <- time_mat$x_label[x_row_breaks]
 
-  vir_pal = ifelse(palette %in% c("viridis", "magma", "plasma", "turbo"), "viridis", "colbrew")
+  vir_pal = ifelse(palette %in%
+                     c("viridis", "magma", "plasma", "turbo", "mako", "rocket", "cividis", "inferno"),
+                   "viridis", "colbrew")
+
+  pal <-
+    if(any(vir_pal == "colbrew")){
+      if(length(palette) > 1){
+        rep(colorRampPalette(palette)(length(unique(param))), times = length(parameter))
+      } else { # hack to allow gradient to work with 1 color
+        rep(colorRampPalette(c(palette, palette))(length(unique(param))), times = length(parameter))
+      }
+    }
 
   #-- Create plot --
   trendplot <-
@@ -341,8 +351,8 @@ plotTrend <- function(park = "all", site = "all",
       # palettes
       {if(any(vir_pal == "viridis")) scale_color_viridis_d(option = palette)} +
       {if(any(vir_pal == "viridis")) scale_fill_viridis_d(option = palette)} +
-      {if(any(vir_pal == "colbrew")) scale_color_brewer(palette = palette)} +
-      {if(any(vir_pal == "colbrew")) scale_fill_brewer(palette = palette)} +
+      {if(any(vir_pal == "colbrew")) scale_fill_manual(values = pal)} +
+      {if(any(vir_pal == "colbrew")) scale_color_manual(values = pal)} +
       #axis format
       scale_x_continuous(breaks = xbreaks,
                          labels = xlabs,
@@ -378,14 +388,10 @@ plotTrend <- function(park = "all", site = "all",
           theme(panel.grid.major.x = element_line(color = 'grey'))}} + #,
                 #panel.grid.minor.x = element_line(color = 'grey'))}}+
       # color palettes
-      {if(palette == "viridis") scale_color_viridis_d()} +
-      {if(palette == "set1") scale_color_brewer(palette = "Set1")} +
-      {if(palette == "dark2") scale_color_brewer(palette = "Dark2")} +
-      {if(palette == "accent") scale_color_brewer(palette = "Accent")} +
-      {if(palette == "viridis") scale_fill_viridis_d()} +
-      {if(palette == "set1") scale_fill_brewer(palette = "Set1")} +
-      {if(palette == "dark2") scale_fill_brewer(palette = "Dark2")} +
-      {if(palette == "accent") scale_fill_brewer(palette = "Accent")} +
+      {if(any(vir_pal == "viridis")) scale_color_viridis_d(option = palette)} +
+      {if(any(vir_pal == "viridis")) scale_fill_viridis_d(option = palette)} +
+      {if(any(vir_pal == "colbrew")) scale_fill_manual(values = pal)} +
+      {if(any(vir_pal == "colbrew")) scale_color_manual(values = pal)} +
       #axis format
       scale_x_continuous(breaks = xbreaks,
                         labels = xlabs,
