@@ -320,8 +320,8 @@ plotTrend <- function(park = "all", site = "all",
       {if(smooth == TRUE) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +
       {if(smooth == FALSE & any(layers %in% "lines")) geom_line()} +
       {if(any(layers %in% "points")) geom_point(aes(shape = censored, size = censored), alpha = 0.6)} +
-      {if(any(layers %in% "points")) scale_shape_manual(values = c(19, 18), size = 2.5, labels = c("Real", "Censored"))} +
-      {if(any(layers %in% "points")) scale_size_manual(values = c(3,3.5), size = 2.5, labels = c("Real", "Censored"))} +
+      {if(any(layers %in% "points")) scale_shape_manual(values = c(19, 18), labels = c("Real", "Censored"))} +
+      {if(any(layers %in% "points")) scale_size_manual(values = c(3,3.5), labels = c("Real", "Censored"))} +
       {if(threshold == TRUE){geom_hline(aes(yintercept = UpperThreshold, linetype = "Upper WQ Threshold"), lwd = 0.7)}} +
       {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold, linetype = "Lower WQ Threshold"), lwd = 0.7)}} +
       {if(threshold == TRUE){scale_linetype_manual(values = c("dotted", "dashed"))}} +

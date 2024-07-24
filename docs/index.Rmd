@@ -534,8 +534,8 @@ plotWaterBands(park = "SARA", year_curr = 2023, years_historic = 2006:2022, para
 ```
 
 #### plotTrend()
-This function produces a smoothed trend plot filtered on park, site, year, month, and parameter.
-It works with chemistry, Sonde in situ, Secchi depth, Light Penetration, and Discharge data. If multiple sites are specified, they will be plotted on the same figure. If multiple parameters are specified, they will be plotted on separate figures. 
+This function produces a trend plot filtered on park, site, year, month, and parameter.
+It works with chemistry, Sonde in situ, Secchi depth, Light Penetration, and Discharge data. If multiple sites are specified, they will be plotted on the same figure. If multiple parameters are specified, they will be plotted on separate figures. If smooth = T, a loess smoothed line will connect through the data. If smooth = F and layers includes "lines", then lines will connect the sample points, but will not connect across years, because of the break between October and May.
 
 There are several arguments to customize plots. 
 <ul>
@@ -609,10 +609,10 @@ plotTrend(park = "SARA", site = c("SARASA", "SARASC", "SARASD"),
 
 ```
 
-<p class = 'fxn'>Plot smoothed surface SO4 for all MIMA streams over all years with 0.6 span. </p>
+<p class = 'fxn'>Plot smoothed surface Specific Conductance for all MIMA streams over all years with 0.6 span. </p>
 ```{r message = FALSE, warning = FALSE}
 plotTrend(park = "MIMA", site_type = "stream", 
-          parameter = "SO4_ueqL", legend_position = "right", span = 0.6)
+          parameter = "SpCond_uScm", legend_position = "right", span = 0.6, palette = "Dark2")
 
 ```
 
