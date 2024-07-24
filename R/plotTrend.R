@@ -327,9 +327,14 @@ plotTrend <- function(park = "all", site = "all",
     ggplot(wdat2, aes(x = x_axis, y = Value, group = if(smooth == TRUE){SiteName} else{year},
                      color = SiteName, fill = SiteName, shape = censored)) +
       # layers
-      {if(smooth == TRUE) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +
-      {if(smooth == FALSE & any(layers %in% "lines")) geom_line()} +
-      {if(any(layers %in% "points")) geom_point(aes(shape = censored, size = censored), alpha = 0.6)} +
+      {if(smooth == TRUE) geom_smooth(aes(text = paste0("Site: ", SiteName, "<br>")),
+                                      method = 'loess', formula = 'y ~ x', se = F, span = span) } +
+      {if(smooth == FALSE & any(layers %in% "lines")) geom_line(aes(text = paste0("Site: ", SiteName, "<br>")))} +
+      {if(any(layers %in% "points")) geom_point(aes(shape = censored, size = censored,
+                                                    text = paste0("Site: ", SiteName, "<br>",
+                                                                  "Parameter: ", param_label, "<br>",
+                                                                  "Value: ", round(Value, 1), "<br>")),
+                                                alpha = 0.6)} +
       {if(any(layers %in% "points")) scale_shape_manual(values = c(19, 18), labels = c("Real", "Censored"))} +
       {if(any(layers %in% "points")) scale_size_manual(values = c(3,3.5), labels = c("Real", "Censored"))} +
       {if(threshold == TRUE){geom_hline(aes(yintercept = UpperThreshold, linetype = "Upper WQ Threshold"), lwd = 0.7)}} +
@@ -368,9 +373,12 @@ plotTrend <- function(park = "all", site = "all",
       ggplot(wdat2, aes(x = x_axis, y = Value, group = if(smooth == TRUE){SiteName} else{year},
                         color = SiteName, fill = SiteName)) +
       #layers
-      {if(smooth == TRUE) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +
-      {if(smooth == FALSE & any(layers %in% "lines")) geom_line()} +
-      {if(any(layers %in% "points")) geom_point(alpha = 0.6, size = 2.5)} +
+      {if(smooth == TRUE) geom_smooth(aes(text = paste0("Site: ", SiteName, "<br>")),
+                                      method = 'loess', formula = 'y ~ x', se = F, span = span) } +
+      {if(smooth == FALSE & any(layers %in% "lines")) geom_line(aes(text = paste0("Site: ", SiteName, "<br>")))} +
+      {if(any(layers %in% "points")) geom_point(aes(text = paste0("Site: ", SiteName, "<br>",
+                                                                  "Parameter: ", param_label, "<br>",                                                                                             "Value: ", round(Value, 1), "<br>")),
+                                                alpha = 0.6, size = 2.5)} +
       {if(threshold == TRUE){geom_hline(aes(yintercept = UpperThreshold, linetype = "Upper WQ Threshold"), lwd = 0.7)}} +
       {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold, linetype = "Lower WQ Threshold"), lwd = 0.7)}} +
       {if(threshold == TRUE){scale_linetype_manual(values = c("dashed", "solid"))}} +

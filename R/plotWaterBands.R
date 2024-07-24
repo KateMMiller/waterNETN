@@ -388,12 +388,27 @@ plotWaterBands <- function(park = "all", site = "all",
                             aes(ymin = lower, ymax = upper, x = mon,
                                 fill = metric_type,
                                 #color = metric_type,
-                                group = metric_type))+
+                                group = metric_type,
+                                text = paste0("Site: ", SiteName, "<br>",
+                                              "Month: ", mon, "<br>",
+                                              "Parameter: ", param_label, "<br>",
+                                              "Distribution: ", as.numeric(distrib), "%", "<br>",
+                                              "Historic Upper Value: ", round(upper, 1), "<br>",
+                                              "Historic Lower Value: ", round(lower, 1), "<br>")))+
                 # geom_line(data = wdat_hist2, aes(y = lower, color = metric_type, group = metric_type)) +
                 # geom_line(data = wdat_hist2, aes(y = upper, color = metric_type, group = metric_type)) +
                 geom_line(data = wdat_med,
-                          aes(y = median_val, x = mon, color = metric_type, group = metric_type), lwd = 0.7) +
-                geom_point(data = wdat_curr, aes(y = Value, x = mon, color = metric_type, group = metric_type)) +
+                          aes(y = median_val, x = mon, color = metric_type, group = metric_type,
+                              text = paste0("Site: ", SiteName, "<br>",
+                                            "Month: ", mon, "<br>",
+                                            "Parameter: ", param_label, "<br>",
+                                            "Historic Median: ", round(median_value, 1), "<br>")), lwd = 0.7) +
+                geom_point(data = wdat_curr,
+                           aes(y = Value, x = mon, color = metric_type, group = metric_type,
+                               text = paste0("Site: ", SiteName, "<br>",
+                                             "Month: ", mon, "<br>",
+                                             "Parameter: ", param_label, "<br>",
+                                             "Current Value: ", round(Value, 1), "<br>"))) +
                 scale_color_manual(values = plot_values,
                                    breaks = plot_breaks,
                                    labels = plot_labels,
