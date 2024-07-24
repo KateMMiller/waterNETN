@@ -40,7 +40,7 @@
 #' \item{"stream"}{Include streams only.}
 #' }
 #'
-#' @param event_type Select the event type. Options available are below Can only choose one option.
+#' @param event_type Select the event type. Options available are below. Can only choose one option.
 #' \describe{
 #' \item{"all"}{All possible sampling events.}
 #' \item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
@@ -53,7 +53,8 @@
 #' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 #' events are between months 5 and 10, and these are set as the defaults.
 #'
-#' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
+#' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns
+#' all sites that have been monitored.
 #'
 #' @param parameter Specify the parameter(s) to return. Current accepted values are:.
 #' chemistry: c("ANC_ueqL", "AppColor", "AppColor_PCU", "ChlA_ugL", "Cl_ueqL",
@@ -103,24 +104,27 @@
 #' @examples
 #' \dontrun{
 #'
-#' # Plot smoothed surface pH for Eagle Lake for past 3 years using default span of 0.3 and by default not including the legend.
+#' # Plot smoothed surface pH for Eagle Lake for past 3 years using default span of 0.3 and by
+#' # default not including the legend.
 #' plotTrend(site = "ACEAGL", parameter = "pH", palette = 'Dark2', years = 2021:2023) + theme_WQ()
 #'
 #' # Plot smoothed surface pH for Eagle Lake for all years, removing the legend and using span of 0.75.
 #' plotTrend(site = "ACEAGL", parameter = "pH", span = 0.75)
 #'
-#' # Plot smoothed Secchi Depth in Jordan Pond for all years, including the legend, different color palette, and using span of 0.75.
+#' # Plot smoothed Secchi Depth in Jordan Pond for all years, including the legend,
+#' # different color palette, and using span of 0.75.
 #' plotTrend(site = "ACJORD", parameter = "SDepth_m", span = 0.75, palette = 'Set1')
 #'
 #' # Plot smoothed surface pH for active SARA streams over all years with 0.6 span.
-#' plotTrend(park = "SARA", site = c("SARASA", "SARASC", "SARASD"), site_type = "stream", parameter = "pH",
-#'           legend_position = "right", span = 0.6)
+#' plotTrend(park = "SARA", site = c("SARASA", "SARASC", "SARASD"), site_type = "stream",
+#'           parameter = "pH", legend_position = "right", span = 0.6)
 #'
 #' # Plot smoothed surface SO4 for all MIMA streams over all years with 0.6 span
 #' plotTrend(park = "MIMA", site_type = "stream",
 #'           parameter = "SO4_ueqL", legend_position = "right", span = 0.6)
 #'
-#' # Plot non-smoothed surface of multiple Sonde parameters for all MIMA streams over all years with 0.6 span.
+#' # Plot non-smoothed surface of multiple Sonde parameters for all MIMA streams over all
+#' # years with 0.6 span.
 #' params <- c("Temp_F", "SpCond_uScm", "DOsat_pct", "pH")
 #' plotTrend(park = "MIMA", site_type = "stream",
 #'           parameter = params, legend_position = "right", span = 0.6)
@@ -152,7 +156,8 @@ plotTrend <- function(park = "all", site = "all",
   park <- match.arg(park, several.ok = TRUE,
                     c("all", "LNETN", "ACAD", "MABI", "MIMA", "MORR",
                       "ROVA", "SAGA", "SAIR", "SARA", "WEFA"))
-  if(any(park == "LNETN")){park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
+  if(any(park == "LNETN")){
+    park = c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")} else {park}
   site_type <- match.arg(site_type)
   event_type <- match.arg(event_type, c("all", "VS", "acid", "misc"))
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
@@ -176,7 +181,7 @@ plotTrend <- function(park = "all", site = "all",
             "TotDissN", "TotDissN_mgL", "TotDissP", "TotDissP_ugL", "TP_ugL")
 
   sonde <- c("Temp_C", "Temp_F", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
-             "Turbidity_FNU", "ChlA_RFU", "ChlA_ugL", "BP_mmHg")
+             "Turbidity_FNU", "ChlA_EXO_RFU", "ChlA_EXO_ugL", "BP_mmHg")
 
   other <- c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevel_Feet", "WaterLevel_m")
 
@@ -266,37 +271,57 @@ plotTrend <- function(park = "all", site = "all",
 
   wdat2$date2 <- as.Date(wdat2$EventDate, format = c("%Y-%m-%d"))
 
+  # Code below is to make an x-axis that can be generalized across a range of years/months
+  # to have logical tick placement and labels, and to not include Nov-Apr, when when
+  # samples aren't collected
+
+  # May 1 doy = 122; Oct 31 doy = 305
+  wdat2$doy_norm <- (wdat2$doy - 122)/(305-122)
+  wdat2$x_axis <- wdat2$year - years[1] + wdat2$doy_norm
+
   year_len <- length(unique(wdat2$year))
   mon_len <- length(unique(wdat2$month))
 
-  break_len <- if(year_len == 1){"1 month"
-  } else if(year_len  %in% c(2, 3, 4) & mon_len <= 6){"2 months"
-  } else if(year_len == 2 & mon_len > 6){"4 months"
-    #} else if(year_len > 4 & mon_len <= 6){"6 months"
-  } else if(year_len %in% c(4:19)){"1 year"
-  } else if(year_len > 19){"2 years"
-  } else {"6 months"}
+  wdat2$mon <- factor(format(wdat2$date2, "%b"), month.abb, ordered = TRUE)
+  wdat2$mon <- wdat2$mon[,drop = T]
 
-  date_format <- ifelse(break_len %in% c("1 year", "2 years", "5 years"), "%Y",
-                        ifelse(break_len %in% c("2 months", "4 months"), "%b/%Y",
-                               "%b"))
-  datebreaks <- seq(min(wdat2$date2, na.rm = T), max(wdat2$date2, na.rm = T) + 30, by = break_len)
+  # Expand year and months to include missed periods that make x-axis funky
+  time_mat1 <- expand.grid(year = years, month = months) |> arrange(year, month)
+  time_mat1$mon <- factor(time_mat1$month, levels = time_mat1$month, labels = month.abb[time_mat1$month], ordered = TRUE)
+  time_mat1$mon <- time_mat1$mon[,drop = T]
+  time_mat1$date <- as.Date(paste0(time_mat1$year, "-", time_mat1$month, "-", "01"), format = c("%Y-%m-%d"))
+  time_mat1$doy <-  as.numeric(strftime(time_mat1$date, format = "%j"))
+  time_mat1$doy_norm <- (time_mat1$doy - 122)/(305-122)
+  time_mat1$x_axis <- time_mat1$year - years[1] + time_mat1$doy_norm
+
+  time_mat <- time_mat1 |> filter(date <= max(wdat2$date2)) # drop dates not included in wdat2
+  time_mat$x_label <- if(year_len == 1){as.character(paste0(time_mat$mon, "-01"))
+    } else if(year_len %in% c(2, 3, 4)){paste0(time_mat$mon, "-", time_mat$year)
+    } else {(time_mat$year)}
+
+  x_row_breaks <- if(year_len == 1){c(1:6)
+  } else if(year_len %in% 2){seq(1, year_len * mon_len , 2)
+  } else if(year_len %in% c(3:5)){seq(1, year_len * mon_len, 3)
+  } else if(year_len %in% c(5:10)){seq(1, year_len * mon_len, mon_len)
+          } else if(year_len > 10){seq(1, year_len * mon_len, mon_len*2)}
+
+  xbreaks <- time_mat$x_axis[x_row_breaks]
+  xlabs <- time_mat$x_label[x_row_breaks]
 
   vir_pal = ifelse(palette %in% c("viridis", "magma", "plasma", "turbo"), "viridis", "colbrew")
-
 
   #-- Create plot --
   trendplot <-
     if(include_censored == TRUE){
 
-    ggplot(wdat2, aes(x = date2, y = Value, group = SiteName,
+    ggplot(wdat2, aes(x = x_axis, y = Value, group = if(smooth == TRUE){SiteName} else{year},
                      color = SiteName, fill = SiteName, shape = censored)) +
       # layers
       {if(smooth == TRUE) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +
       {if(smooth == FALSE & any(layers %in% "lines")) geom_line()} +
       {if(any(layers %in% "points")) geom_point(aes(shape = censored, size = censored), alpha = 0.6)} +
-      {if(any(layers %in% "points")) scale_shape_manual(values = c(19, 18), labels = c("Real", "Censored"))} +
-      {if(any(layers %in% "points")) scale_size_manual(values = c(3,3.5), labels = c("Real", "Censored"))} +
+      {if(any(layers %in% "points")) scale_shape_manual(values = c(19, 18), size = 2.5, labels = c("Real", "Censored"))} +
+      {if(any(layers %in% "points")) scale_size_manual(values = c(3,3.5), size = 2.5, labels = c("Real", "Censored"))} +
       {if(threshold == TRUE){geom_hline(aes(yintercept = UpperThreshold, linetype = "Upper WQ Threshold"), lwd = 0.7)}} +
       {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold, linetype = "Lower WQ Threshold"), lwd = 0.7)}} +
       {if(threshold == TRUE){scale_linetype_manual(values = c("dotted", "dashed"))}} +
@@ -304,25 +329,25 @@ plotTrend <- function(park = "all", site = "all",
       {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free_y', ncol = numcol)} +
       # themes
       theme_WQ() +
-        theme(legend.position = legend_position,
-              legend.title = element_blank(),
-              axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
-        {if(any(gridlines %in% c("grid_y", "both"))){
-          theme(
-            panel.grid.major.y = element_line(color = 'grey'))}} + #,
-            #panel.grid.minor.y = element_line(color = 'grey'))}}+
-        {if(any(gridlines %in% c("grid_x", "both"))){
-          theme(
-            panel.grid.major.x = element_line(color = 'grey'))}} + #,
-            #panel.grid.minor.x = element_line(color = 'grey'))}}+
+      theme(legend.position = legend_position,
+            legend.title = element_blank(),
+            axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
+      {if(any(gridlines %in% c("grid_y", "both"))){
+          theme(panel.grid.major.y = element_line(color = 'grey'))}} + #,
+                #panel.grid.minor.y = element_line(color = 'grey'))}}+
+      {if(any(gridlines %in% c("grid_x", "both"))){
+          theme(panel.grid.major.x = element_line(color = 'grey'))}} + #,
+                #panel.grid.minor.x = element_line(color = 'grey'))}}+
       # palettes
-        {if(any(vir_pal == "viridis")) scale_color_viridis_d(option = palette)} +
-        {if(any(vir_pal == "viridis")) scale_fill_viridis_d(option = palette)} +
-        {if(any(vir_pal == "colbrew")) scale_color_brewer(palette = palette)} +
-        {if(any(vir_pal == "colbrew")) scale_fill_brewer(palette = palette)} +
+      {if(any(vir_pal == "viridis")) scale_color_viridis_d(option = palette)} +
+      {if(any(vir_pal == "viridis")) scale_fill_viridis_d(option = palette)} +
+      {if(any(vir_pal == "colbrew")) scale_color_brewer(palette = palette)} +
+      {if(any(vir_pal == "colbrew")) scale_fill_brewer(palette = palette)} +
       #axis format
-      scale_x_date(breaks = datebreaks, labels = scales::label_date(date_format)) +
-      scale_y_continuous(n.breaks = 8)+
+      scale_x_continuous(breaks = xbreaks,
+                         labels = xlabs,
+                         limits = c(min(xbreaks), max(xbreaks))) +
+      scale_y_continuous(n.breaks = 8) +
       # labels
       #labs(x = "Year", y = ylab) +
       labs(x = NULL, y = ylabel) +
@@ -330,53 +355,53 @@ plotTrend <- function(park = "all", site = "all",
              color = guide_legend(order = 1),
              shape = guide_legend(order = 1))
     } else {
-      ggplot(wdat2, aes(x = date2, y = Value, group = SiteName,
+      ggplot(wdat2, aes(x = x_axis, y = Value, group = if(smooth == TRUE){SiteName} else{year},
                         color = SiteName, fill = SiteName)) +
-        #layers
-        {if(smooth == TRUE) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +
-        {if(smooth == FALSE & any(layers %in% "lines")) geom_line()} +
-        {if(any(layers %in% "points")) geom_point(alpha = 0.6)} +
-        {if(threshold == TRUE){geom_hline(aes(yintercept = UpperThreshold, linetype = "Upper WQ Threshold"), lwd = 0.7)}} +
-        {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold, linetype = "Lower WQ Threshold"), lwd = 0.7)}} +
-        {if(threshold == TRUE){scale_linetype_manual(values = c("dashed", "solid"))}} +
-        # facets
-        {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free_y', ncol = numcol)} +
-        # themes
-        theme_WQ() +
-        theme(legend.position = legend_position,
-              legend.title = element_blank(),
-              axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
-        {if(any(gridlines %in% c("grid_y", "both"))){
-          theme(
-            panel.grid.major.y = element_line(color = 'grey'))}} + #,
-        #panel.grid.minor.y = element_line(color = 'grey'))}}+
-        {if(any(gridlines %in% c("grid_x", "both"))){
-          theme(
-            panel.grid.major.x = element_line(color = 'grey'))}} + #,
-        #panel.grid.minor.x = element_line(color = 'grey'))}}+
-        # color palettes
-        {if(palette == "viridis") scale_color_viridis_d()} +
-        {if(palette == "set1") scale_color_brewer(palette = "Set1")} +
-        {if(palette == "dark2") scale_color_brewer(palette = "Dark2")} +
-        {if(palette == "accent") scale_color_brewer(palette = "Accent")} +
-        {if(palette == "viridis") scale_fill_viridis_d()} +
-        {if(palette == "set1") scale_fill_brewer(palette = "Set1")} +
-        {if(palette == "dark2") scale_fill_brewer(palette = "Dark2")} +
-        {if(palette == "accent") scale_fill_brewer(palette = "Accent")} +
-        #axis format
-        scale_x_date(breaks = datebreaks, labels = scales::label_date(date_format)) +
-        scale_y_continuous(n.breaks = 8)+
-        # labels
-        #labs(x = "Year", y = ylab) +
-        labs(x = NULL, y = ylabel) +
-        guides(fill = guide_legend(order = 1),
-               color = guide_legend(order = 1),
-               shape = guide_legend(order = 1))
-
+      #layers
+      {if(smooth == TRUE) geom_smooth(method = 'loess', formula = 'y ~ x', se = F, span = span) } +
+      {if(smooth == FALSE & any(layers %in% "lines")) geom_line()} +
+      {if(any(layers %in% "points")) geom_point(alpha = 0.6, size = 2.5)} +
+      {if(threshold == TRUE){geom_hline(aes(yintercept = UpperThreshold, linetype = "Upper WQ Threshold"), lwd = 0.7)}} +
+      {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold, linetype = "Lower WQ Threshold"), lwd = 0.7)}} +
+      {if(threshold == TRUE){scale_linetype_manual(values = c("dashed", "solid"))}} +
+      # facets
+      {if(length(unique(wdat$param_label))>1) facet_wrap(~param_label, scales = 'free_y', ncol = numcol)} +
+      # themes
+      theme_WQ() +
+      theme(legend.position = legend_position,
+            legend.title = element_blank(),
+            axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
+      {if(any(gridlines %in% c("grid_y", "both"))){
+          theme(panel.grid.major.y = element_line(color = 'grey'))}} + #,
+                #panel.grid.minor.y = element_line(color = 'grey'))}}+
+      {if(any(gridlines %in% c("grid_x", "both"))){
+          theme(panel.grid.major.x = element_line(color = 'grey'))}} + #,
+                #panel.grid.minor.x = element_line(color = 'grey'))}}+
+      # color palettes
+      {if(palette == "viridis") scale_color_viridis_d()} +
+      {if(palette == "set1") scale_color_brewer(palette = "Set1")} +
+      {if(palette == "dark2") scale_color_brewer(palette = "Dark2")} +
+      {if(palette == "accent") scale_color_brewer(palette = "Accent")} +
+      {if(palette == "viridis") scale_fill_viridis_d()} +
+      {if(palette == "set1") scale_fill_brewer(palette = "Set1")} +
+      {if(palette == "dark2") scale_fill_brewer(palette = "Dark2")} +
+      {if(palette == "accent") scale_fill_brewer(palette = "Accent")} +
+      #axis format
+      scale_x_continuous(breaks = xbreaks,
+                        labels = xlabs,
+                        limits = c(min(xbreaks), max(xbreaks))) +
+      scale_y_continuous(n.breaks = 8) +
+      # labels
+      #labs(x = "Year", y = ylab) +
+      labs(x = NULL, y = ylabel) +
+      guides(fill = guide_legend(order = 1),
+             color = guide_legend(order = 1),
+             shape = guide_legend(order = 1))
       }
 
- return(#suppressWarnings(
-   trendplot)
+ #return(#suppressWarnings(
+   trendplot
+#   )
   #)
 }
 
