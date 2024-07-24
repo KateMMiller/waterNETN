@@ -50,7 +50,7 @@ plotTrend(
 \item{"stream"}{Include streams only.}
 }}
 
-\item{event_type}{Select the event type. Options available are below Can only choose one option.
+\item{event_type}{Select the event type. Options available are below. Can only choose one option.
 \describe{
 \item{"all"}{All possible sampling events.}
 \item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
@@ -63,7 +63,8 @@ plotTrend(
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 events are between months 5 and 10, and these are set as the defaults.}
 
-\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
+\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns
+all sites that have been monitored.}
 
 \item{parameter}{Specify the parameter(s) to return. Current accepted values are:.
 chemistry: c("ANC_ueqL", "AppColor", "AppColor_PCU", "ChlA_ugL", "Cl_ueqL",
@@ -123,24 +124,27 @@ collected in lakes), the function will return an error message instead of an emp
 \examples{
 \dontrun{
 
-# Plot smoothed surface pH for Eagle Lake for past 3 years using default span of 0.3 and by default not including the legend.
+# Plot smoothed surface pH for Eagle Lake for past 3 years using default span of 0.3 and by
+# default not including the legend.
 plotTrend(site = "ACEAGL", parameter = "pH", palette = 'Dark2', years = 2021:2023) + theme_WQ()
 
 # Plot smoothed surface pH for Eagle Lake for all years, removing the legend and using span of 0.75.
 plotTrend(site = "ACEAGL", parameter = "pH", span = 0.75)
 
-# Plot smoothed Secchi Depth in Jordan Pond for all years, including the legend, different color palette, and using span of 0.75.
+# Plot smoothed Secchi Depth in Jordan Pond for all years, including the legend,
+# different color palette, and using span of 0.75.
 plotTrend(site = "ACJORD", parameter = "SDepth_m", span = 0.75, palette = 'Set1')
 
 # Plot smoothed surface pH for active SARA streams over all years with 0.6 span.
-plotTrend(park = "SARA", site = c("SARASA", "SARASC", "SARASD"), site_type = "stream", parameter = "pH",
-          legend_position = "right", span = 0.6)
+plotTrend(park = "SARA", site = c("SARASA", "SARASC", "SARASD"), site_type = "stream",
+          parameter = "pH", legend_position = "right", span = 0.6)
 
 # Plot smoothed surface SO4 for all MIMA streams over all years with 0.6 span
 plotTrend(park = "MIMA", site_type = "stream",
           parameter = "SO4_ueqL", legend_position = "right", span = 0.6)
 
-# Plot non-smoothed surface of multiple Sonde parameters for all MIMA streams over all years with 0.6 span.
+# Plot non-smoothed surface of multiple Sonde parameters for all MIMA streams over all
+# years with 0.6 span.
 params <- c("Temp_F", "SpCond_uScm", "DOsat_pct", "pH")
 plotTrend(park = "MIMA", site_type = "stream",
           parameter = params, legend_position = "right", span = 0.6)
