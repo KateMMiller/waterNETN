@@ -186,7 +186,8 @@ plotLakeProfile <- function(park = "ACAD", site = "all", event_type = "VS",
 
   #-- Set up plotting features --
   # create column of abbreviated months
-  wcomb2$mon <- factor(format(wcomb2$EventDate, "%b"), month.abb, ordered = TRUE)
+  wcomb2$mon <- factor(format(as.Date(wcomb2$EventDate, format = c("%Y-%m-%d")), "%b"), levels = month.abb, ordered = T)
+  #wcomb2$mon <- factor(format(wcomb2$EventDate, "%b"), month.abb, ordered = TRUE)
   wcomb2$mon <- wcomb2$mon[,drop = T]
 
   param_label <- unique(ifelse(grepl("_", wcomb2$Parameter),
