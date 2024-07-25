@@ -20,6 +20,7 @@ plotWaterBands(
   legend_position = "none",
   gridlines = "none",
   facet_scales = "fixed",
+  plotly = FALSE,
   ...
 )
 }
@@ -92,6 +93,8 @@ options are "top", "bottom", "left", "right".}
 \item{gridlines}{Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")}
 
 \item{facet_scales}{Specify whether facet axes should be "fixed" (all the same) or "free_y", "free_x" or "free" (both).}
+
+\item{plotly}{Logical. If TRUE, returns a plotly object. If FALSE (default), returns a ggplot2 object.}
 
 \item{...}{Additional arguments relevant to \code{getChemistry()} or \code{getSondeInSitu()}}
 }

@@ -84,6 +84,8 @@
 #'
 #' @param facet_scales Specify whether facet axes should be "fixed" (all the same) or "free_y", "free_x" or "free" (both).
 #'
+#' @param plotly Logical. If TRUE, returns a plotly object. If FALSE (default), returns a ggplot2 object.
+#'
 #' @param ... Additional arguments relevant to \code{getChemistry()} or \code{getSondeInSitu()}
 #'
 #' @return Returns a ggplot object of specified current vs historic values
@@ -112,7 +114,7 @@ plotWaterBands <- function(park = "all", site = "all",
                            sample_depth = c("surface", "all"),
                            threshold = TRUE, legend_position = 'none',
                            gridlines = "none", facet_scales = 'fixed',
-                           #plotly = FALSE,
+                           plotly = FALSE,
                            ...){
   #-- Error handling --
   park <- match.arg(park, several.ok = TRUE,
@@ -132,10 +134,10 @@ plotWaterBands <- function(park = "all", site = "all",
     legend_position <- match.arg(legend_position, c("none", "bottom", "top", "right", "left"))
     gridlines <- match.arg(gridlines, c("none", "grid_y", "grid_x", "both"))
     facet_scales <- match.arg(facet_scales, c("fixed", "free", "free_y", "free_x"))
-#    stopifnot(class(plotly) == "logical")
+    stopifnot(class(plotly) == "logical")
 
-    # if(!requireNamespace("plotly", quietly = TRUE) & plotly == TRUE){
-    #   stop("Package 'plotly' needed if plotly = TRUE. Please install it.", call. = FALSE)}
+    if(!requireNamespace("plotly", quietly = TRUE) & plotly == TRUE){
+      stop("Package 'plotly' needed if plotly = TRUE. Please install it.", call. = FALSE)}
 
     #-- Compile data for plotting --
     chem <- c("ANC", "ANC_ueqL", "AppColor", "AppColor_PCU", "ChlA_ugL", "Cl_ueqL",
@@ -392,7 +394,7 @@ plotWaterBands <- function(park = "all", site = "all",
                                 text = paste0("Site: ", SiteName, "<br>",
                                               "Month: ", mon, "<br>",
                                               "Parameter: ", param_label, "<br>",
-                                              "Distribution: ", as.numeric(distrib), "%", "<br>",
+                                              "Distribution: ", as.numeric(gsub("\\D", "", distrib)), "%", "<br>",
                                               "Historic Upper Value: ", round(upper, 1), "<br>",
                                               "Historic Lower Value: ", round(lower, 1), "<br>")))+
                 # geom_line(data = wdat_hist2, aes(y = lower, color = metric_type, group = metric_type)) +
@@ -402,7 +404,7 @@ plotWaterBands <- function(park = "all", site = "all",
                               text = paste0("Site: ", SiteName, "<br>",
                                             "Month: ", mon, "<br>",
                                             "Parameter: ", param_label, "<br>",
-                                            "Historic Median: ", round(median_value, 1), "<br>")), lwd = 0.7) +
+                                            "Historic Median: ", round(median_val, 1), "<br>")), lwd = 0.7) +
                 geom_point(data = wdat_curr,
                            aes(y = Value, x = mon, color = metric_type, group = metric_type,
                                text = paste0("Site: ", SiteName, "<br>",
@@ -457,5 +459,6 @@ plotWaterBands <- function(park = "all", site = "all",
                        fill = guide_legend(order = 1), linetype = guide_legend(order = 3))
             #)
 
-        return(monthly_plot)
-        }
+    final_plot <- if(plotly == TRUE){plotly::ggplotly(monthly_plot, tooltip = "text")} else {monthly_plot}
+    return(final_plot)
+    }
