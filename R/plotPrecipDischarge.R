@@ -117,27 +117,27 @@ plotPrecipDischarge <- function(park = "all",
 
   precip$Date2 <- as.Date(precip$Date, format = c("%Y-%m-%d"))
 
-  comb <- left_join(precip, disch, by = c("UnitCode", "year", "doy", "month", "Date2")) |>
-    filter(year %in% sample_years)
+  # comb <- left_join(precip, disch, by = c("UnitCode", "year", "doy", "month", "Date2")) |>
+  #   filter(year %in% sample_years)
 
   # Control x-axis breaks
-  datebreaks <- seq(min(comb$Date2), max(comb$Date2) + 30, by = "1 month")
+  datebreaks <- seq(min(precip$Date2), max(precip$Date2) + 30, by = "1 month")
 
-  facet_site <- ifelse(length(unique(comb$SiteCode)) > 1, TRUE, FALSE)
-  facet_year <- ifelse(length(unique(comb$year)) > 1, TRUE, FALSE)
+  facet_site <- ifelse(length(unique(disch$SiteCode)) > 1, TRUE, FALSE)
+  facet_year <- ifelse(length(unique(disch$year)) > 1, TRUE, FALSE)
 
-  comb$precip <- if(units == "sci"){comb$ws_pcpmm} else {comb$ws_pcpmm/25.4}
+  precip$precip <- if(units == "sci"){precip$ws_pcpmm} else {precip$ws_pcpmm/25.4}
   ylab <- if(units == "sci"){"Daily Precip. (mm)"} else {"Daily Precip. (in)"}
 
   # Have to rescale so precip and discharge show up on same plot
-  scale = range(comb$precip, na.rm = T)[2]/range(disch$Discharge_cfs, na.rm = T)[2]
+  scale = range(precip$precip, na.rm = T)[2]/range(disch$Discharge_cfs, na.rm = T)[2]
 
 dp_plot <-
-    ggplot(comb, aes(x = Date2, y = precip, group = SiteName)) + theme_WQ() +
+    ggplot(precip, aes(x = Date2, y = precip)) + theme_WQ() +
       # layers y-left
       geom_bar(color = palette[1], fill = palette[1], stat = 'identity', alpha = 0.5) +
       # layers y-right
-      geom_point(data = disch, aes(x = Date2, y = Discharge_cfs * scale),
+      geom_point(data = disch, aes(x = Date2, y = Discharge_cfs * scale, group = SiteName),
                  color = palette[2], shape = "+", size = 6) +
       # create 2nd axis
       scale_y_continuous(name = ylab, n.breaks = 8,
@@ -164,7 +164,9 @@ dp_plot <-
       theme(legend.position = legend_position, legend.title = element_blank()) +
       labs(x = NULL)
 
-  return(suppressWarnings(dp_plot))
+
+return(#suppressWarnings(
+  dp_plot)#)
 }
 
 
