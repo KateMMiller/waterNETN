@@ -601,11 +601,11 @@ plotTrend(site = "ACWHOL", parameter = "pH", layers = "lines",
 </details>
 
 <details open><summary class='drop'>Multiple sites or params</summary>
-<p class = 'fxn'>Plot smoothed surface pH for active SARA streams over all years with 0.6 span. </p>
+<p class = 'fxn'>Plot smoothed surface pH for active SARA streams over all years with 0.6 span and convert to plotly. Note that plotly figures don't seem to display in the current version of RStudio (2024.04.2), but they do render when knit with R Markdown to an html file. </p>
 ```{r message = FALSE, warning = FALSE}
-plotTrend(park = "SARA", site = c("SARASA", "SARASC", "SARASD"), 
-          site_type = "stream", parameter = "pH", 
-          legend_position = "right", span = 0.6)
+p <- plotTrend(park = "SARA", site = c("SARASA", "SARASC", "SARASD"), 
+               site_type = "stream", parameter = "pH", 
+               legend_position = "right", span = 0.6)
 
 ```
 
