@@ -155,7 +155,7 @@ wdat$value_type <- ifelse(wdat$censored == TRUE, 'cens', "real")
 wdat2 <- left_join(unique(evs[,c("UnitCode", "SiteCode", "SiteName", "SiteType",
                                  "year_start", "year_latest", "num_years")]),
                    wdat, by = c("UnitCode", "SiteCode", "SiteName"))
-wdat2$mon <- factor(format(wdat2$EventDate, "%b"), month.abb, ordered = TRUE)
+wdat2$mon <- factor(format(as.Date(wdat2$EventDate, format = c("%Y-%m-%d")), "%b"), levels = month.abb, ordered = T)
 wdat2$mon <- wdat2$mon[,drop = T]
 
 samp_tab <- wdat2 |> group_by(UnitCode, SiteCode, SiteName, SiteType, mon,
