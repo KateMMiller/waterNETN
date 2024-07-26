@@ -314,9 +314,9 @@ plotTrend <- function(park = "all", site = "all",
   pal <-
     if(any(vir_pal == "colbrew")){
       if(length(palette) > 1){
-        rep(colorRampPalette(palette)(length(unique(param))), times = length(parameter))
+        rep(colorRampPalette(palette)(length(unique(parameter))), times = length(parameter))
       } else { # hack to allow gradient to work with 1 color
-        rep(colorRampPalette(c(palette, palette))(length(unique(param))), times = length(parameter))
+        rep(colorRampPalette(c(palette, palette))(length(unique(parameter))), times = length(parameter))
       }
     }
 
@@ -334,7 +334,7 @@ plotTrend <- function(park = "all", site = "all",
                                                     text = paste0("Site: ", SiteName, "<br>",
                                                                   "Parameter: ", param_label, "<br>",
                                                                   "Value: ", round(Value, 1), "<br>")),
-                                                alpha = 0.6)} +
+                                                alpha = 0.4)} +
       {if(any(layers %in% "points")) scale_shape_manual(values = c(19, 18), labels = c("Real", "Censored"))} +
       {if(any(layers %in% "points")) scale_size_manual(values = c(3,3.5), labels = c("Real", "Censored"))} +
       {if(threshold == TRUE){geom_hline(aes(yintercept = UpperThreshold, linetype = "Upper WQ Threshold"), lwd = 0.7)}} +
@@ -361,7 +361,7 @@ plotTrend <- function(park = "all", site = "all",
       #axis format
       scale_x_continuous(breaks = xbreaks,
                          labels = xlabs,
-                         limits = c(min(xbreaks), max(xbreaks))) +
+                         limits = c(0, max(wdat2$x_axis))) +
       scale_y_continuous(n.breaks = 8) +
       # labels
       #labs(x = "Year", y = ylab) +
@@ -378,7 +378,7 @@ plotTrend <- function(park = "all", site = "all",
       {if(smooth == FALSE & any(layers %in% "lines")) geom_line(aes(text = paste0("Site: ", SiteName, "<br>")))} +
       {if(any(layers %in% "points")) geom_point(aes(text = paste0("Site: ", SiteName, "<br>",
                                                                   "Parameter: ", param_label, "<br>",                                                                                             "Value: ", round(Value, 1), "<br>")),
-                                                alpha = 0.6, size = 2.5)} +
+                                                alpha = 0.4, size = 2.5)} +
       {if(threshold == TRUE){geom_hline(aes(yintercept = UpperThreshold, linetype = "Upper WQ Threshold"), lwd = 0.7)}} +
       {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold, linetype = "Lower WQ Threshold"), lwd = 0.7)}} +
       {if(threshold == TRUE){scale_linetype_manual(values = c("dashed", "solid"))}} +
@@ -403,7 +403,7 @@ plotTrend <- function(park = "all", site = "all",
       #axis format
       scale_x_continuous(breaks = xbreaks,
                         labels = xlabs,
-                        limits = c(min(xbreaks), max(xbreaks))) +
+                        limits = c(0, max(wdat2$x_axis))) +
       scale_y_continuous(n.breaks = 8) +
       # labels
       #labs(x = "Year", y = ylab) +
