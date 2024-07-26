@@ -124,12 +124,14 @@ sumEvents <- function(park = "all", site = "all",
           mutate(censored = FALSE,
                  param_type = "Light penetration"),
         error = function(e){NULL}),
+        tryCatch(
         force(getDischarge(park = park, site = site, event_type = event_type,
                            years = years, months = months)) |>
           mutate(Parameter = "Discharge_cfs", Value = Discharge_cfs) |>
           select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
           mutate(censored = FALSE,
                  param_type = "Water quantity"),
+        error = function(e){NULL}),
         tryCatch(
         force(getLightPen(park = park, site = site, event_type = event_type,
                           years = years, months = months)) |>
@@ -138,12 +140,14 @@ sumEvents <- function(park = "all", site = "all",
           mutate(censored = FALSE,
                  param_type = "Light penetration"),
         error = function(e){NULL}),
-        force(getWaterLevel(park = park, site = site,
+        tryCatch(
+          force(getWaterLevel(park = park, site = site,
                             years = years, months = months)) |>
           mutate(Parameter = "WaterLevel_Feet", Value = WaterLevel_Feet) |>
           select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
           mutate(censored = FALSE,
-                 param_type = "Water quantity")
+                 param_type = "Water quantity"),
+          error = function(e){NULL})
     )
 
 wdat$value_type <- ifelse(wdat$censored == TRUE, 'cens', "real")
@@ -151,8 +155,7 @@ wdat$value_type <- ifelse(wdat$censored == TRUE, 'cens', "real")
 wdat2 <- left_join(unique(evs[,c("UnitCode", "SiteCode", "SiteName", "SiteType",
                                  "year_start", "year_latest", "num_years")]),
                    wdat, by = c("UnitCode", "SiteCode", "SiteName"))
-
-wdat2$mon <- factor(format(wdat2$date2, "%b"), month.abb, ordered = TRUE)
+wdat2$mon <- factor(format(wdat2$EventDate, "%b"), month.abb, ordered = TRUE)
 wdat2$mon <- wdat2$mon[,drop = T]
 
 samp_tab <- wdat2 |> group_by(UnitCode, SiteCode, SiteName, SiteType, mon,
