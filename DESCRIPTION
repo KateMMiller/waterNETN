@@ -29,6 +29,7 @@ Collate:
     'theme_WQ.R'
     'plotLakeProfile.R'
     'plotPrecipDischarge.R'
+    'plotScatterPlot.R'
     'plotTrend.R'
     'plotWaterBands.R'
     'sumEvents.R'
