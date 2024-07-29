@@ -6,7 +6,7 @@
 #' @include getWaterLevel.R
 #' @include theme_WQ.R
 #'
-#' @title plotTrend: Plots smoothed trend
+#' @title plotTrend: Plot WQ trends
 #'
 #' @importFrom dplyr mutate select
 #' @import ggplot2
@@ -14,7 +14,7 @@
 #' @description This function produces a line or smoothed trend plot filtered on park, site, year, month, and parameter.
 #' Works with both lab chemistry data and Sonde in situ data. If multiple sites are specified, they will be plotted
 #' on the same figure. If multiple parameters are specified, they will be plotted on separate figures. Note that
-#' if you specify a stream and parameter combination that doesn't exist (e.g., a stream site and a parameter only
+#' if you specify a site and parameter combination that doesn't exist (e.g., a stream site and a parameter only
 #' collected in lakes), the function will return an error message instead of an empty plot.
 #'
 #' @param park Combine data from all parks or one or more parks at a time. Valid inputs:

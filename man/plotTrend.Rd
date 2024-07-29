@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotTrend.R
 \name{plotTrend}
 \alias{plotTrend}
-\title{plotTrend: Plots smoothed trend}
+\title{plotTrend: Plot WQ trends}
 \usage{
 plotTrend(
   park = "all",
@@ -117,7 +117,7 @@ Returns a ggplot object of specified parameter trends.
 This function produces a line or smoothed trend plot filtered on park, site, year, month, and parameter.
 Works with both lab chemistry data and Sonde in situ data. If multiple sites are specified, they will be plotted
 on the same figure. If multiple parameters are specified, they will be plotted on separate figures. Note that
-if you specify a stream and parameter combination that doesn't exist (e.g., a stream site and a parameter only
+if you specify a site and parameter combination that doesn't exist (e.g., a stream site and a parameter only
 collected in lakes), the function will return an error message instead of an empty plot.
 }
 \examples{

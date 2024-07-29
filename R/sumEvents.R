@@ -6,7 +6,7 @@
 #' @include getSondeInSitu.R
 #' @include getWaterLevel.R
 #'
-#' @title sumEvents: summarize events by site, year, and parameter
+#' @title sumEvents: summarize sample events
 #'
 #' @description Summarize the number of samples collected at each site by year, month, parameter, and
 #' whether measurment was real or censored.

@@ -2,7 +2,7 @@
 % Please edit documentation in R/sumEvents.R
 \name{sumEvents}
 \alias{sumEvents}
-\title{sumEvents: summarize events by site, year, and parameter}
+\title{sumEvents: summarize sample events}
 \usage{
 sumEvents(
   park = "all",

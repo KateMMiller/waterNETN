@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotLakeProfile.R
 \name{plotLakeProfile}
 \alias{plotLakeProfile}
-\title{plotLakeProfile: Plots smoothed trend}
+\title{plotLakeProfile: Plot lake profiles}
 \usage{
 plotLakeProfile(
   park = "ACAD",
@@ -89,7 +89,7 @@ column than other samples that are more spread out. If no thermocline is detecte
 \item{legend_position}{Specify location of legend (default is 'right'). To turn legend off, use legend_position = "none". Other
 options are "top", "bottom", "left", "right".}
 
-\item{facet_scales}{Specify whether facet axes should be fixed (all the same) or "free_y", "free_x" or "free" (both).}
+\item{facet_scales}{Specify whether facet axes should be fixed (all the same; default) or "free_y", "free_x" or "free" (both).}
 
 \item{gridlines}{Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")}
 

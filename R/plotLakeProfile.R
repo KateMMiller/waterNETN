@@ -2,7 +2,7 @@
 #' @include getWaterLevel.R
 #' @include theme_WQ.R
 #'
-#' @title plotLakeProfile: Plots smoothed trend
+#' @title plotLakeProfile: Plot lake profiles
 #'
 #' @importFrom dplyr arrange group_by left_join mutate select summarize
 #' @importFrom purrr pmap_dfr possibly
@@ -86,7 +86,7 @@
 #'
 #' @param gridlines Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")
 #'
-#' @param facet_scales Specify whether facet axes should be fixed (all the same) or "free_y", "free_x" or "free" (both).
+#' @param facet_scales Specify whether facet axes should be fixed (all the same; default) or "free_y", "free_x" or "free" (both).
 #'
 #' @param ... Additional arguments relevant to \code{getSondeInSitu()} or \code{getWaterLevel()}
 #'
