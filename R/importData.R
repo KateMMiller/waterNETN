@@ -125,7 +125,8 @@ importData <- function(type = c("DSN", "dbfile", "csv", "zip"),
                        function(x){
                          setTxtProgressBar(pb, x)
                          tab1 <- wq_views[x]
-                         tab <- dplyr::tbl(db, tab1) |> dplyr::collect() |> as.data.frame()
+#                         tab <- dplyr::tbl(db, tab1) |> dplyr::collect() |> as.data.frame()
+                         tab <- DBI::dbReadTable(db, tab1)
                          return(tab)
                        })
 
