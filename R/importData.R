@@ -185,6 +185,8 @@ importData <- function(type = c("DSN", "dbfile", "csv", "zip"),
   # environment as separate, named objects.
   list2env(dp_files, envir = env)
 
+
+
   # Close progress bar
   close(pb)
   }
@@ -233,6 +235,8 @@ importData <- function(type = c("DSN", "dbfile", "csv", "zip"),
      # Close progress bar
      close(pb)
    }
+
+  # Drop NAs that come through in Chemistry_Data_Long in the ValueDetectionConditoin
 
   # Print message in console
   print(ifelse(new_env == TRUE,
