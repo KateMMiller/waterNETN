@@ -236,7 +236,10 @@ importData <- function(type = c("DSN", "dbfile", "csv", "zip"),
      close(pb)
    }
 
-  # Drop NAs that come through in Chemistry_Data_Long in the ValueDetectionConditoin
+  # Catch change in Water Level field
+  if(any(names(VIEWS_WQ$WaterLevel_Data) %in% "TU.TD")){
+    names(VIEWS_WQ$WaterLevel_Data)[names(VIEWS_WQ$WaterLevel_Data) == "TU.TD"] <- "TU-TD"
+  }
 
   # Print message in console
   print(ifelse(new_env == TRUE,
