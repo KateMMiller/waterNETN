@@ -313,12 +313,9 @@ plotTrend <- function(park = "all", site = "all",
 
   pal <-
     if(any(vir_pal == "colbrew")){
-      if(length(palette) > 1){
-        rep(colorRampPalette(palette)(length(unique(parameter))), times = length(parameter))
-      } else { # hack to allow gradient to work with 1 color
-        rep(colorRampPalette(c(palette, palette))(length(unique(parameter))), times = length(parameter))
-      }
-    }
+        colorRampPalette(palette)(length(parameter) * length(unique(wdat2$SiteCode)))
+        #rep(colorRampPalette(palette)(length(unique(parameter))), times = length(parameter) * length(unique(wdat2$SiteCode)))
+        }
 
   #-- Create plot --
   trendplot <-
@@ -329,14 +326,18 @@ plotTrend <- function(park = "all", site = "all",
       # layers
       {if(smooth == TRUE) geom_smooth(aes(text = paste0("Site: ", SiteName, "<br>")),
                                       method = 'loess', formula = 'y ~ x', se = F, span = span) } +
-      {if(smooth == FALSE & any(layers %in% "lines")) geom_line(aes(text = paste0("Site: ", SiteName, "<br>")))} +
-      {if(any(layers %in% "points")) geom_point(aes(shape = censored, size = censored,
-                                                    text = paste0("Site: ", SiteName, "<br>",
-                                                                  "Parameter: ", param_label, "<br>",
-                                                                  "Value: ", round(Value, 1), "<br>")),
-                                                alpha = 0.4)} +
-      {if(any(layers %in% "points")) scale_shape_manual(values = c(19, 18), labels = c("Real", "Censored"))} +
-      {if(any(layers %in% "points")) scale_size_manual(values = c(3,3.5), labels = c("Real", "Censored"))} +
+      {if(smooth == FALSE & any(layers %in% "lines"))
+        geom_line(aes(text = paste0("Site: ", SiteName, "<br>")))} +
+      {if(any(layers %in% "points"))
+        geom_point(aes(shape = censored, #size = censored,
+                       text = paste0("Site: ", SiteName, "<br>",
+                                     "Parameter: ", param_label, "<br>",
+                                     "Value: ", round(Value, 1), "<br>")),
+                   alpha = 0.4)} +
+      {if(any(layers %in% "points"))
+        scale_shape_manual(values = c(19, 18), labels = c("Real", "Censored"), name = "legend")} +
+      # {if(any(layers %in% "points"))
+      #   scale_size_manual(values = c(3,3.5), labels = c("Real", "Censored"), name = "legend")} +
       {if(threshold == TRUE){geom_hline(aes(yintercept = UpperThreshold, linetype = "Upper WQ Threshold"), lwd = 0.7)}} +
       {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold, linetype = "Lower WQ Threshold"), lwd = 0.7)}} +
       {if(threshold == TRUE){scale_linetype_manual(values = c("dotted", "dashed"))}} +
@@ -377,7 +378,8 @@ plotTrend <- function(park = "all", site = "all",
                                       method = 'loess', formula = 'y ~ x', se = F, span = span) } +
       {if(smooth == FALSE & any(layers %in% "lines")) geom_line(aes(text = paste0("Site: ", SiteName, "<br>")))} +
       {if(any(layers %in% "points")) geom_point(aes(text = paste0("Site: ", SiteName, "<br>",
-                                                                  "Parameter: ", param_label, "<br>",                                                                                             "Value: ", round(Value, 1), "<br>")),
+                                                                  "Parameter: ", param_label, "<br>",
+                                                                  "Value: ", round(Value, 1), "<br>")),
                                                 alpha = 0.4, size = 2.5)} +
       {if(threshold == TRUE){geom_hline(aes(yintercept = UpperThreshold, linetype = "Upper WQ Threshold"), lwd = 0.7)}} +
       {if(threshold == TRUE){geom_hline(aes(yintercept = LowerThreshold, linetype = "Lower WQ Threshold"), lwd = 0.7)}} +
