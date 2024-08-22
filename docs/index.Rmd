@@ -939,34 +939,37 @@ You can now add gridlines to x, y, or both axes.
 ```{r message = F, warning = F}
 climateNETN::plotClimComps(park = "MABI", years = 2019:2023, parameter = "tmean", 
               palette = c("red", "blue"), normal = "norm20cent",
-              gridlines = 'grid_y', units = "eng")
+              gridlines = 'grid_y', units = "eng", legend_position = 'bottom')
 ```
 <p class = 'fxn'>Same as above, but with points and 30-year normal starting at 1991.</p>
 ```{r message = F, warning = F}
 climateNETN::plotClimComps(park = "MABI", years = 2019:2023, parameter = "tmean", 
                            palette = c("red", "blue"), 
-              layers = c('points', 'lines'), normal = "norm1990", units = 'eng')
+              layers = c('points', 'lines'), normal = "norm1990", units = 'eng', 
+              legend_position = 'bottom')
 ```
 <p class = 'fxn'>Plot max monthly temp for ROVA for 2023 and 2024, with orange-blue palette and 20th century norm (default) using scientific units.</p>
 
 ```{r message = F, warning = F}
 climateNETN::plotClimComps(park = "ROVA", years = 2023:2024, parameter = "tmax", 
-              palette = c("orange", "blue"), layers = 'lines')
+              palette = c("orange", "blue"), layers = 'lines', legend_position = 'bottom')
 ```
 <p class = 'fxn'>Plot total monthly precip for Jordan Pond for past 5 years using orange-blue color palette, compared with the 30-year norm starting at 1990.</p>
 ```{r message = F, warning = F}
 climateNETN::plotClimComps(park = "ACAD", years = 2018:2023, parameter = 'ppt', 
-              palette = c("orange","blue"), normal = "norm1990")
+              palette = c("orange","blue"), normal = "norm1990", legend_position = 'bottom')
 ```
 
 <p class = 'fxn'>Plot total monthly precip for ACAD for current year using red for 2023 and blue for 2024</p>
 ```{r message = F, warning = F}
-climateNETN::plotClimComps(park = "ACAD", years = 2023:2024, parameter = 'ppt', palette = c("red", "blue"))
+climateNETN::plotClimComps(park = "ACAD", years = 2023:2024, parameter = 'ppt', 
+                           palette = c("red", "blue"), legend_position = 'bottom')
 ```
 
 <p class = 'fxn'>Plot total monthly max temp for ACAD for current year using red for current year color and 30-year normal.</p>
 ```{r message = F, warning = F}
-climateNETN::plotClimComps(park = "ACAD", years = 2024, parameter = 'tmax', palette = c("red"), normal = "norm1990")
+climateNETN::plotClimComps(park = "ACAD", years = 2024, parameter = 'tmax', 
+                           palette = c("red"), normal = "norm1990", legend_position = 'bottom')
 ```
 
 </details><br>
