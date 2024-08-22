@@ -12,11 +12,12 @@
 #' @importFrom tidyr pivot_wider
 #' @import ggplot2
 #'
-#' @description This function produces points, line, or smoothed lines of 2 variables, filtered on park, site, year,
-#' month, and 2 parameters. Works with both lab chemistry data and Sonde in situ data. If multiple sites are specified,
-#' they will be plotted on the same figure, unless facet_site = T. Note that if you specify a site and parameter
-#' combination that doesn't exist (e.g., a stream site and a parameter only collected in lakes), the function will
-#' return an error message instead of an empty plot.
+#' @description This function produces points or loess smoothed lines of 2 variables, filtered on park, site, year,
+#' month, and 2 parameters. Works with lab chemistry, Sonde in situ, discharge, secchi depth, water level, and
+#' light penetration ratio. If multiple sites are specified, they will be plotted on the same figure, unless facet_site = T.
+#' Note that if you specify a site and parameter combination that doesn't exist (e.g., a stream site and a parameter
+#' only collected in lakes), the function will return an error message instead of an empty plot. Censored values are
+#' not permitted in this function.
 #'
 #' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
 #' \describe{
@@ -57,19 +58,15 @@
 #' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns
 #' all sites that have been monitored.
 #'
-#' @param parameters Specify the two parameters to plot. The first parameter will be treated as the response (y),
-#' The second parameter will be treated as the explanatory (x) variable. Current accepted values are:.
+#' @param parameters Specify the two parameters to plot. The first parameter will be treated as the response (y).
+#' The second parameter will be treated as the explanatory (x) variable. Note that censored values can not be included
+#' in the scatterplot. Current accepted values are:.
 #' chemistry: c("ANC_ueqL", "AppColor", "AppColor_PCU", "ChlA_ugL", "Cl_ueqL",
 #' "DOC_mgL", "NH3_mgL", "NO2_mgL", "NO2+NO3_mgL", "NO3_ueqL", "pH_Lab", "PO4_ugL", "SO4_ueqL",
 #' "TN_mgL", "TotDissN_mgL", "TotDissP_ugL", "TP_ugL")
 #' sonde: c("Temp_C", "Temp_F", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
 #' "Turbidity_FNU", "ChlA_EXO_RFU", "ChlA_EXO_ugL", "BP_mmHg").
 #' other: c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevel_Feet", "WaterLevel_m").
-#' Note that "all" is not an accepted value, because there are too many to plot.
-#'
-#' @param include_censored Logical. If TRUE, the value column includes non-censored and censored values
-#' using the MDL/MRL/UQL values in the parameter flags. If the Flag column is not NA, that indicates
-#' the value is a censored value. If FALSE (Default), only non-censored values are returned in the value column.
 #'
 #' @param sample_depth Filter on sample depth. If "all" (Default), returns all sample depths. If "surface",
 #' only returns the median value of samples collected <= 2m from the surface. SampleDepth_m is also the median
@@ -140,7 +137,7 @@ plotScatterPlot <- function(park = "all", site = "all",
                             event_type = "VS",
                             years = 2006:format(Sys.Date(), "%Y"),
                             months = 5:10, active = TRUE,
-                            parameters = NA, include_censored = FALSE,
+                            parameters = NA,
                             sample_depth = "surface",
                             layers = c("points", "smooth"),
                             palette = "viridis",
@@ -165,7 +162,6 @@ plotScatterPlot <- function(park = "all", site = "all",
   stopifnot(class(years) %in% c("numeric", "integer"), years >= 2006)
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   stopifnot(class(active) == "logical")
-  stopifnot(class(include_censored) == "logical")
   sample_depth <- match.arg(sample_depth)
   stopifnot(class(facet_site) == "logical")
   match.arg(layers, c("points", "smooth"), several.ok = TRUE)
@@ -193,76 +189,119 @@ plotScatterPlot <- function(park = "all", site = "all",
   if(any(!parameters %in% all_params)){
     stop("At least one specified parameter is not an accepted value.")}
 
-  par_chem <- parameters[parameters %in% chem]
-  par_sonde <- parameters[parameters %in% sonde]
-  par_sec <- parameters[parameters %in% "SDepth_m"]
-  par_dis <- parameters[parameters %in% "Discharge_cfs"]
-  par_pen <- parameters[parameters %in% "PenetrationRatio"]
-  par_wl <- parameters[parameters %in% "WaterLevel_Feet"]
-  par_wlm <- parameters[parameters %in% "WaterLevel_m"]
+  # Compile data for x and y param separately, then join
+  par_chem1 <- parameters[1][parameters[1] %in% chem]
+  par_sonde1 <- parameters[1][parameters[1] %in% sonde]
+  par_sec1 <- parameters[1][parameters[1] %in% "SDepth_m"]
+  par_dis1 <- parameters[1][parameters[1] %in% "Discharge_cfs"]
+  par_pen1 <- parameters[1][parameters[1] %in% "PenetrationRatio"]
+  par_wl1 <- parameters[1][parameters[1] %in% "WaterLevel_Feet"]
+  par_wlm1 <- parameters[1][parameters[1] %in% "WaterLevel_m"]
 
-  wdat <-
+  par_chem2 <- parameters[2][parameters[2] %in% chem]
+  par_sonde2 <- parameters[2][parameters[2] %in% sonde]
+  par_sec2 <- parameters[2][parameters[2] %in% "SDepth_m"]
+  par_dis2 <- parameters[2][parameters[2] %in% "Discharge_cfs"]
+  par_pen2 <- parameters[2][parameters[2] %in% "PenetrationRatio"]
+  par_wl2 <- parameters[2][parameters[2] %in% "WaterLevel_Feet"]
+  par_wlm2 <- parameters[2][parameters[2] %in% "WaterLevel_m"]
+
+  wdat_p1 <-
     rbind(
-    if(length(par_chem) > 0){
-      force(getChemistry(park = park, site = site, site_type = site_type, include_censored = include_censored,
-                   years = years, months = months, parameter = par_chem, event_type = event_type, ...)) |>
-        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value, censored)
+    if(length(par_chem1) > 0){
+      force(getChemistry(park = park, site = site, site_type = site_type, include_censored = FALSE,
+                   years = years, months = months, parameter = par_chem1, event_type = event_type, ...)) |>
+        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value)
         } else {NULL},
-    if(length(par_sonde) > 0){
+    if(length(par_sonde1) > 0){
       force(getSondeInSitu(park = park, site = site, site_type = site_type,
-                     years = years, months = months, parameter = par_sonde, event_type = event_type, ...)) |>
-        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
-        mutate(censored = FALSE)
+                     years = years, months = months, parameter = par_sonde1, event_type = event_type, ...)) |>
+        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value)
         } else {NULL},
-    if(length(par_sec) > 0){
+    if(length(par_sec1) > 0){
       force(getSecchi(park = park, site = site, event_type = event_type,
                 years = years, months = months, observer_type = 'first')) |>
         #mutate(param = "SDepth_m", Value = SDepth_m) |>
-        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
-        mutate(censored = FALSE)
+        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value)
         } else {NULL},
-    if(length(par_dis) > 0){
+    if(length(par_dis1) > 0){
       force(getDischarge(park = park, site = site, event_type = event_type,
                    years = years, months = months)) |>
         mutate(Parameter = "Discharge_cfs", Value = Discharge_cfs) |>
-        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
-        mutate(censored = FALSE)
+        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value)
         } else {NULL},
-    if(length(par_pen) > 0){
+    if(length(par_pen1) > 0){
       force(getLightPen(park = park, site = site, event_type = event_type,
                   years = years, months = months)) |>
         mutate(Parameter = "PenetrationRatio", Value = PenetrationRatio) |>
-        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
-        mutate(censored = FALSE)
+        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value)
         } else {NULL},
-    if(length(par_wl) > 0){
+    if(length(par_wl1) > 0){
       force(getWaterLevel(park = park, site = site,
                     years = years, months = months)) |>
         mutate(Parameter = "WaterLevel_Feet", Value = WaterLevel_Feet) |>
-        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
-        mutate(censored = FALSE)
+        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value)
     } else {NULL},
-    if(length(par_wlm) > 0){
+    if(length(par_wlm1) > 0){
       force(getWaterLevel(park = park, site = site,
                     years = years, months = months)) |>
         mutate(Parameter = "WaterLevel_m", Value = WaterLevel_m) |>
-        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value) |>
-        mutate(censored = FALSE)
+        select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value)
     } else {NULL}
     )
 
-  # Drop NAs (often from params that only have censored data and censored = F)
-  wdat <- wdat[!is.na(wdat$Value),]
+  wdat_p2 <-
+    rbind(
+      if(length(par_chem2) > 0){
+        force(getChemistry(park = park, site = site, site_type = site_type, include_censored = FALSE,
+                           years = years, months = months, parameter = par_chem2, event_type = event_type, ...)) |>
+          select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value)
+      } else {NULL},
+      if(length(par_sonde2) > 0){
+        force(getSondeInSitu(park = park, site = site, site_type = site_type,
+                             years = years, months = months, parameter = par_sonde2, event_type = event_type, ...)) |>
+          select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value)
+      } else {NULL},
+      if(length(par_sec2) > 0){
+        force(getSecchi(park = park, site = site, event_type = event_type,
+                        years = years, months = months, observer_type = 'first')) |>
+          #mutate(param = "SDepth_m", Value = SDepth_m) |>
+          select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value)
+      } else {NULL},
+      if(length(par_dis2) > 0){
+        force(getDischarge(park = park, site = site, event_type = event_type,
+                           years = years, months = months)) |>
+          mutate(Parameter = "Discharge_cfs", Value = Discharge_cfs) |>
+          select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value)
+      } else {NULL},
+      if(length(par_pen2) > 0){
+        force(getLightPen(park = park, site = site, event_type = event_type,
+                          years = years, months = months)) |>
+          mutate(Parameter = "PenetrationRatio", Value = PenetrationRatio) |>
+          select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value)
+      } else {NULL},
+      if(length(par_wl2) > 0){
+        force(getWaterLevel(park = park, site = site,
+                            years = years, months = months)) |>
+          mutate(Parameter = "WaterLevel_Feet", Value = WaterLevel_Feet) |>
+          select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value)
+      } else {NULL},
+      if(length(par_wlm2) > 0){
+        force(getWaterLevel(park = park, site = site,
+                            years = years, months = months)) |>
+          mutate(Parameter = "WaterLevel_m", Value = WaterLevel_m) |>
+          select(SiteCode, SiteName, UnitCode, EventDate, year, month, doy, Parameter, Value)
+      } else {NULL}
+    )
 
-  # duplicate TN samples were collected in 2006 with different labs, drop lab not used as often
-  # Duplicate TN in SARASD 2023-10-05- shows up in views, but not data package ms access. WHY?!?!
+  wdat <- full_join(wdat_p1, wdat_p2, by = c("SiteCode", "SiteName", "UnitCode", "EventDate", "year", "month", "doy"),
+                    suffix = c("_y", "_x"))
 
-  wdat_wide <- wdat |> pivot_wider(names_from = Parameter, values_from = Value)
-  xvar <- names(wdat_wide[,ncol(wdat_wide)])
-  yvar <- names(wdat_wide[,ncol(wdat_wide) - 1])
+  # Drop NAs for params not sampled every month
+  wdat <- wdat[!with(wdat, is.na(Value_y) | is.na(Value_x)),]
 
-  x_lab <- ifelse(grepl("_", xvar), paste0(gsub("_", " (", xvar), ")"), paste0(xvar))
-  y_lab <- ifelse(grepl("_", yvar), paste0(gsub("_", " (", yvar), ")"), paste0(yvar))
+  y_lab <- ifelse(grepl("_", parameters[1]), paste0(gsub("_", " (", parameters[1]), ")"), paste0(parameters[1]))
+  x_lab <- ifelse(grepl("_", parameters[2]), paste0(gsub("_", " (", parameters[2]), ")"), paste0(parameters[2]))
 
   #-- Set up plotting features --
   vir_pal = ifelse(palette %in%
@@ -270,49 +309,26 @@ plotScatterPlot <- function(park = "all", site = "all",
                    "viridis", "colbrew")
 
   pal <-
+    pal <-
     if(any(vir_pal == "colbrew")){
-      if(length(palette) > 1){
-        rep(colorRampPalette(palette)(length(unique(parameters))), times = length(parameters))
-      } else { # hack to allow gradient to work with 1 color
-        rep(colorRampPalette(c(palette, palette))(length(unique(parameters))), times = length(parameters))
-      }
+      colorRampPalette(palette)(length(unique(wdat$SiteCode)))
+      #rep(colorRampPalette(palette)(length(unique(parameter))), times = length(parameter) * length(unique(wdat2$SiteCode)))
     }
 
-  wdat_wide2 <- data.frame(wdat_wide)
-  wdat_wide2$y <- NA_real_
-  wdat_wide2$y <- wdat_wide2[, yvar]
-  wdat_wide2$x <- NA_real_
-  wdat_wide2$x <- wdat_wide2[, xvar]
-
-  facetsite <- ifelse(length(unique(wdat_wide2$SiteCode)) > 1 & facet_site == TRUE, TRUE, FALSE)
-
-  wdat_wide3 <- na.omit(wdat_wide2)
+  facetsite <- ifelse(length(unique(wdat$SiteCode)) > 1 & facet_site == TRUE, TRUE, FALSE)
 
   #-- Create plot --
   scatplot <-
-      ggplot(wdat_wide3, aes(x = x, y = y, group = SiteName, color = SiteName, fill = SiteName)) +
+      ggplot(wdat, aes(x = Value_x, y = Value_y, group = SiteName, color = SiteName, fill = SiteName)) +
       # layers
       {if(any(layers %in% "smooth")) geom_smooth(aes(text = paste0("Site: ", SiteName, "<br>")),
                                       method = 'loess', formula = 'y ~ x', se = F, span = span) } +
-      {if(include_censored == FALSE){
-        geom_point(aes(text = paste0("Site: ", SiteName, "<br>",
+      geom_point(aes(text = paste0("Site: ", SiteName, "<br>",
                                      "X Variable: ", x_lab, "<br>",
-                                     "X: ", round(x, 1), "<br>",
+                                     "X: ", round(Value_x, 1), "<br>",
                                      "Y Variable: ", y_lab, "<br>",
-                                     "Y: ", round(y, 1), "<br>")),
-                   alpha = 0.4, size = 2.5)}} +
-      {if(include_censored == TRUE){
-        if(any(layers %in% "points")) geom_point(aes(shape = censored, size = censored,
-                                                      text = paste0("Site: ", SiteName, "<br>",
-                                                                    "X Variable: ", x_lab, "<br>",
-                                                                    "X: ", round(x, 1), "<br>",
-                                                                    "Y Variable: ", y_lab, "<br>",
-                                                                    "Y: ", round(y, 1), "<br>")),
-                                                  alpha = 0.4)}} +
-      {if(include_censored == TRUE){
-        if(any(layers %in% "points")) scale_shape_manual(values = c(19, 18), labels = c("Real", "Censored"))}} +
-      {if(include_censored == TRUE){
-        if(any(layers %in% "points")) scale_size_manual(values = c(3,3.5), labels = c("Real", "Censored"))}} +
+                                     "Y: ", round(Value_y, 1), "<br>")),
+                 alpha = 0.4, size = 2.5) +
       # facets
       {if(facetsite == TRUE) facet_wrap(~SiteName, scales = 'free_y', ncol = numcol)} +
       # themes

@@ -13,7 +13,6 @@ plotScatterPlot(
   months = 5:10,
   active = TRUE,
   parameters = NA,
-  include_censored = FALSE,
   sample_depth = "surface",
   layers = c("points", "smooth"),
   palette = "viridis",
@@ -66,19 +65,15 @@ events are between months 5 and 10, and these are set as the defaults.}
 \item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns
 all sites that have been monitored.}
 
-\item{parameters}{Specify the two parameters to plot. The first parameter will be treated as the response (y),
-The second parameter will be treated as the explanatory (x) variable. Current accepted values are:.
+\item{parameters}{Specify the two parameters to plot. The first parameter will be treated as the response (y).
+The second parameter will be treated as the explanatory (x) variable. Note that censored values can not be included
+in the scatterplot. Current accepted values are:.
 chemistry: c("ANC_ueqL", "AppColor", "AppColor_PCU", "ChlA_ugL", "Cl_ueqL",
 "DOC_mgL", "NH3_mgL", "NO2_mgL", "NO2+NO3_mgL", "NO3_ueqL", "pH_Lab", "PO4_ugL", "SO4_ueqL",
 "TN_mgL", "TotDissN_mgL", "TotDissP_ugL", "TP_ugL")
 sonde: c("Temp_C", "Temp_F", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
 "Turbidity_FNU", "ChlA_EXO_RFU", "ChlA_EXO_ugL", "BP_mmHg").
-other: c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevel_Feet", "WaterLevel_m").
-Note that "all" is not an accepted value, because there are too many to plot.}
-
-\item{include_censored}{Logical. If TRUE, the value column includes non-censored and censored values
-using the MDL/MRL/UQL values in the parameter flags. If the Flag column is not NA, that indicates
-the value is a censored value. If FALSE (Default), only non-censored values are returned in the value column.}
+other: c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevel_Feet", "WaterLevel_m").}
 
 \item{sample_depth}{Filter on sample depth. If "all" (Default), returns all sample depths. If "surface",
 only returns the median value of samples collected <= 2m from the surface. SampleDepth_m is also the median
@@ -114,11 +109,12 @@ options are "top", "bottom", "left", "right".}
 Returns a ggplot object of specified parameter trends.
 }
 \description{
-This function produces points, line, or smoothed lines of 2 variables, filtered on park, site, year,
-month, and 2 parameters. Works with both lab chemistry data and Sonde in situ data. If multiple sites are specified,
-they will be plotted on the same figure, unless facet_site = T. Note that if you specify a site and parameter
-combination that doesn't exist (e.g., a stream site and a parameter only collected in lakes), the function will
-return an error message instead of an empty plot.
+This function produces points or loess smoothed lines of 2 variables, filtered on park, site, year,
+month, and 2 parameters. Works with lab chemistry, Sonde in situ, discharge, secchi depth, water level, and
+light penetration ratio. If multiple sites are specified, they will be plotted on the same figure, unless facet_site = T.
+Note that if you specify a site and parameter combination that doesn't exist (e.g., a stream site and a parameter
+only collected in lakes), the function will return an error message instead of an empty plot. Censored values are
+not permitted in this function.
 }
 \examples{
 \dontrun{
