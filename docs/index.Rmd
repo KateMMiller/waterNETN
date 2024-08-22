@@ -533,6 +533,50 @@ plotWaterBands(park = "SARA", year_curr = 2023, years_historic = 2006:2022, para
   legend_position = 'right')
 ```
 
+#### plotScatterPlot()
+This function produces points or loess smoothed lines of 2 variables, filtered on park, site, year, month, and 2 parameters. Works with lab chemistry, Sonde in situ, discharge, secchi depth, water level, and light penetration ratio. If multiple sites are specified, they will be plotted on the same figure, unless facet_site = T. Note that if you specify a site and parameter combination that doesn't exist (e.g., a stream site and a parameter only collected in lakes), the function will return an error message instead of an empty plot. Censored values are not permitted in this function.
+
+<p class = 'fxn'>Plot Temp vs DO for ROVA all years on same figure</p>
+```{r message = FALSE, warning = FALSE}
+plotScatterPlot(park = "ROVA", parameters = c("DO_mgL", "Temp_C"),
+  palette = 'viridis', facet_site = F, legend_position = "bottom")
+
+```
+
+<p class = 'fxn'>Plot Secchi depth vs. surface DOC in Eagle Lake, Jordon Pond, Echo Lake, and Witch Hole Pond</p>
+```{r message = FALSE, warning = FALSE}
+plotScatterPlot(site = c("ACEAGL", "ACJORD", "ACWHOL", "ACECHO"), parameters = c("SDepth_m", "DOC_mgL"),
+  span = 0.9, facet_site = F, legend_position = 'bottom', palette = c("red", "orange", "purple4", "blue"))
+```
+
+
+<p class = 'fxn'>Same as above, but points only </p>
+```{r message = FALSE, warning = FALSE}
+plotScatterPlot(site = c("ACEAGL", "ACJORD", "ACWHOL", "ACECHO"), parameters = c("SDepth_m", "DOC_mgL"),
+  span = 0.9, facet_site = F, legend_position = 'bottom', layers = 'points')
+```
+
+<p class = 'fxn'> Plot smoothed discharge vs. specific conductance for the Pogue Brook using span of 0.9, and green symbols. </p>
+```{r message = FALSE, warning = FALSE}
+plotScatterPlot(site = "MABISA", parameters = c("SpCond_uScm", "Discharge_cfs"), span = 0.9, palette = c("forestgreen"))
+```
+
+<p class = 'fxn'> Plot smoothed discharge vs. specific conductance for SARA streams using span of 0.9. </p>
+```{r message = FALSE, warning = FALSE}
+plotScatterPlot(park = "SARA", parameters = c("SpCond_uScm", "Discharge_cfs"), span = 0.9, facet_site = F,
+  legend_position = 'bottom', palette = c("blue", "orange"))
+```
+
+<p class = 'fxn'> Same as above, but faceted by site.</p>
+```{r message = FALSE, warning = FALSE}
+plotScatterPlot(park = "SARA", parameters = c("SpCond_uScm", "Discharge_cfs"), span = 0.9, facet_site = T)
+```
+
+<p class = 'fxn'>Plot TN vs discharge in SARA streams</p>
+```{r message = FALSE, warning = FALSE}
+plotScatterPlot(park = "SARA", parameters = c("TN_mgL", "Discharge_cfs"), span = 0.9, facet_site = F)
+```
+
 #### plotTrend()
 This function produces a trend plot filtered on park, site, year, month, and parameter.
 It works with chemistry, Sonde in situ, Secchi depth, Light Penetration, and Discharge data. If multiple sites are specified, they will be plotted on the same figure. If multiple parameters are specified, they will be plotted on separate figures. If smooth = T, a loess smoothed line will connect through the data. If smooth = F and layers includes "lines", then lines will connect the sample points, but will not connect across years, because of the break between October and May.
@@ -546,17 +590,11 @@ There are several arguments to customize plots.
 <li> Choose whether to add gridlines, either both, grid_y or grid_x. Default is none. </li>
 <li> Choose whether to plot surface (default) or all depth measurements via `sample_depth`. </li>
 <li> Choose whether to include censored values or not via `include_censored`. </li>
-<li> Choose color palette via `palette`. Default is 'viridis', but other options are discrete palettes in RColorBrewer, including 'Set1', 'Dark2', and 'Accent'. </li>
+<li> Choose color palette via `palette`. Default is 'viridis', but other options are magma (yellow, red, purple), plasma (brighter version of magma), turbo (rainbow), or specify a vector of colors manually. See the <a href='https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html'>intro do viridis site</a> for more info on built in color palettes. </li>
 <li> Choose position of legend via `legend_position`. If you don't want to show the legend, `legend_position = 'none'`.</li>
 <li> Plot temperature in F via `parameter = "Temp_F"`.</li>
+<li> Additional customizations are defined in the help documentation, accessable via `?plotTrend()`</li>
 </ul>
-
-
-<details><summary class = 'drop'>Discrete RColorBrewer palettes are below:</summary>
-```{r}
-RColorBrewer::display.brewer.all(type = 'qual')
-```
-</details><br>
 
 <details open><summary class='drop'>Single site; single parameter</summary>
 <p class = 'fxn'>Plot non-smoothed surface pH for Eagle Lake for all years with gridlines on y-axis. </p>
@@ -567,19 +605,18 @@ plotTrend(site = "ACEAGL", parameter = "pH", smooth = FALSE, gridlines = 'grid_y
 
 <p class = 'fxn'>Plot smoothed surface pH for Eagle Lake for past 3 years using default span of 0.3 and by default not including the legend. </p>
 ```{r message = FALSE, warning = FALSE}
-plotTrend(site = "ACEAGL", parameter = "pH", palette = 'Dark2', years = 2021:2023)
+plotTrend(site = "ACEAGL", parameter = "pH", palette = 'dimgrey', years = 2021:2023)
 
 ```
-<p class = 'fxn'>Plot smoothed surface pH for Eagle Lake for all years, removing the legend and using span of 0.75. </p>
+<p class = 'fxn'>Plot smoothed surface pH for Eagle Lake and Jordan Pond for all years, with turbo palette, and using span of 0.75. </p>
 ```{r message = FALSE, warning = FALSE}
-plotTrend(site = "ACEAGL", parameter = "pH", span = 0.75)
+plotTrend(site = c("ACEAGL", "ACJORD"), parameter = "pH", span = 0.75, palette = "turbo", legend_position = 'bottom')
 
 ```
 
 <p class = 'fxn'>Plot smoothed Secchi Depth in Jordan Pond for all years, including the legend, different color palette, and using span of 0.75. </p>
 ```{r message = FALSE, warning = FALSE}
-plotTrend(site = "ACJORD", parameter = "SDepth_m", 
-          span = 0.75, palette = 'Set1')
+plotTrend(site = "ACJORD", parameter = "SDepth_m", span = 0.75, palette = 'mako')
 
 ```
 
@@ -612,7 +649,7 @@ p <- plotTrend(park = "SARA", site = c("SARASA", "SARASC", "SARASD"),
 <p class = 'fxn'>Plot smoothed surface Specific Conductance for all MIMA streams over all years with 0.6 span. </p>
 ```{r message = FALSE, warning = FALSE}
 plotTrend(park = "MIMA", site_type = "stream", 
-          parameter = "SpCond_uScm", legend_position = "right", span = 0.6, palette = "Dark2")
+          parameter = "SpCond_uScm", legend_position = "right", span = 0.6, palette = c("blue", "orange", "green3"))
 
 ```
 
@@ -627,21 +664,21 @@ plotTrend(park = "MIMA", site_type = "stream",
 <p class = 'fxn'>Plot smoothed surface Secchi Depth, Specific Conductance, pH, and DOC in Jordan Pond for all years, including the legend, different color palette, and using span of 0.75. </p>
 ```{r message = FALSE, warning = FALSE}
 plotTrend(site = "ACJORD", parameter = c("SDepth_m", "SpCond_uScm", "pH", "DOC_mgL"), 
-          span = 0.75, palette = 'Set1')
+          span = 0.75, palette = 'mako')
 
 ```
 
 <p class = 'fxn'>Plot smoothed surface water depth in the Pogue for all years, including a different color palette, and using span of 0.75. </p>
 ```{r message = FALSE, warning = FALSE}
 plotTrend(site = "MABIPA", parameter = "WaterLevel_Feet", span = 0.75, 
-          palette = 'Set1')
+          palette = 'mako')
 
 ```
 
 <p class = 'fxn'>Plot smoothed TN, TP and SO4 in all MORR sites for all years, including the legend, different color palette, and using span of 0.6. Thresholds, where they exist,  plot by default.</p>
 ```{r message = FALSE, warning = FALSE}
 plotTrend(park = "MORR", parameter = c("TN_mgL", "TP_ugL", "SO4_ueqL"), 
-          span = 0.6, legend_position = 'bottom', palette = 'accent')
+          span = 0.6, legend_position = 'bottom', palette = 'plasma')
 ```
 
 </details>
@@ -1088,27 +1125,27 @@ I tweaked the x-axis formatting a bit based on whether 1 year or many years are 
 
 <p class='fxn'>Plot drought info for ACAD in 2023 wiht gridlines on y axis</p>
 ```{r}
-climateNETN::plotClimDrought(park = c("ACAD"), years = 2023, gridlines = "grid_y")
+climateNETN::plotClimDrought(park = c("ACAD"), years = 2023, gridlines = "grid_y", legend_position = 'bottom')
 ```
 
 <p class='fxn'>Plot drought info for MABI and SAGA for 2020 to 2024 with gridlines on x axis.</p>
 ```{r}
-climateNETN::plotClimDrought(park = c("MABI", "SAGA"), years = 2020:2024, gridlines = "grid_x")
+climateNETN::plotClimDrought(park = c("MABI", "SAGA"), years = 2020:2024, gridlines = "grid_x", legend_position = 'bottom')
 ```
 
 <p class='fxn'>Plot drought info for both MORR counties for 2023</p>
 ```{r}
-climateNETN::plotClimDrought(park = "MORR", years = 2023, dom_county = FALSE)
+climateNETN::plotClimDrought(park = "MORR", years = 2023, dom_county = FALSE, legend_position = "bottom")
 ```
 
 <p class="fxn">Plot drought info for both ACAD counties in 2020 for May through October </p>
 ```{r message = F, warning = F}
-climateNETN::plotClimDrought(park = "ACAD", years = 2020, dom_county = FALSE, months = 5:10)
+climateNETN::plotClimDrought(park = "ACAD", years = 2020, dom_county = FALSE, months = 5:10, legend_position = "bottom")
 ```
 
-<p class="fxn">Plot drought info for LNETN in 2023 with legend on bottom </p>
+<p class="fxn">Plot drought info for MABI, SAGA, and SARA in 2023 with legend on bottom </p>
 ```{r message = F, warning = F}
-climateNETN::plotClimDrought(park = "LNETN", years = 2023, legend_position = 'bottom')
+climateNETN::plotClimDrought(park = c("MABI", "SAGA", "SARA"), years = 2023, legend_position = 'bottom')
 ```
 
 
