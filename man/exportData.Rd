@@ -7,7 +7,7 @@
 exportData(filepath = NA, zip = FALSE)
 }
 \arguments{
-\item{filepath}{Quoted path to save files to. If not specified, will save to working directory.}
+\item{filepath}{Quoted path to save files to. If not specified, will save to your working directory.}
 
 \item{zip}{Logical. If TRUE, exports a zip file. If FALSE (Default), exports individual csvs.}
 }

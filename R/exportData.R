@@ -6,7 +6,7 @@
 #' for internal use to create flat files that users can import to run functions in this package without having
 #' a connection having MS Access installed. Must first import the views in the current R session.
 #'
-#' @param filepath Quoted path to save files to. If not specified, will save to working directory.
+#' @param filepath Quoted path to save files to. If not specified, will save to your working directory.
 #'
 #' @param zip Logical. If TRUE, exports a zip file. If FALSE (Default), exports individual csvs.
 #'
