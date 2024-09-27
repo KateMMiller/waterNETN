@@ -9,7 +9,7 @@ Description: This package contains functions that import the water data package 
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 URL: https://github.com/KateMMiller/waterNETN
 BugReports: https://github.com/KateMMiller/waterNETN/issues
 Collate: 

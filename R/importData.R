@@ -42,7 +42,7 @@
 #'
 #' # Import views from zip file of csvs
 #' importData(type = 'zip',
-#' filepath = "C:/NETN/R_Dev/Water/data/data_package/NETN_WQ_data_package_20240227.zip")
+#' filepath = "C:/NETN/R_Dev/Water/data/data_package/NETN_Water_data_package_20240927.zip")
 #'
 #' }
 #'
