@@ -128,7 +128,7 @@
 #'
 #'}
 #'
-#' @return Returns a ggplot object of specified parameter trends.
+#' @return Returns a ggplot scatterplot object
 #'
 #' @export
 #'

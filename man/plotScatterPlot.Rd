@@ -106,7 +106,7 @@ options are "top", "bottom", "left", "right".}
 \item{...}{Additional arguments relevant to \code{getChemistry()} or \code{getSondeInSitu()}}
 }
 \value{
-Returns a ggplot object of specified parameter trends.
+Returns a ggplot scatterplot object
 }
 \description{
 This function produces points or loess smoothed lines of 2 variables, filtered on park, site, year,
