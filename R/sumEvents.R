@@ -9,7 +9,7 @@
 #' @title sumEvents: summarize sample events
 #'
 #' @description Summarize the number of samples collected at each site by year, month, parameter, and
-#' whether measurment was real or censored.
+#' whether measurement was real or censored.
 #'
 #' @importFrom dplyr arrange filter first group_by last mutate select summarize
 #' @importFrom tidyr pivot_wider

@@ -65,7 +65,7 @@
 #' # get discharge for ACAD streams in July 2023
 #' sara <- getDischarge(park = "ACAD", years = 2023, months = 7)
 #'
-#' # get discharge measured with flowtracker
+#' # get discharge measured with Flowtracker
 #' flow <- getDischarge(method = c("ACAD Flowtracker", "LNETN Flowtracker"))
 #'
 #' # get excellent rated measurements only
