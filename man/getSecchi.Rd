@@ -66,7 +66,7 @@ importData()
 # get Secchi depth the Pogue from 2021-2023, first observer only
 mabi <- getSecchi(sitecode = "MABIPA", years = 2021:2023, observer_type = "first")
 
-# get secchi for all ACAD lakes sampled in July for all observers
+# get Secchi depth for all ACAD lakes sampled in July for all observers
 ACAD_lake <- getSecchi(park = 'ACAD', months = 7)
 
 }
