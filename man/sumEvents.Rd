@@ -68,7 +68,7 @@ Data frame of summarize event info
 }
 \description{
 Summarize the number of samples collected at each site by year, month, parameter, and
-whether measurment was real or censored.
+whether measurement was real or censored.
 }
 \examples{
 \dontrun{
