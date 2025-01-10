@@ -39,6 +39,7 @@ Imports:
     purrr,
     tidyr
 Suggests: 
+    climateNETN,
     DBI,
     httr,
     jsonlite,
