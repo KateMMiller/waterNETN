@@ -56,13 +56,13 @@
 #' @examples
 #' \dontrun{
 #'
-#' # Plot daily precipitation vs discharge for Mill Brook in MIMA for past 5 years using default colors.
-#' plotPrecipDischarge(site = c("MIMASA"), years = 2019:2023)
+#' # Plot daily precipitation vs discharge for Mill Brook in MIMA for past 6 years using default colors.
+#' plotPrecipDischarge(site = c("MIMASA"), years = 2019:2024)
 #'
-#' # Plot daily precipitation versus discharge for Aunt Betty Inlet and Kebo Stream for 2022 using different colors.
+#' # Plot daily precipitation versus discharge for Aunt Betty Inlet and Kebo Stream for 2024 using different colors.
 #' # Note that this can be slow because has to download precip. data from NADP.
 #' # LNETN parks download from a faster web service.
-#' plotPrecipDischarge(site = c("ACABIN", "ACKEBO"), years = 2022,palette = c("cornflowerblue", "orange"))
+#' plotPrecipDischarge(site = c("ACABIN", "ACKEBO"), years = 2024, palette = c("cornflowerblue", "orange"))
 #'
 #'}
 #'
