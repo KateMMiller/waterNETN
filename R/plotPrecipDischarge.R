@@ -130,7 +130,12 @@ plotPrecipDischarge <- function(park = "all",
   ylab <- if(units == "sci"){"Daily Precip. (mm)"} else {"Daily Precip. (in)"}
 
   # Have to rescale so precip and discharge show up on same plot
+  if(sum(disch$Discharge_cfs) > 0){
   scale = range(precip$precip, na.rm = T)[2]/range(disch$Discharge_cfs, na.rm = T)[2]
+  } else if(sum(disch$Discharge_cfs) == 0){
+    scale = range(precip$precip, na.rm = T)[2]/10
+  }
+
 
 dp_plot <-
     ggplot(precip, aes(x = Date2, y = precip)) + theme_WQ() +

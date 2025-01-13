@@ -268,11 +268,13 @@ plotWaterBands <- function(park = "all", site = "all",
       wdat_curr <- wdat3[wdat3$year == year_current, ]
 
       if(nrow(wdat_curr) == 0){
-              stop(paste0("There are no data available to plot for year_current: ", year_current, "."))}
+              stop(paste0("There are no data available to plot for ", year_current, " in: ",
+                          paste0(site, collapse = ", "), ", and for parameters: ", paste0(parameter, collapse = ", "), "."))}
 
       if(nrow(wdat_hist) == 0){
               stop(paste0("There are no historic data available to plot for years: ",
-                          years_historic[1], ":", years_historic[2], "."))}
+                          years_historic[1], ":", years_historic[2], " in: ",
+                          paste0(site, collapse = ', '), ", and for parameters: ", paste0(parameter, collapse = ', '), "."))}
 
       # Calc min/max 95% stats
       wdat_sum <- wdat_hist |>
