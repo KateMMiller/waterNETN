@@ -128,7 +128,8 @@ getSites <- function(park = "all", site = "all", site_type = c("all", "lake", "s
     filter(wdata2, !SiteCode %in% inactive)
   } else {wdata2}
 
-  if(nrow(wdata3) == 0){stop("Returned data frame with no records. Check your park, site, and site_type arguments.")}
+  if(nrow(wdata3) == 0){stop(paste0("Returned data frame with no records for ", park, " and ", site,
+                             ". Check your park, site and site_type arguments"))}
 
   # Clean up data, so columns are treated correctly
   # character fixes
