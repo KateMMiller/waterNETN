@@ -113,6 +113,7 @@ plotPrecipDischarge <- function(park = "all",
   # Use years in disch to drop years a site isn't sampled in precip download.
   sample_years <- sort(unique(disch$year))
 
+  data("closest_WS", package = "climateNETN")
   precip <- climateNETN::getClimWStat(park = park, years = sample_years) |> filter(month %in% months)
 
   precip$Date2 <- as.Date(precip$Date, format = c("%Y-%m-%d"))
