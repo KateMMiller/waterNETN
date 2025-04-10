@@ -48,8 +48,8 @@
 #'
 #' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
 #'
-#' @param parameter Specify the chemical parameter(s) to return. Note if additional parameters are added to the Chemistry view, there will be additional
-#' to the views, they will be added as accepted values in this function. Current accepted values are:.
+#' @param parameter Specify the chemical parameter(s) to return. Note if additional parameters are added to the Chemistry view,
+#' they will need to be added as accepted values in this function. Current accepted values are:.
 #' c("Temp_C", "Temp_F", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
 #' "Turbidity_FNU", "ChlA_EXO_RFU", "ChlA_EXO_ugL", "BP_mmHg")
 #'

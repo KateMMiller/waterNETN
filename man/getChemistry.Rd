@@ -78,7 +78,7 @@ events are between months 5 and 10, and these are set as the defaults.}
 \item{parameter}{Specify the chemical parameter(s) to return. Note if additional parameters are added to the Chemistry view, there will be additional
 to the views, they will be added as accepted values in this function. Current accepted values are:.
 c("ANC_ueqL", "AppColor_PCU", "ChlA_ugL", "Cl_ueqL", "DOC_mgL", "NH3_mgL", "NO2_mgL", "NO2+NO3_mgL",
-""NO3_ueqL", "pH_Lab", "PO4_ugL", "SO4_ueqL", "TN_mgL", "TotDissN_mgL", "TotDissP_ugL", "TP_ugL")}
+"NO3_ueqL", "pH_Lab", "PO4_ugL", "SO4_ueqL", "TN_mgL", "TotDissN_mgL", "TotDissP_ugL", "TP_ugL")}
 
 \item{include_censored}{Logical. If TRUE, the value column includes non-censored and censored values
 using the MDL/MRL/UQL values in the parameter flags. If the Flag column is not NA, that indicates
