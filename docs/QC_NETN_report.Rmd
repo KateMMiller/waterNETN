@@ -1,0 +1,122 @@
+---
+output:
+  html_document:
+    css: www/styles.css
+    anchor_sections: FALSE
+    includes:
+      in_header: "header_manual.html"
+
+params:
+  year_curr: 2024 # Current year of sampling
+  all_years: TRUE # If FALSE, only reports on year_curr; TRUE reports on all years; Not enabled yet. Currently all years.
+  
+---
+
+```{r setup, include = F}
+knitr::opts_chunk$set(echo = FALSE)
+options(knitr.kable.NA = '', scipen = 100)
+```
+
+```{r imports, include = FALSE}
+library(waterNETN)
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+#library(htmltools) # for tagList to iterate on a code chunk. Not sure I'm going to need this yet.
+
+importData()
+year_curr = params$year_curr
+year_range = if(params$all_years == TRUE){2006:year_curr} else {year_curr}
+
+#arglist <- list(park = park, years = year)
+
+# locs <- do.call(getPlots, arglist) |>
+#   select(LocationID) |> unique() |> c() #|> as.character()
+```
+
+
+Wetland Quality Control checking for CUVA and `r paste(year_curr, collapse = ", ")` {.tabset .tabset-pills}
+---
+
+```{r, include = F, results = 'hide'}
+source('QC_NETN_report_compile.R')
+```
+
+## QC checks {.tabset}
+### Summary {.tabset}
+The table below documents Quality Control checks performed on NETN water quality and quantity data, along with number of records returned on each check. If any records were returned for a given check, the row is highlighted in the table, and a separate tab corresponding to that check will appear within its associated Data Tab. Yellow indicates a likely error, while blue indicates an anomalous record that requires further review to determine if it's an error or correct. 
+```{r}
+QC_check_table
+```
+
+### Sampling Matrix
+```{r}
+samp_tab 
+```
+
+```{r eval = wqual_include, results = "asis"}
+cat("### Water Quality {.tabset}", "\n\n")
+```
+
+```{r eval = sonde_include, results = 'asis'}
+cat("#### Sonde Parameters {.tabset}", "\n\n")
+#check_null_print(xxx, 5, "xxx")
+
+cat("\n\n")
+```
+
+```{r eval = lab_include, results = 'asis'}
+cat("#### Lab Parameters {.tabset}", "\n\n")
+#check_null_print(xxx, 5, "xxx")
+
+cat("\n\n")
+```
+
+```{r eval = lab_v_sonde_include, results = 'asis'}
+cat("#### Lab vs Sonde {.tabset}", "\n\n")
+#check_null_print(xxx, 5, "xxx")
+
+cat("\n\n")
+```
+
+```{r eval = do899_include, results = 'asis'}
+cat("#### DO 889 and 999 {.tabset}", "\n\n")
+#check_null_print(xxx, 5, "xxx")
+
+cat("\n\n")
+```
+
+```{r eval = blank_include, results = 'asis'}
+cat("#### BLANK samples {.tabset}", "\n\n")
+#check_null_print(xxx, 5, "xxx")
+
+cat("\n\n")
+```
+
+```{r eval = secchi_include, results = 'asis'}
+cat("#### Secchi Depth {.tabset}", "\n\n")
+#check_null_print(xxx, 5, "xxx")
+
+cat("\n\n")
+```
+
+
+```{r eval = wquant_include, results = "asis"}
+cat("### Water Quantity {.tabset}", "\n\n")
+```
+
+
+```{r eval = lakelev_include, results = 'asis'}
+cat("#### Lake Level {.tabset}", "\n\n")
+#check_null_print(xxx, 5, "xxx")
+
+cat("\n\n")
+```
+
+
+```{r eval = disch_include, results = 'asis'}
+cat("#### Discharge {.tabset}", "\n\n")
+#check_null_print(xxx, 5, "xxx")
+
+cat("\n\n")
+```
