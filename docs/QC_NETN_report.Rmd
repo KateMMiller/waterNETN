@@ -60,14 +60,27 @@ cat("### Water Quality {.tabset}", "\n\n")
 
 ```{r eval = sonde_include, results = 'asis'}
 cat("#### Sonde Parameters {.tabset}", "\n\n")
-#check_null_print(xxx, 5, "xxx")
+
+check_null_print(tbl_DO_mgL_99, 5, "DO 99pct")
+check_null_print(tbl_DO_mgL_01, 5, "DO 1pct")
+check_null_print(tbl_DO_mgL_90, 5, "DO 90pct") # we may find these return too many records
+check_null_print(tbl_DO_mgL_10, 5, "DO 10pct") # we may find these return too many records
+
+check_null_print(tbl_pH_99, 5, "pH 99pct")
+check_null_print(tbl_pH_01, 5, "pH 1pct")
+check_null_print(tbl_pH_90, 5, "pH 90pct") 
+check_null_print(tbl_pH_10, 5, "pH 10pct") 
 
 cat("\n\n")
 ```
 
 ```{r eval = lab_include, results = 'asis'}
 cat("#### Lab Parameters {.tabset}", "\n\n")
-#check_null_print(xxx, 5, "xxx")
+
+check_null_print(tbl_ANC_mgL_99, 5, "ANC 99pct")
+check_null_print(tbl_ANC_mgL_01, 5, "ANC 1pct")
+check_null_print(tbl_ANC_mgL_75, 5, "ANC 75pct") 
+check_null_print(tbl_ANC_mgL_25, 5, "ANC 25pct") 
 
 cat("\n\n")
 ```
@@ -80,11 +93,19 @@ cat("\n\n")
 ```
 
 ```{r eval = do899_include, results = 'asis'}
-cat("#### DO 889 and 999 {.tabset}", "\n\n")
+cat("#### DO 899 and 999 {.tabset}", "\n\n")
 #check_null_print(xxx, 5, "xxx")
 
 cat("\n\n")
 ```
+
+```{r eval = env_v_qc_include, results = 'asis'}
+cat("#### QC Samples {.tabset}", "\n\n")
+#check_null_print(xxx, 5, "xxx")
+
+cat("\n\n")
+```
+
 
 ```{r eval = blank_include, results = 'asis'}
 cat("#### BLANK samples {.tabset}", "\n\n")
