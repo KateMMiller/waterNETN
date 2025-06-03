@@ -151,3 +151,62 @@ rm(kab99, kab01, kab90, kab10)
 return(QC_table)
 
 }
+
+svl_pct_check <- function(param_sonde = NA, param_lab = NA){
+
+  lab <- getChemistry(parameter = param_lab, include_censored = TRUE) |>
+    select(UnitCode, SiteCode, SiteName, EventDate, year, month, Parameter, Value, censored)
+  sonde <- getSondeInSitu(parameter = param_sonde, sample_depth = "surface") |>
+    mutate(censored = FALSE) |>
+    select(UnitCode, SiteCode, SiteName, EventDate, year, month, Parameter, Value, censored)
+
+  df_join <- full_join(sonde, lab,
+                       by = c("UnitCode", "SiteCode", "SiteName", "EventDate", "year", "month"),
+                       suffix = c("_sonde", "_lab"),
+                       relationship = 'many-to-many') |>
+    filter(!is.na(Value_sonde) & !is.na(Value_lab))
+
+  df_join$diff <- df_join$Value_sonde - df_join$Value_lab
+  df_join$pct_diff <- round(((df_join$Value_lab - df_join$Value_sonde)/df_join$Value_sonde)*100, 2)
+
+  diff_10 <- df_join |> filter(abs(pct_diff) > 10) |>
+    select(UnitCode, SiteCode, EventDate, year, month, parameter = Parameter_sonde, Value_sonde, Value_lab, pct_diff)
+  head(diff_10)
+
+  pct_diff_kbl <-
+    make_kable(diff_10, cap =
+                 paste0("Measurements that are more than 10% different between Sonde and lab.",
+                        "Negative values indicate the Sonde value was greater than the lab. ",
+                        "Positive values indicate the Sonde value was lower than the lab."))
+
+  max_diff = max(df_join$Value_sonde, df_join$Value_lab, na.rm = T)
+  max_pctdif = max(df_join$pct_diff, na.rm = T)
+
+
+
+  svl_diff <-
+    ggplot(data = df_join, aes(x = pct_diff)) +
+    geom_density(alpha = 0.5, fill = "#95a1b9", color = "#747e91") +
+    geom_vline(xintercept = 0, col = "#717171", linewidth = 0.75) +
+    labs(y = "Density", x = paste0(param_sonde, " % Difference")) +
+    theme(legend.position = 'none', panel.border = element_blank(), panel.background = element_blank()) +
+    annotate(geom = "label", x = -max_pctdif, y = Inf, label = "Sonde > Lab",
+             color = 'black', size = 4, hjust = 0, vjust = 1) +
+    annotate(geom = "label", x = max_pctdif, y = Inf, label = "Sonde < Lab",
+             color = 'black', size = 4, hjust = 1, vjust = 1) +
+    geom_vline(xintercept = 10, linetype = 'dashed', col = 'red', linewidth = 0.75) +
+    geom_vline(xintercept = -10, linetype = 'dashed', col = 'red', linewidth = 0.75) +
+    annotate(geom = 'label', x = 0, y = Inf, label = "Within 10%", fill = "white",
+             size = 4, hjust = 0.5, vjust = 1, alpha = 0.8)
+
+  assign(paste0("tbl_", param_sonde, "_10pct"), pct_diff_kbl, envir = .GlobalEnv)
+  assign(paste0("pctdiff_", param_sonde), svl_diff, envir = .GlobalEnv)
+
+  QC_table <- rbind(QC_table,
+                    QC_check(df = diff_10, meas_type = "Water Quality", tab = "Lab vs Sonde",
+                    check = paste0(param_sonde, " lab values that are greater than 10% different than Sonde values."),
+                    chk_type = "check"))
+  return(QC_table)
+}
+
+

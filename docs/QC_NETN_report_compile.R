@@ -60,63 +60,10 @@ lab_include <- tab_include(lab_check)
 
 
 #------ WQual: Lab vs Sonde Parameters -------
-# pH
-pH_lab <- getChemistry(parameter = "pH_Lab", include_censored = TRUE) |>
-  select(UnitCode, SiteCode, SiteName, EventDate, year, month, Parameter, Value, censored)
-pH_sonde <- getSondeInSitu(parameter = "pH", sample_depth = "surface") |>
-  mutate(censored = FALSE) |>
-  select(UnitCode, SiteCode, SiteName, EventDate, year, month, Parameter, Value, censored)
+QC_table <- svl_pct_check(param_sonde = "pH", param_lab = "pH_Lab")
 
-pH_join <- full_join(pH_sonde, pH_lab,
-                     by = c("UnitCode", "SiteCode", "SiteName", "EventDate", "year", "month"),
-                     suffix = c("_sonde", "_lab"),
-                     relationship = 'many-to-many') |>
-  filter(!is.na(Value_sonde) & !is.na(Value_lab))
+# Output of svl_pct_check: tbl_pH_10 and pctdiff_pH
 
-
-pH_join$diff <- pH_join$Value_sonde - pH_join$Value_lab
-pH_join$pct_diff <- round(((pH_join$Value_lab - pH_join$Value_sonde)/pH_join$Value_sonde)*100, 2)
-
-diff_10 <- pH_join |> filter(abs(pct_diff) > 10) |>
-  select(UnitCode, SiteCode, EventDate, year, month, parameter = Parameter_sonde, Value_sonde, Value_lab, pct_diff)
-head(diff_10)
-
-pct_diff_kbl <-
-  make_kable(diff_10, cap =
-             paste0("Measurements that are more than 10% different between Sonde and lab.",
-             "Negative values indicate the Sonde value was greater than the lab. ",
-             "Positive values indicate the Sonde value was lower than the lab."))
-
-max_pH = max(pH_join$Value_sonde, pH_join$Value_lab, na.rm = T)
-max_pctdif = max(pH_join$pct_diff)
-
-pH_comp_plot <-
-  ggplot(pH_join, aes(x = Value_sonde, y = Value_lab)) +
-    geom_point(col = "#696969", fill = '#CACACA', shape = 21) +
-    geom_abline(slope = 1, intercept = 0, col = 'red', linewidth = 0.75) +
-    geom_smooth(method = "lm", color = "black", se = F) +
-    # geom_abline(slope = 1, intercept = 0.99, col = 'red', linewidth = 0.75) +
-    # geom_abline(slope = 1, intercept = -0.99, col = 'red', linewidth = 0.75) +
-    # geom_abline(slope = 1, intercept = 0.50, col = 'red', alpha = 0.6, linewidth = 0.5) +
-    # geom_abline(slope = 1, intercept = -0.50, col = 'red', alpha = 0.6, linewidth = 0.5) +
-    labs(x = "Sonde pH", y = "Lab pH") +
-    coord_equal() +
-    theme_WQ()
-
-pH_diff <-
-  ggplot(data = pH_join, aes(x = pct_diff)) +
-    geom_density(alpha = 0.5, fill = "#95a1b9", color = "#747e91") +
-    geom_vline(xintercept = 0, col = "#717171", linewidth = 0.75) +
-    labs(y = "Density", x = "pH % Difference") +
-    theme(legend.position = 'none', panel.border = element_blank(), panel.background = element_blank()) +
-    annotate(geom = "label", x = -max_pctdif, y = Inf, label = "Sonde > Lab",
-             color = 'black', size = 4, hjust = 0, vjust = 1) +
-    annotate(geom = "label", x = max_pctdif, y = Inf, label = "Sonde < Lab",
-             color = 'black', size = 4, hjust = 1, vjust = 1) +
-    geom_vline(xintercept = 10, linetype = 'dashed', col = 'red', linewidth = 0.75) +
-    geom_vline(xintercept = -10, linetype = 'dashed', col = 'red', linewidth = 0.75) +
-    annotate(geom = 'label', x = 0, y = Inf, label = "Within 10%", fill = "white",
-             size = 4, hjust = 0.5, vjust = 1, alpha = 0.8)
 
 # Then make this into a function to do multiple params.
 
