@@ -9,7 +9,7 @@
 #' @title sumEvents: summarize sample events
 #'
 #' @description Summarize the number of samples collected at each site by year, month, parameter, and
-#' whether measurement was real or censored.
+#' whether measurement was real or censored. Only includes records for QC_type = "ENV".
 #'
 #' @importFrom dplyr arrange filter first group_by last mutate select summarize
 #' @importFrom tidyr pivot_wider
@@ -106,7 +106,7 @@ sumEvents <- function(park = "all", site = "all",
               num_years = sum(!is.na(year)),
               .groups = 'drop')
 
-  wdat <-
+  wdat <- # by default QC_type = "ENV", so not needed to specify here.
     rbind(
         force(getChemistry(park = park, site = site, site_type = site_type, event_type = event_type,
                            include_censored = TRUE, years = years, months = months, parameter = "all")) |>

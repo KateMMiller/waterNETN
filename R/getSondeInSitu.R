@@ -164,7 +164,7 @@ getSondeInSitu <- function(park = "all", site = "all",
     select(SiteCode, SiteType, EventDate, EventCode, Project)
 
   sonde2 <- sonde1 |> filter(SiteCode %in% sites)
-  sonde3 <- inner_join(evs, sonde2, by = c("SiteCode", "EventDate", "EventCode"))
+  sonde3 <- inner_join(evs, sonde2, by = c("SiteCode", "EventDate", "EventCode", "Project"))
 
   # filters for params, sampletype, qctype
   sonde4 <-
