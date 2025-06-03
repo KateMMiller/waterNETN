@@ -118,8 +118,7 @@ getSondeInSitu <- function(park = "all", site = "all",
                            "DO_mgL", "pH", "pHmV", "Turbidity_FNU", "ChlA_EXO_RFU",
                            "ChlA_EXO_ugL", "BP_mmHg"), several.ok = TRUE)
 
-  qccode <- ifelse(unique(QC_type) == "all", c("ENV"),
-                   unique(QC_type))
+  qccode <- if(unique(QC_type) == "all"){c("ENV", "899", "999")} else {unique(QC_type)}
 
   # Check if the views exist and stop if they don't
   env <- if(exists("VIEWS_WQ")){VIEWS_WQ} else {.GlobalEnv}
