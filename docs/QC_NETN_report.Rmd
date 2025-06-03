@@ -71,23 +71,36 @@ check_null_print(tbl_pH_01, 5, "pH 1pct")
 check_null_print(tbl_pH_90, 5, "pH 90pct") 
 check_null_print(tbl_pH_10, 5, "pH 10pct") 
 
+#++++ add remaining tables for each sonde parameter ++++
+
 cat("\n\n")
 ```
 
 ```{r eval = lab_include, results = 'asis'}
 cat("#### Lab Parameters {.tabset}", "\n\n")
 
-check_null_print(tbl_ANC_mgL_99, 5, "ANC 99pct")
-check_null_print(tbl_ANC_mgL_01, 5, "ANC 1pct")
-check_null_print(tbl_ANC_mgL_75, 5, "ANC 75pct") 
-check_null_print(tbl_ANC_mgL_25, 5, "ANC 25pct") 
+check_null_print(tbl_ANC_ueqL_99, 5, "ANC 99pct")
+check_null_print(tbl_ANC_ueqL_01, 5, "ANC 1pct")
+check_null_print(tbl_ANC_ueqL_90, 5, "ANC 90pct") 
+check_null_print(tbl_ANC_ueqL_10, 5, "ANC 10pct") 
+
+#++++ add remaining tables for each lab parameter ++++
 
 cat("\n\n")
 ```
 
-```{r eval = lab_v_sonde_include, results = 'asis'}
+```{r eval = lab_v_sonde_include, results = 'asis', fig.height = 6, fig.width = 7}
 cat("#### Lab vs Sonde {.tabset}", "\n\n")
-#check_null_print(xxx, 5, "xxx")
+
+# Details code makes it a drop down
+cat("<details open><summary class='drop'>Tables</summary>")
+pctdiff_pH
+cat("</detail>")
+cat("<details open><summary class='drop'>Tables</summary>")
+check_null_print(tbl_pH_10pct, 5, "pH 10pct")
+cat("</detail>")
+
+#++++ add remaining tables and figures for each sonde vs lab parameter ++++
 
 cat("\n\n")
 ```
@@ -99,7 +112,7 @@ cat("#### DO 899 and 999 {.tabset}", "\n\n")
 cat("\n\n")
 ```
 
-```{r eval = env_v_qc_include, results = 'asis'}
+```{r eval = qcsamp_include, results = 'asis'}
 cat("#### QC Samples {.tabset}", "\n\n")
 #check_null_print(xxx, 5, "xxx")
 
