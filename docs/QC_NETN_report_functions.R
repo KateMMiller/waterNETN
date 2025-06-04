@@ -70,21 +70,22 @@ pct_check <- function(param = NA, meas_type = "Water Quality", tab = "Sonde Meas
       if(length(par_sonde) > 0){getSondeInSitu(years = year_range, parameter = par_sonde, sample_depth = 'all') |>
           select(SiteCode, SiteName, SiteType, UnitCode, EventDate, year, month, doy, Parameter, Value)
       } else {NULL},
-      if(length(par_sec) > 0){getSecchi(park = park, years = year_range, parameter = par_sec) |>
+      if(length(par_sec) > 0){getSecchi(years = year_range, output = 'verbose') |>
           select(SiteCode, SiteName, SiteType, UnitCode, EventDate, year, month, doy, Parameter, Value)
       } else {NULL},
-      if(length(par_dis) > 0){getDischarge(park = park, years = year_range, parameter = par_dis) |>
+      if(length(par_dis) > 0){getDischarge(years = year_range) |>
+          mutate(SiteType = "stream", Parameter = "Discharge_cfs") |>
+          select(SiteCode, SiteName, SiteType, UnitCode, EventDate, year, month, doy, Parameter, Value = Discharge_cfs)
+      } else {NULL},
+      if(length(par_pen) > 0){getLightPen(years = year_range, parameter = par_pen) |>
           select(SiteCode, SiteName, SiteType, UnitCode, EventDate, year, month, doy, Parameter, Value)
       } else {NULL},
-      if(length(par_pen) > 0){getLightPen(park = park, years = year_range, parameter = par_pen) |>
+      if(length(par_wl) > 0){getWaterLevel(years = year_range, output = 'verbose') |>
+          mutate(Parameter = "WaterLevel_Feet", Value = WaterLevel_Feet) |> mutate(SiteType = "lake") |>
           select(SiteCode, SiteName, SiteType, UnitCode, EventDate, year, month, doy, Parameter, Value)
       } else {NULL},
-      if(length(par_wl) > 0){getWaterLevel(park = park, years = year_range, parameter = par_wl) |>
-          mutate(Parameter = "WaterLevel_Feet", Value = WaterLevel_Feet) |>
-          select(SiteCode, SiteName, SiteType, UnitCode, EventDate, year, month, doy, Parameter, Value)
-      } else {NULL},
-      if(length(par_wlm) > 0){getWaterLevel(park = park, years = year_range, parameter = par_wlm) |>
-        mutate(Parameter = "WaterLevel_Feet", Value = WaterLevel_Feet) |>
+      if(length(par_wlm) > 0){getWaterLevel(years = year_range, output = 'verbose') |>
+        mutate(Parameter = "WaterLevel_m", Value = WaterLevel_m) |> mutate(SiteType = "lake") |>
         select(SiteCode, SiteName, SiteType, UnitCode, EventDate, year, month, doy, Parameter, Value)} else {NULL}
       )
 

@@ -16,9 +16,6 @@
 # year_range = 2006:2024
 # all_years = TRUE
 
-#---- Functions ----
-source("QC_NETN_report_functions.R")
-
 #---- Sampling Matrix -----
 samp_hist <- sumEvents(years = year_range) |>
   select(Park = UnitCode, SiteType, SiteName, param_type:Oct_cens) |>
@@ -67,26 +64,46 @@ QC_table <- svl_pct_check(param_sonde = "pH", param_lab = "pH_Lab")
 #+++ For each line above a kable and a figure are returned (eg tbl_pH_10, pctdiff_pH). Those
 #+++ need to be added to the QC_NETN_report in the Lab cs Sonde tab.
 
-# check if Lab v Sond checks returned at least 1 record to determine whether to include that tab in report
+# check if Lab v Sonde checks returned at least 1 record to determine whether to include that tab in report
 lab_v_sonde_check <- QC_table |> filter(Data %in% "Lab vs Sonde" & Num_Records > 0)
 lab_v_sonde_include <- tab_include(lab_v_sonde_check)
 
-#------ WQual: DO 899 & 999 checks -------
+# check if Water Quality checks returned at least 1 record to determine whether to include that tab in report
+wqual_check <- QC_table |> filter(Type %in% "Water Quality" & Num_Records > 0)
+wqual_include <- tab_include(wqual_check)
 
-do <- getSondeInSitu(years = year_range, parameter = "DOsat_pct", QC_type = 'all')
-table(do$QCtype)
+#---- Quality Control ----
+#------ QC: DO 899 & 999 checks -------
+dosat <- getSondeInSitu(years = year_range, parameter = "DOsat_pct", sample_depth = 'all', QC_type = c("899", "999")) |>
+  filter(Value < 98 | Value > 102) |>
+  select(UnitCode, SiteCode, SiteType, EventDate, year, month, QCtype, SampleDepth_m, Value) |>
+  arrange(UnitCode, SiteCode, EventDate, QCtype)
+
+QC_table <- rbind(QC_table,
+                  QC_check(dosat, meas_type = "Quality Control", tab = "DO 899 and 999",
+                           check = "DO saturation levels beyond accepted calibrartion of 98-102%",
+                           chk_type = 'error'))
+
+do_kbl <- make_kable(dosat, "DO saturation levels beyond accepted calibration of 98-102%.")
 
 # check if DO 899/999 checks returned at least 1 record to determine whether to include that tab in report
 do899_check <- QC_table |> filter(Data %in% "DO 899 and 999" & Num_Records > 0)
 do899_include <- tab_include(do899_check)
 
-#------ WQual: QC samples vs ENV samples -------
-
+#------ QC: QC samples vs ENV samples -------
 # check if QC samples vs ENV checks returned at least 1 record to determine whether to include that tab in report
 qcsamp_check <- QC_table |> filter(Data %in% "QC Samples" & Num_Records > 0)
 qcsamp_include <- tab_include(qcsamp_check)
 
-#------ WQual: BLANK samples -------
+#------ QC: BLANK samples -------
+blank <- getChemistry(years = year_range, QC_type = "BLANK") |> filter(!is.na(Value)) |> filter(Value > 0.05) |>
+  select(UnitCode, SiteCode, EventDate, year, month, QCType, SampleType, Parameter, Value, SampleDepth_m, LabCode)
+
+QC_table <- rbind(QC_table,
+                  QC_check(blank, meas_type = "Quality Control", tab = "BLANK Samples",
+                           check = "Blank samples > 0.05", chk_type = 'error'))
+
+blank_kbl <- make_kable(blank, "Blank samples > 0.05")
 
 # check if QC samples vs ENV checks returned at least 1 record to determine whether to include that tab in report
 blank_check <- QC_table |> filter(Data %in% "BLANK Samples" & Num_Records > 0)
@@ -99,9 +116,9 @@ QC_table <- pct_check(param = "SDepth_m", meas_type = 'Water Quality', tab = 'Se
 secchi_check <- QC_table |> filter(Data %in% "Secchi Depth" & Num_Records > 0)
 secchi_include <- tab_include(secchi_check)
 
-# check if Water Quality checks returned at least 1 record to determine whether to include that tab in report
-wqual_check <- QC_table |> filter(Type %in% "Water Quality" & Num_Records > 0)
-wqual_include <- tab_include(wqual_check)
+# check if Quality Control checks returned at least 1 record to determine whether to include that tab in report
+qc_check <- QC_table |> filter(Type %in% "Quality Control" & Num_Records > 0)
+qc_include <- tab_include(qc_check)
 
 #---- Water Quantity Checks ----
 QC_table <- pct_check(param = "WaterLevel_m", meas_type = 'Water Quantity', tab = 'Lake Level', chk_type = "check")
@@ -110,7 +127,6 @@ QC_table <- pct_check(param = "Discharge_cfs", meas_type = 'Water Quantity', tab
 # check if Lake level checks returned at least 1 record to determine whether to include that tab in report
 lakelev_check <- QC_table |> filter(Data %in% "Lake Level" & Num_Records > 0)
 lakelev_include <- tab_include(lakelev_check)
-
 
 # check if discharge checks returned at least 1 record to determine whether to include that tab in report
 disch_check <- QC_table |> filter(Data %in% "Discharge" & Num_Records > 0)

@@ -39,6 +39,7 @@ Wetland Quality Control checking for CUVA and `r paste(year_curr, collapse = ", 
 ---
 
 ```{r, include = F, results = 'hide'}
+source("QC_NETN_report_functions.R")
 source('QC_NETN_report_compile.R')
 ```
 
@@ -93,21 +94,21 @@ cat("\n\n")
 cat("#### Lab vs Sonde {.tabset}", "\n\n")
 
 # Details code makes it a drop down
-cat("<details open><summary class='drop'>Tables</summary>")
+check_null_print(tbl_pH_10pct, 5, "pH diff")
+cat("##### pH diff fig")
 pctdiff_pH
-cat("</detail>")
-cat("<details open><summary class='drop'>Tables</summary>")
-check_null_print(tbl_pH_10pct, 5, "pH 10pct")
-cat("</detail>")
 
 #++++ add remaining tables and figures for each sonde vs lab parameter ++++
 
 cat("\n\n")
 ```
 
+```{r eval = qc_include, results = "asis"}
+cat("### Quality Control {.tabset}", "\n\n")
+```
+
 ```{r eval = do899_include, results = 'asis'}
-cat("#### DO 899 and 999 {.tabset}", "\n\n")
-#check_null_print(xxx, 5, "xxx")
+check_null_print(do_kbl, 4, "DOSat")
 
 cat("\n\n")
 ```
@@ -121,8 +122,7 @@ cat("\n\n")
 
 
 ```{r eval = blank_include, results = 'asis'}
-cat("#### BLANK samples {.tabset}", "\n\n")
-#check_null_print(xxx, 5, "xxx")
+check_null_print(blank_kbl, 4, "Blank Samples")
 
 cat("\n\n")
 ```
@@ -139,18 +139,21 @@ cat("\n\n")
 cat("### Water Quantity {.tabset}", "\n\n")
 ```
 
-
 ```{r eval = lakelev_include, results = 'asis'}
 cat("#### Lake Level {.tabset}", "\n\n")
-#check_null_print(xxx, 5, "xxx")
-
+check_null_print(tbl_WaterLevel_m_99, 5, "WLevel 99pct")
+check_null_print(tbl_WaterLevel_m_01, 5, "WLevel 01pct")
+check_null_print(tbl_WaterLevel_m_90, 5, "WLevel 90pct")
+check_null_print(tbl_WaterLevel_m_10, 5, "WLevel 10pct")
 cat("\n\n")
 ```
 
 
 ```{r eval = disch_include, results = 'asis'}
 cat("#### Discharge {.tabset}", "\n\n")
-#check_null_print(xxx, 5, "xxx")
-
+check_null_print(tbl_Discharge_cfs_99, 5, "Disch. 99pct")
+check_null_print(tbl_Discharge_cfs_01, 5, "Disch. 01pct")
+check_null_print(tbl_Discharge_cfs_90, 5, "Disch. 90pct")
+check_null_print(tbl_Discharge_cfs_10, 5, "Disch. 10pct")
 cat("\n\n")
 ```
