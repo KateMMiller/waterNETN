@@ -66,6 +66,9 @@ c("Temp_C", "Temp_F", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH"
 \describe{
 \item{"all"}{Include all QC types.}
 \item{"ENV"}{Environmental. Default. Indicates a real non-QC sample.}
+\item{"899"}{Pre-deployment calibration checks.}
+\item{"900"}{Quality assurancechecks}
+\item{"999"}{Post-deployment calibration checks.}
 }}
 
 \item{sample_depth}{Filter on sample depth. If "all", returns all sample depths. If "surface" (Default),
