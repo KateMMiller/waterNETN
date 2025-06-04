@@ -129,7 +129,10 @@ cat("\n\n")
 
 ```{r eval = secchi_include, results = 'asis'}
 cat("#### Secchi Depth {.tabset}", "\n\n")
-#check_null_print(xxx, 5, "xxx")
+check_null_print(tbl_SDepth_m_99, 5, "SDepth 99pct")
+check_null_print(tbl_SDepth_m_01, 5, "SDepth 01pct")
+check_null_print(tbl_SDepth_m_90, 5, "SDepth 90pct")
+check_null_print(tbl_SDepth_m_10, 5, "SDepth 10pct")
 
 cat("\n\n")
 ```
