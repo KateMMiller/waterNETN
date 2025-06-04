@@ -102,7 +102,7 @@ getLightPen <- function(park = "all", site = "all", event_type = "VS",
     select(SiteCode, SiteType, EventDate, EventCode, Project)
 
   lpen2 <- lpen |> filter(SiteCode %in% sites)
-  lpen3 <- inner_join(evs, lpen2, by = c("SiteCode", "EventDate", "EventCode"))
+  lpen3 <- inner_join(evs, lpen2, by = c("SiteCode", "EventDate", "EventCode", "Project"))
 
   lpen4 <-
   if(output == "short"){lpen3[,c("SiteCode", "SiteName", "UnitCode", "SubUnitCode",

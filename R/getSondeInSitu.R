@@ -57,6 +57,9 @@
 #' \describe{
 #' \item{"all"}{Include all QC types.}
 #' \item{"ENV"}{Environmental. Default. Indicates a real non-QC sample.}
+#' \item{"899"}{Pre-deployment calibration checks.}
+#' \item{"900"}{Quality assurancechecks}
+#' \item{"999"}{Post-deployment calibration checks.}
 #' }
 #'
 #' @param sample_depth Filter on sample depth. If "all", returns all sample depths. If "surface" (Default),
@@ -110,7 +113,7 @@ getSondeInSitu <- function(park = "all", site = "all",
   stopifnot(class(active) == "logical")
   output <- match.arg(output)
   QC_type <- match.arg(QC_type, several.ok = TRUE,
-                       c("ENV", "all"))
+                       c("ENV", "all", "899", "900", "999"))
   sample_depth <- match.arg(sample_depth, c("surface", "all"))
 
   parameter <- match.arg(parameter,
@@ -118,7 +121,7 @@ getSondeInSitu <- function(park = "all", site = "all",
                            "DO_mgL", "pH", "pHmV", "Turbidity_FNU", "ChlA_EXO_RFU",
                            "ChlA_EXO_ugL", "BP_mmHg"), several.ok = TRUE)
 
-  qccode <- if(unique(QC_type) == "all"){c("ENV", "899", "999")} else {unique(QC_type)}
+  qccode <- if(any(QC_type == "all")){c("ENV", "899", "900", "999")} else {as.character(unique(QC_type))}
 
   # Check if the views exist and stop if they don't
   env <- if(exists("VIEWS_WQ")){VIEWS_WQ} else {.GlobalEnv}

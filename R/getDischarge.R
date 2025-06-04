@@ -129,7 +129,7 @@ getDischarge <- function(park = "all", site = "all", event_type = "VS",
     select(SiteCode, SiteType, EventDate, EventCode, Project)
 
   dis2 <- dis |> filter(SiteCode %in% sites)
-  dis3 <- left_join(evs, dis2, by = c("SiteCode", "EventDate", "EventCode"))
+  dis3 <- left_join(evs, dis2, by = c("SiteCode", "EventDate", "EventCode", "Project"))
 
   dis3$DischargeMethod[dis3$DischargeMethod %in% c("ACAD Pygmy", "LNETN Pygmy")] <- "Pygmy"
   dis3$DischargeMethod[dis3$DischargeMethod %in% c("ACAD Flowtracker", "LNETN Flowtracker")] <- "Flowtracker"
