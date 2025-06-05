@@ -3,7 +3,7 @@
 #------------------------------------------
 #
 # Params to turn on when running within script. Otherwise set params in Rmd.
-# #
+#
 # library(tidyverse)
 # library(knitr) # for kable functions
 # library(kableExtra) # for additional kable features
