@@ -83,7 +83,7 @@ getStreamObs <- function(park = "all", site = "all", years = 2006:format(Sys.Dat
   strobs$doy <- as.numeric(strftime(strobs$EventDate, format = "%j"))
 
   # Filter by site, years, and months to make data set small
-  sites <- force(getSites(park = park, site = site, site_type = site_type, active = active))$SiteCode
+  sites <- force(getSites(park = park, site = site, active = active))$SiteCode
 
   strobs2 <- strobs |> filter(SiteCode %in% sites)
   strobs3 <- strobs2 |> filter(year %in% years) |> filter(month %in% months)
