@@ -7,3 +7,11 @@
 testing_scripts/
 docs/index_cache/
 docs/index_files/
+*.csv
+*.zip
+*.svg
+*.jpg
+*.docx
+*.html
+*.md
+docs/QC_NETN_report_files/
