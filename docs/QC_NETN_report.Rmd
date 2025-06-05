@@ -22,16 +22,12 @@ library(waterNETN)
 library(tidyverse)
 library(knitr)
 library(kableExtra)
-#library(htmltools) # for tagList to iterate on a code chunk. Not sure I'm going to need this yet.
+library(DT) # for notes datatable
+library(htmltools) # for tags with datatable
 
 importData()
 year_curr = params$year_curr
 year_range = if(params$all_years == TRUE){2006:year_curr} else {year_curr}
-
-#arglist <- list(park = park, years = year)
-
-# locs <- do.call(getPlots, arglist) |>
-#   select(LocationID) |> unique() |> c() #|> as.character()
 ```
 
 
@@ -50,10 +46,24 @@ The table below documents Quality Control checks performed on NETN water quality
 QC_check_table
 ```
 
-### Sampling Matrix
+### Sample Events {.tabset}
+```{r eval = comp_include, results = 'asis'}
+cat("#### Completedness")
+check_null_print(comp_include, 5, "Comp Parks")
+
+# Add site-completedness here
+```
+
+#### Compiled Notes {.tabset}
+```{r}
+notes_dt
+```
+
+#### Sampling Matrix {.tabset}
 ```{r}
 samp_tab 
 ```
+
 
 ```{r eval = wqual_include, results = "asis"}
 cat("### Water Quality {.tabset}", "\n\n")
