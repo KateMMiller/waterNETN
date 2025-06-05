@@ -123,7 +123,7 @@ getWaterLevel <- function(park = "all", site = "all",
   wlcomb <- full_join(stage, wl,
                       by = c("GroupCode", "GroupName", "UnitCode", "UnitName",
                              "SubUnitCode", "SubUnitName", "SiteCode", "SiteName",
-                             "DatumName", "LocationType"))
+                             "DatumName", "SiteType"))
   wlcomb$df_dif <- round(wlcomb$DatumElevation_ft - wlcomb$DatumElevationFeet, 3)
 
   # Add year, month and day of year column to dataset and fix data types

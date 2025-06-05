@@ -165,7 +165,7 @@ getChemistry <- function(park = "all", site = "all",
     select(SiteCode, SiteType, EventDate, EventCode, Project)
 
   chem2 <- chem |> filter(SiteCode %in% sites)
-  chem3 <- inner_join(evs, chem2, by = c("SiteCode", "EventDate", "EventCode", "Project"))
+  chem3 <- inner_join(evs, chem2, by = c("SiteCode", "EventDate", "EventCode", "Project", "SiteType"))
 
   chem3$censored <- ifelse(is.na(chem3$ValueDetectionCondition) | chem3$ValueDetectionCondition == "Not Detected",
                            TRUE, FALSE)

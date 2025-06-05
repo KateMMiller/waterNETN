@@ -108,7 +108,7 @@ getSecchi <- function(park = "all", site = "all",
     select(SiteCode, SiteType, EventDate, EventCode, Project)
 
   sec2 <- sec |> filter(SiteCode %in% sites)
-  sec3 <- left_join(evs, sec2, by = c("SiteCode", "EventDate", "EventCode", "Project"))
+  sec3 <- left_join(evs, sec2, by = c("SiteCode", "EventDate", "EventCode", "Project", "SiteType"))
 
   sec4 <- if(observer_type == "all"){sec3
   } else if(observer_type == "first"){filter(sec3, Observer %in% 1)

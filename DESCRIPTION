@@ -1,6 +1,6 @@
 Package: waterNETN
 Title: Package for importing, querying, summarizing and visualizing NETN water data
-Version: 1.0
+Version: 1.01
 Authors@R: c(
     person('Kate', 'Miller', email = 'kathryn_miller@nps.gov', role = c('aut', 'cre')),
     person('Jess', 'Pollack', role = 'aut'),
