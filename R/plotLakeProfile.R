@@ -4,7 +4,7 @@
 #'
 #' @title plotLakeProfile: Plot lake profiles
 #'
-#' @importFrom dplyr arrange group_by left_join mutate select summarize
+#' @importFrom dplyr arrange group_by lead left_join mutate select summarize
 #' @importFrom purrr pmap_dfr possibly
 #' @import ggplot2
 #'
