@@ -73,9 +73,8 @@
 #' sample depth of samples collected within 2m of the surface. Note that for the Penetration Ratio parameter,
 #' all sample depths are plotted. Plotting all depths may return a funky plot for other parameters.
 #'
-#' @param threshold Logical. If TRUE (Default), will plot a dashed (upper) or dotted (lower) line if a water quality threshold exists for that
-#'
-#' parameter and site. If FALSE, no threshold line will be plotted.
+#' @param threshold Logical. If TRUE (Default), will plot a dashed (upper) or dotted (lower) line if a water quality
+#' threshold exists for that parameter and site. If FALSE, no threshold line will be plotted.
 #'
 #' @param legend_position Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
 #' options are "top", "bottom", "left", "right".
