@@ -4,7 +4,7 @@
 #'
 #' @title plotLakeProfile: Plot lake profiles
 #'
-#' @importFrom dplyr arrange group_by lead left_join mutate select summarize
+#' @importFrom dplyr arrange group_by lead left_join mutate select slice summarize
 #' @importFrom purrr pmap_dfr possibly
 #' @import ggplot2
 #'
@@ -119,7 +119,7 @@
 #'                palette = 'RdYlBu', color_rev = TRUE)
 #'}
 #'
-#' @return Returns a panel of hydrographs during the growing season for each year
+#' @return Returns a panel of lake profile plots during the growing season for each year
 #' in the data frame.
 #'
 #' @export
@@ -208,7 +208,7 @@ plotLakeProfile <- function(park = "ACAD", site = "all", event_type = "VS",
            lead_doy = lead(doy, 1))
 
   # Populate NAs with 121 and 304 as first and last day of monitoring period
-  prof_width$lag_doy[is.na(prof_width$lag_doy) & prof_width$doy < 200] <-
+  prof_width$lag_doy[is.na(prof_width$lag_doy) & prof_width$doy < 200] <- # 200 is July 19
     prof_width$doy[is.na(prof_width$lag_doy) & prof_width$doy < 200]  - 28 # beginning of sample period: May 1; 121
   prof_width$lead_doy[is.na(prof_width$lead_doy) & prof_width$doy > 273] <-
     prof_width$doy[is.na(prof_width$lead_doy) & prof_width$doy > 273] + 28 # end of sample period: Oct 31.; 304

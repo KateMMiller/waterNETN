@@ -96,7 +96,7 @@ options are "top", "bottom", "left", "right".}
 \item{...}{Additional arguments relevant to \code{getSondeInSitu()} or \code{getWaterLevel()}}
 }
 \value{
-Returns a panel of hydrographs during the growing season for each year
+Returns a panel of lake profile plots during the growing season for each year
 in the data frame.
 }
 \description{
