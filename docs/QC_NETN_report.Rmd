@@ -31,7 +31,7 @@ year_range = if(params$all_years == TRUE){2006:year_curr} else {year_curr}
 ```
 
 
-Wetland Quality Control checking for CUVA and `r paste(year_curr, collapse = ", ")` {.tabset .tabset-pills}
+Water Quality Control checking for NETN and `r paste(year_curr, collapse = ", ")` {.tabset .tabset-pills}
 ---
 
 ```{r, include = F, results = 'hide'}
@@ -48,8 +48,8 @@ QC_check_table
 
 ### Sample Events {.tabset}
 ```{r eval = comp_include, results = 'asis'}
-cat("#### Completedness")
-check_null_print(comp_include, 5, "Comp Parks")
+cat("#### Completedness {.tabset}", "\n\n")
+check_null_print(complete_kbl, 5, "Comp Parks")
 
 # Add site-completedness here
 ```
@@ -74,13 +74,9 @@ cat("#### Sonde Parameters {.tabset}", "\n\n")
 
 check_null_print(tbl_DO_mgL_99, 5, "DO 99pct")
 check_null_print(tbl_DO_mgL_01, 5, "DO 1pct")
-check_null_print(tbl_DO_mgL_90, 5, "DO 90pct") # we may find these return too many records
-check_null_print(tbl_DO_mgL_10, 5, "DO 10pct") # we may find these return too many records
 
 check_null_print(tbl_pH_99, 5, "pH 99pct")
 check_null_print(tbl_pH_01, 5, "pH 1pct")
-check_null_print(tbl_pH_90, 5, "pH 90pct") 
-check_null_print(tbl_pH_10, 5, "pH 10pct") 
 
 #++++ add remaining tables for each sonde parameter ++++
 
@@ -92,8 +88,6 @@ cat("#### Lab Parameters {.tabset}", "\n\n")
 
 check_null_print(tbl_ANC_ueqL_99, 5, "ANC 99pct")
 check_null_print(tbl_ANC_ueqL_01, 5, "ANC 1pct")
-check_null_print(tbl_ANC_ueqL_90, 5, "ANC 90pct") 
-check_null_print(tbl_ANC_ueqL_10, 5, "ANC 10pct") 
 
 #++++ add remaining tables for each lab parameter ++++
 
@@ -105,7 +99,7 @@ cat("#### Lab vs Sonde {.tabset}", "\n\n")
 
 # Details code makes it a drop down
 check_null_print(tbl_pH_10pct, 5, "pH diff")
-cat("##### pH diff fig")
+cat("##### pH diff fig {.tabset}", "\n\n")
 pctdiff_pH
 
 #++++ add remaining tables and figures for each sonde vs lab parameter ++++
@@ -141,8 +135,6 @@ cat("\n\n")
 cat("#### Secchi Depth {.tabset}", "\n\n")
 check_null_print(tbl_SDepth_m_99, 5, "SDepth 99pct")
 check_null_print(tbl_SDepth_m_01, 5, "SDepth 01pct")
-check_null_print(tbl_SDepth_m_90, 5, "SDepth 90pct")
-check_null_print(tbl_SDepth_m_10, 5, "SDepth 10pct")
 
 cat("\n\n")
 ```
@@ -156,8 +148,6 @@ cat("### Water Quantity {.tabset}", "\n\n")
 cat("#### Lake Level {.tabset}", "\n\n")
 check_null_print(tbl_WaterLevel_m_99, 5, "WLevel 99pct")
 check_null_print(tbl_WaterLevel_m_01, 5, "WLevel 01pct")
-check_null_print(tbl_WaterLevel_m_90, 5, "WLevel 90pct")
-check_null_print(tbl_WaterLevel_m_10, 5, "WLevel 10pct")
 cat("\n\n")
 ```
 
@@ -166,7 +156,5 @@ cat("\n\n")
 cat("#### Discharge {.tabset}", "\n\n")
 check_null_print(tbl_Discharge_cfs_99, 5, "Disch. 99pct")
 check_null_print(tbl_Discharge_cfs_01, 5, "Disch. 01pct")
-check_null_print(tbl_Discharge_cfs_90, 5, "Disch. 90pct")
-check_null_print(tbl_Discharge_cfs_10, 5, "Disch. 10pct")
 cat("\n\n")
 ```

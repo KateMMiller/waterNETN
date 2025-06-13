@@ -92,24 +92,14 @@ pct_check <- function(param = NA, meas_type = "Water Quality", tab = "Sonde Meas
 dat_pct <- wdat |> group_by(UnitCode) |>
   mutate(pct99 = quantile(Value, probs = 0.99, na.rm = T),
          pct01 = quantile(Value, probs = 0.01, na.rm = T),
-         pct90 = quantile(Value, probs = 0.90, na.rm = T),
-         pct10 = quantile(Value, probs = 0.10, na.rm = T),
          check = case_when(Value > pct99 ~ "pct99",
-                           Value > pct90 ~ "pct90",
                            Value < pct01 ~ "pct01",
-                           Value < pct10 ~ "pct10",
                            TRUE ~ NA_character_)) |>
   filter(!is.na(check)) |>
   arrange(check, UnitCode, SiteCode)
 
 check99 <- dat_pct |> filter(check %in% "pct99") |> arrange(UnitCode, SiteType, SiteCode) |>
   select(Park = UnitCode, SiteCode, SiteName, SiteType, EventDate, Parameter, Value, pct99)
-
-check90 <- dat_pct |> filter(check %in% "pct90") |> arrange(UnitCode, SiteType, SiteCode) |>
-  select(Park = UnitCode, SiteCode, SiteName, SiteType, EventDate, Parameter, Value, pct90)
-
-check10 <- dat_pct |> filter(check %in% "pct10") |> arrange(UnitCode, SiteType, SiteCode) |>
-  select(Park = UnitCode, SiteCode, SiteName, SiteType, EventDate, Parameter, Value, pct10)
 
 check01 <- dat_pct |> filter(check %in% "pct01") |> arrange(UnitCode, SiteType, SiteCode) |>
   select(Park = UnitCode, SiteCode, SiteName, SiteType, EventDate, Parameter, Value, pct01)
@@ -127,27 +117,17 @@ if(exists("QC_table")){
            chk_type = chk_type)}
 
 QC_table <- rbind(QC_table,
-                  QC_check(df = check90, tab = tab, meas_type = meas_type,
-                           check = paste0(param, " values that are 90 - 99% above all historic values within a park."),
-                           chk_type = chk_type),
-                  QC_check(df = check10, tab = tab, meas_type = meas_type,
-                           check = paste0(param, " values that are 1 - 10% below all historic values within a park."),
-                           chk_type = chk_type),
                   QC_check(df = check01, tab = tab, meas_type = meas_type,
                            check = paste0(param, " values that are below 1% of all historic values within a park."),
                            chk_type = chk_type))
 
 kab99 <- make_kable(check99, paste0(param, " values that are above 99% of all historic values within a park."))
 kab01<- make_kable(check01, paste0(param, " values that are below 1% of all historic values within a park."))
-kab90 <- make_kable(check90, paste0(param, " values that are 90 - 99% above all historic values within a park."))
-kab10 <- make_kable(check10, paste0(param, " values that are 1 - 10% below all historic values within a park."))
 
 assign(paste0("tbl_", param, "_99"), kab99, envir = .GlobalEnv)
 assign(paste0("tbl_", param, "_01"), kab01, envir = .GlobalEnv)
-assign(paste0("tbl_", param, "_90"), kab90, envir = .GlobalEnv)
-assign(paste0("tbl_", param, "_10"), kab10, envir = .GlobalEnv)
 
-rm(kab99, kab01, kab90, kab10)
+rm(kab99, kab01)
 
 return(QC_table)
 
