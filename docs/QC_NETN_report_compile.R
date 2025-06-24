@@ -1,20 +1,20 @@
 #------------------------------------------
-# Conducts QC checks on CUVA wetland data. Output is reported in QC_VIBI_report.Rmd
+# Conducts QC checks on NETN WQ data. Output is reported in QC_NETN_report.Rmd
 #------------------------------------------
 #
 # Params to turn on when running within script. Otherwise set params in Rmd.
 #
-# library(tidyverse)
-# library(knitr) # for kable functions
-# library(kableExtra) # for additional kable features
-# library(htmltools) # check what this is for before turning on
-# library(DT)
-# library(waterNETN)
-# importData()
+#  library(tidyverse)
+#  library(knitr) # for kable functions
+#  library(kableExtra) # for additional kable features
+#  library(htmltools) # check what this is for before turning on
+#  library(DT)
+#  library(waterNETN)
+#  importData()
 #
-# year_curr = 2024
-# year_range = 2006:2024
-# all_years = TRUE
+#  year_curr = 2024
+#  year_range = 2006:2024
+#  all_years = TRUE
 
 ###### Sample Events ######
 #----- SampEvs: Full Sampling Matrix ------
@@ -139,6 +139,10 @@ notes_dt <-
 #------ WQual: Sonde Parameters ------
 QC_table <- pct_check(param = "DO_mgL", meas_type = 'Water Quality', tab = 'Sonde Measurements', chk_type = "check")
 QC_table <- pct_check(param = "pH", meas_type = 'Water Quality', tab = 'Sonde Measurements', chk_type = "check")
+QC_table <- pct_check(param = "Temp_F", meas_type = 'Water Quality', tab = 'Sonde Measurements', chk_type = "check")
+QC_table <- pct_check(param = "SpCond_uScm", meas_type = 'Water Quality', tab = 'Sonde Measurements', chk_type = "check")
+QC_table <- pct_check(param = "Turbidity_FNU", meas_type = 'Water Quality', tab = 'Sonde Measurements', chk_type = "check")
+QC_table <- pct_check(param = "ChlA_EXO_ugL", meas_type = 'Water Quality', tab = 'Sonde Measurements', chk_type = "check")
 
 #+++ Add lines for remaining parameters. Just need to change the param name and assign it to QC_table.
 #+++ For each line above 4 kables are returned, one for each percentage (eg., tbl_DO_mgL_99). Those
@@ -150,6 +154,10 @@ sonde_include <- tab_include(sonde_check)
 
 #------ WQual: Lab Parameters ------
 QC_table <- pct_check(param = "ANC_ueqL", meas_type = 'Water Quality', tab = 'Lab Measurements', chk_type = "check")
+QC_table <- pct_check(param = "TP_ugL", meas_type = 'Water Quality', tab = 'Lab Measurements', chk_type = "check")
+QC_table <- pct_check(param = "TN_mgL", meas_type = 'Water Quality', tab = 'Lab Measurements', chk_type = "check")
+QC_table <- pct_check(param = "DOC_mgL", meas_type = 'Water Quality', tab = 'Lab Measurements', chk_type = "check")
+QC_table <- pct_check(param = "ChlA_ugL", meas_type = 'Water Quality', tab = 'Lab Measurements', chk_type = "check")
 
 #+++ Add lines for remaining parameters. Just need to change the param name and assign it to QC_table.
 #+++ For each line above 4 kables are returned, one for each percentage (eg., tbl_ANC_mgL_99). Those
@@ -161,12 +169,13 @@ lab_include <- tab_include(lab_check)
 
 #------ WQual: Lab vs Sonde Parameters ------
 QC_table <- svl_pct_check(param_sonde = "pH", param_lab = "pH_Lab")
-
 # Output of svl_pct_check: tbl_pH_10 and pctdiff_pH
+QC_table <- svl_pct_check(param_sonde = "ChlA_EXO_ugL", param_lab = "ChlA_ugL")
+# Output of svl_pct_check: tbl_ChlA_EXO_ugL_10pct and pctdiff_ChlA_EXO_ugL
 
 #+++ Add lines for remaining parameters comps. Just need to change the param name and assign it to QC_table.
 #+++ For each line above a kable and a figure are returned (eg tbl_pH_10, pctdiff_pH). Those
-#+++ need to be added to the QC_NETN_report in the Lab cs Sonde tab.
+#+++ need to be added to the QC_NETN_report in the Lab vs Sonde tab.
 
 # check if Lab v Sonde checks returned at least 1 record to determine whether to include that tab in report
 lab_v_sonde_check <- QC_table |> filter(Data %in% "Lab vs Sonde" & Num_Records > 0)
