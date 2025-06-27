@@ -209,7 +209,9 @@ qcsamp_check <- QC_table |> filter(Data %in% "QC Samples" & Num_Records > 0)
 qcsamp_include <- tab_include(qcsamp_check)
 
 #------ QC: BLANK samples ------
-blank <- getChemistry(years = year_range, QC_type = "BLANK") |> filter(!is.na(Value)) |> filter(Value > 0.05) |>
+blank <- getChemistry(parameter = c("TN_mgL", "TP_ugL"), years = year_range, QC_type = "BLANK") |>
+  filter(!is.na(Value)) |>
+  filter(Value > 0.05) |>
   select(UnitCode, SiteCode, EventDate, year, month, QCtype, SampleType, Parameter, Value, SampleDepth_m, LabCode)
 
 QC_table <- rbind(QC_table,
