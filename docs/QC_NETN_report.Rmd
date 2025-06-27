@@ -127,11 +127,12 @@ cat("#### Lab vs Sonde {.tabset}", "\n\n")
 check_null_print(tbl_pH_10pct, 5, "pH diff")
 cat("##### pH diff fig {.tabset}", "\n\n")
 pctdiff_pH
+cat("\n\n")
 
 check_null_print(tbl_ChlA_EXO_ugL_10pct, 5, "ChlA diff")
 cat("##### ChlA diff fig {.tabset}", "\n\n")
 pctdiff_ChlA_EXO_ugL
-
+cat("\n\n")
 #++++ add remaining tables and figures for each sonde vs lab parameter ++++
 ### JAP Note: Still funky, not pH diff fig tab showing figure and table, ChlA diff only shows figure ####
 
@@ -162,17 +163,16 @@ check_null_print(blank_kbl, 4, "Blank Samples")
 cat("\n\n")
 ```
 
+```{r eval = wquant_include, results = "asis"}
+cat("### Water Quantity {.tabset}", "\n\n")
+```
+
 ```{r eval = secchi_include, results = 'asis'}
 cat("#### Secchi Depth {.tabset}", "\n\n")
 check_null_print(tbl_SDepth_m_99, 5, "SDepth 99pct")
 check_null_print(tbl_SDepth_m_01, 5, "SDepth 01pct")
 
 cat("\n\n")
-```
-
-
-```{r eval = wquant_include, results = "asis"}
-cat("### Water Quantity {.tabset}", "\n\n")
 ```
 
 ```{r eval = lakelev_include, results = 'asis'}
