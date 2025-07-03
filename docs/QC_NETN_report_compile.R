@@ -16,6 +16,7 @@
  # year_curr = 2024
  # year_range = 2006:2024
  # all_years = TRUE
+#options(encoding = "UTF-8")
 
 ###### Sample Events ######
 #----- SampEvs: Full Sampling Matrix ------
@@ -114,6 +115,7 @@ notes <- rbind(ev_notes, disch_notes, streamobs, stageobs, watlev) |>
   filter(!is.na(Note))
 # Not using grepl because none or no can sometimes be part of a note that should be kept.
 
+notes$Note <- iconv(notes$Note, "latin1", "UTF-8")# fixes weird symbols
 notes_dt <-
   datatable(notes,
             class = 'cell-border stripe', rownames = F, #width = '1200px',
