@@ -3,20 +3,21 @@
 #------------------------------------------
 #
 # Params to turn on when running within script. Otherwise set params in Rmd.
-#
- # library(tidyverse)
- # library(knitr) # for kable functions
- # library(kableExtra) # for additional kable features
- # library(htmltools) # check what this is for before turning on
- # library(DT)
- # library(waterNETN)
- # importData(type = 'zip',
- #           filepath = "C:/Users/KMMiller/OneDrive - DOI/NETN/R_Dev/Water/data/records-2313941.zip")
- #
- # year_curr = 2024
- # year_range = 2006:2024
- # all_years = TRUE
-#options(encoding = "UTF-8")
+# Must also source the QC_NETN_report_functions.R script before running code
+# #
+#  library(tidyverse)
+#  library(knitr) # for kable functions
+#  library(kableExtra) # for additional kable features
+#  library(htmltools) # check what this is for before turning on
+#  library(DT)
+#  library(waterNETN)
+# importData(type = 'zip',
+#            filepath = "C:/Users/KMMiller/OneDrive - DOI/NETN/R_Dev/Water/data/records-2313941.zip")
+#  importData()
+#  year_curr = 2024
+#  year_range = 2006:2024
+#  all_years = TRUE
+# options(encoding = "UTF-8")
 
 ###### Sample Events ######
 #----- SampEvs: Full Sampling Matrix ------
