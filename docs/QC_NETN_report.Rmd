@@ -25,13 +25,15 @@ library(kableExtra)
 library(DT) # for notes datatable
 library(htmltools) # for tags with datatable
 
-importData()
+importData(type = 'zip', 
+           filepath = "C:/Users/KMMiller/OneDrive - DOI/NETN/R_Dev/Water/data/records-2313941.zip")
+# Update for your computer
 year_curr = params$year_curr
 year_range = if(params$all_years == TRUE){2006:year_curr} else {year_curr}
 ```
 
 
-Water Quality Control checking for NETN and `r paste(year_curr, collapse = ", ")` {.tabset .tabset-pills}
+Water Quality Control checking for NETN `r paste(year_curr, collapse = ", ")` {.tabset .tabset-pills}
 ---
 
 ```{r, include = F, results = 'hide'}
@@ -78,7 +80,20 @@ check_null_print(tbl_DO_mgL_01, 5, "DO 1pct")
 check_null_print(tbl_pH_99, 5, "pH 99pct")
 check_null_print(tbl_pH_01, 5, "pH 1pct")
 
+check_null_print(tbl_Temp_F_99, 5, "Temp 99pct")
+check_null_print(tbl_Temp_F_01, 5, "Temp 1pct")
+
+check_null_print(tbl_SpCond_uScm_99, 5, "SpCond 99pct")
+check_null_print(tbl_SpCond_uScm_01, 5, "SpCond 1pct")
+
+check_null_print(tbl_Turbidity_FNU_99, 5, "Turb 99pct")
+check_null_print(tbl_Turbidity_FNU_01, 5, "Turb 1pct")
+
+check_null_print(tbl_ChlA_EXO_ugL_99, 5, "ChlA 99pct")
+check_null_print(tbl_ChlA_EXO_ugL_01, 5, "ChlA 1pct")
+
 #++++ add remaining tables for each sonde parameter ++++
+## JAP Note: ChlA_EXO should not return LNETN values, but it does ##
 
 cat("\n\n")
 ```
@@ -89,7 +104,20 @@ cat("#### Lab Parameters {.tabset}", "\n\n")
 check_null_print(tbl_ANC_ueqL_99, 5, "ANC 99pct")
 check_null_print(tbl_ANC_ueqL_01, 5, "ANC 1pct")
 
+check_null_print(tbl_TP_ugL_99, 5, "TP 99pct")
+check_null_print(tbl_TP_ugL_01, 5, "TP 1pct")
+
+check_null_print(tbl_TN_mgL_99, 5, "TN 99pct")
+check_null_print(tbl_TN_mgL_01, 5, "TN 1pct")
+
+check_null_print(tbl_DOC_mgL_99, 5, "DOC 99pct")
+check_null_print(tbl_DOC_mgL_01, 5, "DOC 1pct")
+
+check_null_print(tbl_ChlA_ugL_99, 5, "ChlA 99pct")
+check_null_print(tbl_ChlA_ugL_01, 5, "ChlA 1pct")
+
 #++++ add remaining tables for each lab parameter ++++
+#### JAP Note: Did not add historic lab chemistry parameters, should we? Need to think about purpose of QAQC###
 
 cat("\n\n")
 ```
@@ -101,8 +129,14 @@ cat("#### Lab vs Sonde {.tabset}", "\n\n")
 check_null_print(tbl_pH_10pct, 5, "pH diff")
 cat("##### pH diff fig {.tabset}", "\n\n")
 pctdiff_pH
+cat("\n\n")
 
+check_null_print(tbl_ChlA_EXO_ugL_10pct, 5, "ChlA diff")
+cat("##### ChlA diff fig {.tabset}", "\n\n")
+pctdiff_ChlA_EXO_ugL
+cat("\n\n")
 #++++ add remaining tables and figures for each sonde vs lab parameter ++++
+### JAP Note: Still funky, not pH diff fig tab showing figure and table, ChlA diff only shows figure ####
 
 cat("\n\n")
 ```
@@ -131,17 +165,16 @@ check_null_print(blank_kbl, 4, "Blank Samples")
 cat("\n\n")
 ```
 
+```{r eval = wquant_include, results = "asis"}
+cat("### Water Quantity {.tabset}", "\n\n")
+```
+
 ```{r eval = secchi_include, results = 'asis'}
 cat("#### Secchi Depth {.tabset}", "\n\n")
 check_null_print(tbl_SDepth_m_99, 5, "SDepth 99pct")
 check_null_print(tbl_SDepth_m_01, 5, "SDepth 01pct")
 
 cat("\n\n")
-```
-
-
-```{r eval = wquant_include, results = "asis"}
-cat("### Water Quantity {.tabset}", "\n\n")
 ```
 
 ```{r eval = lakelev_include, results = 'asis'}

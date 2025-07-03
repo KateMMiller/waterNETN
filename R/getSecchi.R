@@ -51,7 +51,7 @@
 #' importData()
 #'
 #' # get Secchi depth the Pogue from 2021-2023, first observer only
-#' mabi <- getSecchi(sitecode = "MABIPA", years = 2021:2023, observer_type = "first")
+#' mabi <- getSecchi(site = "MABIPA", years = 2021:2023, observer_type = "first")
 #'
 #' # get Secchi depth for all ACAD lakes sampled in July for all observers
 #' ACAD_lake <- getSecchi(park = 'ACAD', months = 7)
@@ -81,7 +81,7 @@ getSecchi <- function(park = "all", site = "all",
   # Check if the views exist and stop if they don't
   env <- if(exists("VIEWS_WQ")){VIEWS_WQ} else {.GlobalEnv}
 
-  tryCatch({sec <- get("Secchi_Data_Long", envir = env)},
+  tryCatch({sec <- get("Secchi_Data", envir = env)},
            error = function(e){stop("Water views not found. Please import data.")}
   )
 

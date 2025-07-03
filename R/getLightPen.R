@@ -47,7 +47,7 @@
 #' importData()
 #'
 #' # get light penetration for the Pogue in MABI from 2021-2023
-#' mabi <- getLightPen(site_code = "MABIPA", years = 2021:2023)
+#' mabi <- getLightPen(site = "MABIPA", years = 2021:2023)
 #'
 #' # get light penetration for all ACAD lakes sampled in August
 #' ACAD_lake <- getLightPen(park = 'ACAD', months = 8)

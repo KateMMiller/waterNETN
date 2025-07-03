@@ -46,8 +46,8 @@
 #' # get site info for all streams in ACAD
 #' ACAD_streams <- getSites(park = 'ACAD', site_type = 'stream')
 #'
-#' # get site info East Primrose Brook in MORR
-#' east_prim <- getSites(site = "MORRSA")
+#' # get site info for Primrose Brook in MORR
+#' prim <- getSites(site = "MORRSB")
 #' }
 #' @export
 
@@ -133,8 +133,7 @@ getSites <- function(park = "all", site = "all", site_type = c("all", "lake", "s
 
   # Clean up data, so columns are treated correctly
   # character fixes
-  chr_cols <- c("SubUnitCode", "SubUnitName", "Datum", "XYAccuracy",
-                "LegislativeClass")
+  chr_cols <- c("SubUnitCode", "SubUnitName")
   wdata3[,chr_cols][wdata3[,chr_cols] == "NA"] <- NA_character_
 
   # numeric fixes

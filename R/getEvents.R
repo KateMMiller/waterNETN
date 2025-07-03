@@ -63,7 +63,7 @@
 #' ma_parks <- getEvents(park = c("SAIR", "MIMA"))
 #'
 #' # get info for all ACAD lakes sampled in April
-#' ACAD_lake4<- getEvents(park = 'ACAD', site_type = 'lake', months = 4)
+#' ACAD_lake4 <- getEvents(park = 'ACAD', site_type = 'lake', months = 4, event_type = 'all')
 #'
 #' # get site info for 2 streams in MORR with full output
 #' morr_sites <- getEvents(site = c("MORRSA", "MORRSB"), output = 'verbose')

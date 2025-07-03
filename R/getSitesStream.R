@@ -31,7 +31,7 @@
 #'
 #' # get site info for all streams in lowerNETN
 #' lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
-#' lnetn_str <- getSiteStream(park = lnetn)
+#' lnetn_str <- getSitesStream(park = lnetn)
 #'
 #' # get site info for all streams in ACAD
 #' ACAD_strs <- getSitesStream(park = 'ACAD')
@@ -68,7 +68,7 @@ getSitesStream <- function(park = "all", site = "all", active = TRUE, output = c
 
   # Clean up data, so columns are treated correctly
   # character fixes
-  chr_cols <- c("SubUnitCode", "SubUnitName", "Datum", "XYAccuracy", "LegislativeClass", "FisheryType")
+  chr_cols <- c("SubUnitCode", "SubUnitName", "Datum", "LegislativeClass", "FisheryType")
   stream[,chr_cols][stream[,chr_cols] == "NA"] <- NA_character_
 
   # numeric fixes

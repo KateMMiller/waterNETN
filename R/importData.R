@@ -31,14 +31,18 @@
 #'
 #' @examples
 #' \dontrun{
+#' library(waterNETN)
 #' # Import tables using default settings of type = "DSN" and odbc = "NETNWQ_DP"
 #' importData()
 #'
 #' # Import views from specified database
 #' importData(type = 'dbfile', filepath = "C:/NETN/R_Dev/Water/data/NETN_H2Ov4_DataPackage_202331115.accdb")
 #'
+#' # Import data package views
+#' importData(type = 'zip', filepath = "C:/Users/KMMiller/OneDrive - DOI/NETN/R_Dev/Water/data/records-2313941.zip")
+#'
 #' # Import views from folder with csvs
-#' importData(type = 'csv', filepath = "C:/NETN/R_Dev/Water/data/data_package/")
+#' importData(type = 'csv', filepath = "C:/Users/KMMiller/OneDrive - DOI/NETN/R_Dev/Water/data/records-2313941")
 #'
 #' # Import views from zip file of csvs
 #' importData(type = 'zip',
@@ -90,7 +94,7 @@ importData <- function(type = c("DSN", "dbfile", "csv", "zip"),
 
   # Vector of file names in filepath that end in .csv (ie the data package views)
   wq_views <- c("Chemistry_Data_Long", "Discharge_Data", "Event_Info", "Light_Penetration_Data",
-                "Secchi_Data_Long", "Sites_Lake", "Sites_Stream", "Sonde_InSitu_Data_Long",
+                "Secchi_Data", "Sites_Lake", "Sites_Stream", "Sonde_InSitu_Data",
                 "StageDatum_Info", "StreamSite_Observations", "WaterLevel_Data")
 
   #-- Import from database --
@@ -125,7 +129,7 @@ importData <- function(type = c("DSN", "dbfile", "csv", "zip"),
                        function(x){
                          setTxtProgressBar(pb, x)
                          tab1 <- wq_views[x]
-#                         tab <- dplyr::tbl(db, tab1) |> dplyr::collect() |> as.data.frame()
+                       # tab <- dplyr::tbl(db, tab1) |> dplyr::collect() |> as.data.frame()
                          tab <- DBI::dbReadTable(db, tab1)
                          return(tab)
                        })
@@ -185,8 +189,6 @@ importData <- function(type = c("DSN", "dbfile", "csv", "zip"),
   # environment as separate, named objects.
   list2env(dp_files, envir = env)
 
-
-
   # Close progress bar
   close(pb)
   }
@@ -194,8 +196,7 @@ importData <- function(type = c("DSN", "dbfile", "csv", "zip"),
   if(type == "zip"){
     # Check if can read files within the zip file
     tryCatch(
-        {zfiles = utils::unzip(filepath, list = T)$Name
-        },
+        {zfiles = utils::unzip(filepath, list = T)$Name},
         error = function(e){stop(paste0("Unable to import specified zip file."))})
 
     z_list = zfiles[grepl(paste0(wq_views, collapse = "|"), zfiles)]
@@ -223,7 +224,8 @@ importData <- function(type = c("DSN", "dbfile", "csv", "zip"),
     # Import views now that all tests passed
     pb <- txtProgressBar(min = 0, max = length(z_list), style = 3)
 
-    wqviews <- unzip(filepath, junkpaths = TRUE, exdir = tempdir())
+    wqviews1 <- unzip(filepath, junkpaths = TRUE, exdir = tempdir())
+    wqviews <- wqviews1[grepl(paste0(wq_views, collapse = "|"), wqviews1)]
 
     view_import <-
       lapply(seq_along(wqviews), function(x){

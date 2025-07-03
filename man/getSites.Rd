@@ -59,7 +59,7 @@ mabi <- getSites(park = "MABI")
 # get site info for all streams in ACAD
 ACAD_streams <- getSites(park = 'ACAD', site_type = 'stream')
 
-# get site info East Primrose Brook in MORR
-east_prim <- getSites(site = "MORRSA")
+# get site info for Primrose Brook in MORR
+prim <- getSites(site = "MORRSB")
 }
 }

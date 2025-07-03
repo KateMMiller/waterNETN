@@ -47,14 +47,18 @@ your workspace, or to your global environment based on whether new_env = TRUE or
 }
 \examples{
 \dontrun{
+library(waterNETN)
 # Import tables using default settings of type = "DSN" and odbc = "NETNWQ_DP"
 importData()
 
 # Import views from specified database
 importData(type = 'dbfile', filepath = "C:/NETN/R_Dev/Water/data/NETN_H2Ov4_DataPackage_202331115.accdb")
 
+# Import data package views
+importData(type = 'zip', filepath = "C:/Users/KMMiller/OneDrive - DOI/NETN/R_Dev/Water/data/records-2313941.zip")
+
 # Import views from folder with csvs
-importData(type = 'csv', filepath = "C:/NETN/R_Dev/Water/data/data_package/")
+importData(type = 'csv', filepath = "C:/Users/KMMiller/OneDrive - DOI/NETN/R_Dev/Water/data/records-2313941")
 
 # Import views from zip file of csvs
 importData(type = 'zip',
