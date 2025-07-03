@@ -25,7 +25,9 @@ library(kableExtra)
 library(DT) # for notes datatable
 library(htmltools) # for tags with datatable
 
-importData()
+importData(type = 'zip', 
+           filepath = "C:/Users/KMMiller/OneDrive - DOI/NETN/R_Dev/Water/data/records-2313941.zip")
+# Update for your computer
 year_curr = params$year_curr
 year_range = if(params$all_years == TRUE){2006:year_curr} else {year_curr}
 ```

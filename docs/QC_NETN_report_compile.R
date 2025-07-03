@@ -4,17 +4,18 @@
 #
 # Params to turn on when running within script. Otherwise set params in Rmd.
 #
-#  library(tidyverse)
-#  library(knitr) # for kable functions
-#  library(kableExtra) # for additional kable features
-#  library(htmltools) # check what this is for before turning on
-#  library(DT)
-#  library(waterNETN)
-#  importData()
-#
-#  year_curr = 2024
-#  year_range = 2006:2024
-#  all_years = TRUE
+ # library(tidyverse)
+ # library(knitr) # for kable functions
+ # library(kableExtra) # for additional kable features
+ # library(htmltools) # check what this is for before turning on
+ # library(DT)
+ # library(waterNETN)
+ # importData(type = 'zip',
+ #           filepath = "C:/Users/KMMiller/OneDrive - DOI/NETN/R_Dev/Water/data/records-2313941.zip")
+ #
+ # year_curr = 2024
+ # year_range = 2006:2024
+ # all_years = TRUE
 
 ###### Sample Events ######
 #----- SampEvs: Full Sampling Matrix ------
@@ -86,9 +87,9 @@ streamobs <- getStreamObs(year = year_range, output = 'verbose') |>
   select(UnitCode, SiteCode, year, month, View, Note_Name, Note = Algae_Notes) |>
   filter(!Note %in% c("None", " None"))
 
-stageobs1 <- VIEWS_WQ$StageDatum_Info  |> select(UnitCode, SiteCode, LastSurveyDate, Comments)
-stageobs1$year = format(as.Date(stageobs1$LastSurveyDate, "%Y-%m-%d", tz = "America/New_York"), "%Y")
-stageobs1$month = format(as.Date(stageobs1$LastSurveyDate, "%Y-%m-%d", tz = "America/New_York"), "%Y")
+stageobs1 <- VIEWS_WQ$StageDatum_Info  |> select(UnitCode, SiteCode, Comments, ElevationDate)
+stageobs1$year = format(as.Date(stageobs1$ElevationDate, "%Y-%m-%d", tz = "America/New_York"), "%Y")
+stageobs1$month = format(as.Date(stageobs1$ElevationDate, "%Y-%m-%d", tz = "America/New_York"), "%Y")
 stageobs <- stageobs1 |> mutate(View = "StageDatum_Info", Note_Name = "Comments") |>
   select(UnitCode, SiteCode, year, month, View, Note_Name, Note = Comments) |>
   filter(!is.na(Note) & !Note %in% "NA")
