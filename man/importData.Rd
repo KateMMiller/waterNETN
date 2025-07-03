@@ -4,12 +4,7 @@
 \alias{importData}
 \title{importData: Imports NETN water data package}
 \usage{
-importData(
-  type = c("DSN", "dbfile", "csv", "zip"),
-  odbc = "NETNWQ_DP",
-  filepath = NA,
-  new_env = TRUE
-)
+importData(type = c("DSN"), odbc = "NETNWQ_DP", filepath = NA, new_env = TRUE)
 }
 \arguments{
 \item{type}{Select how to import the data package.

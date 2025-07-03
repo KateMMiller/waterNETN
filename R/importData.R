@@ -53,11 +53,10 @@
 #' @return Assigns water csvs to specified environment
 #' @export
 
-importData <- function(type = c("DSN", "dbfile", "csv", "zip"),
-                       odbc = "NETNWQ_DP", filepath = NA, new_env = TRUE){
+importData <- function(type = c("DSN"), odbc = "NETNWQ_DP", filepath = NA, new_env = TRUE){
 
   #-- Error handling --
-  type <- match.arg(type)
+  type <- match.arg(type, c("DSN", "dbfile", "csv", "zip"))
   stopifnot(class(new_env) == 'logical')
 
   # check that filepath was specified for non-DSN options
@@ -97,6 +96,10 @@ importData <- function(type = c("DSN", "dbfile", "csv", "zip"),
                 "Secchi_Data", "Sites_Lake", "Sites_Stream", "Sonde_InSitu_Data",
                 "StageDatum_Info", "StreamSite_Observations", "WaterLevel_Data")
 
+  wq_views_db <- c("Chemistry_Data_Long", "Discharge_Data", "Event_Info", "Light_Penetration_Data",
+                   "Secchi_Data_Long", "Sites_Lake", "Sites_Stream", "Sonde_InSitu_Data_Long",
+                   "StageDatum_Info", "StreamSite_Observations", "WaterLevel_Data")
+
   #-- Import from database --
   # make sure db is on dsn list if type == DSN
   if(type == "DSN"){
@@ -123,12 +126,12 @@ importData <- function(type = c("DSN", "dbfile", "csv", "zip"),
   # Import database tables
   if(type %in% c("DSN", "dbfile")){
 
-  pb = txtProgressBar(min = 0, max = length(wq_views), style = 3)
+  pb = txtProgressBar(min = 0, max = length(wq_views_db), style = 3)
 
-  tbl_import <- lapply(seq_along(wq_views),
+  tbl_import <- lapply(seq_along(wq_views_db),
                        function(x){
                          setTxtProgressBar(pb, x)
-                         tab1 <- wq_views[x]
+                         tab1 <- wq_views_db[x]
                        # tab <- dplyr::tbl(db, tab1) |> dplyr::collect() |> as.data.frame()
                          tab <- DBI::dbReadTable(db, tab1)
                          return(tab)
