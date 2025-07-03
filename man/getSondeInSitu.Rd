@@ -13,7 +13,7 @@ getSondeInSitu(
   months = 5:10,
   active = TRUE,
   parameter = "all",
-  QC_type = "ENV",
+  QC_type = "0",
   sample_depth = "surface",
   output = c("short", "verbose")
 )
@@ -65,7 +65,7 @@ c("Temp_C", "Temp_F", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH"
 \item{QC_type}{Specify QC type to return. Must be quoted.
 \describe{
 \item{"all"}{Include all QC types.}
-\item{"ENV"}{Environmental. Default. Indicates a real non-QC sample.}
+\item{"0"}{Default. Indicates a real non-QC sample.}
 \item{"899"}{Pre-deployment calibration checks.}
 \item{"900"}{Quality assurancechecks}
 \item{"999"}{Post-deployment calibration checks.}

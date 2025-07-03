@@ -89,7 +89,7 @@ getWaterLevel <- function(park = "all", site = "all",
 
   # stage character fixes
   chr_cols <- c("SubUnitCode", "SubUnitName", "DatumName", "DatumType", "GeodeticDatum",
-                "XYAccuracy", "ElevationType", "ElevationSource", "AccNotes", "LastSurveyDate",
+                "ElevationType", "ElevationSource", "AccNotes", "ElevationDate",
                 "Comments")
   stage[,chr_cols][stage[,chr_cols] == "NA"] <- NA_character_
 

@@ -107,8 +107,8 @@ mima_n <- getChemistry(park = "MIMA", years = period, parameter = n_params)
 # get lab pH for all sites in MIMA and SAIR
 ma_parks <- getChemistry(park = c("SAIR", "MIMA"), param = "pH_Lab")
 
-# get chemistry for all ACAD lakes sampled in April
-ACAD_lake4<- getChemistry(park = 'ACAD', site_type = 'lake', months = 4)
+# get chemistry for all ACAD lakes sampled in April for acidification
+ACAD_lake4<- getChemistry(park = 'ACAD', site_type = 'lake', months = 4, event_type = 'all')
 
 # get ANC for lower NETN parks from May to Oct
 lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")

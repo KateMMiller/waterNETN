@@ -68,7 +68,7 @@ getSitesLake <- function(park = "all", site = "all", active = TRUE, output = c("
 
   # Clean up data, so columns are treated correctly
   # character fixes
-  chr_cols <- c("SubUnitCode", "SubUnitName", "Datum", "XYAccuracy",
+  chr_cols <- c("SubUnitCode", "SubUnitName", "Datum",
                 "Inlet", "Outlet", "TrophicType", "LegislativeClass", "FishMgtType")
   lakes[,chr_cols][lakes[,chr_cols] == "NA"] <- NA_character_
 

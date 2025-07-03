@@ -44,7 +44,7 @@ importData()
 
 # get site info for all streams in lowerNETN
 lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
-lnetn_str <- getSiteStream(park = lnetn)
+lnetn_str <- getSitesStream(park = lnetn)
 
 # get site info for all streams in ACAD
 ACAD_strs <- getSitesStream(park = 'ACAD')

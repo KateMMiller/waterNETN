@@ -56,7 +56,7 @@
 #' @param QC_type Specify QC type to return. Must be quoted.
 #' \describe{
 #' \item{"all"}{Include all QC types.}
-#' \item{"ENV"}{Environmental. Default. Indicates a real non-QC sample.}
+#' \item{"0"}{Default. Indicates a real non-QC sample.}
 #' \item{"899"}{Pre-deployment calibration checks.}
 #' \item{"900"}{Quality assurancechecks}
 #' \item{"999"}{Post-deployment calibration checks.}
@@ -97,7 +97,7 @@ getSondeInSitu <- function(park = "all", site = "all",
                            years = 2006:format(Sys.Date(), "%Y"),
                            months = 5:10, active = TRUE,
                            parameter = "all",
-                           QC_type = "ENV",
+                           QC_type = "0",
                            sample_depth = "surface",
                            output = c("short", "verbose")){
 
@@ -113,7 +113,7 @@ getSondeInSitu <- function(park = "all", site = "all",
   stopifnot(class(active) == "logical")
   output <- match.arg(output)
   QC_type <- match.arg(QC_type, several.ok = TRUE,
-                       c("ENV", "all", "899", "900", "999"))
+                       c("0", "all", "899", "900", "999"))
   sample_depth <- match.arg(sample_depth, c("surface", "all"))
 
   parameter <- match.arg(parameter,
@@ -121,12 +121,12 @@ getSondeInSitu <- function(park = "all", site = "all",
                            "DO_mgL", "pH", "pHmV", "Turbidity_FNU", "ChlA_EXO_RFU",
                            "ChlA_EXO_ugL", "BP_mmHg"), several.ok = TRUE)
 
-  qccode <- if(any(QC_type == "all")){c("ENV", "899", "900", "999")} else {as.character(unique(QC_type))}
+  qccode <- if(any(QC_type == "all")){c("0", "899", "900", "999")} else {as.character(unique(QC_type))}
 
   # Check if the views exist and stop if they don't
   env <- if(exists("VIEWS_WQ")){VIEWS_WQ} else {.GlobalEnv}
 
-  tryCatch({sonde <- get("Sonde_InSitu_Data_Long", envir = env)},
+  tryCatch({sonde <- get("Sonde_InSitu_Data", envir = env)},
             error = function(e){stop("Water views not found. Please import data.")}
   )
 
@@ -160,9 +160,9 @@ getSondeInSitu <- function(park = "all", site = "all",
   sonde1 <- rbind(sonde, tempf)
 
   # Filter by site, years, and months to make data set small
-  sites <- force(getSites(park = park, site = site, site_type = site_type, active = active))$SiteCode
-  evs <- force(getEvents(park = park, site = site, site_type = site_type, event_type = event_type,
-                         years = years, months = months, active = active, output = 'verbose')) |>
+  sites <- getSites(park = park, site = site, site_type = site_type, active = active)$SiteCode
+  evs <- getEvents(park = park, site = site, site_type = site_type, event_type = event_type,
+                         years = years, months = months, active = active, output = 'verbose') |>
     select(SiteCode, SiteType, EventDate, EventCode, Project)
 
   sonde2 <- sonde1 |> filter(SiteCode %in% sites)

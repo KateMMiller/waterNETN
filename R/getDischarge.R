@@ -66,7 +66,7 @@
 #' sara <- getDischarge(park = "ACAD", years = 2023, months = 7)
 #'
 #' # get discharge measured with Flowtracker
-#' flow <- getDischarge(method = c("ACAD Flowtracker", "LNETN Flowtracker"))
+#' flow <- getDischarge(method = c("Flowtracker"))
 #'
 #' # get excellent rated measurements only
 #' exc <- getDischarge(rating = "E")
