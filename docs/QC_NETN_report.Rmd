@@ -115,7 +115,6 @@ check_null_print(tbl_ChlA_ugL_99, 5, "ChlA 99pct")
 check_null_print(tbl_ChlA_ugL_01, 5, "ChlA 1pct")
 
 #++++ add remaining tables for each lab parameter ++++
-#### JAP Note: Did not add historic lab chemistry parameters, should we? Need to think about purpose of QAQC###
 
 cat("\n\n")
 ```
@@ -134,7 +133,6 @@ cat("##### ChlA diff fig {.tabset}", "\n\n")
 pctdiff_ChlA_EXO_ugL
 cat("\n\n")
 #++++ add remaining tables and figures for each sonde vs lab parameter ++++
-### JAP Note: Still funky, not pH diff fig tab showing figure and table, ChlA diff only shows figure ####
 
 cat("\n\n")
 ```
@@ -149,10 +147,18 @@ check_null_print(do_kbl, 4, "DOSat")
 cat("\n\n")
 ```
 
-```{r eval = qcsamp_include, results = 'asis'}
+```{r eval = qcsamp_include, results = 'asis', fig.height = 6, fig.width = 7}
 cat("#### QC Samples {.tabset}", "\n\n")
-#check_null_print(xxx, 5, "xxx")
 
+##### JESS ADDITION #####
+check_null_print(tbl_pH_10pct, 5, "pH diff")
+cat("##### pH diff fig {.tabset}", "\n\n")
+pctdiff_pH
+cat("\n\n")
+
+check_null_print(tbl_ChlA_ugL_10pct, 5, "ChlA diff")
+cat("##### ChlA diff fig {.tabset}", "\n\n")
+pctdiff_ChlA_ugL
 cat("\n\n")
 ```
 

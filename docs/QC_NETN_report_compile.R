@@ -208,6 +208,12 @@ do899_check <- QC_table |> filter(Data %in% "DO 899 and 999" & Num_Records > 0)
 do899_include <- tab_include(do899_check)
 
 #------ QC: QC samples vs ENV samples ------
+#------ JESS ADDITION ------- ###################
+QC_table <- svl_pct_check_env_rep(param_env = "pH_Lab", param_rep = "pH_Lab")
+# Output of svl_pct_check: tbl_pH_10 and pctdiff_pH
+QC_table <- svl_pct_check_env_rep(param_env = "ChlA_ugL", param_rep = "ChlA_ugL")
+# Output of svl_pct_check: tbl_ChlA_EXO_ugL_10pct and pctdiff_ChlA_EXO_ugL
+
 # check if QC samples vs ENV checks returned at least 1 record to determine whether to include that tab in report
 qcsamp_check <- QC_table |> filter(Data %in% "QC Samples" & Num_Records > 0)
 qcsamp_include <- tab_include(qcsamp_check)

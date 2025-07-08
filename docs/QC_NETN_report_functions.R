@@ -189,5 +189,59 @@ svl_pct_check <- function(param_sonde = NA, param_lab = NA){
                     chk_type = "check"))
   return(QC_table)
 }
+### JESS ADDITION ####
+svl_pct_check_env_rep <- function(param_env = NA, param_rep = NA){
 
+  env <- getChemistry(parameter = param_env, include_censored = TRUE, QC_type = "ENV") |>
+    select(UnitCode, SiteCode, SiteName, EventDate, year, month, Parameter, Value, censored)
+  rep <- getChemistry(parameter = param_rep, QC_type = "REP") |>
+    mutate(censored = FALSE) |>
+    select(UnitCode, SiteCode, SiteName, EventDate, year, month, Parameter, Value, censored)
+
+  df_join <- full_join(env, rep,
+                       by = c("UnitCode", "SiteCode", "SiteName", "EventDate", "year", "month"),
+                       suffix = c("_env", "_rep"),
+                       relationship = 'many-to-many') |>
+    filter(!is.na(Value_env) & !is.na(Value_rep))
+
+  df_join$diff <- df_join$Value_env - df_join$Value_rep
+  df_join$pct_diff <- round(((df_join$Value_rep - df_join$Value_env)/df_join$Value_env)*100, 2)
+
+  diff_10 <- df_join |> filter(abs(pct_diff) > 10) |>
+    select(UnitCode, SiteCode, EventDate, year, month, parameter = Parameter_env, Value_env, Value_rep, pct_diff)
+  head(diff_10)
+
+  pct_diff_kbl <-
+    make_kable(diff_10, cap =
+                 paste0("Measurements that are more than 10% different between ENV and REP.",
+                        "Negative values indicate the ENV value was greater than the REP. ",
+                        "Positive values indicate the ENV value was lower than the REP."))
+
+  max_diff = max(df_join$Value_env, df_join$Value_rep, na.rm = T)
+  max_pctdif = max(df_join$pct_diff, na.rm = T)
+
+  svl_diff <-
+    ggplot(data = df_join, aes(x = pct_diff)) +
+    geom_density(alpha = 0.5, fill = "#95a1b9", color = "#747e91") +
+    geom_vline(xintercept = 0, col = "#717171", linewidth = 0.75) +
+    labs(y = "Density", x = paste0(param_env, " % Difference")) +
+    theme(legend.position = 'none', panel.border = element_blank(), panel.background = element_blank()) +
+    annotate(geom = "label", x = -max_pctdif, y = Inf, label = "ENV > REP",
+             color = 'black', size = 4, hjust = 0, vjust = 1) +
+    annotate(geom = "label", x = max_pctdif, y = Inf, label = "ENV < REP",
+             color = 'black', size = 4, hjust = 1, vjust = 1) +
+    geom_vline(xintercept = 10, linetype = 'dashed', col = 'red', linewidth = 0.75) +
+    geom_vline(xintercept = -10, linetype = 'dashed', col = 'red', linewidth = 0.75) +
+    annotate(geom = 'label', x = 0, y = Inf, label = "Within 10%", fill = "white",
+             size = 4, hjust = 0.5, vjust = 1, alpha = 0.8)
+
+  assign(paste0("tbl_", param_env, "_10pct"), pct_diff_kbl, envir = .GlobalEnv)
+  assign(paste0("pctdiff_", param_env), svl_diff, envir = .GlobalEnv)
+
+  QC_table <- rbind(QC_table,
+                    QC_check(df = diff_10, meas_type = "Water Quality", tab = "ENV vs REP",
+                             check = paste0(param_env, " REP values that are greater than 10% different than ENV values."),
+                             chk_type = "check"))
+  return(QC_table)
+}
 
