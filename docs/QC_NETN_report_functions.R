@@ -211,7 +211,7 @@ svl_pct_check_env_rep <- function(param_env = NA, param_rep = NA){
     select(UnitCode, SiteCode, EventDate, year, month, parameter = Parameter_env, Value_env, Value_rep, pct_diff)
   head(diff_10)
 
-  pct_diff_kbl <-
+  pct_diff_kbl_rep <-
     make_kable(diff_10, cap =
                  paste0("Measurements that are more than 10% different between ENV and REP.",
                         "Negative values indicate the ENV value was greater than the REP. ",
@@ -220,7 +220,7 @@ svl_pct_check_env_rep <- function(param_env = NA, param_rep = NA){
   max_diff = max(df_join$Value_env, df_join$Value_rep, na.rm = T)
   max_pctdif = max(df_join$pct_diff, na.rm = T)
 
-  svl_diff <-
+  svl_diff_rep <-
     ggplot(data = df_join, aes(x = pct_diff)) +
     geom_density(alpha = 0.5, fill = "#95a1b9", color = "#747e91") +
     geom_vline(xintercept = 0, col = "#717171", linewidth = 0.75) +
@@ -235,8 +235,8 @@ svl_pct_check_env_rep <- function(param_env = NA, param_rep = NA){
     annotate(geom = 'label', x = 0, y = Inf, label = "Within 10%", fill = "white",
              size = 4, hjust = 0.5, vjust = 1, alpha = 0.8)
 
-  assign(paste0("tbl_", param_env, "_10pct"), pct_diff_kbl, envir = .GlobalEnv)
-  assign(paste0("pctdiff_", param_env), svl_diff, envir = .GlobalEnv)
+  assign(paste0("tbl_", param_env, "_10pct_rep"), pct_diff_kbl_rep, envir = .GlobalEnv)
+  assign(paste0("pctdiff_", param_env, "_rep"), svl_diff_rep, envir = .GlobalEnv)
 
   QC_table <- rbind(QC_table,
                     QC_check(df = diff_10, meas_type = "Water Quality", tab = "ENV vs REP",

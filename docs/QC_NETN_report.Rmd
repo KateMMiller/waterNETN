@@ -151,14 +151,14 @@ cat("\n\n")
 cat("#### QC Samples {.tabset}", "\n\n")
 
 ##### JESS ADDITION #####
-check_null_print(tbl_pH_10pct, 5, "pH diff")
+check_null_print(tbl_pH_Lab_10pct_rep, 5, "pH diff")
 cat("##### pH diff fig {.tabset}", "\n\n")
-pctdiff_pH
+pctdiff_pH_Lab_rep
 cat("\n\n")
 
-check_null_print(tbl_ChlA_ugL_10pct, 5, "ChlA diff")
+check_null_print(tbl_ChlA_ugL_10pct_rep, 5, "ChlA diff")
 cat("##### ChlA diff fig {.tabset}", "\n\n")
-pctdiff_ChlA_ugL
+pctdiff_ChlA_ugL_rep
 cat("\n\n")
 ```
 

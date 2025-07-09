@@ -11,13 +11,13 @@
 #  library(htmltools) # check what this is for before turning on
 #  library(DT)
 #  library(waterNETN)
-# importData(type = 'zip',
-#            filepath = "C:/Users/KMMiller/OneDrive - DOI/NETN/R_Dev/Water/data/records-2313941.zip")
+# # importData(type = 'zip',
+# #            filepath = "C:/Users/KMMiller/OneDrive - DOI/NETN/R_Dev/Water/data/records-2313941.zip")
 #  importData()
 #  year_curr = 2024
 #  year_range = 2006:2024
 #  all_years = TRUE
-# options(encoding = "UTF-8")
+# # options(encoding = "UTF-8")
 
 ###### Sample Events ######
 #----- SampEvs: Full Sampling Matrix ------
@@ -215,7 +215,7 @@ QC_table <- svl_pct_check_env_rep(param_env = "ChlA_ugL", param_rep = "ChlA_ugL"
 # Output of svl_pct_check: tbl_ChlA_EXO_ugL_10pct and pctdiff_ChlA_EXO_ugL
 
 # check if QC samples vs ENV checks returned at least 1 record to determine whether to include that tab in report
-qcsamp_check <- QC_table |> filter(Data %in% "QC Samples" & Num_Records > 0)
+qcsamp_check <- QC_table |> filter(Data %in% "ENV vs REP" & Num_Records > 0)
 qcsamp_include <- tab_include(qcsamp_check)
 
 #------ QC: BLANK samples ------
