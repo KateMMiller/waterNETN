@@ -11,13 +11,13 @@
 #  library(htmltools) # check what this is for before turning on
 #  library(DT)
 #  library(waterNETN)
-# importData(type = 'zip',
-#            filepath = "C:/Users/KMMiller/OneDrive - DOI/NETN/R_Dev/Water/data/records-2313941.zip")
+# # importData(type = 'zip',
+# #            filepath = "C:/Users/KMMiller/OneDrive - DOI/NETN/R_Dev/Water/data/records-2313941.zip")
 #  importData()
 #  year_curr = 2024
 #  year_range = 2006:2024
 #  all_years = TRUE
-# options(encoding = "UTF-8")
+# # options(encoding = "UTF-8")
 
 ###### Sample Events ######
 #----- SampEvs: Full Sampling Matrix ------
@@ -208,8 +208,14 @@ do899_check <- QC_table |> filter(Data %in% "DO 899 and 999" & Num_Records > 0)
 do899_include <- tab_include(do899_check)
 
 #------ QC: QC samples vs ENV samples ------
+#------ JESS ADDITION ------- ###################
+QC_table <- svl_pct_check_env_rep(param_env = "pH_Lab", param_rep = "pH_Lab")
+# Output of svl_pct_check: tbl_pH_10 and pctdiff_pH
+QC_table <- svl_pct_check_env_rep(param_env = "ChlA_ugL", param_rep = "ChlA_ugL")
+# Output of svl_pct_check: tbl_ChlA_EXO_ugL_10pct and pctdiff_ChlA_EXO_ugL
+
 # check if QC samples vs ENV checks returned at least 1 record to determine whether to include that tab in report
-qcsamp_check <- QC_table |> filter(Data %in% "QC Samples" & Num_Records > 0)
+qcsamp_check <- QC_table |> filter(Data %in% "ENV vs REP" & Num_Records > 0)
 qcsamp_include <- tab_include(qcsamp_check)
 
 #------ QC: BLANK samples ------
@@ -228,24 +234,37 @@ blank_kbl <- make_kable(blank, "Blank samples > 0.05")
 blank_check <- QC_table |> filter(Data %in% "BLANK Samples" & Num_Records > 0)
 blank_include <- tab_include(blank_check)
 
-#------ WQual: Secchi Depth ------
+# check if Quality Control checks returned at least 1 record to determine whether to include that tab in report
+qc_check <- QC_table |> filter(Type %in% "Quality Control" & Num_Records > 0)
+qc_include <- tab_include(qc_check)
+
+###### Water Quantity Checks ######
+#------ WQuant: Secchi Depth ------
 QC_table <- pct_check(param = "SDepth_m", meas_type = 'Water Quality', tab = 'Secchi Depth', chk_type = "check")
 
 # check if Secchi checks returned at least 1 record to determine whether to include that tab in report
 secchi_check <- QC_table |> filter(Data %in% "Secchi Depth" & Num_Records > 0)
 secchi_include <- tab_include(secchi_check)
 
-# check if Quality Control checks returned at least 1 record to determine whether to include that tab in report
-qc_check <- QC_table |> filter(Type %in% "Quality Control" & Num_Records > 0)
-qc_include <- tab_include(qc_check)
-
-###### Water Quantity Checks ######
+#------ WQuant: quantity percent checks ------
 QC_table <- pct_check(param = "WaterLevel_m", meas_type = 'Water Quantity', tab = 'Lake Level', chk_type = "check")
 QC_table <- pct_check(param = "Discharge_cfs", meas_type = 'Water Quantity', tab = 'Discharge', chk_type = "check")
 
 # check if Lake level checks returned at least 1 record to determine whether to include that tab in report
 lakelev_check <- QC_table |> filter(Data %in% "Lake Level" & Num_Records > 0)
 lakelev_include <- tab_include(lakelev_check)
+
+#------ WQuant: 0s that should be NA ------
+disch_0 <- getDischarge(year = year_range) |> filter(DischargeMethod %in% "No Measurement") |>
+  filter(!is.na(Discharge_cfs) | !is.na(AvgVel_fs)) |>
+  select(SiteCode, year, month, FlowStatus, DischargeMethod, Discharge_cfs, AvgVel_fs, Comments)
+
+QC_table <- rbind(QC_table,
+                  QC_check(disch_0, meas_type = "Water Quantity", tab = "Discharge",
+                           check = "Discharge or Velocities that should be blank.",
+                           chk_type = "error"))
+
+tbl_disch_0 <- make_kable(disch_0, "Discharge or Velocities that should be blank.")
 
 # check if discharge checks returned at least 1 record to determine whether to include that tab in report
 disch_check <- QC_table |> filter(Data %in% "Discharge" & Num_Records > 0)
