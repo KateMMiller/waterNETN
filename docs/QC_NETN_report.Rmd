@@ -193,5 +193,6 @@ cat("\n\n")
 cat("#### Discharge {.tabset}", "\n\n")
 check_null_print(tbl_Discharge_cfs_99, 5, "Disch. 99pct")
 check_null_print(tbl_Discharge_cfs_01, 5, "Disch. 01pct")
+check_null_print(tbl_disch_0, 5, "Disch. 0s")
 cat("\n\n")
 ```

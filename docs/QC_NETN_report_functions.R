@@ -213,9 +213,9 @@ svl_pct_check_env_rep <- function(param_env = NA, param_rep = NA){
 
   pct_diff_kbl_rep <-
     make_kable(diff_10, cap =
-                 paste0("Measurements that are more than 10% different between ENV and REP.",
+                 paste0("Lab measurements that are more than 10% different between ENV and REP. ",
                         "Negative values indicate the ENV value was greater than the REP. ",
-                        "Positive values indicate the ENV value was lower than the REP."))
+                        "Positive values indicate the ENV value was lower than the REP. "))
 
   max_diff = max(df_join$Value_env, df_join$Value_rep, na.rm = T)
   max_pctdif = max(df_join$pct_diff, na.rm = T)
