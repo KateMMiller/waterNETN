@@ -150,7 +150,6 @@ cat("\n\n")
 ```{r eval = qcsamp_include, results = 'asis', fig.height = 6, fig.width = 7}
 cat("#### QC Samples {.tabset}", "\n\n")
 
-##### JESS ADDITION #####
 check_null_print(tbl_pH_Lab_10pct_rep, 5, "pH diff")
 cat("##### pH diff fig {.tabset}", "\n\n")
 pctdiff_pH_Lab_rep
@@ -163,9 +162,16 @@ cat("\n\n")
 ```
 
 
-```{r eval = blank_include, results = 'asis'}
-check_null_print(blank_kbl, 4, "Blank Samples")
+```{r blanks, eval = blank_include, results = 'asis'}
+cat("#### Blank Samples {.tabset}", "\n\n")
 
+check_null_print(blank_kbl, 5, "TN TP")
+cat("\n\n")
+
+check_null_print(blank_kbl2, 5, "pH")
+cat("\n\n")
+
+check_null_print(blank_kbl3, 5, "ChlA")
 cat("\n\n")
 ```
 

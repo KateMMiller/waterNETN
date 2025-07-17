@@ -208,7 +208,6 @@ do899_check <- QC_table |> filter(Data %in% "DO 899 and 999" & Num_Records > 0)
 do899_include <- tab_include(do899_check)
 
 #------ QC: QC samples vs ENV samples ------
-#------ JESS ADDITION ------- ###################
 QC_table <- svl_pct_check_env_rep(param_env = "pH_Lab", param_rep = "pH_Lab")
 # Output of svl_pct_check: tbl_pH_10 and pctdiff_pH
 QC_table <- svl_pct_check_env_rep(param_env = "ChlA_ugL", param_rep = "ChlA_ugL")
@@ -219,6 +218,7 @@ qcsamp_check <- QC_table |> filter(Data %in% "ENV vs REP" & Num_Records > 0)
 qcsamp_include <- tab_include(qcsamp_check)
 
 #------ QC: BLANK samples ------
+# check if blank samples have TN TP values above 0.05
 blank <- getChemistry(parameter = c("TN_mgL", "TP_ugL"), years = year_range, QC_type = "BLANK") |>
   filter(!is.na(Value)) |>
   filter(Value > 0.05) |>
@@ -226,9 +226,33 @@ blank <- getChemistry(parameter = c("TN_mgL", "TP_ugL"), years = year_range, QC_
 
 QC_table <- rbind(QC_table,
                   QC_check(blank, meas_type = "Quality Control", tab = "BLANK Samples",
-                           check = "Blank samples > 0.05", chk_type = 'error'))
+                           check = "Blank samples with TN, TP > 0.05", chk_type = 'error'))
 
-blank_kbl <- make_kable(blank, "Blank samples > 0.05")
+blank_kbl <- make_kable(blank, "Blank samples with TN, TP > 0.05")
+
+#checks if blank samples have pH values below 5 and above 8
+blank2 <- getChemistry(parameter = c("pH"), years = year_range, QC_type = "BLANK") |>
+  filter(!is.na(Value)) |>
+  filter(Value <= 5.0 & Value >= 8.0) |>
+  select(UnitCode, SiteCode, EventDate, year, month, QCtype, SampleType, Parameter, Value, SampleDepth_m, LabCode)
+
+QC_table <- rbind(QC_table,
+                  QC_check(blank2, meas_type = "Quality Control", tab = "BLANK Samples",
+                           check = "Blank samples with pH < 5.0, > 8.0", chk_type = 'error'))
+
+blank_kbl2 <- make_kable(blank2, "Blank samples with pH < 5.0, > 8.0")
+
+# checks if blank samples have ChlA values above 0.05
+blank3 <- getChemistry(parameter = c("ChlA_ugL"), years = year_range, QC_type = "BLANK") |>
+  filter(!is.na(Value)) |>
+  filter(Value > 0.05) |>
+  select(UnitCode, SiteCode, EventDate, year, month, QCtype, SampleType, Parameter, Value, SampleDepth_m, LabCode)
+
+QC_table <- rbind(QC_table,
+                  QC_check(blank3, meas_type = "Quality Control", tab = "BLANK Samples",
+                           check = "Blank samples with ChlA  > 0.05", chk_type = 'error'))
+
+blank_kbl3 <- make_kable(blank3, "Blank samples with ChlA > 0.05")
 
 # check if QC samples vs ENV checks returned at least 1 record to determine whether to include that tab in report
 blank_check <- QC_table |> filter(Data %in% "BLANK Samples" & Num_Records > 0)
