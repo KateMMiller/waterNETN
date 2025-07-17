@@ -294,6 +294,21 @@ tbl_disch_0 <- make_kable(disch_0, "Discharge or Velocities that should be blank
 disch_check <- QC_table |> filter(Data %in% "Discharge" & Num_Records > 0)
 disch_include <- tab_include(disch_check)
 
+stage_0 <- getWaterLevel(year = year_range) |> filter(DatumName %in% "No Measurement") |>
+  filter(!is.na(GageReadingFeet)) |>
+  select(SiteCode, year, month, DatumName, GageReadingFeet)
+
+QC_table <- rbind(QC_table,
+                  QC_check(stage_0, meas_type = "Water Quantity", tab = "Stage",
+                           check = "Stage measurements that should be blank.",
+                           chk_type = "error"))
+
+tbl_stage_0 <- make_kable(stage_0, "Stage measurements that should be blank.")
+
+# check if stage checks returned at least 1 record to determine whether to include that tab in report
+stage_check <- QC_table |> filter(Data %in% "Stage" & Num_Records > 0)
+stage_include <- tab_include(stage_check)
+
 # check if Water Quantity checks returned at least 1 record to determine whether to include that tab in report
 wquant_check <- QC_table |> filter(Type %in% "Water Quantity" & Num_Records > 0)
 wquant_include <- tab_include(wquant_check)
