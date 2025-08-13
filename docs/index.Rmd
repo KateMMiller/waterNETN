@@ -6,6 +6,9 @@ title: "Using waterNETN R pkg."
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 options(width = 10)
+library(tidyverse)
+library(kableExtra)
+library(cowplot)
 ```
 
 ```{css echo = FALSE}
@@ -190,6 +193,41 @@ knitr::include_graphics("C:/Users/KMMiller/OneDrive - DOI/NETN/R_Dev/Water/water
 
 <li>If updating an existing DSN, follow similar process, except click on the DSN in the first window and select <i>Configure</i> instead of Add.</li>
 </ol>
+
+### Data Ingestion Step {.tabset}
+Before FileMaker Go files are ingested into the Access database, use the ingestion script to scrub placeholder values from the .xlsx files. This script serves to convert a multitude of placeholder values to NAs when “No measurement” is selected for Datum Name and/or Discharge Method in the FileMaker Go application. Additionally, it also converts certain placeholder values to NAs when “No water sample taken” is recorded in the application. The table below shows the FileMaker Go export placeholders that are converted to NAs for both Stream and Lake applications. 
+<br>
+
+```{r include = F}
+intbl <- data.frame(FMapp = c("Lake", "Lake", rep("Lake, Stream", 3), rep("Stream", 10)),
+                    FMcol = c("Stage_GageReading", "Stage_Time", "WaterSample_QC_IBWExp",
+                              "WaterSample_QC_Time", "WaterSample_Time", "Flow_AvgVel",
+                              "Flow_Discharge_calc", "Flow_Discharge_cfs", "Flow_TotalArea",
+                              "Flow_TotalWidth", "FlowTrackerTemp", "tbl_Stage::Stage_Reading_1",
+                              "tbl_Stage::Stage_Reading_2", "tbl_Stage::Stage_Time_1", 
+                              "tbl_Stage::Stage_Time_2"),
+                    FMexp = c("0", "00:00:00", "1/1/0001", "00:00:00", "00:00:00",
+                              "0", "0", "0", "0", "0", "0", "0", "0", "00:00:00", "00:00:00"),
+                    Ingest = c(rep("NA", 15)))
+
+inkbl <- kable(intbl, caption = "Table 1. Details of FileMaker ingestion script changes prior to MS Access import.",
+               col.names = c("FileMaker app", "FileMaker export column name", 
+                             "FileMaker export value", "Ingestion script replacement value"),
+               align = c("c", "l", "c", "c")) |> 
+         kableExtra::kable_styling(fixed_thead = T, bootstrap_options = c("condensed", "striped"),
+                                   full_width = T, position = 'left')
+
+```
+```{r echo = F}
+inkbl
+```
+
+
+There are two separate code chunks for Stream and Lake data. This is due to the difference in column names when the FileMaker Go application exports the data to .xlsx files. Please use the appropriate corresponding script when cleaning the data. 
+<br>
+At the end of the script, there is an option to write the cleaned data back to a new .csv file. You can name the file anything you’d like – I’d suggest naming the file with the traditional naming convention (e.g. ACAD_WQ_Streams_YYYY-MM), so Access is able to ingest the file without issues. 
+
+
 
 ### get Data functions {.tabset}
 #### getClimNOAA()
