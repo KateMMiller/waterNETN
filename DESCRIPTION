@@ -34,6 +34,7 @@ Collate:
     'plotScatterPlot.R'
     'plotTrend.R'
     'plotWaterBands.R'
+    'prepFMtoAccess.R'
     'sumEvents.R'
 Imports: 
     dplyr,
@@ -43,10 +44,12 @@ Imports:
 Suggests: 
     climateNETN,
     DBI,
+    hms,
     httr,
     jsonlite,
     odbc,
     raster,
+    readxl,
     rLakeAnalyzer,
     scales,
     sf,
