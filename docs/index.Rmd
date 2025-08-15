@@ -6,6 +6,9 @@ title: "Using waterNETN R pkg."
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 options(width = 10)
+library(tidyverse)
+library(kableExtra)
+library(cowplot)
 ```
 
 ```{css echo = FALSE}
@@ -190,6 +193,47 @@ knitr::include_graphics("C:/Users/KMMiller/OneDrive - DOI/NETN/R_Dev/Water/water
 
 <li>If updating an existing DSN, follow similar process, except click on the DSN in the first window and select <i>Configure</i> instead of Add.</li>
 </ol>
+
+### Data Ingestion Step {.tabset}
+Before FileMaker Go files are ingested into the MS Access database, use the `prepFMtoAccess()` function to scrub placeholder values from the exported .csv files. The function converts placeholder values that FileMaker uses to prevent null values to NAs when “No measurement” is selected for Datum Name and/or Discharge Method in the FileMaker Go application. Additionally, it converts certain placeholder values to NAs when “No water sample taken” is recorded in the application. The table below shows the FileMaker Go export placeholders that are converted to NAs for both Stream and Lake applications. 
+<br>
+
+```{r include = F}
+intbl <- data.frame(FMapp = c("Lake", "Lake", rep("Lake, Stream", 3), rep("Stream", 10)),
+                    FMcol = c("Stage_GageReading", "Stage_Time", "WaterSample_QC_IBWExp",
+                              "WaterSample_QC_Time", "WaterSample_Time", "Flow_AvgVel",
+                              "Flow_Discharge_calc", "Flow_Discharge_cfs", "Flow_TotalArea",
+                              "Flow_TotalWidth", "FlowTrackerTemp", "tbl_Stage::Stage_Reading_1",
+                              "tbl_Stage::Stage_Reading_2", "tbl_Stage::Stage_Time_1", 
+                              "tbl_Stage::Stage_Time_2"),
+                    FMexp = c("0", "00:00:00", "1/1/0001", "00:00:00", "00:00:00",
+                              "0", "0", "0", "0", "0", "0", "0", "0", "00:00:00", "00:00:00"),
+                    Ingest = c(rep("NA", 15)))
+
+inkbl <- kable(intbl, caption = "Table 1. Details of FileMaker ingestion script changes prior to MS Access import.",
+               col.names = c("FileMaker app", "FileMaker export column name", 
+                             "FileMaker export value", "Ingestion script replacement value"),
+               align = c("c", "l", "c", "c")) |> 
+         kableExtra::kable_styling(fixed_thead = T, bootstrap_options = c("condensed", "striped"),
+                                   full_width = T, position = 'left')
+
+```
+```{r echo = F}
+inkbl
+```
+
+The `prepFMtoAccess()` function requires users to specify the path and file name, and currently works with xlsx files for import and csv for export. The function will determine whether the data is from a lake or stream based on column names. The function then exports a csv in the same filepath and with the same excel_name with '_cleaned_' and the date added to the filename, and that is ready to be imported into MS Access. Note that function can only work with lake or stream data, not both in the same function call. Examples are below. Note that additional testing of the data and import in MS Access is necessary to ensure dates and GUIDs are importing properly. Depending on how the MS Access import works, the cleaned csv may need to be opened in Excel and saved as an xlsx. Better yet, the export from FileMaker is as a csv or txt file instead of xlsx. 
+
+<p class = 'fxn'>Clean lake data and return cleaned data in global environment.</p>
+```{r eval = F}
+prepFMtoAccess(filepath = "../data", excel_name = "ACAD_WQ_Lakes_2025-06.xlsx", keep_file = T)
+```
+
+<p class = 'fxn'>Clean stream data.</p>
+```{r eval = F}
+prepFMtoAccess(filepath = "../data", excel_name = "ACAD_WQ_Streams_2025-06.xlsx")
+```
+
 
 ### get Data functions {.tabset}
 #### getClimNOAA()
