@@ -39,7 +39,7 @@ exportData <- function(filepath = NA, zip = FALSE){
 
   # Make sure all the views are loaded. If anything is missing, function stops.
   view_list <- c("Chemistry_Data_Long", "Discharge_Data", "Event_Info", "Light_Penetration_Data",
-                 "Secchi_Data_Long", "Sites_Lake", "Sites_Stream", "Sonde_InSitu_Data_Long",
+                 "Secchi_Data", "Sites_Lake", "Sites_Stream", "Sonde_InSitu_Data",
                  "StageDatum_Info", "StreamSite_Observations", "WaterLevel_Data")
 
   files <- if(exists("VIEWS_WQ")){ls(envir = VIEWS_WQ)} else {ls()}
