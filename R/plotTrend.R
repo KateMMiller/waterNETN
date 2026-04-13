@@ -10,14 +10,15 @@
 #'
 #' @importFrom dplyr mutate select
 #' @import ggplot2
+#' @import RColorBrewer
 #'
 #' @description This function produces a line or smoothed trend plot filtered on park, site, year, month, and parameter.
-#' Works with both lab chemistry data and Sonde in situ data. If multiple sites are specified, they will be plotted
+#' Works with both lab chemistry data and sonde-in-situ data. If multiple sites are specified, they will be plotted
 #' on the same figure. If multiple parameters are specified, they will be plotted on separate figures. Note that
 #' if you specify a site and parameter combination that doesn't exist (e.g., a stream site and a parameter only
 #' collected in lakes), the function will return an error message instead of an empty plot.
 #'
-#' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
+#' @param park Character or character vector. Combine data from all parks or one or more parks at a time. Valid inputs:
 #' \describe{
 #' \item{"all"}{Includes all parks in the network}
 #' \item{"LNETN"}{Includes all parks but ACAD}
@@ -31,16 +32,16 @@
 #' \item{"SARA"}{Saratoga NHP only}
 #' \item{"WEFA"}{Weir Farm NHP only}}
 #'
-#' @param site Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".
+#' @param site Character or character vector. Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".
 #'
-#' @param site_type Combine all site types, lakes or streams. Not needed if specifying particular sites.
+#' @param site_type Character. Combine all site types, lakes or streams. Not needed if specifying particular sites.
 #' \describe{
 #' \item{"all"}{Default. Includes all site types, unless site or site_name select specific site types.}
 #' \item{"lake"}{Include only lakes.}
 #' \item{"stream"}{Include streams only.}
 #' }
 #'
-#' @param event_type Select the event type. Options available are below. Can only choose one option.
+#' @param event_type Character. Select the event type, can only choose one option. Valid inputs:
 #' \describe{
 #' \item{"all"}{All possible sampling events.}
 #' \item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
@@ -54,16 +55,55 @@
 #' events are between months 5 and 10, and these are set as the defaults.
 #'
 #' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns
-#' all sites that have been monitored.
+#' all sites.
 #'
-#' @param parameter Specify the parameter(s) to return. Current accepted values are:.
-#' chemistry: c("ANC_ueqL", "AppColor", "AppColor_PCU", "ChlA_ugL", "Cl_ueqL",
-#' "DOC_mgL", "NH3_mgL", "NO2_mgL", "NO2+NO3_mgL", "NO3_ueqL", "pH_Lab", "PO4_ugL", "SO4_ueqL",
-#' "TN_mgL", "TotDissN_mgL", "TotDissP_ugL", "TP_ugL")
-#' sonde: c("Temp_C", "Temp_F", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
-#' "Turbidity_FNU", "ChlA_EXO_RFU", "ChlA_EXO_ugL", "BP_mmHg").
-#' other: c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevel_Feet", "WaterLevel_m").
-#' Note that "all" is not an accepted value, because there are too many to plot.
+#' @param parameter Specify the parameter(s) to return.#' Note that "all" is not an accepted value, because there are too many to plot. Current accepted values are:\cr
+#'
+#'
+#'Chemistry
+#' \describe{
+#' \item{"ANC_ueqL}{Acid neutralizing capacity, in micrograms per liter}
+#' \item{"AppColor_PCU"}{Apparent  color, in platinum cobalt units}
+#' \item{"ChlA_ugL"}{Chlorophyll a, in micrograms per liter}
+#' \item{"Cl_ueqL"}{Chloride, in microequivalents per liter}
+#' \item{"DOC_mgL"}{Dissolved organic carbon, in miligrams per liter}
+#' \item{"NH3_mgL"}{Ammonia, in miligrams per liter}
+#' \item{"NO2_mgL"}{Nitrite, in miligrams per liter}
+#' \item{"NO2+NO3_mgL"}{Nitrite and nitrate, in miligrams per liter}
+#' \item{"NO3_ueqL"}{Nitrate, in micrograms per liter}
+#' \item{"pH_Lab"}{pH, as determined by lab}
+#' \item{"PO4_ugL"}{Phosphate, in micrograms per liter}
+#' \item{"SO4_ueqL"}{Sulfate, in micrograms per liter}
+#' \item{"TN_mgL"}{Total nitrogen, in micrograms per liter}
+#' \item{"TP_ugL"}{Total phosphorus, in micrograms per liter}
+#' \item{"TotDissN_mgL"}{Total dissolved nitrogen, in micrograms per liter}
+#' \item{"TotDissP_ugL"}{Total dissolved phosphorus, in micrograms per liter}}
+#'
+#'Sonde
+#' \describe{
+#' \item{"Temp_C"}{Temperature of the water sample in degrees celsius.}
+#' \item{"Temp_F"}{Temperature of the water sample in degrees fahrenheit.}
+#' \item{"SpCond_uScm"}{Specific conductivity of the water sample measured in microsiemens per liter.}
+#' \item{"DOsat_pct"}{Dissolved oxygen of the water sample measured in percent saturation.}
+#' \item{"DOsatLoc_pct"}{Post-deployment calibration checks.}
+#' \item{"DO_mgL"}{Dissolved oxygen of the water sample measured in milligrams per liter.}
+#' \item{"pH"}{Quantitative measure of the acidity or basicity of the water sample in pH standard units.}
+#' \item{"pHmV"}{Quantitative measure of the acidity or basicity of the water sample in millvolts.}
+#' \item{"Turbidity_FNU"}{Turbidity of water sample measured in formazin nephelometric units.}
+#' \item{"ChlA_EXO_RFU"}{Chlorophyll a (measure of algae and cyanobacteria) of the water sample in milligrams per liter.}
+#' \item{"ChlA_EXO_ugL"}{Chlorophyll a (measure of algae and cyanobacteria) of the water sample in micrograms per liter.}
+#' \item{"BP_mmHg"}{Barometric pressure, measured in millimeters of mercury.}
+#' }
+#'
+#'Other
+#'  \describe{
+#' \item{"SDepth_m"}{Secchi disk depth, measured in meters.}
+#' \item{"Discharge_cfs"}{Total discharge; units are cubic feet per second (ft^3/s).}
+#' \item{"PenetrationRatio"}{Specific conductivity of the water sample measured in microsiemens per liter.}
+#' \item{"WaterLevel_Feet"}{Value calculated by adding gage reading to datum elevation (decimal feet).}
+#' \item{"WaterLevel_m"}{Value calculated by adding gage reading to datum elevation (meters).}
+#' }
+#'
 #'
 #' @param include_censored Logical. If TRUE, the value column includes non-censored and censored values
 #' using the MDL/MRL/UQL values in the parameter flags. If the Flag column is not NA, that indicates
@@ -74,9 +114,9 @@
 #' sample depth of samples collected within 2m of the surface. Note that for the Penetration Ratio parameter,
 #' all sample depths are plotted. Plotting all depths may return a funky plot for other parameters.
 #'
-#' @param layers Options are "points" and "lines". By default, both will plot.
+#' @param layers Character. Options are "points" and "lines". By default, both will plot.
 #'
-#' @param palette Theme to plot points and lines. Options include 'viridis' (Default- ranges of blue,
+#' @param palette Character. Theme to plot points and lines. Options include 'viridis' (Default- ranges of blue,
 #' green and yellow), magma (yellow, red, purple), plasma (brighter version of magma), turbo (rainbow),
 #' or specify a vector of colors manually. If fewer colors than parameters are specified, they will be
 #' ramped to generate enough colors.
@@ -90,13 +130,13 @@
 #' @param span Numeric. Determines how smoothed the line will be for smooth = TRUE. Default is 0.3. Higher spans (up to 1)
 #' cause more smoothing. Span can range from 0 to 1.
 #'
-#' @param legend_position Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
+#' @param legend_position Character. Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
 #' options are "top", "bottom", "left", "right".
 #'
-#' @param numcol Specify number of columns in the facet wrap, which is only enabled when either multiple years
+#' @param numcol Numeric. Specify number of columns in the facet wrap, which is only enabled when either multiple years
 #' are specified or multiple parks. Default is 2.
 #'
-#' @param gridlines Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")
+#' @param gridlines Specify whether to add gridlines or not. Options are: "none" (Default), "grid_y", "grid_x", "both".
 #'
 #' @param ... Additional arguments relevant to \code{getChemistry()} or \code{getSondeInSitu()}
 #'
@@ -105,14 +145,14 @@
 #'
 #' # Plot smoothed surface pH for Eagle Lake for past 3 years using default span of 0.3 and by
 #' # default not including the legend.
-#' plotTrend(site = "ACEAGL", parameter = "pH", palette = 'Dark2', years = 2021:2023) + theme_WQ()
+#' plotTrend(site = "ACEAGL", parameter = "pH", palette = 'mako', years = 2021:2023) + theme_WQ()
 #'
 #' # Plot smoothed surface pH for Eagle Lake for all years, removing the legend and using span of 0.75.
 #' plotTrend(site = "ACEAGL", parameter = "pH", span = 0.75)
 #'
 #' # Plot smoothed Secchi Depth in Jordan Pond for all years, including the legend,
 #' # different color palette, and using span of 0.75.
-#' plotTrend(site = "ACJORD", parameter = "SDepth_m", span = 0.75, palette = 'Set1')
+#' plotTrend(site = "ACJORD", parameter = "SDepth_m", span = 0.75, palette = 'viridis')
 #'
 #' # Plot smoothed surface pH for active SARA streams over all years with 0.6 span.
 #' plotTrend(park = "SARA", site = c("SARASA", "SARASC", "SARASD"), site_type = "stream",
