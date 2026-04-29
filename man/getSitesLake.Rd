@@ -12,7 +12,7 @@ getSitesLake(
 )
 }
 \arguments{
-\item{park}{Combine data from all parks or one or more parks at a time. Valid inputs:
+\item{park}{Character or character vector. Combine data from all parks (by UnitCode) or one or more parks at a time. Valid inputs:
 \describe{
 \item{"all"}{Includes all parks in the network}
 \item{"LNETN"}{Includes all parks but ACAD}
@@ -26,9 +26,9 @@ getSitesLake(
 \item{"SARA"}{Saratoga NHP only}
 \item{"WEFA"}{Weir Farm NHP only}}}
 
-\item{site}{Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
+\item{site}{Character or character vector. Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
 
-\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
+\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites.}
 
 \item{output}{Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)}
 }
@@ -39,7 +39,6 @@ Data frame of site info for lakes
 Queries NETN lakes by site.
 }
 \examples{
-\dontrun{
 importData()
 
 # get site info for all lakes in lowerNETN
@@ -49,5 +48,4 @@ lnetn_lks <- getSitesLake(park = lnetn)
 # get site info for all lakes in ACAD
 ACAD_lakes <- getSitesLake(park = 'ACAD')
 
-}
 }

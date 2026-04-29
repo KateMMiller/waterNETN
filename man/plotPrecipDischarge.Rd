@@ -18,7 +18,7 @@ plotPrecipDischarge(
 )
 }
 \arguments{
-\item{park}{Combine data from all parks or one or more parks at a time. Valid inputs:
+\item{park}{Character or character vector. Combine data from all parks or one or more parks at a time. Valid inputs:
 \describe{
 \item{"all"}{Includes all parks in the network}
 \item{"LNETN"}{Includes all parks but ACAD}
@@ -32,16 +32,16 @@ plotPrecipDischarge(
 \item{"SARA"}{Saratoga NHP only}
 \item{"WEFA"}{Weir Farm NHP only}}}
 
-\item{site}{Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
+\item{site}{Character or character vector. Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
 
 \item{years}{Numeric. Years to query. Accepted values start at 2006.}
 
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 events are between months 5 and 10, and these are set as the defaults.}
 
-\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
+\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites.}
 
-\item{rating}{Filter on measurement rating. Can choose multiple. Default is all.
+\item{rating}{Character. Filter on measurement rating. Can choose multiple. Default is all.
 \describe{
 \item{"all"}{All measurements}
 \item{"E"}{Excellent}
@@ -50,30 +50,33 @@ events are between months 5 and 10, and these are set as the defaults.}
 \item{"P"}{Poor}
 }}
 
-\item{units}{Specify if you want Scientific or English units. Acceptable values are "sci" (default) and "eng".
+\item{units}{Character. Specify if you want Scientific or English units. Acceptable values are "sci" (default) and "eng".
 If "sci" precipitation units are mm; if "eng", precipitation units are in inches.}
 
-\item{palette}{Change colors of precipitation bar plot and discharge point and line plot. Default is c('#257EF6', 'black'), which are dark blue for precipitation,
+\item{palette}{Character vector. Change colors of precipitation bar plot and discharge point and line plot. Default is c('#257EF6', 'black'), which are dark blue for precipitation,
 and black for discharge. Y axes are color coded the same.}
 
-\item{legend_position}{Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
+\item{legend_position}{Character. Specify location of legend. To turn legend off, use legend_position = "none" (Default). Other
 options are "top", "bottom", "left", "right".}
 
-\item{gridlines}{Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")}
+\item{gridlines}{Character. Specify whether to add gridlines or not. Options are: "none" (Default), "grid_y", "grid_x", "both".}
 }
 \value{
 Returns a ggplot object of specified climate trends
 }
 \description{
-This function produces a plot with dual y-axes, one for precipitation an done for discharge.
+This function produces a plot with dual y-axes, one for precipitation, and one for discharge.
 The x-axis is date. If multiple sites and/or years are specified, they will be plotted as separate figures.
-Note that lines aren't plotted for discharge because discharge likely varies a lot between samples.
+Note that lines aren't plotted for discharge, because discharge is likely to vary a lot between samples.
 }
 \examples{
 \dontrun{
 
 # Plot daily precipitation vs discharge for Mill Brook in MIMA for past 6 years using default colors.
 plotPrecipDischarge(site = c("MIMASA"), years = 2019:2024)
+
+# Plot daily precipitation vs discharge for all ROVA sites in 2021, only accepting observations of"Excellent", "Good", or "Fair".
+plotPrecipDischarge(park = "ROVA", years = 2021, rating = c("E", "G", "F"))
 
 # Plot daily precipitation versus discharge for Aunt Betty Inlet and Kebo Stream for 2024 using different colors.
 # Note that this can be slow because has to download precip. data from NADP.

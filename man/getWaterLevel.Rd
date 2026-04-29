@@ -15,7 +15,7 @@ getWaterLevel(
 )
 }
 \arguments{
-\item{park}{Combine data from all parks or one or more parks at a time. Valid inputs:
+\item{park}{Character or Character vector. Combine data from all parks  (by UnitCode) or one or more parks at a time. Valid inputs:
 \describe{
 \item{"all"}{Includes all parks in the network}
 \item{"LNETN"}{Includes all parks but ACAD}
@@ -29,9 +29,9 @@ getWaterLevel(
 \item{"SARA"}{Saratoga NHP only}
 \item{"WEFA"}{Weir Farm NHP only}}}
 
-\item{site}{Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
+\item{site}{Character or character vector. Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
 
-\item{site_type}{Combine all site types, lakes or streams. Not needed if specifying particular sites.
+\item{site_type}{Character. Combine all site types (SiteType), lakes or streams. Not needed if specifying particular sites.
 \describe{
 \item{"all"}{Default. Includes all site types, unless site or site_name select specific site types.}
 \item{"lake"}{Include only lakes.}
@@ -40,7 +40,7 @@ getWaterLevel(
 
 \item{years}{Numeric. Years to query. Accepted values start at 2006.}
 
-\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
+\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites.}
 
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 events are between months 5 and 10, and these are set as the defaults.}
@@ -54,14 +54,15 @@ Data frame of water level data
 Queries NETN water level data by site, year, and month.
 }
 \examples{
-\dontrun{
 importData()
 
 # Get water level data for Bubble Pond.
 bubl <- getWaterLevel(site = "ACBUBL", years = 2013:2023)
 
-Get water level data for Weir Pond in August.
+#Get water level data for Weir Pond in August.
 weir <- getWaterLevel(site = "WEFAPA", months = 8)
 
-}
+#Get water level data for ACAD lakes in July 2023.
+sara <- getWaterLevel(park = "ACAD", years = 2023, months = 7)
+
 }

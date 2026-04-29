@@ -9,24 +9,22 @@ prepFMtoAccess(filepath = NA, excel_name = NA, keep_file = F)
 \arguments{
 \item{filepath}{Quoted path where FileMaker export lives, and where the output from the function will be exported.}
 
-\item{excel_name}{Quoted name of the FileMaker export file, including the .xlsx}
+\item{excel_name}{Quoted name of the FileMaker export file. Must include the .xlsx file extension.}
 
 \item{keep_file}{Logical. If TRUE, will return a file to the global environment called cleaned_data. If FALSE (default),
 will only export the file as an .xlsx.}
 }
 \value{
-Saves an xlsx file with cleaned water data ready for MS Access import.
+Saves a .xlsx file with cleaned water data ready for MS Access import.
 }
 \description{
-This function ingests the excel file that is exported from the FileMaker app for the NETN water monitoring program
-and prepares data for importing in the the MS Access database. Users must specify the path and file name. The
+This function ingests the NETN water monitoring program excel file that is exported from the FileMaker app,
+and prepares the data for importing intp the the MS Access database. Users must specify the path and file name. The
 function will determine whether the data is from a lake or stream based on column names. The function then exports
-a csv file in the same filepath and with the same excel_name with '\emph{cleaned}' and the date added to the filename, and
-that is ready to be imported into MS Access. Note that function can only work with lake or stream data, not both
+a csv file in the same filepath with '\emph{cleaned}' and the date added to the filename. This file is ready to be imported into MS Access. Note that this function can only work with lake or stream data, not both
 in the same function call. The output is intentionally a csv instead of xlsx because of the funky things Excel does to dates.
 }
 \examples{
-\dontrun{
 
 library(waterNETN)
 
@@ -35,7 +33,4 @@ prepFMtoAccess(filepath = "../data", excel_name = "ACAD_WQ_Lakes_2025-06.xlsx", 
 
 # prep Stream data
 prepFMtoAccess(filepath = "../data", excel_name = "ACAD_WQ_Stream_2025-06.xlsx")
-
-}
-
 }

@@ -55,7 +55,6 @@
 #' \item{"Temp_F"}{Temperature of the water sample in degrees fahrenheit.}
 #' \item{"SpCond_uScm"}{Specific conductivity of the water sample measured in microsiemens per liter.}
 #' \item{"DOsat_pct"}{Dissolved oxygen of the water sample measured in percent saturation.}
-#' \item{"DOsatLoc_pct"}{Post-deployment calibration checks.}
 #' \item{"DO_mgL"}{Dissolved oxygen of the water sample measured in milligrams per liter.}
 #' \item{"pH"}{Quantitative measure of the acidity or basicity of the water sample in pH standard units.}
 #' \item{"pHmV"}{Quantitative measure of the acidity or basicity of the water sample in millvolts.}

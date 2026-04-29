@@ -15,7 +15,7 @@ sumEvents(
 )
 }
 \arguments{
-\item{park}{Combine data from all parks or one or more parks at a time. Valid inputs:
+\item{park}{Character or character vector. Combine data from all parks (by UnitCode) or one or more parks at a time. Valid inputs:
 \describe{
 \item{"all"}{Includes all parks in the network}
 \item{"LNETN"}{Includes all parks but ACAD}
@@ -29,16 +29,16 @@ sumEvents(
 \item{"SARA"}{Saratoga NHP only}
 \item{"WEFA"}{Weir Farm NHP only}}}
 
-\item{site}{Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
+\item{site}{Character or character vector. Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
 
-\item{site_type}{Combine all site types, lakes or streams. Not needed if specifying particular sites.
+\item{site_type}{Character. Combine all site types (SiteType), lakes or streams. Not needed if specifying particular sites.
 \describe{
 \item{"all"}{Default. Includes all site types, unless site or site_name select specific site types.}
 \item{"lake"}{Include only lakes.}
 \item{"stream"}{Include streams only.}
 }}
 
-\item{event_type}{Select the event type. Options available are below Can only choose one option.
+\item{event_type}{Character. Select the event type (Project), can only choose one option. Valid inputs:
 \describe{
 \item{"all"}{All possible sampling events.}
 \item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
@@ -48,23 +48,59 @@ sumEvents(
 
 \item{years}{Numeric. Years to query. Accepted values start at 2006.}
 
-\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites
-that have been monitored.}
+\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites.}
 
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 events are between months 5 and 10, and these are set as the defaults.}
 
-\item{parameter}{Specify the parameter(s) to return. Current accepted values are:.
-chemistry: c("ANC_ueqL", "AppColor", "AppColor_PCU", "ChlA_ugL", "Cl_ueqL",
-"DOC_mgL", "NH3_mgL", "NO2_mgL", "NO2+NO3_mgL", "NO3_ueqL", "pH_Lab", "PO4_ugL", "SO4_ueqL",
-"TN_mgL", "TotDissN_mgL", "TotDissP_ugL", "TP_ugL")
-sonde: c("Temp_C", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
-"Turbidity_FNU", "ChlA_EXO_RFU", "ChlA_EXO_ugL", "BP_mmHg").
-other: c("SDepth_m", "Discharge_cfs", "PenetrationRatio", "WaterLevel_Feet", "WaterLevel_m").
-Note that "all" is the default value.}
+\item{parameter}{Specify the parameter(s) (Parameter) to return. Note that "all" is the default value. Current accepted values are: \cr
+
+Chemistry
+\describe{
+\item{"ANC_ueqL}{Acid neutralizing capacity, in micrograms per liter}
+\item{"AppColor_PCU"}{Apparent  color, in platinum cobalt units}
+\item{"ChlA_ugL"}{Chlorophyll a, in micrograms per liter}
+\item{"Cl_ueqL"}{Chloride, in microequivalents per liter}
+\item{"DOC_mgL"}{Dissolved organic carbon, in miligrams per liter}
+\item{"NH3_mgL"}{Ammonia, in miligrams per liter}
+\item{"NO2_mgL"}{Nitrite, in miligrams per liter}
+\item{"NO2+NO3_mgL"}{Nitrite and nitrate, in miligrams per liter}
+\item{"NO3_ueqL"}{Nitrate, in micrograms per liter}
+\item{"pH_Lab"}{pH, as determined by lab}
+\item{"PO4_ugL"}{Phosphate, in micrograms per liter}
+\item{"SO4_ueqL"}{Sulfate, in micrograms per liter}
+\item{"TN_mgL"}{Total nitrogen, in micrograms per liter}
+\item{"TP_ugL"}{Total phosphorus, in micrograms per liter}
+\item{"TotDissN_mgL"}{Total dissolved nitrogen, in micrograms per liter}
+\item{"TotDissP_ugL"}{Total dissolved phosphorus, in micrograms per liter}}
+
+Sonde
+\describe{
+\item{"Temp_C"}{Temperature of the water sample in degrees celsius.}
+\item{"Temp_F"}{Temperature of the water sample in degrees fahrenheit.}
+\item{"SpCond_uScm"}{Specific conductivity of the water sample measured in microsiemens per liter.}
+\item{"DOsat_pct"}{Dissolved oxygen of the water sample measured in percent saturation.}
+\item{"DOsatLoc_pct"}{Post-deployment calibration checks.}
+\item{"DO_mgL"}{Dissolved oxygen of the water sample measured in milligrams per liter.}
+\item{"pH"}{Quantitative measure of the acidity or basicity of the water sample in pH standard units.}
+\item{"pHmV"}{Quantitative measure of the acidity or basicity of the water sample in millvolts.}
+\item{"Turbidity_FNU"}{Turbidity of water sample measured in formazin nephelometric units.}
+\item{"ChlA_EXO_RFU"}{Chlorophyll a (measure of algae and cyanobacteria) of the water sample in milligrams per liter.}
+\item{"ChlA_EXO_ugL"}{Chlorophyll a (measure of algae and cyanobacteria) of the water sample in micrograms per liter.}
+\item{"BP_mmHg"}{Barometric pressure, measured in millimeters of mercury.}
+}
+
+Other
+\describe{
+\item{"SDepth_m"}{Secchi disk depth, measured in meters.}
+\item{"Discharge_cfs"}{Total discharge; units are cubic feet per second (ft^3/s).}
+\item{"PenetrationRatio"}{Specific conductivity of the water sample measured in microsiemens per liter.}
+\item{"WaterLevel_Feet"}{Value calculated by adding gage reading to datum elevation (decimal feet).}
+\item{"WaterLevel_m"}{Value calculated by adding gage reading to datum elevation (meters).}
+}}
 }
 \value{
-Data frame of summarize event info
+Data frame of summarize event info.
 }
 \description{
 Summarize the number of samples collected at each site by year, month, parameter, and

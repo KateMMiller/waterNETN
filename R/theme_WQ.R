@@ -5,12 +5,12 @@
 #' @description This function customizes a theme for plotting NETN water data, including removing the
 #' default panel grids from ggplot2 figures.
 #'
-#' @return This function must be used in conjunction with a ggplot object
+#' @return This function must be used in conjunction with a ggplot object.
 #'
 #' @examples
 #' {
 #'
-#'  # See plotTrend() function example
+#' # See plotTrend()for function example
 #'
 #'}
 #' @export

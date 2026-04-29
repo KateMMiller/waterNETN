@@ -10,7 +10,6 @@
 #'
 #' @importFrom dplyr mutate select
 #' @import ggplot2
-#' @import RColorBrewer
 #'
 #' @description This function produces a line or smoothed trend plot filtered on park, site, year, month, and parameter.
 #' Works with both lab chemistry data and sonde-in-situ data. If multiple sites are specified, they will be plotted
@@ -117,7 +116,7 @@
 #' @param layers Character. Options are "points" and "lines". By default, both will plot.
 #'
 #' @param palette Character. Theme to plot points and lines. Options include 'viridis' (Default- ranges of blue,
-#' green and yellow), magma (yellow, red, purple), plasma (brighter version of magma), turbo (rainbow),
+#' green and yellow), magma (yellow, red, purple), plasma (brighter version of magma), turbo (rainbow), RColorBrewer palettes,
 #' or specify a vector of colors manually. If fewer colors than parameters are specified, they will be
 #' ramped to generate enough colors.
 #'
@@ -143,8 +142,7 @@
 #' @examples
 #' \dontrun{
 #'
-#' # Plot smoothed surface pH for Eagle Lake for past 3 years using default span of 0.3 and by
-#' # default not including the legend.
+#' Plot non-smoothed surface pH for Eagle Lake for all years with gridlines on y-axis.
 #' plotTrend(site = "ACEAGL", parameter = "pH", palette = 'mako', years = 2021:2023) + theme_WQ()
 #'
 #' # Plot smoothed surface pH for Eagle Lake for all years, removing the legend and using span of 0.75.
@@ -347,10 +345,15 @@ plotTrend <- function(park = "all", site = "all",
   xbreaks <- time_mat$x_axis[x_row_breaks]
   xlabs <- time_mat$x_label[x_row_breaks]
 
+  if(!palette %in% "viridis"){
+    if(!requireNamespace("RColorBrewer", quietly = TRUE)){
+      stop("Package 'RColorBrewer' needed if palette is anything but 'viridis'. Please install it.",
+           call. = FALSE)
+    }}
+
   vir_pal = ifelse(palette %in%
                      c("viridis", "magma", "plasma", "turbo", "mako", "rocket", "cividis", "inferno"),
                    "viridis", "colbrew")
-
   pal <-
     if(any(vir_pal == "colbrew")){
         colorRampPalette(palette)(length(parameter) * length(unique(wdat2$SiteCode)))

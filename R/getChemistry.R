@@ -115,7 +115,7 @@
 #'
 #' # get ANC for lower NETN parks from May to Oct
 #' lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
-#' anc <- getChemistry(park = lnetn, param = "ANC", months = 5:10)
+#' anc <- getChemistry(park = lnetn, parameter = "ANC_ueqL", months = 5:10)
 #' @export
 
 getChemistry <- function(park = "all", site = "all",

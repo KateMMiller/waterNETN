@@ -6,7 +6,7 @@
 #'
 #' @importFrom dplyr  filter inner_join left_join
 #'
-#' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
+#' @param park Character or Character vector. Combine data from all parks  (by UnitCode) or one or more parks at a time. Valid inputs:
 #' \describe{
 #' \item{"all"}{Includes all parks in the network}
 #' \item{"LNETN"}{Includes all parks but ACAD}
@@ -20,9 +20,9 @@
 #' \item{"SARA"}{Saratoga NHP only}
 #' \item{"WEFA"}{Weir Farm NHP only}}
 #'
-#' @param site Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".
+#' @param site Character or character vector. Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".
 #'
-#' @param site_type Combine all site types, lakes or streams. Not needed if specifying particular sites.
+#' @param site_type Character. Combine all site types (SiteType), lakes or streams. Not needed if specifying particular sites.
 #' \describe{
 #' \item{"all"}{Default. Includes all site types, unless site or site_name select specific site types.}
 #' \item{"lake"}{Include only lakes.}
@@ -34,23 +34,24 @@
 #' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 #' events are between months 5 and 10, and these are set as the defaults.
 #'
-#' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
+#' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites.
 #'
 #' @param output Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)
 #'
 #' @return Data frame of water level data
 #'
 #' @examples
-#' \dontrun{
 #' importData()
 #'
 #' # Get water level data for Bubble Pond.
 #' bubl <- getWaterLevel(site = "ACBUBL", years = 2013:2023)
 #'
-#' Get water level data for Weir Pond in August.
+#' #Get water level data for Weir Pond in August.
 #' weir <- getWaterLevel(site = "WEFAPA", months = 8)
 #'
-#'}
+#' #Get water level data for ACAD lakes in July 2023.
+#' acad_jul <- getWaterLevel(park = "ACAD", years = 2023, months = 7)
+#'
 #' @export
 
 getWaterLevel <- function(park = "all", site = "all",

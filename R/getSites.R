@@ -2,12 +2,12 @@
 #'
 #' @description Queries NETN water data by site. Returned data frame can include lakes or streams, but only includes
 #' columns that the Site_Lake and Site_Stream views have in common. For full site data, use the site-specific getSites()
-#' functions (i.e., getSitesLakes()). This function is a useful building block within other package functions. Must
+#' functions (getSitesLake(), getSitesStream()). This function is a useful building block within other package functions. Must
 #' have water quality views imported in R session.
 #'
 #' @importFrom dplyr filter
 #'
-#' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
+#' @param park Character or character vector. Combine data from all parks (by UnitCode) or one or more parks at a time. Valid inputs:
 #' \describe{
 #' \item{"all"}{Includes all parks in the network}
 #' \item{"LNETN"}{Includes all parks but ACAD}
@@ -21,9 +21,9 @@
 #' \item{"SARA"}{Saratoga NHP only}
 #' \item{"WEFA"}{Weir Farm NHP only}}
 #'
-#' @param site Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".
+#' @param site Character or character vector. Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".
 #'
-#' @param site_type Combine all site types, lakes or streams. Not needed if specifying particular sites.
+#' @param site_type Character or character vector. Combine all site types, lakes or streams. Not needed if specifying particular sites.
 #' \describe{
 #' \item{"all"}{Default. Includes all site types, unless site or site_name select specific site types.}
 #' \item{"lake"}{Include only lakes.}
@@ -37,7 +37,6 @@
 #' @return Data frame of site info
 #'
 #'@examples
-#' \dontrun{
 #' importData()
 #'
 #' # get site info for all sites in MABI
@@ -46,9 +45,8 @@
 #' # get site info for all streams in ACAD
 #' ACAD_streams <- getSites(park = 'ACAD', site_type = 'stream')
 #'
-#' # get site info for Primrose Brook in MORR
-#' prim <- getSites(site = "MORRSB")
-#' }
+#' # get all fields of site info for Primrose Brook in MORR
+#' prim <- getSites(site = "MORRSB", output = "verbose")
 #' @export
 
 getSites <- function(park = "all", site = "all", site_type = c("all", "lake", "stream"),
@@ -89,15 +87,6 @@ getSites <- function(park = "all", site = "all", site_type = c("all", "lake", "s
                 paste0(sort(sites$SiteCode), collapse = ", ")))
   }
 
-  # site <- tryCatch(match.arg(site, several.ok = TRUE, c("all", unique(sites$SiteCode))),
-  #                  error = function(e){stop(
-  #                    paste0(
-  #                    "Specified site does not match an accepted site code.
-  #                    Acceptable codes are: ",
-  #                    "\n",
-  #                    paste0(sort(sites$SiteCode), collapse = "\n")))}
-  #                  )
-
   #-- Filter site info --
   site_cols <- intersect(names(streams), names(lakes))
 
@@ -123,6 +112,8 @@ getSites <- function(park = "all", site = "all", site_type = c("all", "lake", "s
   inactive = c("ACBUBO", "ACEGLO", "ACJRDO", "ACMOWB", "ACBOWL", "ACSAMP",
                "MORRSA", "MORRSC", "ROVASC", "SARASB", #streams
                "ACDKPD", "ACLPIH", "ACTARN", "ROVAPA", "SAGAPA") # lakes
+
+
   wdata3 <-
   if(active == TRUE){
     filter(wdata2, !SiteCode %in% inactive)

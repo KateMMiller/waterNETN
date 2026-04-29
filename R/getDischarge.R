@@ -23,7 +23,7 @@
 #'
 #' @param site Character or character vector. Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".
 #'
-#' @param event_type Character. Select the event type ("Project" in WQ Views), can only choose one option. Valid inputs:
+#' @param event_type Character. Select the event type (Project), can only choose one option. Valid inputs:
 #' \describe{
 #' \item{"all"}{All possible sampling events.}
 #' \item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
@@ -75,7 +75,7 @@
 #' mabi <- getDischarge(park = "ROVA", years = 2021:2023)
 #'
 #' # get discharge for ACAD streams in July 2023
-#' sara <- getDischarge(park = "ACAD", years = 2023, months = 7)
+#' acad_dis <- getDischarge(park = "ACAD", years = 2023, months = 7)
 #'
 #' # get discharge measured with Flowtracker
 #' flow <- getDischarge(method = c("Flowtracker"))
@@ -101,7 +101,7 @@ getDischarge <- function(park = "all", site = "all", event_type = "VS",
   stopifnot(class(months) %in% c("numeric", "integer"), months %in% c(1:12))
   stopifnot(class(active) == "logical")
   method <- match.arg(method, several.ok = TRUE,
-                      c("all", "Flowtracker", "Pygmy", "Flume", "Flowtracker",
+                      c("all", "Flowtracker", "Flume",
                         "Pygmy", "No Measurement", "Rating curve estimate", "Timed float",
                         "USGS Gage", "Visual estimate", "Volumetric"))
   rating <- match.arg(rating, several.ok = T, c("all", "E", "G", "F", "P"))

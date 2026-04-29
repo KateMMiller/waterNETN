@@ -8,7 +8,7 @@
 #' @importFrom purrr pmap_dfr possibly
 #' @import ggplot2
 #'
-#' @description This function produces a heatmap filtered on park (mostly for ACAD), site, year, month, Sonde in situ
+#' @description This function produces a heatmap filtered on park (mostly for ACAD), site, year, month, sonde-in-situ
 #' parameter and either sample relative to the surface or relative to surface elevation. The y-axis is 1m bins for ACAD
 #' and 0.25m bins for LNETN. If multiple samples are taken within the same bin, the median value is used. The width of
 #' the profile columns reflects the number of days between sample events, centered on the day sampled. Shorter intervals
@@ -19,7 +19,7 @@
 #' that doesn't exist (e.g., a year a lake isn't sampled), the function will return an error message instead of an empty
 #' plot.
 #'
-#' @param park Combine data from all parks or one or more parks at a time. Because ACAD lakes are binned by 1m intervals,
+#' @param park Character. Combine data from all parks or one or more parks at a time. Because ACAD lakes are binned by 1m intervals,
 #' and LNETN are binned by 0.25m intervals, 'all' is not an option. You either must specify "ACAD" (default), "LNETN" or a LNETN park
 #' with profile data. Valid inputs:
 #' \describe{
@@ -32,11 +32,12 @@
 #' \item{"SAGA"}{Saint-Gaudens NHP only}
 #' \item{"SAIR"}{Saugus Iron Works NHS only}
 #' \item{"SARA"}{Saratoga NHP only}
-#' \item{"WEFA"}{Weir Farm NHP only}}
+#' \item{"WEFA"}{Weir Farm NHP only}
+#' }
 #'
-#' @param site Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".
+#' @param site Character or character vector. Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".
 #'
-#' @param event_type Select the event type. Options available are below Can only choose one option.
+#' @param event_type Character. Select the event type, can only choose one option. Valid inputs:
 #' \describe{
 #' \item{"all"}{All possible sampling events.}
 #' \item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
@@ -50,24 +51,36 @@
 #' @param months Numeric. Months to query by number. This function is restricted to months 5:10. X-axis may plot weird if specifying
 #' anything but 5:10 for months.
 #'
-#' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
+#' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites.
 #'
-#' @param parameter Specify the parameter to return (can only choose 1 per function call). Current
+#' @param parameter Character. Specify the parameter to return (can only choose 1 per function call). Current
 #' accepted values are:
-#' c("Temp_C", "Temp_F", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
-#'  "Turbidity_FNU", "ChlA_EXO_RFU", "ChlA_EXO_ugL", "BP_mmHg").
+#' \describe{
+#' \item{"Temp_C"}{Temperature of the water sample in degrees celsius.}
+#' \item{"Temp_F"}{Temperature of the water sample in degrees fahrenheit.}
+#' \item{"SpCond_uScm"}{Specific conductivity of the water sample measured in microsiemens per liter.}
+#' \item{"DOsat_pct"}{Dissolved oxygen of the water sample measured in percent saturation.}
+#' \item{"DOsatLoc_pct"}{Post-deployment calibration checks.}
+#' \item{"DO_mgL"}{Dissolved oxygen of the water sample measured in milligrams per liter.}
+#' \item{"pH"}{Quantitative measure of the acidity or basicity of the water sample in pH standard units.}
+#' \item{"pHmV"}{Quantitative measure of the acidity or basicity of the water sample in millvolts.}
+#' \item{"Turbidity_FNU"}{Turbidity of water sample measured in formazin nephelometric units.}
+#' \item{"ChlA_EXO_RFU"}{Chlorophyll a (measure of algae and cyanobacteria) of the water sample in milligrams per liter.}
+#' \item{"ChlA_EXO_ugL"}{Chlorophyll a (measure of algae and cyanobacteria) of the water sample in micrograms per liter.}
+#' \item{"BP_mmHg"}{Barometric pressure, measured in millimeters of mercury.}
+#' }
 #'
-#' @param depth_type Specify whether to plot sample depth relative to elevation of surface water
+#' @param depth_type Character. Specify whether to plot sample depth relative to elevation of surface water
 #' (depth_type = "elev") or depth, with each sample starting at 0 regardless of level of the lake
 #' surface (depth_type = "raw"; default).
 #'
-#' @param palette Diverging color palette for plots. Options currently are 'viridis'
+#' @param palette Character. Diverging color palette for plots. Options currently are 'viridis'
 #' (yellow - green - blue), 'mako' (light blue grading to black), or any built-in continuous color palette
 #' available in RColorBrewer. Run RColorBrewer::display.brewer.all() to see the diverging color
 #' palettes. Common palettes include "Blues", "BuGn", "RdPu", "Spectral", "RdYlBu", "RdBu", "PiYg".
 #' See https://ggplot2-book.org/scales-colour for more info.
 #'
-#' @param color_rev Reverse the order of the color pallete. For example change RdYlBu from red - yellow - blue
+#' @param color_rev Logical. Reverse the order of the color palette. For example change RdYlBu from red - yellow - blue
 #' to blue - yellow -red.
 #'
 #' @param plot_title Logical. If TRUE (default) prints site name at top of figure. If FALSE,
@@ -81,14 +94,23 @@
 #' column than other samples that are more spread out. If no thermocline is detected, as defined by
 #' `rLakeAnalyzer::thermo.depth()`, no points are plotted.
 #'
-#' @param legend_position Specify location of legend (default is 'right'). To turn legend off, use legend_position = "none". Other
+#' @param legend_position Character. Specify location of legend (default is 'right'). To turn legend off, use legend_position = "none". Other
 #' options are "top", "bottom", "left", "right".
 #'
-#' @param gridlines Specify whether to add gridlines or not. Options are c("none" (Default), "grid_y", "grid_x", "both")
 #'
-#' @param facet_scales Specify whether facet axes should be fixed (all the same; default) or "free_y", "free_x" or "free" (both).
+#' @param facet_scales Specify whether facet axes should be fixed (all the same; default) or
+#' "free_y", "free_x" or "free" (both).
 #'
-#' @param ... Additional arguments relevant to \code{getSondeInSitu()} or \code{getWaterLevel()}
+#' @param ... Additional arguments relevant to `getSondeInSitu()` or `getWaterLevel()`.
+#'
+#'
+#' @param gridlines Specify whether to add gridlines or not. Options are:
+#' \describe{
+#' \item{"none"}{Default.}
+#' \item{"grid_y"}{Y-axis gridlines}
+#' \item{"grid_x"}{X-axis gridlines}
+#' \item{"both"}{Both gridlines}
+#' }
 #'
 #' @examples
 #' \dontrun{
@@ -313,7 +335,7 @@ plotLakeProfile <- function(park = "ACAD", site = "all", event_type = "VS",
       {if(plot_thermocline == TRUE){
         geom_segment(data = tcline_final,
                      aes(x = doy_plot - (col_width/2), xend = doy_plot + (col_width/2),
-                         y = Value, yend = Value), linewidth = 0.7) }}+
+                         y = Value, yend = Value), linewidth = 1.2) }}+
         #geom_point(data = tcline, aes(x = mon, y = value), color = 'black', show.legend = F)}} +
       # facets if more than 1 year or site
       {if(facet_site == TRUE & facet_year == TRUE) facet_wrap(~SiteName + year, drop = T, scales = facet_scales)} +
@@ -347,7 +369,7 @@ plotLakeProfile <- function(park = "ACAD", site = "all", event_type = "VS",
         {if(plot_thermocline == TRUE){
           geom_segment(data = tcline_final,
                        aes(x = doy_plot - (col_width/2), xend = doy_plot + (col_width/2),
-                           y = -Value, yend = -Value), size = 0.7) }} +
+                           y = -Value, yend = -Value), linewidth = 0.7) }} +
         # facets if more than 1 year or site
         {if(facet_site == TRUE & facet_year == TRUE) facet_wrap(~SiteName + year, drop = T, scales = facet_scales)} +
         {if(facet_site == TRUE & facet_year == FALSE) facet_wrap(~SiteName, drop = T, scales = facet_scales)} +

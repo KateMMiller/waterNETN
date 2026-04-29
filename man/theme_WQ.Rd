@@ -7,7 +7,7 @@
 theme_WQ()
 }
 \value{
-This function must be used in conjunction with a ggplot object
+This function must be used in conjunction with a ggplot object.
 }
 \description{
 This function customizes a theme for plotting NETN water data, including removing the
@@ -16,7 +16,7 @@ default panel grids from ggplot2 figures.
 \examples{
 {
 
- # See plotTrend() function example
+# See plotTrend()for function example
 
 }
 }

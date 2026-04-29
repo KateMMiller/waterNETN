@@ -3,7 +3,7 @@
 #' @description Queries NETN streams by site.
 #' @importFrom dplyr filter
 #'
-#' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
+#' @param park Character or character vector. Combine data from all parks or one or more parks at a time. Valid inputs:
 #' \describe{
 #' \item{"all"}{Includes all parks in the network}
 #' \item{"LNETN"}{Includes all parks but ACAD}
@@ -17,9 +17,9 @@
 #' \item{"SARA"}{Saratoga NHP only}
 #' \item{"WEFA"}{Weir Farm NHP only}}
 #'
-#' @param site Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".
+#' @param site Character or character vector. Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".
 #'
-#' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
+#' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites.
 #'
 #' @param output Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)
 #'
@@ -93,6 +93,11 @@ getSitesStream <- function(park = "all", site = "all", active = TRUE, output = c
   # filter on active. Currently hard coded until data package includes it
   inactive = c("ACBUBO", "ACEGLO", "ACJRDO", "ACMOWB", "MORRSA", "MORRSC", "ROVASC", "SARASB", #streams
                "ACDKPD", "ACLPIH", "ACTARN", "ROVAPA") # lakes
+
+  inactive = c("ACBUBO", "ACEGLO", "ACJRDO", "ACMOWB", "ACBOWL", "ACSAMP",
+               "MORRSA", "MORRSC", "ROVASC", "SARASB", #streams
+               "ACDKPD", "ACLPIH", "ACTARN", "ROVAPA", "SAGAPA") # lakes
+
   wdata3 <-
     if(active == TRUE){
       filter(wdata2, !SiteCode %in% inactive)

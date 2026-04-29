@@ -16,7 +16,7 @@ getSecchi(
 )
 }
 \arguments{
-\item{park}{Combine data from all parks or one or more parks at a time. Valid inputs:
+\item{park}{Character or character vector. Combine data from all parks (by UnitCode) or one or more parks at a time. Valid inputs:
 \describe{
 \item{"all"}{Includes all parks in the network}
 \item{"LNETN"}{Includes all parks but ACAD}
@@ -30,9 +30,9 @@ getSecchi(
 \item{"SARA"}{Saratoga NHP only}
 \item{"WEFA"}{Weir Farm NHP only}}}
 
-\item{site}{Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
+\item{site}{Character or character vector. Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
 
-\item{event_type}{Select the event type. Options available are below Can only choose one option.
+\item{event_type}{Character. Select the event type (Project), can only choose one option. Valid inputs:
 \describe{
 \item{"all"}{All possible sampling events.}
 \item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
@@ -45,22 +45,25 @@ getSecchi(
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 events are between months 5 and 10, and these are set as the defaults.}
 
-\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
+\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites.}
 
-\item{observer_type}{Return data from all observers, or only return first observer.
-Accepted values are c("all", "first", "second"), with "first" being the default.}
+\item{observer_type}{Character. Return data from all observers, or only return first observer.
+\describe{
+\item{"all"}{All observers.}
+\item{"first"}{Default. First observer.}
+\item{"second"}{Second observer.}
+}
 
-\item{output}{Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)}
+#' @param output Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)}
 }
 \value{
-Data frame of Secchi data in long form (ie observers stacked).
+Data frame of Secchi data in long form (i.e. observers stacked).
 }
 \description{
 Queries NETN Secchi data by site, year, month, and observer type. Data are stacked by
 observer. Only records with observations are returned. Only runs for site_type = 'lake'.
 }
 \examples{
-\dontrun{
 importData()
 
 # get Secchi depth the Pogue from 2021-2023, first observer only
@@ -69,5 +72,8 @@ mabi <- getSecchi(site = "MABIPA", years = 2021:2023, observer_type = "first")
 # get Secchi depth for all ACAD lakes sampled in July for all observers
 ACAD_lake <- getSecchi(park = 'ACAD', months = 7)
 
-}
+#get the long version of Secchi depth for all LNETN parks from May to October
+lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
+lnetn_secchi <- getSecchi(park = lnetn, months = 5:10, output = "verbose")
+
 }
