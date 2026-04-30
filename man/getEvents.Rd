@@ -64,6 +64,7 @@ Queries NETN water data by site and event. Returned data frame can include lakes
 columns that the Site_Lake and Site_Stream views have in common.
 }
 \examples{
+\dontrun{
 importData()
 
 # get events for all sites in MABI from 2021-2023
@@ -76,8 +77,10 @@ sara <- getEvents(park = "SARA", years = c(2019, 2023))
 ma_parks <- getEvents(park = c("SAIR", "MIMA"))
 
 # get info for all ACAD lakes sampled in April
-ACAD_lake4 <- getEvents(park = 'ACAD', site_type = 'lake', months = 4, event_type = 'all')
+ACAD_lake <- getEvents(park = 'ACAD', site_type = 'lake', months = 4, event_type = 'all')
 
 # get site info for 2 streams in MORR with full output
 morr_sites <- getEvents(site = c("MORRSA", "MORRSB"), output = 'verbose')
+}
+
 }

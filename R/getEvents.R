@@ -49,7 +49,8 @@
 #'
 #' @return Data frame of event info.
 #'
-#'@examples
+#' @examples
+#' \dontrun{
 #' importData()
 #'
 #' # get events for all sites in MABI from 2021-2023
@@ -66,7 +67,8 @@
 #'
 #' # get site info for 2 streams in MORR with full output
 #' morr_sites <- getEvents(site = c("MORRSA", "MORRSB"), output = 'verbose')
-
+#' }
+#'
 #' @export
 
 getEvents <- function(park = "all", site = "all",
