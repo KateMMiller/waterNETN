@@ -18,7 +18,7 @@
 #' @return Saves a .xlsx file with cleaned water data ready for MS Access import.
 #'
 #' @examples
-#'
+#' \dontrun{
 #' library(waterNETN)
 #'
 #' # prep Lake data and keep output in R
@@ -26,7 +26,8 @@
 #'
 #' # prep Stream data
 #' prepFMtoAccess(filepath = "../data", excel_name = "ACAD_WQ_Stream_2025-06.xlsx")
-
+#' }
+#'
 #' @export
 
 prepFMtoAccess <- function(filepath = NA, excel_name = NA, keep_file = F){
