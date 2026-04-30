@@ -143,16 +143,22 @@ distribution and middle 50\% distribution (inner quartiles) of values previously
 represents the median value.
 }
 \examples{
-# Plot pH in Jordan Pond for 2023
+\dontrun{
+# Plot pH in Jordan Pond for 2023, with gridlines on the y-axis
 plotWaterBands(site = "ACJORD", year_curr = 2023, years_historic = 2006:2022,
-parameter = "pH", legend_position = 'right')
+parameter = "pH", legend_position = 'right', gridlines = 'grid_y')
 
-# Plot TN in Jordan Pond for 2023, including censored
+# Plot TN in Jordan Pond for 2023, including censored and gridlines on both x and y axes
 plotWaterBands(site = "ACJORD", year_curr = 2023, years_historic = 2006:2022,
-parameter = "TN_mgL", legend_position = 'right', include_censored = T)
+parameter = "TN_mgL", legend_position = 'right', include_censored = T, gridlines = "both")
 
-# Plot TN in Kroma Kill in SARA in 2023
+#' #Same as above, but drop threshold lines and add gridlines on x-axis
+plotWaterBands(site = "ACJORD", year_curr = 2023, years_historic = 2006:2022,
+parameter = "TN_mgL", legend_position = 'right', include_censored = T, threshold = F, gridlines = "grid_x")
+
+# Plot TN in Kroma Kill in SARA in 2023 with no gridlines (Default)
 plotWaterBands(site = "SARASA", year_curr = 2023, years_historic = 2006:2022, parameter = "TN",
 legend_position = 'right')
+}
 
 }

@@ -127,6 +127,7 @@
 #' @return Returns a ggplot object of specified current vs historic values.
 #'
 #' @examples
+#' \dontrun{
 #' # Plot pH in Jordan Pond for 2023, with gridlines on the y-axis
 #' plotWaterBands(site = "ACJORD", year_curr = 2023, years_historic = 2006:2022,
 #' parameter = "pH", legend_position = 'right', gridlines = 'grid_y')
@@ -142,8 +143,8 @@
 #' # Plot TN in Kroma Kill in SARA in 2023 with no gridlines (Default)
 #' plotWaterBands(site = "SARASA", year_curr = 2023, years_historic = 2006:2022, parameter = "TN",
 #' legend_position = 'right')
+#' }
 #'
-
 #' @export
 
 plotWaterBands <- function(park = "all", site = "all",
