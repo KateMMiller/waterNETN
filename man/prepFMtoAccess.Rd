@@ -25,7 +25,7 @@ a csv file in the same filepath with '\emph{cleaned}' and the date added to the 
 in the same function call. The output is intentionally a csv instead of xlsx because of the funky things Excel does to dates.
 }
 \examples{
-
+\dontrun{
 library(waterNETN)
 
 # prep Lake data and keep output in R
@@ -33,4 +33,6 @@ prepFMtoAccess(filepath = "../data", excel_name = "ACAD_WQ_Lakes_2025-06.xlsx", 
 
 # prep Stream data
 prepFMtoAccess(filepath = "../data", excel_name = "ACAD_WQ_Stream_2025-06.xlsx")
+}
+
 }
