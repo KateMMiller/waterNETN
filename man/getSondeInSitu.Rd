@@ -96,6 +96,7 @@ Queries NETN water chemistry data with the Sonde in the field by site, event, an
 If pulling all sites, parameters, years, etc., function may take a second or two to run.
 }
 \examples{
+\dontrun{
 importData()
 
 # get Sonde data for all sites and parameters in MABI from 2021-2023 for non-QAQC samples
@@ -112,4 +113,5 @@ ACAD_lake <- getSondeInSitu(site = 'ACJORD', parameter = "Temp_C", sample_depth 
 # get pH for lower NETN parks from May to Oct for QAQC and non-QAQC samples
 lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
 lnetn_ph <- getSondeInSitu(park = lnetn, param = "pH", months = 5:10, QC_type = 'all')
+}
 }

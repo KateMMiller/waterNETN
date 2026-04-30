@@ -50,7 +50,7 @@
 #'
 #' @param parameter Character or character vector. Specify the chemical parameter(s) (Parameter) to return. Note if additional parameters are added to the Chemistry view,
 #' they will need to be added as accepted values in this function. Current accepted values are:
-#'\describe{
+#' \describe{
 #' \item{"Temp_C"}{Temperature of the water sample in degrees celsius.}
 #' \item{"Temp_F"}{Temperature of the water sample in degrees fahrenheit.}
 #' \item{"SpCond_uScm"}{Specific conductivity of the water sample measured in microsiemens per liter.}
@@ -83,6 +83,7 @@
 #' @return Data frame of Sonde chemistry data in long form.
 #'
 #' @examples
+#' \dontrun{
 #' importData()
 #'
 #' # get Sonde data for all sites and parameters in MABI from 2021-2023 for non-QAQC samples
@@ -99,6 +100,7 @@
 #' # get pH for lower NETN parks from May to Oct for QAQC and non-QAQC samples
 #' lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
 #' lnetn_ph <- getSondeInSitu(park = lnetn, param = "pH", months = 5:10, QC_type = 'all')
+#' }
 #' @export
 
 getSondeInSitu <- function(park = "all", site = "all",
