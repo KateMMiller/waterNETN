@@ -39,6 +39,7 @@ Data frame of site info for lakes
 Queries NETN lakes by site.
 }
 \examples{
+\dontrun{
 importData()
 
 # get site info for all lakes in lowerNETN
@@ -47,5 +48,5 @@ lnetn_lks <- getSitesLake(park = lnetn)
 
 # get site info for all lakes in ACAD
 ACAD_lakes <- getSitesLake(park = 'ACAD')
-
+}
 }

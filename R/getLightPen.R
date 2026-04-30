@@ -43,6 +43,7 @@
 #' @return Data frame of Light Penetration data.
 #'
 #' @examples
+#' \dontrun{
 #' importData()
 #'
 #' # Get light penetration for the Pogue in MABI from 2021-2023
@@ -53,6 +54,7 @@
 #'
 #'# Get light penetration for the given ACAD sites related to the ACAD_ACID project
 #' acad_acid1 <- getChemistry(site = c("ACJORD", "ACEAGL", "ACBUBL"), event_type = "acid")
+#' }
 #'
 #' @export
 

@@ -36,7 +36,8 @@
 #'
 #' @return Data frame of site info
 #'
-#'@examples
+#' @examples
+#' \dontrun{
 #' importData()
 #'
 #' # get site info for all sites in MABI
@@ -47,6 +48,7 @@
 #'
 #' # get all fields of site info for Primrose Brook in MORR
 #' prim <- getSites(site = "MORRSB", output = "verbose")
+#' }
 #' @export
 
 getSites <- function(park = "all", site = "all", site_type = c("all", "lake", "stream"),

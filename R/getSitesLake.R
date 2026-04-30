@@ -25,7 +25,8 @@
 #'
 #' @return Data frame of site info for lakes
 #'
-#'@examples
+#' @examples
+#' \dontrun{
 #' importData()
 #'
 #' # get site info for all lakes in lowerNETN
@@ -34,7 +35,7 @@
 #'
 #' # get site info for all lakes in ACAD
 #' ACAD_lakes <- getSitesLake(park = 'ACAD')
-#'
+#' }
 #' @export
 
 getSitesLake <- function(park = "all", site = "all", active = TRUE, output = c("short", "verbose")){

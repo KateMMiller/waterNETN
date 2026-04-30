@@ -50,6 +50,7 @@ functions (getSitesLake(), getSitesStream()). This function is a useful building
 have water quality views imported in R session.
 }
 \examples{
+\dontrun{
 importData()
 
 # get site info for all sites in MABI
@@ -60,4 +61,5 @@ ACAD_streams <- getSites(park = 'ACAD', site_type = 'stream')
 
 # get all fields of site info for Primrose Brook in MORR
 prim <- getSites(site = "MORRSB", output = "verbose")
+}
 }

@@ -64,6 +64,7 @@ Queries NETN Secchi data by site, year, month, and observer type. Data are stack
 observer. Only records with observations are returned. Only runs for site_type = 'lake'.
 }
 \examples{
+\dontrun{
 importData()
 
 # get Secchi depth the Pogue from 2021-2023, first observer only
@@ -75,5 +76,5 @@ ACAD_lake <- getSecchi(park = 'ACAD', months = 7)
 #get the long version of Secchi depth for all LNETN parks from May to October
 lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
 lnetn_secchi <- getSecchi(park = lnetn, months = 5:10, output = "verbose")
-
+}
 }

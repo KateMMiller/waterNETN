@@ -55,6 +55,7 @@ Data frame of Light Penetration data.
 Queries NETN light penetration data by site, year, month. Designed to only work with site_type = 'lake'.
 }
 \examples{
+\dontrun{
 importData()
 
 # Get light penetration for the Pogue in MABI from 2021-2023
@@ -65,5 +66,6 @@ ACAD_lake <- getLightPen(park = 'ACAD', months = 8)
 
 # Get light penetration for the given ACAD sites related to the ACAD_ACID project
 acad_acid1 <- getChemistry(site = c("ACJORD", "ACEAGL", "ACBUBL"), event_type = "acid")
+}
 
 }

@@ -52,6 +52,7 @@
 #' @return Data frame of Secchi data in long form (i.e. observers stacked).
 #'
 #' @examples
+#' \dontrun{
 #' importData()
 #'
 #' # get Secchi depth the Pogue from 2021-2023, first observer only
@@ -63,7 +64,7 @@
 #' #get the long version of Secchi depth for all LNETN parks from May to October
 #' lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
 #' lnetn_secchi <- getSecchi(park = lnetn, months = 5:10, output = "verbose")
-#'
+#' }
 #' @export
 
 getSecchi <- function(park = "all", site = "all",
