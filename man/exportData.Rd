@@ -22,6 +22,7 @@ This function is primarily for internal use to create flat files that users can 
 a connection having MS Access installed. Must first import the views in the current R session.
 }
 \examples{
+\dontrun{
 library(waterNETN)
 importData()
 
@@ -33,5 +34,5 @@ exportData(filepath = "C:/data", zip = TRUE)
 
 # Export views as .csvs to specified path
 exportData(filepath = "C:/data")
-
+}
 }
