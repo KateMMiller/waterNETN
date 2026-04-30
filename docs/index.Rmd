@@ -465,13 +465,22 @@ anc <- getChemistry(park = lnetn, parameter = "ANC_ueqL", months = 5:10)
 print_head(anc)# top 6 rows
 ```
 
+<p class = 'fxn'>Get censored and non-censored NH3 data for LNETN all years. Note the Flag column indicates the measurement is censored by reporting the detection limit used.</p>
+
+```{r}
+lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
+nh3_cen <- getChemistry(park = lnetn, parameter = "NH3_mgL", include_censored = T)
+print_head(nh3_cen)# top 6 rows
+```
+
+
 #### getDischarge()
 This function allows you to query the Discharge_Data view by park, site, site type, year, month, measurement method (e.g., flowtracker or pygmy), and measurement rating (e.g., E, G, F, P). Note that you can also return all columns or a reduced set of columns with the output argument. Default is output = 'short'. This function is set up to work with site_type = 'stream', so you don't have to specify that.
 
-<p class = 'fxn'>Get discharge for all sites in ROVA from 2021-2023 </p>
+<p class = 'fxn'>Get discharge for all sites in SARA from 2022-2024 </p>
 ```{r}
-mabi <- getDischarge(park = "ROVA", years = 2021:2023)
-print_head(mabi)# top 6 rows
+sara <- getDischarge(park = "SARA", years = 2022:2024)
+print_head(sara)# top 6 rows
 ```
 
 <p class = 'fxn'>Get discharge for ACAD streams in July 2023 </p>
@@ -486,9 +495,9 @@ flow <- getDischarge(method = c("Flowtracker"))
 print_head(flow)# top 6 rows
 ```
 
-<p class = 'fxn'>Get excellent rated measurements only </p>
+<p class = 'fxn'>Get excellent rated measurements only for MIMA</p>
 ```{r}
-exc <- getDischarge(rating = "E")
+exc <- getDischarge(park = "MIMA", rating = "E")
 print_head(exc)# top 6 rows
 ```
 
