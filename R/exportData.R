@@ -13,6 +13,7 @@
 #' @return NETN water database views exported to specified path
 #'
 #' @examples
+#' \dontrun{
 #' library(waterNETN)
 #' importData()
 #'
@@ -24,7 +25,7 @@
 #'
 #' # Export views as .csvs to specified path
 #' exportData(filepath = "C:/data")
-#'
+#' }
 #' @export
 
 exportData <- function(filepath = NA, zip = FALSE){
