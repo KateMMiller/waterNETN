@@ -8,7 +8,7 @@
 #' @return This function must be used in conjunction with a ggplot object.
 #'
 #' @examples
-#' {
+#' \dontrun{
 #'
 #' # See plotTrend()for function example
 #'

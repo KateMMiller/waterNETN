@@ -14,7 +14,7 @@ This function customizes a theme for plotting NETN water data, including removin
 default panel grids from ggplot2 figures.
 }
 \examples{
-{
+\dontrun{
 
 # See plotTrend()for function example
 
