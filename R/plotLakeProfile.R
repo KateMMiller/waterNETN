@@ -139,7 +139,7 @@
 #' plotLakeProfile(park = "ACAD", site = lakes23,
 #'                parameter = "DOsat_pct", depth_type = 'raw', years = 2023,
 #'                palette = 'RdYlBu', color_rev = TRUE)
-#'}
+#' }
 #'
 #' @return Returns a panel of lake profile plots during the growing season for each year
 #' in the data frame.
