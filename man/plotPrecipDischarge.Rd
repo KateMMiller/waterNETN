@@ -72,8 +72,8 @@ Note that lines aren't plotted for discharge, because discharge is likely to var
 \examples{
 \dontrun{
 
-# Plot daily precipitation vs discharge for Mill Brook in MIMA for past 6 years using default colors.
-plotPrecipDischarge(site = c("MIMASA"), years = 2019:2024)
+# Plot Discharge for Mill Brook in MIMA for past 3 years using default colors and gridlines on the y-axis and english units.
+plotPrecipDischarge(site = c("MIMASA"), years = 2021:2023, gridlines = "grid_y", units = "eng")
 
 # Plot daily precipitation vs discharge for all ROVA sites in 2021, only accepting observations of"Excellent", "Good", or "Fair".
 plotPrecipDischarge(park = "ROVA", years = 2021, rating = c("E", "G", "F"))
