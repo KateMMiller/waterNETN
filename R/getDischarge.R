@@ -69,6 +69,7 @@
 #' @return Data frame of Discharge data.
 #'
 #' @examples
+#' \dontrun{
 #' importData()
 #'
 #' # get discharge for all sites in ROVA from 2021-2023
@@ -80,8 +81,10 @@
 #' # get discharge measured with Flowtracker
 #' flow <- getDischarge(method = c("Flowtracker"))
 #'
-#' # get excellent rated measurements only
-#' exc <- getDischarge(rating = "E")
+#' # get excellent rated measurements only for MIMA
+#' exc <- getDischarge(park = "MIMA", rating = "E")
+#' }
+#'
 #' @export
 
 getDischarge <- function(park = "all", site = "all", event_type = "VS",

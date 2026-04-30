@@ -82,17 +82,20 @@ Data frame of Discharge data.
 Queries NETN water discharge data by site, year, month. Only works with site_type = 'stream'.
 }
 \examples{
+\dontrun{
 importData()
 
 # get discharge for all sites in ROVA from 2021-2023
 mabi <- getDischarge(park = "ROVA", years = 2021:2023)
 
 # get discharge for ACAD streams in July 2023
-sara <- getDischarge(park = "ACAD", years = 2023, months = 7)
+acad_dis <- getDischarge(park = "ACAD", years = 2023, months = 7)
 
 # get discharge measured with Flowtracker
 flow <- getDischarge(method = c("Flowtracker"))
 
-# get excellent rated measurements only
-exc <- getDischarge(rating = "E")
+# get excellent rated measurements only for MIMA
+exc <- getDischarge(park = "MIMA", rating = "E")
+}
+
 }
