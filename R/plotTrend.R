@@ -142,7 +142,7 @@
 #' @examples
 #' \dontrun{
 #'
-#' Plot non-smoothed surface pH for Eagle Lake for all years with gridlines on y-axis.
+#' # Plot non-smoothed surface pH for Eagle Lake for all years with gridlines on y-axis.
 #' plotTrend(site = "ACEAGL", parameter = "pH", palette = 'mako', years = 2021:2023) + theme_WQ()
 #'
 #' # Plot smoothed surface pH for Eagle Lake for all years, removing the legend and using span of 0.75.
@@ -345,7 +345,7 @@ plotTrend <- function(park = "all", site = "all",
   xbreaks <- time_mat$x_axis[x_row_breaks]
   xlabs <- time_mat$x_label[x_row_breaks]
 
-  if(!palette %in% "viridis"){
+  if(!any(palette %in% "viridis")){
     if(!requireNamespace("RColorBrewer", quietly = TRUE)){
       stop("Package 'RColorBrewer' needed if palette is anything but 'viridis'. Please install it.",
            call. = FALSE)

@@ -160,8 +160,7 @@ collected in lakes), the function will return an error message instead of an emp
 \examples{
 \dontrun{
 
-# Plot smoothed surface pH for Eagle Lake for past 3 years using default span of 0.3 and by
-# default not including the legend.
+# Plot non-smoothed surface pH for Eagle Lake for all years with gridlines on y-axis.
 plotTrend(site = "ACEAGL", parameter = "pH", palette = 'mako', years = 2021:2023) + theme_WQ()
 
 # Plot smoothed surface pH for Eagle Lake for all years, removing the legend and using span of 0.75.
