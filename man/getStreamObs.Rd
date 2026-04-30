@@ -46,6 +46,7 @@ Data frame of stream observations
 Queries NETN stream observations by park, site, year and month.
 }
 \examples{
+\dontrun{
 importData()
 
 # get stream observations for Pogue Stream all years
@@ -57,5 +58,5 @@ ACAD_streams <- getStreamObs(park = 'ACAD', years = 2023, months = 5)
 #get the long versions of stream observations in LNETN parks from May to October
 lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
 lnetn <- getStreamObs(park = lnetn, months = 5:10, output = "verbose")
-
+}
 }

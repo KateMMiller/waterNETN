@@ -33,7 +33,8 @@
 #'
 #' @return Data frame of stream observations
 #'
-#'@examples
+#' @examples
+#' \dontrun{
 #' importData()
 #'
 #' # get stream observations for Pogue Stream all years
@@ -45,7 +46,7 @@
 #' #get the long versions of stream observations in LNETN parks from May to October
 #' lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
 #' lnetn <- getStreamObs(park = lnetn, months = 5:10, output = "verbose")
-#'
+#' }
 #' @export
 
 getStreamObs <- function(park = "all", site = "all", years = 2006:format(Sys.Date(), "%Y"),
