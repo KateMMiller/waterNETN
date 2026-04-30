@@ -72,8 +72,8 @@
 #' \dontrun{
 #' importData()
 #'
-#' # get discharge for all sites in ROVA from 2021-2023
-#' mabi <- getDischarge(park = "ROVA", years = 2021:2023)
+#' # get discharge for all sites in SARA from 2022-2024
+#' sara <- getDischarge(park = "SARA", years = 2022:2024)
 #'
 #' # get discharge for ACAD streams in July 2023
 #' acad_dis <- getDischarge(park = "ACAD", years = 2023, months = 7)
