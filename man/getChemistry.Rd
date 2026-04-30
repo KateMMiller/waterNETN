@@ -109,6 +109,7 @@ Data frame of chemistry data in long form.
 Queries NETN water chemistry data by site, event, and parameter.
 }
 \examples{
+\dontrun{
 importData()
 
 # get chemistry data for all sites and all parameters in MABI from 2021-2023
@@ -128,4 +129,10 @@ ACAD_lake4<- getChemistry(park = 'ACAD', site_type = 'lake', months = 4, event_t
 # get ANC for lower NETN parks from May to Oct
 lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
 anc <- getChemistry(park = lnetn, parameter = "ANC_ueqL", months = 5:10)
+
+# get censored and non-censored NH3 data for LNETN all years. Note the Flag column
+indicates the measurement is censored by reporting the detection limit used.
+lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
+nh3_cen <- getChemistry(park = lnetn, parameter = "NH3_mgL", include_censored = T)
+}
 }
