@@ -19,7 +19,7 @@ getSondeInSitu(
 )
 }
 \arguments{
-\item{park}{Combine data from all parks or one or more parks at a time. Valid inputs:
+\item{park}{Character or character vector. Combine data from all parks (by UnitCode) or one or more parks at a time. Valid inputs:
 \describe{
 \item{"all"}{Includes all parks in the network}
 \item{"LNETN"}{Includes all parks but ACAD}
@@ -33,16 +33,16 @@ getSondeInSitu(
 \item{"SARA"}{Saratoga NHP only}
 \item{"WEFA"}{Weir Farm NHP only}}}
 
-\item{site}{Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
+\item{site}{Character or character vector. Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
 
-\item{site_type}{Combine all site types, lakes or streams. Not needed if specifying particular sites.
+\item{site_type}{Character or character vector. Combine all site types (SiteType), lakes or streams. Not needed if specifying particular sites.
 \describe{
 \item{"all"}{Default. Includes all site types, unless site or site_name select specific site types.}
 \item{"lake"}{Include only lakes.}
 \item{"stream"}{Include streams only.}
 }}
 
-\item{event_type}{Select the event type. Options available are below Can only choose one option.
+\item{event_type}{Character. Select the event type (Project), can only choose one option. Valid inputs:
 \describe{
 \item{"all"}{All possible sampling events.}
 \item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
@@ -55,14 +55,25 @@ getSondeInSitu(
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 events are between months 5 and 10, and these are set as the defaults.}
 
-\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
+\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites.}
 
-\item{parameter}{Specify the chemical parameter(s) to return. Note if additional parameters are added to the Chemistry view,
-they will need to be added as accepted values in this function. Current accepted values are:.
-c("Temp_C", "Temp_F", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH", "pHmV",
-"Turbidity_FNU", "ChlA_EXO_RFU", "ChlA_EXO_ugL", "BP_mmHg")}
+\item{parameter}{Character or character vector. Specify the chemical parameter(s) (Parameter) to return. Note if additional parameters are added to the Chemistry view,
+they will need to be added as accepted values in this function. Current accepted values are:
+\describe{
+\item{"Temp_C"}{Temperature of the water sample in degrees celsius.}
+\item{"Temp_F"}{Temperature of the water sample in degrees fahrenheit.}
+\item{"SpCond_uScm"}{Specific conductivity of the water sample measured in microsiemens per liter.}
+\item{"DOsat_pct"}{Dissolved oxygen of the water sample measured in percent saturation.}
+\item{"DO_mgL"}{Dissolved oxygen of the water sample measured in milligrams per liter.}
+\item{"pH"}{Quantitative measure of the acidity or basicity of the water sample in pH standard units.}
+\item{"pHmV"}{Quantitative measure of the acidity or basicity of the water sample in millvolts.}
+\item{"Turbidity_FNU"}{Turbidity of water sample measured in formazin nephelometric units.}
+\item{"ChlA_EXO_RFU"}{Chlorophyll a (measure of algae and cyanobacteria) of the water sample in milligrams per liter.}
+\item{"ChlA_EXO_ugL"}{Chlorophyll a (measure of algae and cyanobacteria) of the water sample in micrograms per liter.}
+\item{"BP_mmHg"}{Barometric pressure, measured in millimeters of mercury.}
+}}
 
-\item{QC_type}{Specify QC type to return. Must be quoted.
+\item{QC_type}{Character or character vector. Specify QCtype to return. Must be quoted.
 \describe{
 \item{"all"}{Include all QC types.}
 \item{"0"}{Default. Indicates a real non-QC sample.}
@@ -71,7 +82,7 @@ c("Temp_C", "Temp_F", "SpCond_uScm", "DOsat_pct", "DOsatLoc_pct", "DO_mgL", "pH"
 \item{"999"}{Post-deployment calibration checks.}
 }}
 
-\item{sample_depth}{Filter on sample depth. If "all", returns all sample depths. If "surface" (Default),
+\item{sample_depth}{Character or character vector. Filter on SampleDepth_m. If "all", returns all sample depths. If "surface" (Default),
 only returns the median value of samples collected <= 2m from the surface. SampleDepth_m is also the median
 sample depth of samples collected within 2m of the surface.}
 

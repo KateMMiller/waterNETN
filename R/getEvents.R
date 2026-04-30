@@ -7,7 +7,7 @@
 #'
 #' @importFrom dplyr filter
 #'
-#' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
+#' @param park Character or character vector. Combine data from all parks (by UnitCode) or one or more parks at a time. Valid inputs:
 #' \describe{
 #' \item{"all"}{Includes all parks in the network}
 #' \item{"LNETN"}{Includes all parks but ACAD}
@@ -21,16 +21,16 @@
 #' \item{"SARA"}{Saratoga NHP only}
 #' \item{"WEFA"}{Weir Farm NHP only}}
 #'
-#' @param site Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".
+#' @param site Character or character vector. Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".
 #'
-#' @param site_type Combine all site types, lakes or streams. Not needed if specifying particular sites.
+#' @param site_type Character or character vector. Combine all site types (siteType), lakes or streams. Not needed if specifying particular sites.
 #' \describe{
 #' \item{"all"}{Default. Includes all site types, unless site or site_name select specific site types.}
 #' \item{"lake"}{Include only lakes.}
 #' \item{"stream"}{Include streams only.}
 #' }
 #'
-#' @param event_type Select the event type. Options available are below Can only choose one option.
+#' @param event_type Character. Select the event type (Project). Can only choose one option. Valid inputs:
 #' \describe{
 #' \item{"all"}{All possible sampling events.}
 #' \item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
@@ -43,13 +43,13 @@
 #' @param months Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 #' events are between months 5 and 10, and these are set as the defaults.
 #'
-#' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.
+#' @param active Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites.
 #'
 #' @param output Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)
 #'
-#' @return Data frame of event info
+#' @return Data frame of event info.
 #'
-#'@examples
+#' @examples
 #' \dontrun{
 #' importData()
 #'
@@ -63,11 +63,12 @@
 #' ma_parks <- getEvents(park = c("SAIR", "MIMA"))
 #'
 #' # get info for all ACAD lakes sampled in April
-#' ACAD_lake4 <- getEvents(park = 'ACAD', site_type = 'lake', months = 4, event_type = 'all')
+#' ACAD_lake <- getEvents(park = 'ACAD', site_type = 'lake', months = 4, event_type = 'all')
 #'
 #' # get site info for 2 streams in MORR with full output
 #' morr_sites <- getEvents(site = c("MORRSA", "MORRSB"), output = 'verbose')
 #' }
+#'
 #' @export
 
 getEvents <- function(park = "all", site = "all",

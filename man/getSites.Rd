@@ -13,7 +13,7 @@ getSites(
 )
 }
 \arguments{
-\item{park}{Combine data from all parks or one or more parks at a time. Valid inputs:
+\item{park}{Character or character vector. Combine data from all parks (by UnitCode) or one or more parks at a time. Valid inputs:
 \describe{
 \item{"all"}{Includes all parks in the network}
 \item{"LNETN"}{Includes all parks but ACAD}
@@ -27,9 +27,9 @@ getSites(
 \item{"SARA"}{Saratoga NHP only}
 \item{"WEFA"}{Weir Farm NHP only}}}
 
-\item{site}{Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
+\item{site}{Character or character vector. Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
 
-\item{site_type}{Combine all site types, lakes or streams. Not needed if specifying particular sites.
+\item{site_type}{Character or character vector. Combine all site types, lakes or streams. Not needed if specifying particular sites.
 \describe{
 \item{"all"}{Default. Includes all site types, unless site or site_name select specific site types.}
 \item{"lake"}{Include only lakes.}
@@ -46,7 +46,7 @@ Data frame of site info
 \description{
 Queries NETN water data by site. Returned data frame can include lakes or streams, but only includes
 columns that the Site_Lake and Site_Stream views have in common. For full site data, use the site-specific getSites()
-functions (i.e., getSitesLakes()). This function is a useful building block within other package functions. Must
+functions (getSitesLake(), getSitesStream()). This function is a useful building block within other package functions. Must
 have water quality views imported in R session.
 }
 \examples{
@@ -59,7 +59,7 @@ mabi <- getSites(park = "MABI")
 # get site info for all streams in ACAD
 ACAD_streams <- getSites(park = 'ACAD', site_type = 'stream')
 
-# get site info for Primrose Brook in MORR
-prim <- getSites(site = "MORRSB")
+# get all fields of site info for Primrose Brook in MORR
+prim <- getSites(site = "MORRSB", output = "verbose")
 }
 }

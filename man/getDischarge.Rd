@@ -17,7 +17,7 @@ getDischarge(
 )
 }
 \arguments{
-\item{park}{Combine data from all parks or one or more parks at a time. Valid inputs:
+\item{park}{Character or character vector. Combine data from all parks (by UnitCode) or one or more parks at a time. Valid inputs:
 \describe{
 \item{"all"}{Includes all parks in the network}
 \item{"LNETN"}{Includes all parks but ACAD}
@@ -31,9 +31,9 @@ getDischarge(
 \item{"SARA"}{Saratoga NHP only}
 \item{"WEFA"}{Weir Farm NHP only}}}
 
-\item{site}{Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
+\item{site}{Character or character vector. Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
 
-\item{event_type}{Select the event type. Options available are below Can only choose one option.
+\item{event_type}{Character. Select the event type (Project), can only choose one option. Valid inputs:
 \describe{
 \item{"all"}{All possible sampling events.}
 \item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
@@ -46,13 +46,25 @@ getDischarge(
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 events are between months 5 and 10, and these are set as the defaults.}
 
-\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
+\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites.}
 
-\item{method}{Query data by discharge method. Accepted values are c("Flowtracker", "Pygmy",
+\item{method}{Character or character vector. Query data by DischargeMethod. Accepted values are c("Flowtracker", "Pygmy",
 "Flume", "No Measurement", "Rating curve estimate", "Timed float",
-"USGS Gage", "Visual estimate", "Volumetric")}
+"USGS Gage", "Visual estimate", "Volumetric")
 
-\item{rating}{Filter on measurement rating. Can choose multiple. Default is all.
+' \describe{
+\item{"Flowtracker"}{Acoustic Doppler velocimeter}
+\item{"Pygmy"}{Cup-type current meter}
+\item{"Flume"}{Manufactured channel calibrated to quantify discharge based on the level of the water flowing through it}
+\item{"No Measurement"}{No discharge measurement taken}
+\item{"Rating curve estimate"}{Calculation of discharge based on previously established measurements correlating water volume to water level (stage)}
+\item{"Timed float"}{Timing a floating object to obtain velocity and cross sectional area}
+\item{"USGS Gage"}{Streamflow measurement station operated by the United States Geological Survey}
+\item{"Visual estimate"}{Qualitative method of assessing discharge based on observation of water conditions, including flow speed and surface characteristics, often used when more quantitative methods are not feasible}
+\item{"Volumetric"}{Collecting a known volume of water over a defined timeframe and using this data to calculate discharge}
+}}
+
+\item{rating}{Character or character vector. Filter on MeasurementRating. Can choose multiple. Default is all.
 \describe{
 \item{"all"}{All measurements}
 \item{"E"}{Excellent}
@@ -73,16 +85,17 @@ Queries NETN water discharge data by site, year, month. Only works with site_typ
 \dontrun{
 importData()
 
-# get discharge for all sites in ROVA from 2021-2023
-mabi <- getDischarge(park = "ROVA", years = 2021:2023)
+# get discharge for all sites in SARA from 2022-2024
+sara <- getDischarge(park = "SARA", years = 2022:2024)
 
 # get discharge for ACAD streams in July 2023
-sara <- getDischarge(park = "ACAD", years = 2023, months = 7)
+acad_dis <- getDischarge(park = "ACAD", years = 2023, months = 7)
 
 # get discharge measured with Flowtracker
 flow <- getDischarge(method = c("Flowtracker"))
 
-# get excellent rated measurements only
-exc <- getDischarge(rating = "E")
+# get excellent rated measurements only for MIMA
+exc <- getDischarge(park = "MIMA", rating = "E")
 }
+
 }

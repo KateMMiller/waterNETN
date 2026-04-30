@@ -20,7 +20,7 @@ getChemistry(
 )
 }
 \arguments{
-\item{park}{Combine data from all parks or one or more parks at a time. Valid inputs:
+\item{park}{Character or character vector. Combine data from all parks (by UnitCode) or one or more parks at a time. Valid inputs:
 \describe{
 \item{"all"}{Includes all parks in the network}
 \item{"LNETN"}{Includes all parks but ACAD}
@@ -32,18 +32,19 @@ getChemistry(
 \item{"SAGA"}{Saint-Gaudens NHP only}
 \item{"SAIR"}{Saugus Iron Works NHS only}
 \item{"SARA"}{Saratoga NHP only}
-\item{"WEFA"}{Weir Farm NHP only}}}
+\item{"WEFA"}{Weir Farm NHP only}}
+Can also be expressed as a character vector of multiple sites.}
 
 \item{site}{Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
 
-\item{site_type}{Combine all site types, lakes or streams. Not needed if specifying particular sites.
+\item{site_type}{Character or character vector. Combine all site types (SiteType), lakes or streams. Not needed if specifying particular sites.
 \describe{
 \item{"all"}{Default. Includes all site types, unless site or site_name select specific site types.}
 \item{"lake"}{Include only lakes.}
 \item{"stream"}{Include streams only.}
 }}
 
-\item{event_type}{Select the event type. Options available are below Can only choose one option.
+\item{event_type}{Character. Select the event type (Project). Options available are below. Can only choose one option.
 \describe{
 \item{"all"}{All possible sampling events.}
 \item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
@@ -56,9 +57,9 @@ getChemistry(
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 events are between months 5 and 10, and these are set as the defaults.}
 
-\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
+\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites.}
 
-\item{QC_type}{Specify QC type to return.
+\item{QC_type}{Character. Specify QCtype to return.
 \describe{
 \item{"all"}{Include all QC types.}
 \item{"ENV"}{Environmental. Default. Indicates a real non-QC sample.}
@@ -68,17 +69,32 @@ events are between months 5 and 10, and these are set as the defaults.}
 \item{"REP"}{Field replicate}
 }}
 
-\item{sample_type}{Filter on sample type.
+\item{sample_type}{Character. Filter on SampleType.
 \describe{
 \item{"all"}{Include all sample types}
 \item{"C"}{Include Core samples only}
 \item{"G"}{Include Grab samples only}
 }}
 
-\item{parameter}{Specify the chemical parameter(s) to return. Note if additional parameters are added to the Chemistry view, there will be additional
-to the views, they will be added as accepted values in this function. Current accepted values are:.
-c("ANC_ueqL", "AppColor_PCU", "ChlA_ugL", "Cl_ueqL", "DOC_mgL", "NH3_mgL", "NO2_mgL", "NO2+NO3_mgL",
-"NO3_ueqL", "pH_Lab", "PO4_ugL", "SO4_ueqL", "TN_mgL", "TotDissN_mgL", "TotDissP_ugL", "TP_ugL")}
+\item{parameter}{Character or character vector. Specify the chemical parameter(s) (Parameter) to return. Note if additional parameters are added to the Chemistry view, they will need to be added as accepted values in this function. Current accepted values are:
+
+\describe{
+\item{"ANC_ueqL}{Acid neutralizing capacity, in micrograms per liter}
+\item{"AppColor_PCU"}{Apparent  color, in platinum cobalt units}
+\item{"ChlA_ugL"}{Chlorophyll a, in micrograms per liter}
+\item{"Cl_ueqL"}{Chloride, in microequivalents per liter}
+\item{"DOC_mgL"}{Dissolved organic carbon, in miligrams per liter}
+\item{"NH3_mgL"}{Ammonia, in miligrams per liter}
+\item{"NO2_mgL"}{Nitrite, in miligrams per liter}
+\item{"NO2+NO3_mgL"}{Nitrite and nitrate, in miligrams per liter}
+\item{"NO3_ueqL"}{Nitrate, in micrograms per liter}
+\item{"pH_Lab"}{pH, as determined by lab}
+\item{"PO4_ugL"}{Phosphate, in micrograms per liter}
+\item{"SO4_ueqL"}{Sulfate, in micrograms per liter}
+\item{"TN_mgL"}{Total nitrogen, in micrograms per liter}
+\item{"TP_ugL"}{Total phosphorus, in micrograms per liter}
+\item{"TotDissN_mgL"}{Total dissolved nitrogen, in micrograms per liter}
+\item{"TotDissP_ugL"}{Total dissolved phosphorus, in micrograms per liter}}}
 
 \item{include_censored}{Logical. If TRUE, the value column includes non-censored and censored values
 using the MDL/MRL/UQL values in the parameter flags. If the Flag column is not NA, that indicates
@@ -105,13 +121,18 @@ period <- 2006:2023
 mima_n <- getChemistry(park = "MIMA", years = period, parameter = n_params)
 
 # get lab pH for all sites in MIMA and SAIR
-ma_parks <- getChemistry(park = c("SAIR", "MIMA"), param = "pH_Lab")
+ma_parks <- getChemistry(park = c("SAIR", "MIMA"), parameter = "pH_Lab")
 
 # get chemistry for all ACAD lakes sampled in April for acidification
 ACAD_lake4<- getChemistry(park = 'ACAD', site_type = 'lake', months = 4, event_type = 'all')
 
 # get ANC for lower NETN parks from May to Oct
 lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
-anc <- getChemistry(park = lnetn, param = "ANC", months = 5:10)
+anc <- getChemistry(park = lnetn, parameter = "ANC_ueqL", months = 5:10)
+
+# get censored and non-censored NH3 data for LNETN all years. Note the Flag column
+indicates the measurement is censored by reporting the detection limit used.
+lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
+nh3_cen <- getChemistry(park = lnetn, parameter = "NH3_mgL", include_censored = T)
 }
 }

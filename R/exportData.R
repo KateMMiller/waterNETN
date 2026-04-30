@@ -2,19 +2,18 @@
 #'
 #' @description This function exports NETN water package views from the database that generates the views as
 #' individual .csv files, or as a zip file with the dataset name (NETN_Water_Data_Package), and the date it
-#' was zipped. The exported .csv or .zip files can then be imported via importData(). This function is primarily
-#' for internal use to create flat files that users can import to run functions in this package without having
+#' was zipped. The exported .csv or .zip files can then be imported via importData().
+#' This function is primarily for internal use to create flat files that users can import to run functions in this package without having
 #' a connection having MS Access installed. Must first import the views in the current R session.
 #'
 #' @param filepath Quoted path to save files to. If not specified, will save to your working directory.
 #'
-#' @param zip Logical. If TRUE, exports a zip file. If FALSE (Default), exports individual csvs.
+#' @param zip Logical. If TRUE, exports a zip file. If FALSE (Default), exports individual CSVs.
 #'
 #' @return NETN water database views exported to specified path
 #'
 #' @examples
 #' \dontrun{
-#' # RUN FIRST
 #' library(waterNETN)
 #' importData()
 #'
@@ -26,8 +25,7 @@
 #'
 #' # Export views as .csvs to specified path
 #' exportData(filepath = "C:/data")
-#'}
-#'
+#' }
 #' @export
 
 exportData <- function(filepath = NA, zip = FALSE){

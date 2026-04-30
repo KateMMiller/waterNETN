@@ -7,7 +7,7 @@
 #'
 #' @importFrom dplyr filter inner_join left_join
 #'
-#' @param park Combine data from all parks or one or more parks at a time. Valid inputs:
+#' @param park Character or character vector. Combine data from all parks (by UnitCode) or one or more parks at a time. Valid inputs:
 #' \describe{
 #' \item{"all"}{Includes all parks in the network}
 #' \item{"LNETN"}{Includes all parks but ACAD}
@@ -21,9 +21,9 @@
 #' \item{"SARA"}{Saratoga NHP only}
 #' \item{"WEFA"}{Weir Farm NHP only}}
 #'
-#' @param site Filter on 6-letter SiteCode (e.g., "ACANTB", "WEFAPA", etc.). Easiest way to pick a site. Defaults to "all".
+#' @param site Character or character vector. Filter on 6-letter SiteCode (e.g., "ACANTB", "WEFAPA", etc.). Easiest way to pick a site. Defaults to "all".
 #'
-#' @param event_type Select the event type. Options available are below Can only choose one option.
+#' @param event_type Character. Select the event type (Project), can only choose one option. Valid inputs:
 #' \describe{
 #' \item{"all"}{All possible sampling events.}
 #' \item{"VS"}{Default. NETN Vital Signs monitoring events, which includes Projects named 'NETN_LS' and 'NETN+ACID'.}
@@ -46,13 +46,16 @@
 #' \dontrun{
 #' importData()
 #'
-#' # get light penetration for the Pogue in MABI from 2021-2023
+#' # Get light penetration for the Pogue in MABI from 2021-2023
 #' mabi <- getLightPen(site = "MABIPA", years = 2021:2023)
 #'
-#' # get light penetration for all ACAD lakes sampled in August
+#' # Get light penetration for all ACAD lakes sampled in August
 #' ACAD_lake <- getLightPen(park = 'ACAD', months = 8)
 #'
+#'# Get light penetration for the given ACAD sites related to the ACAD_ACID project
+#' acad_acid1 <- getChemistry(site = c("ACJORD", "ACEAGL", "ACBUBL"), event_type = "acid")
 #' }
+#'
 #' @export
 
 getLightPen <- function(park = "all", site = "all", event_type = "VS",

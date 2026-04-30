@@ -1,10 +1,11 @@
 Package: waterNETN
 Title: Package for importing, querying, summarizing and visualizing NETN water data
-Version: 1.01
+Version: 1.02
 Authors@R: c(
     person('Kate', 'Miller', email = 'kathryn_miller@nps.gov', role = c('aut', 'cre')),
     person('Jess', 'Pollack', role = 'aut'),
-    person('Kathleen', 'Brown', role = 'aut'))
+    person('Kathleen', 'Brown', role = 'aut'),
+    person('EJ', 'Holm', role = 'aut'))
 Description: This package contains functions that import the water data package from 
     the NETN water backend and or exported CSVs of the water data package to perform 
     basic queries, data summaries and visualizations.
@@ -49,6 +50,7 @@ Suggests:
     jsonlite,
     odbc,
     raster,
+    RColorBrewer,
     readxl,
     rLakeAnalyzer,
     scales,

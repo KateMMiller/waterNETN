@@ -14,7 +14,7 @@ getStreamObs(
 )
 }
 \arguments{
-\item{park}{Combine data from all parks or one or more parks at a time. Valid inputs:
+\item{park}{Character or character vector. Combine data from all parks (by UnitCode) or one or more parks at a time. Valid inputs:
 \describe{
 \item{"all"}{Includes all parks in the network}
 \item{"LNETN"}{Includes all parks but ACAD}
@@ -28,14 +28,14 @@ getStreamObs(
 \item{"SARA"}{Saratoga NHP only}
 \item{"WEFA"}{Weir Farm NHP only}}}
 
-\item{site}{Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
+\item{site}{Character or character vector. Filter on 6-letter SiteCode (e.g., "ACABIN", "MORRSA", etc.). Easiest way to pick a site. Defaults to "all".}
 
 \item{years}{Numeric. Years to query. Accepted values start at 2006.}
 
 \item{months}{Numeric. Months to query by number. Accepted values range from 1:12. Note that most of the
 events are between months 5 and 10, and these are set as the defaults.}
 
-\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites that have been monitored.}
+\item{active}{Logical. If TRUE (Default) only queries actively monitored sites. If FALSE, returns all sites.}
 
 \item{output}{Specify if you want all fields returned (output = "verbose") or just the most important fields (output = "short"; default.)}
 }
@@ -55,5 +55,8 @@ mabi <- getStreamObs(park = "MABI")
 # get observations for all streams in ACAD May 2023
 ACAD_streams <- getStreamObs(park = 'ACAD', years = 2023, months = 5)
 
+#get the long versions of stream observations in LNETN parks from May to October
+lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
+lnetn <- getStreamObs(park = lnetn, months = 5:10, output = "verbose")
 }
 }

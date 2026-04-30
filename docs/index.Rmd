@@ -231,7 +231,7 @@ prepFMtoAccess(filepath = "../data", excel_name = "ACAD_WQ_Lakes_2025-06.xlsx", 
 
 <p class = 'fxn'>Clean stream data.</p>
 ```{r eval = F}
-prepFMtoAccess(filepath = "../data", excel_name = "ACAD_WQ_Streams_2025-06.xlsx")
+prepFMtoAccess(filepath = "../data", excel_name = "ACAD_WQ_Stream_2025-06.xlsx")
 ```
 
 
@@ -340,34 +340,49 @@ print_head(morr)
 ##### getSites()
 Query site-level data. This function combines columns in common between the Sites_Stream and Sites_Lake views. This is a good building block for other functions, but may be less helpful on its own. Though, one helpful use of this function is to get the site codes for a given park or site.
 
-<p class = 'fxn'>Get site info for ACAD lakes</p>
+<p class = 'fxn'>Get site info for ACAD streams</p>
 ```{r}
-ACAD_lakes <- getSites(park = "ACAD", site_type = "lake")
+ACAD_streams <- getSites(park = 'ACAD', site_type = 'stream')
+print_head(ACAD_streams)# top 6 rows
 ```
 
-<p class = 'fxn'>Get site info for the Pogue</p>
+<p class = 'fxn'>Get site info for all sites in MABI
 ```{r}
-pogue <- getSites(site = "MABIPA")
+mabi <- getSites(park = "MABI")
+print_head(mabi)# top 6 rows
 ```
 
 <p class = 'fxn'>List site codes and their full site name for SARA</p>
 ```{r}
 sara_sites <- getSites(park = "SARA") |> select(SiteCode, SiteName)
-print_head(sara_sites)
+print_head(sara_sites)# top 6 rows
+```
+
+<p class = 'fxn'> Get all fields of site info for Primrose Brook in MORR </p>
+```{r}
+prim <- getSites(site = "MORRSB", output = "verbose")
+print_head(prim)# top 6 rows
 ```
 
 ##### getSitesLake()
 Query site-level data for lakes only. This returns lake-only columns in the Sites_Lake views
 <p class = 'fxn'>Get site info for ACAD lakes</p>
 ```{r}
-ACAD_str <- getSitesLake(park = "ACAD")
-print_head(ACAD_str)
+ACAD_lakes <- getSitesLake(park = "ACAD")
+print_head(ACAD_lakes)# top 6 rows
 ```
 
 <p class = 'fxn'>Get all site info for the Pogue Pond</p>
 ```{r}
 pogue <- getSitesLake(site = "MABIPA", output = 'verbose')
-print_head(pogue)
+print_head(pogue)# top 6 rows
+```
+
+<p class = 'fxn'>Get all site info for lakes in LNETN</p>
+```{r}
+lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
+lnetn_lks <- getSitesLake(park = lnetn)
+print_head(lnetn_lks)# top 6 rows
 ```
 
 ##### getSitesStream()
@@ -375,35 +390,41 @@ Query site-level data for streams only. This returns stream-only columns in the 
 <p class = 'fxn'>Get site info for ACAD streams</p>
 ```{r}
 ACAD_str <- getSitesStream(park = "ACAD")
-print_head(ACAD_str)
+print_head(ACAD_str)# top 6 rows
 ```
 
 <p class = 'fxn'>Get all site info for the Pogue Stream</p>
 ```{r}
 poguestr <- getSitesStream(site = "MABISA", output = 'verbose')
-print_head(poguestr)
+print_head(poguestr)# top 6 rows
+```
+
+<p class = 'fxn'>Get all site info for streams in LNETN</p>
+```{r}
+lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
+lnetn_str <- getSitesStream(park = lnetn)
+print_head(lnetn_str)# top 6 rows
 ```
 
 #### getEvents()
 Query water data by park, site, site_type, year and month. 
 
-<p class = 'fxn'>Get event info for Witch Hole Pond in ACAD in 2023</p>
+<p class = 'fxn'>Get events for all sites in MABI from 2021-2023</p>
 ```{r}
-ACAD_lakes <- getEvents(site = "ACWHOL", years = 2023)
-print_head(ACAD_lakes)
+mabi <- getEvents(park = "MABI", years = 2021:2023)
+print_head(mabi)# top 6 rows
 ```
 
-<p class = 'fxn'>Get event info for all years in the Pogue</p>
+<p class = 'fxn'>Get events for SARA sites sampled in 2019 and 2023</p>
 ```{r}
-pogue <- getEvents(site = "MABIPA", years = 2006:2023)
-print_head(pogue)
+sara <- getEvents(park = "SARA", years = c(2019, 2023))
+print_head(sara) # top 6 rows
 ```
 
-<p class = 'fxn'>Get date of sampling each site in lower NETN in May, 2023</p>
+<p class = 'fxn'>Get info for all ACAD lakes sampled in April</p>
 ```{r}
-lnetn_evs <- getEvents(park = "LNETN", years = 2023, months = 5) |> 
-  select(SiteCode, SiteName, EventDate)
-print_head(lnetn_evs) #just printing first 6 rows
+ACAD_lake <- getEvents(park = 'ACAD', site_type = 'lake', months = 4, event_type = 'all')
+print_head(ACAD_lake) # top 6 rows
 ```
 
 #### getChemistry()
@@ -419,60 +440,87 @@ mima_n <- getChemistry(park = "MIMA", years = period, parameter = n_params)
 print_head(mima_n) # top 6 rows
 ```
 
-<p class = 'fxn'>Get results for all surface samples, including QC samples, in Browns Brook in 2023 in ACAD</p>
+<p class = 'fxn'>Get chemistry data for all sites and all parameters in MABI from 2021-2023</p>
 ```{r}
-brbk <- getChemistry(site = "ACBRWN", QC_type = "all", param = "all", 
-                     years = 2023)
-print_head(brbk)
+mabi <- getChemistry(park = "MABI", years = 2021:2023)
+print_head(mabi)# top 6 rows
 ```
 
-<p class = 'fxn'>Get ANC for LNETN parks for all years during month of May. Note that by not specifying years, all years by default will be included in the output.</p>
+<p class = 'fxn'>Get lab pH for all sites in MIMA and SAIR. Note that by not specifying years, all years by default will be included in the output.</p>
 ```{r}
-anc <- getChemistry(park = "LNETN", param = "ANC", months = 5)
-print_head(anc)
+ma_parks <- getChemistry(park = c("SAIR", "MIMA"), parameter = "pH_Lab")
+print_head(ma_parks)# top 6 rows
 ```
 
-<p class = 'fxn'>Get  for ACAD lakes from 2021:2023 from all sample depths.</p>
+<p class = 'fxn'>Get chemistry for all ACAD lakes sampled in April for acidification.</p>
 ```{r}
-surf <- getChemistry(park = "ACAD", site_type = "lake", years = 2021:2023)
-print_head(surf)
+ACAD_lake<- getChemistry(park = 'ACAD', site_type = 'lake', months = 4, event_type = 'all')
+print_head(ACAD_lake)# top 6 rows
+```
+
+<p class = 'fxn'>Get ANC for lower NETN parks from May to Oct.</p>
+```{r}
+lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
+anc <- getChemistry(park = lnetn, parameter = "ANC_ueqL", months = 5:10)
+print_head(anc)# top 6 rows
 ```
 
 <p class = 'fxn'>Get censored and non-censored NH3 data for LNETN all years. Note the Flag column indicates the measurement is censored by reporting the detection limit used.</p>
+
 ```{r}
-cens <- getChemistry(park = "LNETN", param = "NH3", include_censored = TRUE)
-print_head(cens) 
+lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
+nh3_cen <- getChemistry(park = lnetn, parameter = "NH3_mgL", include_censored = T)
+print_head(nh3_cen)# top 6 rows
 ```
+
 
 #### getDischarge()
 This function allows you to query the Discharge_Data view by park, site, site type, year, month, measurement method (e.g., flowtracker or pygmy), and measurement rating (e.g., E, G, F, P). Note that you can also return all columns or a reduced set of columns with the output argument. Default is output = 'short'. This function is set up to work with site_type = 'stream', so you don't have to specify that.
 
-<p class = 'fxn'>Get discharge data for all LNETN sites and years measured with flowtracker </p>
+<p class = 'fxn'>Get discharge for all sites in SARA from 2022-2024 </p>
 ```{r}
-ft <- getDischarge(park = "LNETN", method = "Pygmy")
-print_head(ft)
+sara <- getDischarge(park = "SARA", years = 2022:2024)
+print_head(sara)# top 6 rows
 ```
 
-<p class = 'fxn'>Get discharge data for all ACAD streams with measurement rating of Excellent or Good </p>
+<p class = 'fxn'>Get discharge for ACAD streams in July 2023 </p>
 ```{r}
-acad <- getDischarge(park = "ACAD", rating = c("E", "G"))
-str(acad) # structure of returned data
+acad_dis <- getDischarge(park = "ACAD", years = 2023, months = 7)
+print_head(acad_dis)# top 6 rows
+```
+
+<p class = 'fxn'>Get discharge measured with Flowtracker </p>
+```{r}
+flow <- getDischarge(method = c("Flowtracker"))
+print_head(flow)# top 6 rows
+```
+
+<p class = 'fxn'>Get excellent rated measurements only for MIMA</p>
+```{r}
+exc <- getDischarge(park = "MIMA", rating = "E")
+print_head(exc)# top 6 rows
 ```
 
 #### getLightPen()
 This function allows you to query the Light_Penetration_Data view by park, site, site type, year, and month. Again output = 'short' is the default. If specify output = 'verbose', you'll get all possible columns. This is only set up to work with site_type = 'lake', so you don't have to specify that.
 
-<p class = 'fxn'>Get light penetration for Weir Pond from 2013 - 2023 all months.</p> 
+<p class = 'fxn'>Get light penetration for the Pogue in MABI from 2021-2023.</p> 
 ```{r}
-period <- 2013:2023
-wefa <- getLightPen(park = "WEFA", years = period)
-print_head(wefa) # top 6 rows
+ mabi <- getLightPen(site = "MABIPA", years = 2021:2023)
+print_head(mabi)# top 6 rows
 ```
 
-<p class = 'fxn'>Get light penetration for ACAD lakes in 2023 in July and August.</p> 
+<p class = 'fxn'>Get light penetration for all ACAD lakes sampled in August.</p> 
 ```{r}
-acad <- getLightPen(park = "ACAD", years = 2023, months = 7:8)
+acad <- getLightPen(park = 'ACAD', months = 8)
 print_head(acad) # top 6 rows
+```
+
+
+<p class = 'fxn'>Get light penetration for the given ACAD sites related to the ACAD_ACID project.</p> 
+```{r}
+acad_acid <- getChemistry(site = c("ACJORD", "ACEAGL", "ACBUBL"), event_type = "acid")
+print_head(acad_acid) # top 6 rows
 ```
 
 #### getSecchi()
@@ -480,13 +528,20 @@ This function allows you to query Secchi data by park, site, site type, years, m
 <p class = 'fxn'>Get Secchi depth the Pogue from 2021-2023, first observer only</p>
 ```{r}
 mabi <- getSecchi(site = "MABIPA", years = 2021:2023, observer_type = "first")
-print_head(mabi)
+print_head(mabi)# top 6 rows
 ```
 
 <p class = 'fxn'>Get Secchi for all ACAD lakes sampled in July for all observers
 ```{r}
 ACAD_lake <- getSecchi(park = 'ACAD', months = 7)
-print_head(ACAD_lake)
+print_head(ACAD_lake)# top 6 rows
+```
+
+<p class = 'fxn'>Get the long version of Secchi depth for all LNETN parks from May to October
+```{r}
+lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
+lnetn_secchi <- getSecchi(park = lnetn, months = 5:10, output = "verbose") 
+print_head(lnetn_secchi)# top 6 rows
 ```
 
 #### getSondeInSitu()
@@ -495,7 +550,7 @@ This function allows you to query Sonde in situ data by park, site, site type, y
 <p class = 'fxn'>Get Sonde data for all sites and parameters in MABI from 2021-2023 for non-QAQC samples</p>
 ```{r}
 mabi <- getSondeInSitu(park = "MABI", years = 2021:2023)
-print_head(mabi)
+print_head(mabi)# top 6 rows
 ```
 
 <p class = 'fxn'>get data for all DO parameters in MIMA from 2006-2023 for non-QAQC samples</p>
@@ -503,19 +558,21 @@ print_head(mabi)
 params <- c("DOsat_pct", "DOsatLoc_pct", "DO_mgL")
 period <- 2006:2023
 mima_do <- getSondeInSitu(park = "MIMA", years = period, parameter = params)
-print_head(mima_do)
+print_head(mima_do)# top 6 rows
 ```
 
 <p class = 'fxn'>Get Temp data for all sample depths in Jordan Pond in ACAD for non-QAQC samples</p>
 ```{r}
 ACAD_lake <- getSondeInSitu(site = 'ACJORD', parameter = "Temp_C", 
                             sample_depth = "all")
+print_head(ACAD_lake)
 ```
 
 <p class = 'fxn'>Get pH for lower NETN parks from May to Oct for QAQC and non-QAQC samples</p>
 ```{r}
 lnetn_ph <- getSondeInSitu(park = "LNETN", param = "pH", months = 5:10, 
                            QC_type = 'all')
+print_head(lnetn_ph)# top 6 rows
 ```
 
 #### getStreamObs()
@@ -523,12 +580,20 @@ This function allows you to query stream observation data by park, site, year an
 <p class = 'fxn'>Get stream observations for Pogue Stream all years</p>
 ```{r}
 mabi <- getStreamObs(park = "MABI")
-print_head(mabi)
+print_head(mabi)# top 6 rows
 ```
+
 <p class = 'fxn'>Get observations for all streams in ACAD May 2023 </p>
 ```{r}
 ACAD_streams <- getStreamObs(park = 'ACAD', years = 2023, months = 5)
-print_head(ACAD_streams)
+print_head(ACAD_streams)# top 6 rows
+```
+
+<p class = 'fxn'>Get the long versions of stream observations in LNETN parks from May to October </p>
+```{r}
+lnetn <- c("MABI", "MIMA", "MORR", "ROVA", "SAGA", "SAIR", "SARA", "WEFA")
+lnetn_obs <- getStreamObs(park = lnetn, months = 5:10, output = "verbose")
+print_head(lnetn_obs)# top 6 rows
 ```
 
 #### getWaterLevel()
@@ -537,13 +602,19 @@ This function joins stage and water level data, and allows you to query by park,
 <p class = 'fxn'>Get water level data for Bubble Pond. </p>
 ```{r}
 bubl <- getWaterLevel(site = "ACBUBL", years = 2013:2023)
-print_head(bubl)
+print_head(bubl)# top 6 rows
 ```
 
 <p class = 'fxn'>Get water level data for Weir Pond in August. </p>
 ```{r}
 weir <- getWaterLevel(site = "WEFAPA", months = 8)
-print_head(weir)
+print_head(weir)# top 6 rows
+```
+
+<p class = 'fxn'>Get water level data for ACAD lakes in July 2023. </p>
+```{r}
+acad_jul <- getWaterLevel(park = "ACAD", years = 2023, months = 7)
+print_head(acad_jul)
 ```
 
 ### Plotting Functions {.tabset}
@@ -572,10 +643,10 @@ plotWaterBands(site = "ACJORD", year_curr = 2023, years_historic = 2006:2022,
   parameter = "TN_mgL", legend_position = 'right', include_censored = T, threshold = F, gridlines = "grid_x")
 ```
 
-<p class = 'fxn'>Plot Temp in F in SARA sites in 2023 without gridlines (default)</p>
+<p class = 'fxn'>Plot TN in Kroma Kill in SARA in 2023, with no gridlines (Default)</p>
 ```{r message = FALSE, warning = FALSE}
-plotWaterBands(park = "SARA", year_curr = 2023, years_historic = 2006:2022, parameter = "Temp_F",
-  legend_position = 'right')
+plotWaterBands(site = "SARASA", year_curr = 2023, years_historic = 2006:2022, parameter = "TN",
+               legend_position = 'right')
 ```
 
 #### plotScatterPlot()
@@ -588,7 +659,7 @@ plotScatterPlot(park = "ROVA", parameters = c("DO_mgL", "Temp_C"),
 
 ```
 
-<p class = 'fxn'>Plot Secchi depth vs. surface DOC in Eagle Lake, Jordon Pond, Echo Lake, and Witch Hole Pond</p>
+<p class = 'fxn'>Plot Secchi depth vs. surface DOC in Eagle Lake, Jordan Pond, Echo Lake, and Witch Hole Pond</p>
 ```{r message = FALSE, warning = FALSE}
 plotScatterPlot(site = c("ACEAGL", "ACJORD", "ACWHOL", "ACECHO"), parameters = c("SDepth_m", "DOC_mgL"),
   span = 0.9, facet_site = F, legend_position = 'bottom', palette = c("red", "orange", "purple4", "blue"))
@@ -644,7 +715,7 @@ There are several arguments to customize plots.
 <details open><summary class='drop'>Single site; single parameter</summary>
 <p class = 'fxn'>Plot non-smoothed surface pH for Eagle Lake for all years with gridlines on y-axis. </p>
 ```{r message = FALSE, warning = FALSE}
-plotTrend(site = "ACEAGL", parameter = "pH", smooth = FALSE, gridlines = 'grid_y')
+plotTrend(site = "ACEAGL", parameter = "pH", palette = 'mako', years = 2021:2023) + theme_WQ()
 
 ```
 
@@ -883,9 +954,16 @@ This function produces a plot with dual y-axes, one for precipitation and one fo
 plotPrecipDischarge(site = c("MIMASA"), years = 2021:2023, gridlines = "grid_y", units = "eng")
 
 ```
-<p class = 'fxn'>Plot Discharge for Aunt Betty Inlet and Kebo Stream for 2022 using different colors. Note that this can be slow because has to download precip. data from NADP. LNETN parks download from a faster web service. </p>
+
+<p class = 'fxn'>Plot daily precipitation vs discharge for all ROVA sites in 2021, only accepting observations of"Excellent", "Good", or "Fair". </p>
 ```{r message=FALSE, warning=FALSE}
-plotPrecipDischarge(site = c("ACABIN", "ACKEBO"), years = 2022, palette = c("cornflowerblue", "orange"))
+plotPrecipDischarge(park = "ROVA", years = 2021, rating = c("E", "G", "F"))
+
+```
+
+<p class = 'fxn'>Plot Discharge for Aunt Betty Inlet and Kebo Stream for 2024 using different colors. Note that this can be slow because has to download precip. data from NADP. LNETN parks download from a faster web service. </p>
+```{r message=FALSE, warning=FALSE}
+plotPrecipDischarge(site = c("ACABIN", "ACKEBO"), years = 2024, palette = c("cornflowerblue", "orange"))
 
 ```
 
