@@ -41,15 +41,13 @@ queries in the NETN water data package. Each view is added to a VIEWS_WQ environ
 your workspace, or to your global environment, based on whether new_env = TRUE or FALSE.
 }
 \examples{
+\dontrun{
 library(waterNETN)
 # Import tables using default settings of type = "DSN" and odbc = "NETNWQ_DP"
 importData()
 
 # Import views from specified database
 importData(type = 'dbfile', filepath = "C:/NETN/R_Dev/Water/data/NETN_H2Ov4_DataPackage_202331115.accdb")
-
-# Import data package views
-importData(type = 'zip', filepath = "C:/Users/KMMiller/OneDrive - DOI/NETN/R_Dev/Water/data/records-2313941.zip")
 
 # Import views from folder with csvs
 importData(type = 'csv', filepath = "C:/Users/KMMiller/OneDrive - DOI/NETN/R_Dev/Water/data/records-2313941")
@@ -58,5 +56,10 @@ importData(type = 'csv', filepath = "C:/Users/KMMiller/OneDrive - DOI/NETN/R_Dev
 importData(type = 'zip',
 filepath = "C:/NETN/R_Dev/Water/data/data_package/NETN_Water_data_package_20240927.zip")
 
+#  Import data via data package database DSN (Data Source Name) on your computer.
+
+importData() # easiest but must have DSN set up
+importData(type = 'DSN', odbc = "NETNWQ_DP") # equivalent to line above
+}
 
 }

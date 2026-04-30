@@ -54,6 +54,7 @@ Data frame of water level data
 Queries NETN water level data by site, year, and month.
 }
 \examples{
+\dontrun{
 importData()
 
 # Get water level data for Bubble Pond.
@@ -63,6 +64,6 @@ bubl <- getWaterLevel(site = "ACBUBL", years = 2013:2023)
 weir <- getWaterLevel(site = "WEFAPA", months = 8)
 
 #Get water level data for ACAD lakes in July 2023.
-sara <- getWaterLevel(park = "ACAD", years = 2023, months = 7)
-
+acad_jul <- getWaterLevel(park = "ACAD", years = 2023, months = 7)
+}
 }

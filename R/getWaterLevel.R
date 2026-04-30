@@ -41,6 +41,7 @@
 #' @return Data frame of water level data
 #'
 #' @examples
+#' \dontrun{
 #' importData()
 #'
 #' # Get water level data for Bubble Pond.
@@ -51,7 +52,7 @@
 #'
 #' #Get water level data for ACAD lakes in July 2023.
 #' acad_jul <- getWaterLevel(park = "ACAD", years = 2023, months = 7)
-#'
+#' }
 #' @export
 
 getWaterLevel <- function(park = "all", site = "all",

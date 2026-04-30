@@ -30,6 +30,7 @@
 #' views in VIEWS_WQ environment. If \code{FALSE}, stores views in global environment.
 #'
 #' @examples
+#' \dontrun{
 #' library(waterNETN)
 #' # Import tables using default settings of type = "DSN" and odbc = "NETNWQ_DP"
 #' importData()
@@ -48,7 +49,7 @@
 #'
 #'importData() # easiest but must have DSN set up
 #'importData(type = 'DSN', odbc = "NETNWQ_DP") # equivalent to line above
-#'
+#' }
 #'
 #' @return Assigns water csvs to specified environment.
 #' @export
