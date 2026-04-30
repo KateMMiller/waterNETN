@@ -154,18 +154,18 @@ only collected in lakes), the function will return an error message instead of a
 not permitted in this function.
 }
 \examples{
-
+\dontrun{
 # Plot Temp vs DO for ROVA all years on same figure
 plotScatterPlot(park = "ROVA", parameters = c("DO_mgL", "Temp_C"),
   palette = 'viridis', facet_site = F, legend_position = "bottom")
 
-# Plot Secchi depth vs. surface DOC in Eagle Lake, Jordon Pond, Echo Lake, and Witch Hole Pond
+# Plot Secchi depth vs. surface DOC in Eagle Lake, Jordan Pond, Echo Lake, and Witch Hole Pond
 plotScatterPlot(site = c("ACEAGL", "ACJORD", "ACWHOL", "ACECHO"), parameters = c("SDepth_m", "DOC_mgL"),
   span = 0.9, facet_site = F, legend_position = 'bottom')
 
-# Plot Secchi depth vs. surface TN in Eagle Lake, Jordon Pond, and Witch Hole Pond
-plotScatterPlot(site = c("ACEAGL", "ACJORD", "ACWHOL"), parameters = c("SDepth_m", "TN_mgL"),
-  span = 0.9, facet_site = F, legend_position = 'bottom')
+# Same as above, but points only
+plotScatterPlot(site = c("ACEAGL", "ACJORD", "ACWHOL", "ACECHO"), parameters = c("SDepth_m", "DOC_mgL"),
+span = 0.9, facet_site = F, legend_position = 'bottom', layers = 'points')
 
 # Plot smoothed discharge vs. specific conductance for the Pogue Brook using span of 0.9.
 plotScatterPlot(site = "MABISA", parameters = c("SpCond_uScm", "Discharge_cfs"), span = 0.9, palette = c("forestgreen"))
@@ -179,6 +179,6 @@ plotScatterPlot(park = "SARA", parameters = c("SpCond_uScm", "Discharge_cfs"), s
 
 # Plot TN vs discharge in SARA streams
 plotScatterPlot(park = "SARA", parameters = c("TN_mgL", "Discharge_cfs"), span = 0.9, facet_site = F)
-
+}
 
 }

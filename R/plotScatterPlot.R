@@ -138,7 +138,7 @@
 #' @param ... Additional arguments relevant to \code{getChemistry()} or \code{getSondeInSitu()}
 #'
 #' @examples
-#'
+#' \dontrun{
 #' # Plot Temp vs DO for ROVA all years on same figure
 #' plotScatterPlot(park = "ROVA", parameters = c("DO_mgL", "Temp_C"),
 #'   palette = 'viridis', facet_site = F, legend_position = "bottom")
@@ -147,7 +147,7 @@
 #' plotScatterPlot(site = c("ACEAGL", "ACJORD", "ACWHOL", "ACECHO"), parameters = c("SDepth_m", "DOC_mgL"),
 #'   span = 0.9, facet_site = F, legend_position = 'bottom')
 #'
-#' Same as above, but points only
+#' # Same as above, but points only
 #' plotScatterPlot(site = c("ACEAGL", "ACJORD", "ACWHOL", "ACECHO"), parameters = c("SDepth_m", "DOC_mgL"),
 #' span = 0.9, facet_site = F, legend_position = 'bottom', layers = 'points')
 #'
@@ -163,7 +163,7 @@
 #'
 #' # Plot TN vs discharge in SARA streams
 #' plotScatterPlot(park = "SARA", parameters = c("TN_mgL", "Discharge_cfs"), span = 0.9, facet_site = F)
-#'
+#' }
 #'
 #' @return Returns a ggplot scatterplot object.
 #'
@@ -342,7 +342,7 @@ plotScatterPlot <- function(park = "all", site = "all",
   x_lab <- ifelse(grepl("_", parameters[2]), paste0(gsub("_", " (", parameters[2]), ")"), paste0(parameters[2]))
 
   #-- Set up plotting features --
-  if(!palette %in% "viridis"){
+  if(!any(palette %in% "viridis")){
     if(!requireNamespace("RColorBrewer", quietly = TRUE)){
       stop("Package 'RColorBrewer' needed if palette is anything but 'viridis'. Please install it.",
            call. = FALSE)
@@ -350,7 +350,7 @@ plotScatterPlot <- function(park = "all", site = "all",
 
   vir_pal = ifelse(palette %in%
                      c("viridis", "magma", "plasma", "turbo", "mako", "rocket", "cividis", "inferno"),
-                   "viridis", "colbrew")
+                       "viridis", "colbrew")
 
   pal <-
     pal <-
