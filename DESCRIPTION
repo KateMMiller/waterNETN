@@ -37,6 +37,7 @@ Collate:
     'plotWaterBands.R'
     'prepFMtoAccess.R'
     'sumEvents.R'
+    'zzz.R'
 Imports: 
     dplyr,
     ggplot2,
