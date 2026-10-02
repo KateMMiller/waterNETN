@@ -60,6 +60,8 @@ parameter = c("ANC", "NH3", "pH", "Temp_C", "SDepth_m", "Discharge_csf", "Penetr
 
 ## Using the waterNETN R package {.tabset .tabset-pills}
 
+<h3 style='color:red;'>This website has been moved to <a href="https://doi-nps.github.io/waterNETN">https://doi-nps.github.io/waterNETN</a> and will no longer be updated on this site. The code repo for this site is <a href="https://github.com/DOI-NPS/waterNETN">https://github.com/DOI-NPS/waterNETN</a>.</h3>
+
 ### Getting started {.tabset}
 
 #### Installation
